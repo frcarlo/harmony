@@ -216,7 +216,8 @@
     "stream_unavailable": "Stream non disponibile",
     "connecting": "Connessione in corso…",
     "stop_stream": "Ferma stream",
-    "disconnected": "Connessione interrotta"
+    "disconnected": "Connessione interrotta",
+    "fullscreen": "Schermo intero"
   },
   "media": {
     "library": "Libreria multimediale",

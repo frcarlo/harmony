@@ -219,7 +219,8 @@
     "stream_unavailable": "Stream niet beschikbaar",
     "connecting": "Verbinden…",
     "stop_stream": "Stream stoppen",
-    "disconnected": "Verbinding verbroken"
+    "disconnected": "Verbinding verbroken",
+    "fullscreen": "Volledig scherm"
   },
   "media": {
     "library": "Mediabibliotheek",

@@ -219,7 +219,8 @@
     "stream_unavailable": "Flujo no disponible",
     "connecting": "Conectando…",
     "stop_stream": "Detener flujo",
-    "disconnected": "Conexión interrumpida"
+    "disconnected": "Conexión interrumpida",
+    "fullscreen": "Pantalla completa"
   },
   "media": {
     "library": "Biblioteca multimedia",
