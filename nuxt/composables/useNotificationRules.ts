@@ -28,7 +28,11 @@ export function useNotificationRules() {
   }
 
   async function loadRules() {
-    rules.value = await $fetch<NotificationRule[]>('/api/notification-rules')
+    try {
+      rules.value = await $fetch<NotificationRule[]>('/api/notification-rules')
+    } catch {
+      // unauthenticated
+    }
   }
 
   async function createRule(data: Omit<NotificationRule, 'id' | 'created_at'>) {

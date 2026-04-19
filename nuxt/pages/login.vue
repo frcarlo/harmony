@@ -38,6 +38,9 @@
             </v-btn>
           </div>
         </v-card-text>
+        <v-card-text class="pt-0 text-center">
+          <span class="text-caption text-medium-emphasis">v{{ config.public.appVersion }}</span>
+        </v-card-text>
       </v-card>
     </v-main>
   </v-app>
@@ -47,6 +50,7 @@
 definePageMeta({ layout: false })
 
 const { t } = useI18n()
+const config = useRuntimeConfig()
 const { data: appConfig } = await useFetch('/api/app-config')
 const keycloakEnabled = computed(() => appConfig.value?.keycloakEnabled ?? false)
 const { fetch: refreshSession } = useUserSession()
