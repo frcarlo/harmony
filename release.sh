@@ -84,9 +84,13 @@ with open('$PACKAGE', 'w') as f: json.dump(d, f, indent=2, ensure_ascii=False)
 print('  ' + '${CURRENT}' + ' → ' + '${NEW}')
 "
 
+# ── Update README badge ───────────────────────
+info "Updating README version badge..."
+sed -i "s|version-v[0-9]*\.[0-9]*\.[0-9]*-blue|version-v${NEW}-blue|g" README.md
+
 # ── Git commit & tag ───────────────────────────
 info "Committing..."
-git add "$PACKAGE"
+git add "$PACKAGE" README.md
 git commit -m "chore: bump version to v${NEW}"
 
 info "Creating tag v${NEW}..."
