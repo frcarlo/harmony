@@ -1,6 +1,6 @@
 services:
   ha-dashboard:
-    image: ha-dashboard-nuxt:latest
+    image: ghcr.io/frcarlo/harmony:latest
     volumes:
       - ha-dashboard-data:/app/data
     environment:
