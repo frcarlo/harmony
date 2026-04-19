@@ -18,18 +18,19 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     ['@vite-pwa/nuxt', {
       registerType: 'autoUpdate',
+      injectRegister: 'script',
+      strategies: 'generateSW',
       manifest: {
-        id: '/',
+        id: '/dashboard',
         name: 'HArmony',
         short_name: 'HArmony',
         description: 'Home Assistant Dashboard Builder',
         theme_color: '#0d1117',
         background_color: '#0d1117',
         display: 'standalone',
-        display_override: ['standalone', 'minimal-ui'],
         orientation: 'any',
         scope: '/',
-        start_url: '/',
+        start_url: '/dashboard',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -37,8 +38,8 @@ export default defineNuxtConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/',
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallback: '/dashboard',
+        navigateFallbackDenylist: [/^\/api\//, /^\/login/, /^\/setup/],
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
