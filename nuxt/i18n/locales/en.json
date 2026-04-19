@@ -1,0 +1,370 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "retry": "Retry",
+    "loading": "Loading…",
+    "unavailable": "Unavailable",
+    "on": "On",
+    "off": "Off",
+    "open": "Open",
+    "close_cover": "Close",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "status": "Status",
+    "last_updated": "Last updated",
+    "name": "Name"
+  },
+  "dashboard": {
+    "title": "My Dashboards",
+    "count_one": "1 Dashboard",
+    "count_other": "{n} Dashboards",
+    "empty_hint": "No dashboards yet. Create your first one!",
+    "empty_title": "No dashboards",
+    "empty_description": "Create your first dashboard and add widgets for your Home Assistant devices.",
+    "new": "New Dashboard",
+    "create_title": "Create new Dashboard",
+    "name_placeholder": "e.g. Living Room",
+    "icon": "Icon",
+    "edited": "Edited: {date}",
+    "delete_title": "Delete \"{name}\"?",
+    "delete_confirm": "This action cannot be undone.",
+    "deleted": "Dashboard \"{name}\" deleted",
+    "delete_error": "Delete failed",
+    "created": "Dashboard \"{name}\" created",
+    "create_error": "Could not create dashboard"
+  },
+  "toolbar": {
+    "add_widget": "Widget",
+    "save": "Save",
+    "glass_effect": "Glass Effect",
+    "theme": "Choose theme",
+    "background": "Background",
+    "bg_none": "No background",
+    "bg_placeholder": "CSS color or URL...",
+    "signed_in": "Signed in",
+    "user_mgmt": "User management",
+    "logout": "Sign out"
+  },
+  "connection": {
+    "connected": "Connected",
+    "connecting": "Connecting..."
+  },
+  "widget": {
+    "add_title": "Add Widget",
+    "config_title": "Configure Widget",
+    "none_selected": "No widget selected",
+    "unknown_type": "Unknown widget type",
+    "remove": "Remove",
+    "configure": "Configure",
+    "clone": "Duplicate",
+    "sensor": {
+      "label": "Sensor",
+      "description": "Display sensor value"
+    },
+    "switch": {
+      "label": "Switch",
+      "description": "On/Off toggle"
+    },
+    "light": {
+      "label": "Light",
+      "description": "Control light"
+    },
+    "chart": {
+      "label": "Chart",
+      "description": "Historical data as chart"
+    },
+    "camera": {
+      "label": "Camera",
+      "description": "Show camera feed"
+    },
+    "thermostat": {
+      "label": "Thermostat",
+      "description": "Control temperature"
+    },
+    "media_player": {
+      "label": "Media Player",
+      "description": "Control music/video"
+    },
+    "cover": {
+      "label": "Cover",
+      "description": "Control blinds/shutters"
+    },
+    "cover_dial": {
+      "label": "Cover Dial",
+      "description": "Cover with circular progress"
+    },
+    "cover_dial2": {
+      "label": "Cover Dial2",
+      "description": "Cover with circular progress"
+    },
+    "lock": {
+      "label": "Lock",
+      "description": "Control lock"
+    },
+    "weather": {
+      "label": "Weather",
+      "description": "Show weather data"
+    },
+    "clock": {
+      "label": "Clock",
+      "description": "Show time/date"
+    },
+    "label": {
+      "label": "Text",
+      "description": "Label/heading"
+    },
+    "room_card": {
+      "label": "Room Card",
+      "description": "Room overview with temp & status"
+    },
+    "calendar": {
+      "label": "Calendar",
+      "description": "Show today's events"
+    },
+    "person": {
+      "label": "Persons",
+      "description": "Who is home"
+    },
+    "energy": {
+      "label": "Energy",
+      "description": "Power & Solar overview"
+    }
+  },
+  "door": {
+    "label": "Door",
+    "description": "Show door status",
+    "open": "Open Door",
+    "close": "Close Door"
+  },
+  "lock": {
+    "door_open": "Door open",
+    "door_closed": "Door closed",
+    "door_sensor": "Door sensor"
+  },
+  "config": {
+    "entity": "Entity",
+    "display_name": "Display name (optional)",
+    "display_name_hint": "Auto from entity",
+    "unit": "Unit (optional)",
+    "unit_auto": "Auto",
+    "decimal_places": "Decimal places",
+    "show_brightness": "Show brightness slider",
+    "period": "Period",
+    "chart_type": "Chart type",
+    "line_color": "Line color",
+    "area_color": "Area color",
+    "dial_color": "Ring color",
+    "dial_bg_color": "Ring background color",
+    "refresh_interval": "Interval (seconds)",
+    "require_confirmation": "Confirm before unlocking",
+    "forecast_rows": "Forecast rows: {n}",
+    "format_24h": "24h format",
+    "show_date": "Show date",
+    "text": "Text",
+    "text_placeholder": "Heading...",
+    "font_size": "Font size",
+    "show_album_art": "Show album art",
+    "days": "Show days",
+    "show_time": "Show time",
+    "room_name": "Room name",
+    "show_temp_control": "Show temperature control",
+    "sensor_no_thermostat": "Sensor (without thermostat)",
+    "icon_field": "Icon (mdi-...)",
+    "light_dblclick_hint": "Double-click on the card toggles the light",
+    "status_entities": "Status entities",
+    "add_status": "Add status entity",
+    "inactive_color": "Color (inactive)",
+    "active_state": "Active state (optional)",
+    "active_state_hint": "e.g. locked, open, playing",
+    "appearance": "Appearance",
+    "bg_color": "Background color",
+    "border_color": "Border color",
+    "active_color": "Active color",
+    "text_color": "Text color",
+    "border_width": "Border width: {n}px",
+    "min_width": "Min width (px)",
+    "min_width_hint": "Current width: {n}px",
+    "period_1h": "1 hour",
+    "period_6h": "6 hours",
+    "period_24h": "24 hours",
+    "period_7d": "7 days",
+    "period_30d": "30 days",
+    "chart_line": "Line",
+    "chart_area": "Area",
+    "chart_bar": "Bar",
+    "font_sm": "Small",
+    "font_md": "Normal",
+    "font_lg": "Large",
+    "font_xl": "Extra large",
+    "days_1": "1 day",
+    "days_3": "3 days",
+    "days_7": "7 days",
+    "days_14": "14 days"
+  },
+  "entity_picker": {
+    "placeholder": "Search entity...",
+    "no_results": "No results",
+    "all_areas": "All areas"
+  },
+  "camera": {
+    "unavailable": "Camera unavailable",
+    "stream_unavailable": "Stream unavailable",
+    "connecting": "Connecting…",
+    "stop_stream": "Stop stream",
+    "disconnected": "Connection lost"
+  },
+  "media": {
+    "library": "Media Library",
+    "no_content": "No content found",
+    "load_error": "Error loading content"
+  },
+  "thermostat": {
+    "mode_heat": "Heating",
+    "mode_cool": "Cooling",
+    "mode_auto": "Auto",
+    "mode_off": "Off"
+  },
+  "climate_detail": {
+    "current_temp": "Current Temperature",
+    "humidity": "Humidity",
+    "mode": "Mode",
+    "preset": "Preset",
+    "preset_none": "None",
+    "mode_heat_cool": "Heat & Cool",
+    "mode_fan_only": "Fan Only",
+    "mode_dry": "Dry",
+    "action_heating": "Heating",
+    "action_cooling": "Cooling",
+    "action_idle": "Idle",
+    "action_fan": "Fan",
+    "action_drying": "Drying"
+  },
+  "weather": {
+    "sunny": "Sunny",
+    "clear_night": "Clear",
+    "partlycloudy": "Partly cloudy",
+    "cloudy": "Cloudy",
+    "fog": "Fog",
+    "hail": "Hail",
+    "lightning": "Lightning",
+    "lightning_rainy": "Thunderstorm",
+    "pouring": "Heavy rain",
+    "rainy": "Rain",
+    "snowy": "Snow",
+    "snowy_rainy": "Sleet",
+    "windy": "Windy",
+    "windy_variant": "Windy",
+    "exceptional": "Extreme"
+  },
+  "cover": {
+    "open": "Open",
+    "opening": "Opening…",
+    "closed": "Closed",
+    "closing": "Closing…",
+    "stopped": "Stopped"
+  },
+  "cover_detail": {
+    "open": "Open",
+    "close": "Close",
+    "stop": "Stop",
+    "position": "Position"
+  },
+  "room_card": {
+    "light_on": "Light on",
+    "light_off": "Light off"
+  },
+  "detail": {
+    "brightness": "Brightness",
+    "color_temp": "Color temperature"
+  },
+  "media_player": {
+    "idle": "Ready",
+    "off": "Off"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No rules configured yet.",
+    "add_rule": "Add Rule",
+    "edit_rule": "Edit Rule",
+    "rule_name": "Name",
+    "trigger_entity": "Trigger Entity",
+    "trigger_state": "Trigger State",
+    "action_entity": "Action Entity",
+    "type_camera": "Camera",
+    "type_entity": "Entity",
+    "cooldown": "Cooldown",
+    "trigger_event_type": "Event type (optional)",
+    "any_event": "Any event",
+    "event_hint": "Fires on every trigger of the event entity (regardless of state).",
+    "log": "History",
+    "log_empty": "No history yet."
+  },
+  "notification": {
+    "live": "View live",
+    "details": "Details"
+  },
+  "person": {
+    "home": "Home",
+    "away": "Away",
+    "persons": "Persons",
+    "add_person": "Add person"
+  },
+  "energy": {
+    "grid": "Grid",
+    "solar": "Solar",
+    "battery": "Battery",
+    "importing": "Importing",
+    "exporting": "Exporting"
+  },
+  "login": {
+    "title": "HA Dashboard",
+    "tab_local": "Local",
+    "tab_keycloak": "Keycloak",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "keycloak_btn": "Sign in with Keycloak",
+    "error_default": "Login failed"
+  },
+  "setup": {
+    "subtitle": "Create first admin account",
+    "confirm_password": "Confirm password",
+    "submit": "Create admin & sign in",
+    "error_required": "Required",
+    "error_min_length": "At least 8 characters",
+    "error_mismatch": "Passwords do not match",
+    "error_default": "Error creating account"
+  },
+  "users": {
+    "title": "User management",
+    "heading": "Users",
+    "subtitle": "Manage users, roles and dashboard access.",
+    "new_user": "New user",
+    "tab_users": "Users",
+    "tab_audit": "Audit log",
+    "local_account": "Local account",
+    "access_title": "Dashboard access for {name}",
+    "access_hint": "Nothing selected = all dashboards visible.",
+    "promote": "Promote to admin",
+    "demote": "Demote to user",
+    "delete_title": "Delete user?",
+    "delete_body": "\"{name}\" will be permanently deleted.",
+    "create": "Create",
+    "audit_empty": "No actions logged yet.",
+    "audit_dashboard_create": "created dashboard:",
+    "audit_dashboard_save": "saved dashboard:",
+    "audit_dashboard_delete": "deleted dashboard:",
+    "audit_user_create": "created user:",
+    "audit_user_delete": "deleted user:",
+    "audit_user_role_change": "changed role:",
+    "error_default": "Error"
+  }
+}

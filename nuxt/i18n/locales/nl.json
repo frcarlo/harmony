@@ -1,0 +1,370 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "add": "Toevoegen",
+    "create": "Aanmaken",
+    "retry": "Opnieuw",
+    "loading": "Laden…",
+    "unavailable": "Niet beschikbaar",
+    "on": "Aan",
+    "off": "Uit",
+    "open": "Openen",
+    "close_cover": "Sluiten",
+    "locked": "Vergrendeld",
+    "unlocked": "Ontgrendeld",
+    "lock": "Vergrendelen",
+    "unlock": "Ontgrendelen",
+    "status": "Status",
+    "last_updated": "Laatst bijgewerkt",
+    "name": "Naam"
+  },
+  "dashboard": {
+    "title": "Mijn dashboards",
+    "count_one": "1 dashboard",
+    "count_other": "{n} dashboards",
+    "empty_hint": "Geen dashboards. Maak het eerste aan!",
+    "empty_title": "Geen dashboards",
+    "empty_description": "Maak je eerste dashboard aan en voeg widgets toe voor je Home Assistant-apparaten.",
+    "new": "Nieuw dashboard",
+    "create_title": "Dashboard aanmaken",
+    "name_placeholder": "Bijv. Woonkamer",
+    "icon": "Icoon",
+    "edited": "Bewerkt: {date}",
+    "delete_title": "\"{name}\" verwijderen?",
+    "delete_confirm": "Deze actie kan niet ongedaan worden gemaakt.",
+    "deleted": "Dashboard \"{name}\" verwijderd",
+    "delete_error": "Verwijderen mislukt",
+    "created": "Dashboard \"{name}\" aangemaakt",
+    "create_error": "Dashboard kon niet worden aangemaakt"
+  },
+  "toolbar": {
+    "add_widget": "Widget",
+    "save": "Opslaan",
+    "glass_effect": "Glaseffect",
+    "theme": "Thema kiezen",
+    "background": "Achtergrond",
+    "bg_none": "Geen achtergrond",
+    "bg_placeholder": "CSS-kleur of URL...",
+    "signed_in": "Aangemeld",
+    "user_mgmt": "Gebruikersbeheer",
+    "logout": "Afmelden"
+  },
+  "connection": {
+    "connected": "Verbonden",
+    "connecting": "Verbinden..."
+  },
+  "widget": {
+    "add_title": "Widget toevoegen",
+    "config_title": "Widget configureren",
+    "none_selected": "Geen widget geselecteerd",
+    "unknown_type": "Onbekend widgettype",
+    "remove": "Verwijderen",
+    "configure": "Configureren",
+    "clone": "Dupliceren",
+    "sensor": {
+      "label": "Sensor",
+      "description": "Sensorwaarde weergeven"
+    },
+    "switch": {
+      "label": "Schakelaar",
+      "description": "Aan/uit schakelen"
+    },
+    "light": {
+      "label": "Licht",
+      "description": "Licht bedienen"
+    },
+    "chart": {
+      "label": "Grafiek",
+      "description": "Historische gegevens"
+    },
+    "camera": {
+      "label": "Camera",
+      "description": "Camerabeeld weergeven"
+    },
+    "thermostat": {
+      "label": "Thermostaat",
+      "description": "Temperatuur regelen"
+    },
+    "media_player": {
+      "label": "Mediaspeler",
+      "description": "Muziek/video bedienen"
+    },
+    "cover": {
+      "label": "Rolgordijn/Luifel",
+      "description": "Rolgordijnen bedienen"
+    },
+    "cover_dial": {
+      "label": "Rolgordijn Dial",
+      "description": "Rolgordijn met cirkelvormige indicator"
+    },
+    "cover_dial2": {
+      "label": "Rolgordijn Dial2",
+      "description": "Rolgordijn met cirkelvormige indicator"
+    },
+    "lock": {
+      "label": "Slot",
+      "description": "Slot bedienen"
+    },
+    "weather": {
+      "label": "Weer",
+      "description": "Weer weergeven"
+    },
+    "clock": {
+      "label": "Klok",
+      "description": "Tijd/datum weergeven"
+    },
+    "label": {
+      "label": "Tekst",
+      "description": "Label/Titel"
+    },
+    "room_card": {
+      "label": "Kamerkaart",
+      "description": "Kameroverzicht met temp. & status"
+    },
+    "calendar": {
+      "label": "Kalender",
+      "description": "Gebeurtenissen van de dag weergeven"
+    },
+    "person": {
+      "label": "Personen",
+      "description": "Wie is thuis"
+    },
+    "energy": {
+      "label": "Energie",
+      "description": "Stroom & Zonne-energie overzicht"
+    }
+  },
+  "door": {
+    "label": "Deur",
+    "description": "Deurstatus weergeven",
+    "open": "Deur openen",
+    "close": "Deur sluiten"
+  },
+  "lock": {
+    "door_open": "Deur open",
+    "door_closed": "Deur gesloten",
+    "door_sensor": "Deursensor"
+  },
+  "config": {
+    "entity": "Entiteit",
+    "display_name": "Weergavenaam (optioneel)",
+    "display_name_hint": "Automatisch van entiteit",
+    "unit": "Eenheid (optioneel)",
+    "unit_auto": "Auto",
+    "decimal_places": "Decimalen",
+    "show_brightness": "Helderheidsschuifregelaar tonen",
+    "period": "Periode",
+    "chart_type": "Grafiektype",
+    "line_color": "Lijnkleur",
+    "area_color": "Vlakkleur",
+    "dial_color": "Ringkleur",
+    "dial_bg_color": "Ringachtergrondkleur",
+    "refresh_interval": "Interval (seconden)",
+    "require_confirmation": "Bevestiging bij ontgrendelen",
+    "forecast_rows": "Voorspellingsrijen: {n}",
+    "format_24h": "24-uursformaat",
+    "show_date": "Datum weergeven",
+    "text": "Tekst",
+    "text_placeholder": "Titel...",
+    "font_size": "Lettergrootte",
+    "show_album_art": "Albumhoes tonen",
+    "days": "Dagen weergeven",
+    "show_time": "Tijd weergeven",
+    "room_name": "Kamernaam",
+    "show_temp_control": "Temperatuurregeling tonen",
+    "sensor_no_thermostat": "Sensor (zonder thermostaat)",
+    "icon_field": "Icoon (mdi-...)",
+    "light_dblclick_hint": "Dubbelklik op de kaart om het licht te schakelen",
+    "status_entities": "Statusentiteiten",
+    "add_status": "Statusentiteit toevoegen",
+    "inactive_color": "Kleur (inactief)",
+    "active_state": "Actieve staat (optioneel)",
+    "active_state_hint": "Bijv. locked, open, playing",
+    "appearance": "Uiterlijk",
+    "bg_color": "Achtergrondkleur",
+    "border_color": "Randkleur",
+    "active_color": "Actieve kleur",
+    "text_color": "Tekstkleur",
+    "border_width": "Randbreedte: {n}px",
+    "min_width": "Minimale breedte (px)",
+    "min_width_hint": "Huidige breedte: {n}px",
+    "period_1h": "1 uur",
+    "period_6h": "6 uur",
+    "period_24h": "24 uur",
+    "period_7d": "7 dagen",
+    "period_30d": "30 dagen",
+    "chart_line": "Lijn",
+    "chart_area": "Vlak",
+    "chart_bar": "Staaf",
+    "font_sm": "Klein",
+    "font_md": "Normaal",
+    "font_lg": "Groot",
+    "font_xl": "Zeer groot",
+    "days_1": "1 dag",
+    "days_3": "3 dagen",
+    "days_7": "7 dagen",
+    "days_14": "14 dagen"
+  },
+  "entity_picker": {
+    "placeholder": "Entiteit zoeken...",
+    "no_results": "Geen resultaten",
+    "all_areas": "Alle gebieden"
+  },
+  "camera": {
+    "unavailable": "Camera niet beschikbaar",
+    "stream_unavailable": "Stream niet beschikbaar",
+    "connecting": "Verbinden…",
+    "stop_stream": "Stream stoppen",
+    "disconnected": "Verbinding verbroken"
+  },
+  "media": {
+    "library": "Mediabibliotheek",
+    "no_content": "Geen inhoud gevonden",
+    "load_error": "Fout bij laden"
+  },
+  "thermostat": {
+    "mode_heat": "Verwarming",
+    "mode_cool": "Koeling",
+    "mode_auto": "Auto",
+    "mode_off": "Uit"
+  },
+  "climate_detail": {
+    "current_temp": "Huidige temperatuur",
+    "humidity": "Vochtigheid",
+    "mode": "Modus",
+    "preset": "Voorinstelling",
+    "preset_none": "Geen",
+    "mode_heat_cool": "Warm & Koud",
+    "mode_fan_only": "Alleen ventilator",
+    "mode_dry": "Ontvochtigen",
+    "action_heating": "Verwarmen",
+    "action_cooling": "Koelen",
+    "action_idle": "Stand-by",
+    "action_fan": "Ventilator",
+    "action_drying": "Ontvochtigen"
+  },
+  "weather": {
+    "sunny": "Zonnig",
+    "clear_night": "Helder",
+    "partlycloudy": "Gedeeltelijk bewolkt",
+    "cloudy": "Bewolkt",
+    "fog": "Mist",
+    "hail": "Hagel",
+    "lightning": "Onweer",
+    "lightning_rainy": "Onweer met regen",
+    "pouring": "Zware regen",
+    "rainy": "Regenachtig",
+    "snowy": "Sneeuw",
+    "snowy_rainy": "Natte sneeuw",
+    "windy": "Winderig",
+    "windy_variant": "Winderig",
+    "exceptional": "Uitzonderlijk"
+  },
+  "cover": {
+    "open": "Open",
+    "opening": "Openen…",
+    "closed": "Gesloten",
+    "closing": "Sluiten…",
+    "stopped": "Gestopt"
+  },
+  "cover_detail": {
+    "open": "Openen",
+    "close": "Sluiten",
+    "stop": "Stop",
+    "position": "Positie"
+  },
+  "room_card": {
+    "light_on": "Licht aan",
+    "light_off": "Licht uit"
+  },
+  "detail": {
+    "brightness": "Helderheid",
+    "color_temp": "Kleurtemperatuur"
+  },
+  "media_player": {
+    "idle": "Gereed",
+    "off": "Uit"
+  },
+  "notifications": {
+    "title": "Meldingen",
+    "empty": "Geen regels geconfigureerd.",
+    "add_rule": "Regel toevoegen",
+    "edit_rule": "Regel bewerken",
+    "rule_name": "Naam",
+    "trigger_entity": "Triggerentiteit",
+    "trigger_state": "Triggerstatus",
+    "action_entity": "Actie-entiteit",
+    "type_camera": "Camera",
+    "type_entity": "Entiteit",
+    "cooldown": "Wachttijd",
+    "trigger_event_type": "Gebeurtenistype (optioneel)",
+    "any_event": "Elke gebeurtenis",
+    "event_hint": "Wordt geactiveerd bij elke activering van de gebeurtenisentiteit.",
+    "log": "Geschiedenis",
+    "log_empty": "Geen geschiedenis."
+  },
+  "notification": {
+    "live": "Live bekijken",
+    "details": "Details"
+  },
+  "person": {
+    "home": "Thuis",
+    "away": "Weg",
+    "persons": "Personen",
+    "add_person": "Persoon toevoegen"
+  },
+  "energy": {
+    "grid": "Net",
+    "solar": "Zonne-energie",
+    "battery": "Batterij",
+    "importing": "Afname",
+    "exporting": "Teruglevering"
+  },
+  "login": {
+    "title": "HA Dashboard",
+    "tab_local": "Lokaal",
+    "tab_keycloak": "Keycloak",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "submit": "Inloggen",
+    "keycloak_btn": "Inloggen met Keycloak",
+    "error_default": "Aanmelden mislukt"
+  },
+  "setup": {
+    "subtitle": "Eerste beheerdersaccount aanmaken",
+    "confirm_password": "Wachtwoord bevestigen",
+    "submit": "Beheerder aanmaken & inloggen",
+    "error_required": "Verplicht",
+    "error_min_length": "Minimaal 8 tekens",
+    "error_mismatch": "Wachtwoorden komen niet overeen",
+    "error_default": "Fout bij aanmaken"
+  },
+  "users": {
+    "title": "Gebruikersbeheer",
+    "heading": "Gebruikers",
+    "subtitle": "Beheer gebruikers, rollen en dashboard-toegang.",
+    "new_user": "Nieuwe gebruiker",
+    "tab_users": "Gebruikers",
+    "tab_audit": "Auditlogboek",
+    "local_account": "Lokaal account",
+    "access_title": "Dashboard-toegang voor {name}",
+    "access_hint": "Niets geselecteerd = alle dashboards zichtbaar.",
+    "promote": "Promoveren tot beheerder",
+    "demote": "Degraderen tot gebruiker",
+    "delete_title": "Gebruiker verwijderen?",
+    "delete_body": "\"{name}\" wordt permanent verwijderd.",
+    "create": "Aanmaken",
+    "audit_empty": "Nog geen acties geregistreerd.",
+    "audit_dashboard_create": "heeft dashboard aangemaakt:",
+    "audit_dashboard_save": "heeft dashboard opgeslagen:",
+    "audit_dashboard_delete": "heeft dashboard verwijderd:",
+    "audit_user_create": "heeft gebruiker aangemaakt:",
+    "audit_user_delete": "heeft gebruiker verwijderd:",
+    "audit_user_role_change": "heeft rol gewijzigd:",
+    "error_default": "Fout"
+  }
+}

@@ -1,0 +1,370 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "create": "Erstellen",
+    "retry": "Erneut versuchen",
+    "loading": "Laden…",
+    "unavailable": "Nicht verfügbar",
+    "on": "An",
+    "off": "Aus",
+    "open": "Öffnen",
+    "close_cover": "Schließen",
+    "locked": "Gesperrt",
+    "unlocked": "Entsperrt",
+    "lock": "Sperren",
+    "unlock": "Entsperren",
+    "status": "Status",
+    "last_updated": "Zuletzt aktualisiert",
+    "name": "Name"
+  },
+  "dashboard": {
+    "title": "Meine Dashboards",
+    "count_one": "1 Dashboard",
+    "count_other": "{n} Dashboards",
+    "empty_hint": "Noch keine Dashboards. Erstelle dein erstes!",
+    "empty_title": "Kein Dashboard vorhanden",
+    "empty_description": "Erstelle dein erstes Dashboard und füge Widgets für deine Home Assistant Geräte hinzu.",
+    "new": "Neues Dashboard",
+    "create_title": "Neues Dashboard erstellen",
+    "name_placeholder": "z.B. Wohnzimmer",
+    "icon": "Icon",
+    "edited": "Bearbeitet: {date}",
+    "delete_title": "\"{name}\" löschen?",
+    "delete_confirm": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleted": "Dashboard \"{name}\" gelöscht",
+    "delete_error": "Löschen fehlgeschlagen",
+    "created": "Dashboard \"{name}\" erstellt",
+    "create_error": "Dashboard konnte nicht erstellt werden"
+  },
+  "toolbar": {
+    "add_widget": "Widget",
+    "save": "Speichern",
+    "glass_effect": "Glaseffekt",
+    "theme": "Theme wählen",
+    "background": "Hintergrund",
+    "bg_none": "Kein Hintergrund",
+    "bg_placeholder": "CSS-Farbe oder URL...",
+    "signed_in": "Angemeldet",
+    "user_mgmt": "Benutzerverwaltung",
+    "logout": "Abmelden"
+  },
+  "connection": {
+    "connected": "Verbunden",
+    "connecting": "Verbinde..."
+  },
+  "widget": {
+    "add_title": "Widget hinzufügen",
+    "config_title": "Widget konfigurieren",
+    "none_selected": "Kein Widget ausgewählt",
+    "unknown_type": "Unbekannter Widget-Typ",
+    "remove": "Entfernen",
+    "configure": "Konfigurieren",
+    "clone": "Duplizieren",
+    "sensor": {
+      "label": "Sensor",
+      "description": "Sensorwert anzeigen"
+    },
+    "switch": {
+      "label": "Schalter",
+      "description": "Ein/Aus Toggle"
+    },
+    "light": {
+      "label": "Licht",
+      "description": "Licht steuern"
+    },
+    "chart": {
+      "label": "Diagramm",
+      "description": "Historische Daten als Chart"
+    },
+    "camera": {
+      "label": "Kamera",
+      "description": "Kamerabild anzeigen"
+    },
+    "thermostat": {
+      "label": "Thermostat",
+      "description": "Temperatur steuern"
+    },
+    "media_player": {
+      "label": "Media Player",
+      "description": "Musik/Video steuern"
+    },
+    "cover": {
+      "label": "Rollo/Markise",
+      "description": "Rollos steuern"
+    },
+    "cover_dial": {
+      "label": "Rollo Dial",
+      "description": "Rollo mit Kreisanzeige"
+    },
+    "cover_dial2": {
+      "label": "Rollo Dial2",
+      "description": "Rollo mit Kreisanzeige"
+    },
+    "lock": {
+      "label": "Schloss",
+      "description": "Schloss steuern"
+    },
+    "weather": {
+      "label": "Wetter",
+      "description": "Wetterdaten anzeigen"
+    },
+    "clock": {
+      "label": "Uhr",
+      "description": "Uhrzeit/Datum anzeigen"
+    },
+    "label": {
+      "label": "Text",
+      "description": "Beschriftung/Titel"
+    },
+    "room_card": {
+      "label": "Raumkarte",
+      "description": "Raumübersicht mit Temp & Status"
+    },
+    "calendar": {
+      "label": "Kalender",
+      "description": "Heutige Termine anzeigen"
+    },
+    "person": {
+      "label": "Personen",
+      "description": "Wer ist zuhause"
+    },
+    "energy": {
+      "label": "Energie",
+      "description": "Strom & Solar Überblick"
+    }
+  },
+  "door": {
+    "label": "Tür",
+    "description": "Türstatus anzeigen",
+    "open": "Tür Öffnen",
+    "close": "Tür Schließen"
+  },
+  "lock": {
+    "door_open": "Tür geöffnet",
+    "door_closed": "Tür geschlossen",
+    "door_sensor": "Türsensor"
+  },
+  "config": {
+    "entity": "Entity",
+    "display_name": "Anzeigename (optional)",
+    "display_name_hint": "Automatisch aus Entity",
+    "unit": "Einheit (optional)",
+    "unit_auto": "Auto",
+    "decimal_places": "Dezimalstellen",
+    "show_brightness": "Helligkeitsregler anzeigen",
+    "period": "Zeitraum",
+    "chart_type": "Chart-Typ",
+    "line_color": "Linienfarbe",
+    "area_color": "Flächenfarbe",
+    "dial_color": "Ring-Farbe",
+    "dial_bg_color": "Ring-Hintergrundfarbe",
+    "refresh_interval": "Intervall (Sekunden)",
+    "require_confirmation": "Bestätigung beim Entsperren",
+    "forecast_rows": "Forecast-Zeilen: {n}",
+    "format_24h": "24h Format",
+    "show_date": "Datum anzeigen",
+    "text": "Text",
+    "text_placeholder": "Überschrift...",
+    "font_size": "Schriftgröße",
+    "show_album_art": "Album-Cover anzeigen",
+    "days": "Tage anzeigen",
+    "show_time": "Uhrzeit anzeigen",
+    "room_name": "Raumname",
+    "show_temp_control": "Temperatursteuerung anzeigen",
+    "sensor_no_thermostat": "Sensor (ohne Thermostat)",
+    "icon_field": "Icon (mdi-...)",
+    "light_dblclick_hint": "Doppelklick auf die Karte schaltet das Licht um",
+    "status_entities": "Status-Entities",
+    "add_status": "Status-Entity hinzufügen",
+    "inactive_color": "Farbe (inaktiv)",
+    "active_state": "Aktiver State (optional)",
+    "active_state_hint": "z.B. locked, open, playing",
+    "appearance": "Aussehen",
+    "bg_color": "Hintergrundfarbe",
+    "border_color": "Rahmenfarbe",
+    "active_color": "Aktiv-Farbe",
+    "text_color": "Textfarbe",
+    "border_width": "Rahmenstärke: {n}px",
+    "min_width": "Mindestbreite (px)",
+    "min_width_hint": "Aktuelle Breite: {n}px",
+    "period_1h": "1 Stunde",
+    "period_6h": "6 Stunden",
+    "period_24h": "24 Stunden",
+    "period_7d": "7 Tage",
+    "period_30d": "30 Tage",
+    "chart_line": "Linie",
+    "chart_area": "Fläche",
+    "chart_bar": "Balken",
+    "font_sm": "Klein",
+    "font_md": "Normal",
+    "font_lg": "Groß",
+    "font_xl": "Sehr groß",
+    "days_1": "1 Tag",
+    "days_3": "3 Tage",
+    "days_7": "7 Tage",
+    "days_14": "14 Tage"
+  },
+  "entity_picker": {
+    "placeholder": "Entity suchen...",
+    "no_results": "Keine Ergebnisse",
+    "all_areas": "Alle Bereiche"
+  },
+  "camera": {
+    "unavailable": "Kamera nicht verfügbar",
+    "stream_unavailable": "Stream nicht verfügbar",
+    "connecting": "Verbinde…",
+    "stop_stream": "Stream stoppen",
+    "disconnected": "Verbindung unterbrochen"
+  },
+  "media": {
+    "library": "Medienbibliothek",
+    "no_content": "Keine Inhalte gefunden",
+    "load_error": "Fehler beim Laden"
+  },
+  "thermostat": {
+    "mode_heat": "Heizen",
+    "mode_cool": "Kühlen",
+    "mode_auto": "Auto",
+    "mode_off": "Aus"
+  },
+  "climate_detail": {
+    "current_temp": "Ist-Temperatur",
+    "humidity": "Luftfeuchtigkeit",
+    "mode": "Modus",
+    "preset": "Voreinstellung",
+    "preset_none": "Ohne",
+    "mode_heat_cool": "Heizen & Kühlen",
+    "mode_fan_only": "Lüftung",
+    "mode_dry": "Entfeuchten",
+    "action_heating": "Heizen",
+    "action_cooling": "Kühlen",
+    "action_idle": "Leerlauf",
+    "action_fan": "Lüftung",
+    "action_drying": "Entfeuchten"
+  },
+  "weather": {
+    "sunny": "Sonnig",
+    "clear_night": "Klar",
+    "partlycloudy": "Bewölkt",
+    "cloudy": "Bedeckt",
+    "fog": "Nebel",
+    "hail": "Hagel",
+    "lightning": "Gewitter",
+    "lightning_rainy": "Gewitter",
+    "pouring": "Starkregen",
+    "rainy": "Regen",
+    "snowy": "Schnee",
+    "snowy_rainy": "Schneeregen",
+    "windy": "Windig",
+    "windy_variant": "Windig",
+    "exceptional": "Extrem"
+  },
+  "cover": {
+    "open": "Geöffnet",
+    "opening": "Öffnet…",
+    "closed": "Geschlossen",
+    "closing": "Schließt…",
+    "stopped": "Gestoppt"
+  },
+  "cover_detail": {
+    "open": "Öffnen",
+    "close": "Schließen",
+    "stop": "Stop",
+    "position": "Position"
+  },
+  "room_card": {
+    "light_on": "Licht an",
+    "light_off": "Licht aus"
+  },
+  "detail": {
+    "brightness": "Helligkeit",
+    "color_temp": "Farbtemperatur"
+  },
+  "media_player": {
+    "idle": "Bereit",
+    "off": "Aus"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "empty": "Noch keine Regeln konfiguriert.",
+    "add_rule": "Regel hinzufügen",
+    "edit_rule": "Regel bearbeiten",
+    "rule_name": "Name",
+    "trigger_entity": "Trigger Entity",
+    "trigger_state": "Trigger Status",
+    "action_entity": "Aktion Entity",
+    "type_camera": "Kamera",
+    "type_entity": "Entity",
+    "cooldown": "Cooldown",
+    "trigger_event_type": "Event-Typ (optional)",
+    "any_event": "Jedes Event",
+    "event_hint": "Feuert bei jedem Auslösen der Event-Entity (unabhängig vom Status).",
+    "log": "Verlauf",
+    "log_empty": "Kein Verlauf vorhanden."
+  },
+  "notification": {
+    "live": "Live ansehen",
+    "details": "Details"
+  },
+  "person": {
+    "home": "Zuhause",
+    "away": "Unterwegs",
+    "persons": "Personen",
+    "add_person": "Person hinzufügen"
+  },
+  "energy": {
+    "grid": "Netz",
+    "solar": "Solar",
+    "battery": "Batterie",
+    "importing": "Bezug",
+    "exporting": "Einspeisung"
+  },
+  "login": {
+    "title": "HA Dashboard",
+    "tab_local": "Direkt",
+    "tab_keycloak": "Keycloak",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "keycloak_btn": "Mit Keycloak anmelden",
+    "error_default": "Anmeldung fehlgeschlagen"
+  },
+  "setup": {
+    "subtitle": "Ersten Admin-Account anlegen",
+    "confirm_password": "Passwort bestätigen",
+    "submit": "Admin anlegen & anmelden",
+    "error_required": "Pflichtfeld",
+    "error_min_length": "Mindestens 8 Zeichen",
+    "error_mismatch": "Passwörter stimmen nicht überein",
+    "error_default": "Fehler beim Anlegen"
+  },
+  "users": {
+    "title": "Benutzerverwaltung",
+    "heading": "Benutzer",
+    "subtitle": "Verwalte Benutzer, Rollen und Dashboard-Zugriff.",
+    "new_user": "Neuer Benutzer",
+    "tab_users": "Benutzer",
+    "tab_audit": "Audit-Log",
+    "local_account": "Lokales Konto",
+    "access_title": "Dashboard-Zugriff für {name}",
+    "access_hint": "Nichts ausgewählt = alle Dashboards sichtbar.",
+    "promote": "Zum Admin befördern",
+    "demote": "Zu User herabstufen",
+    "delete_title": "Benutzer löschen?",
+    "delete_body": "„{name}\" wird unwiderruflich gelöscht.",
+    "create": "Anlegen",
+    "audit_empty": "Noch keine Aktionen protokolliert.",
+    "audit_dashboard_create": "hat Dashboard erstellt:",
+    "audit_dashboard_save": "hat Dashboard gespeichert:",
+    "audit_dashboard_delete": "hat Dashboard gelöscht:",
+    "audit_user_create": "hat Benutzer angelegt:",
+    "audit_user_delete": "hat Benutzer gelöscht:",
+    "audit_user_role_change": "hat Rolle geändert:",
+    "error_default": "Fehler"
+  }
+}
