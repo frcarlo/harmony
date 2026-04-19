@@ -33,6 +33,16 @@
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
           :title="t('toolbar.user_mgmt')" rounded="lg" to="/admin/users" />
         <v-list-item prepend-icon="mdi-logout" :title="t('toolbar.logout')" rounded="lg" @click="logout" />
+        <v-divider class="my-1" />
+        <v-list-item
+          prepend-icon="mdi-github"
+          title="GitHub"
+          :subtitle="`v${config.public.appVersion}`"
+          rounded="lg"
+          :href="config.public.githubUrl"
+          target="_blank"
+          density="compact"
+        />
       </v-list>
     </v-card>
   </v-menu>
@@ -41,6 +51,7 @@
 
 <script setup lang="ts">
 const { t, locale, setLocale, locales } = useI18n()
+const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const availableLocales = computed(() => (locales.value as { code: string; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()

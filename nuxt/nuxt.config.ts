@@ -98,6 +98,8 @@ export default defineNuxtConfig({
     },
     public: {
       keycloakEnabled: !!(process.env.KEYCLOAK_ISSUER),
+      appVersion: process.env.npm_package_version ?? '1.0.0',
+      githubUrl: 'https://github.com/frcarlo/harmony',
     },
   },
 
