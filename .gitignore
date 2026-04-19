@@ -1,0 +1,16 @@
+# Environment files with secrets
+.env
+nuxt/.env
+
+# Nuxt build artifacts
+nuxt/node_modules/
+nuxt/.nuxt/
+nuxt/.output/
+nuxt/dist/
+
+# Database
+nuxt/data/
+*.db
+
+# Logs
+*.log

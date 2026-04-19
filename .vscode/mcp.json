@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "home-assistant": {
+            "command": "uv",
+            "args": [
+                "ha-mcp@latest"
+            ],
+            "env": {
+                "HOMEASSISTANT_URL": "http://homeassistent.carlo-web.de:8123",
+                "HOMEASSISTANT_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4N2I2YWU4MDAyNDA0ZDY5ODNkZmVlOTA0ZWM2ODdjZiIsImlhdCI6MTc3NjEwODg2NiwiZXhwIjoyMDkxNDY4ODY2fQ.qDyqA2SBaXrUHbxrTtGVb8r7H_4J_-mH7oXt0Bf97E0"
+            }
+        }
+    }
+}

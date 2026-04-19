@@ -1,0 +1,370 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Añadir",
+    "create": "Crear",
+    "retry": "Reintentar",
+    "loading": "Cargando…",
+    "unavailable": "No disponible",
+    "on": "Encendido",
+    "off": "Apagado",
+    "open": "Abrir",
+    "close_cover": "Cerrar",
+    "locked": "Bloqueado",
+    "unlocked": "Desbloqueado",
+    "lock": "Bloquear",
+    "unlock": "Desbloquear",
+    "status": "Estado",
+    "last_updated": "Última actualización",
+    "name": "Nombre"
+  },
+  "dashboard": {
+    "title": "Mis paneles",
+    "count_one": "1 panel",
+    "count_other": "{n} paneles",
+    "empty_hint": "Sin paneles. ¡Crea el primero!",
+    "empty_title": "Sin paneles",
+    "empty_description": "Crea tu primer panel y añade widgets para tus dispositivos de Home Assistant.",
+    "new": "Nuevo panel",
+    "create_title": "Crear panel",
+    "name_placeholder": "Ej. Salón",
+    "icon": "Icono",
+    "edited": "Editado: {date}",
+    "delete_title": "¿Eliminar \"{name}\"?",
+    "delete_confirm": "Esta acción no se puede deshacer.",
+    "deleted": "Panel \"{name}\" eliminado",
+    "delete_error": "Error al eliminar",
+    "created": "Panel \"{name}\" creado",
+    "create_error": "No se pudo crear el panel"
+  },
+  "toolbar": {
+    "add_widget": "Widget",
+    "save": "Guardar",
+    "glass_effect": "Efecto cristal",
+    "theme": "Elegir tema",
+    "background": "Fondo",
+    "bg_none": "Sin fondo",
+    "bg_placeholder": "Color CSS o URL...",
+    "signed_in": "Conectado",
+    "user_mgmt": "Gestión de usuarios",
+    "logout": "Cerrar sesión"
+  },
+  "connection": {
+    "connected": "Conectado",
+    "connecting": "Conectando..."
+  },
+  "widget": {
+    "add_title": "Añadir widget",
+    "config_title": "Configurar widget",
+    "none_selected": "Ningún widget seleccionado",
+    "unknown_type": "Tipo de widget desconocido",
+    "remove": "Eliminar",
+    "configure": "Configurar",
+    "clone": "Duplicar",
+    "sensor": {
+      "label": "Sensor",
+      "description": "Mostrar valor del sensor"
+    },
+    "switch": {
+      "label": "Interruptor",
+      "description": "Alternar encendido/apagado"
+    },
+    "light": {
+      "label": "Luz",
+      "description": "Controlar la luz"
+    },
+    "chart": {
+      "label": "Gráfico",
+      "description": "Datos históricos"
+    },
+    "camera": {
+      "label": "Cámara",
+      "description": "Mostrar imagen de cámara"
+    },
+    "thermostat": {
+      "label": "Termostato",
+      "description": "Controlar la temperatura"
+    },
+    "media_player": {
+      "label": "Reproductor multimedia",
+      "description": "Controlar música/vídeo"
+    },
+    "cover": {
+      "label": "Persiana/Toldo",
+      "description": "Controlar persianas"
+    },
+    "cover_dial": {
+      "label": "Persiana Dial",
+      "description": "Persiana con indicador circular"
+    },
+    "cover_dial2": {
+      "label": "Persiana Dial2",
+      "description": "Persiana con indicador circular"
+    },
+    "lock": {
+      "label": "Cerradura",
+      "description": "Controlar la cerradura"
+    },
+    "weather": {
+      "label": "Tiempo",
+      "description": "Mostrar el tiempo"
+    },
+    "clock": {
+      "label": "Reloj",
+      "description": "Mostrar hora/fecha"
+    },
+    "label": {
+      "label": "Texto",
+      "description": "Etiqueta/Título"
+    },
+    "room_card": {
+      "label": "Tarjeta habitación",
+      "description": "Vista de habitación con temp. y estado"
+    },
+    "calendar": {
+      "label": "Calendario",
+      "description": "Mostrar eventos del día"
+    },
+    "person": {
+      "label": "Personas",
+      "description": "Quién está en casa"
+    },
+    "energy": {
+      "label": "Energía",
+      "description": "Resumen eléctrico y solar"
+    }
+  },
+  "door": {
+    "label": "Puerta",
+    "description": "Mostrar estado de la puerta",
+    "open": "Abrir puerta",
+    "close": "Cerrar puerta"
+  },
+  "lock": {
+    "door_open": "Puerta abierta",
+    "door_closed": "Puerta cerrada",
+    "door_sensor": "Sensor de puerta"
+  },
+  "config": {
+    "entity": "Entidad",
+    "display_name": "Nombre para mostrar (opcional)",
+    "display_name_hint": "Automático desde la entidad",
+    "unit": "Unidad (opcional)",
+    "unit_auto": "Auto",
+    "decimal_places": "Decimales",
+    "show_brightness": "Mostrar control de brillo",
+    "period": "Período",
+    "chart_type": "Tipo de gráfico",
+    "line_color": "Color de línea",
+    "area_color": "Color de área",
+    "dial_color": "Color del anillo",
+    "dial_bg_color": "Color de fondo del anillo",
+    "refresh_interval": "Intervalo (segundos)",
+    "require_confirmation": "Confirmación al desbloquear",
+    "forecast_rows": "Filas de pronóstico: {n}",
+    "format_24h": "Formato 24h",
+    "show_date": "Mostrar fecha",
+    "text": "Texto",
+    "text_placeholder": "Título...",
+    "font_size": "Tamaño de fuente",
+    "show_album_art": "Mostrar portada",
+    "days": "Días a mostrar",
+    "show_time": "Mostrar hora",
+    "room_name": "Nombre de la habitación",
+    "show_temp_control": "Mostrar control de temperatura",
+    "sensor_no_thermostat": "Sensor (sin termostato)",
+    "icon_field": "Icono (mdi-...)",
+    "light_dblclick_hint": "Doble clic en la tarjeta para alternar la luz",
+    "status_entities": "Entidades de estado",
+    "add_status": "Añadir entidad de estado",
+    "inactive_color": "Color (inactivo)",
+    "active_state": "Estado activo (opcional)",
+    "active_state_hint": "Ej. locked, open, playing",
+    "appearance": "Apariencia",
+    "bg_color": "Color de fondo",
+    "border_color": "Color de borde",
+    "active_color": "Color activo",
+    "text_color": "Color de texto",
+    "border_width": "Grosor de borde: {n}px",
+    "min_width": "Ancho mínimo (px)",
+    "min_width_hint": "Ancho actual: {n}px",
+    "period_1h": "1 hora",
+    "period_6h": "6 horas",
+    "period_24h": "24 horas",
+    "period_7d": "7 días",
+    "period_30d": "30 días",
+    "chart_line": "Línea",
+    "chart_area": "Área",
+    "chart_bar": "Barra",
+    "font_sm": "Pequeño",
+    "font_md": "Normal",
+    "font_lg": "Grande",
+    "font_xl": "Muy grande",
+    "days_1": "1 día",
+    "days_3": "3 días",
+    "days_7": "7 días",
+    "days_14": "14 días"
+  },
+  "entity_picker": {
+    "placeholder": "Buscar entidad...",
+    "no_results": "Sin resultados",
+    "all_areas": "Todas las áreas"
+  },
+  "camera": {
+    "unavailable": "Cámara no disponible",
+    "stream_unavailable": "Flujo no disponible",
+    "connecting": "Conectando…",
+    "stop_stream": "Detener flujo",
+    "disconnected": "Conexión interrumpida"
+  },
+  "media": {
+    "library": "Biblioteca multimedia",
+    "no_content": "Sin contenido",
+    "load_error": "Error al cargar"
+  },
+  "thermostat": {
+    "mode_heat": "Calefacción",
+    "mode_cool": "Refrigeración",
+    "mode_auto": "Auto",
+    "mode_off": "Apagado"
+  },
+  "climate_detail": {
+    "current_temp": "Temperatura actual",
+    "humidity": "Humedad",
+    "mode": "Modo",
+    "preset": "Preajuste",
+    "preset_none": "Ninguno",
+    "mode_heat_cool": "Calor & Frío",
+    "mode_fan_only": "Solo ventilador",
+    "mode_dry": "Deshumidificación",
+    "action_heating": "Calefacción",
+    "action_cooling": "Refrigeración",
+    "action_idle": "En espera",
+    "action_fan": "Ventilador",
+    "action_drying": "Deshumidificando"
+  },
+  "weather": {
+    "sunny": "Soleado",
+    "clear_night": "Despejado",
+    "partlycloudy": "Parcialmente nublado",
+    "cloudy": "Nublado",
+    "fog": "Niebla",
+    "hail": "Granizo",
+    "lightning": "Tormenta",
+    "lightning_rainy": "Tormenta con lluvia",
+    "pouring": "Lluvia intensa",
+    "rainy": "Lluvioso",
+    "snowy": "Nevado",
+    "snowy_rainy": "Aguanieve",
+    "windy": "Ventoso",
+    "windy_variant": "Ventoso",
+    "exceptional": "Excepcional"
+  },
+  "cover": {
+    "open": "Abierto",
+    "opening": "Abriendo…",
+    "closed": "Cerrado",
+    "closing": "Cerrando…",
+    "stopped": "Detenido"
+  },
+  "cover_detail": {
+    "open": "Abrir",
+    "close": "Cerrar",
+    "stop": "Parar",
+    "position": "Posición"
+  },
+  "room_card": {
+    "light_on": "Luz encendida",
+    "light_off": "Luz apagada"
+  },
+  "detail": {
+    "brightness": "Brillo",
+    "color_temp": "Temperatura de color"
+  },
+  "media_player": {
+    "idle": "Listo",
+    "off": "Apagado"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Sin reglas configuradas.",
+    "add_rule": "Añadir regla",
+    "edit_rule": "Editar regla",
+    "rule_name": "Nombre",
+    "trigger_entity": "Entidad disparadora",
+    "trigger_state": "Estado disparador",
+    "action_entity": "Entidad de acción",
+    "type_camera": "Cámara",
+    "type_entity": "Entidad",
+    "cooldown": "Tiempo de recarga",
+    "trigger_event_type": "Tipo de evento (opcional)",
+    "any_event": "Cualquier evento",
+    "event_hint": "Se activa en cada activación de la entidad de evento.",
+    "log": "Historial",
+    "log_empty": "Sin historial."
+  },
+  "notification": {
+    "live": "Ver en directo",
+    "details": "Detalles"
+  },
+  "person": {
+    "home": "En casa",
+    "away": "Fuera",
+    "persons": "Personas",
+    "add_person": "Añadir persona"
+  },
+  "energy": {
+    "grid": "Red",
+    "solar": "Solar",
+    "battery": "Batería",
+    "importing": "Importando",
+    "exporting": "Exportando"
+  },
+  "login": {
+    "title": "HA Dashboard",
+    "tab_local": "Directo",
+    "tab_keycloak": "Keycloak",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "submit": "Iniciar sesión",
+    "keycloak_btn": "Iniciar sesión con Keycloak",
+    "error_default": "Error al iniciar sesión"
+  },
+  "setup": {
+    "subtitle": "Crear la primera cuenta de administrador",
+    "confirm_password": "Confirmar contraseña",
+    "submit": "Crear admin e iniciar sesión",
+    "error_required": "Obligatorio",
+    "error_min_length": "Al menos 8 caracteres",
+    "error_mismatch": "Las contraseñas no coinciden",
+    "error_default": "Error al crear la cuenta"
+  },
+  "users": {
+    "title": "Gestión de usuarios",
+    "heading": "Usuarios",
+    "subtitle": "Administra usuarios, roles y acceso a dashboards.",
+    "new_user": "Nuevo usuario",
+    "tab_users": "Usuarios",
+    "tab_audit": "Registro de auditoría",
+    "local_account": "Cuenta local",
+    "access_title": "Acceso al dashboard para {name}",
+    "access_hint": "Sin selección = todos los dashboards visibles.",
+    "promote": "Promover a admin",
+    "demote": "Degradar a usuario",
+    "delete_title": "¿Eliminar usuario?",
+    "delete_body": "\"{name}\" se eliminará permanentemente.",
+    "create": "Crear",
+    "audit_empty": "Aún no hay acciones registradas.",
+    "audit_dashboard_create": "creó el dashboard:",
+    "audit_dashboard_save": "guardó el dashboard:",
+    "audit_dashboard_delete": "eliminó el dashboard:",
+    "audit_user_create": "creó el usuario:",
+    "audit_user_delete": "eliminó el usuario:",
+    "audit_user_role_change": "cambió el rol:",
+    "error_default": "Error"
+  }
+}

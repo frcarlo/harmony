@@ -1,0 +1,324 @@
+{
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "create": "Crea",
+    "retry": "Riprova",
+    "loading": "Caricamento…",
+    "unavailable": "Non disponibile",
+    "on": "Acceso",
+    "off": "Spento",
+    "open": "Apri",
+    "close_cover": "Chiudi",
+    "locked": "Bloccato",
+    "unlocked": "Sbloccato",
+    "lock": "Blocca",
+    "unlock": "Sblocca",
+    "status": "Stato",
+    "last_updated": "Ultimo aggiornamento",
+    "name": "Nome"
+  },
+  "dashboard": {
+    "title": "I miei Dashboard",
+    "count_one": "1 Dashboard",
+    "count_other": "{n} Dashboard",
+    "empty_hint": "Ancora nessun dashboard. Crea il tuo primo!",
+    "empty_title": "Nessun dashboard presente",
+    "empty_description": "Crea il tuo primo dashboard e aggiungi widget per i tuoi dispositivi Home Assistant.",
+    "new": "Nuovo Dashboard",
+    "create_title": "Crea nuovo Dashboard",
+    "name_placeholder": "es. Soggiorno",
+    "icon": "Icona",
+    "edited": "Modificato: {date}",
+    "delete_title": "Eliminare \"{name}\"?",
+    "delete_confirm": "Questa azione non può essere annullata.",
+    "deleted": "Dashboard \"{name}\" eliminato",
+    "delete_error": "Eliminazione fallita",
+    "created": "Dashboard \"{name}\" creato",
+    "create_error": "Impossibile creare il dashboard"
+  },
+  "toolbar": {
+    "add_widget": "Widget",
+    "save": "Salva",
+    "glass_effect": "Effetto vetro",
+    "theme": "Scegli tema",
+    "background": "Sfondo",
+    "bg_none": "Nessuno sfondo",
+    "bg_placeholder": "Colore CSS o URL..."
+  },
+  "connection": {
+    "connected": "Connesso",
+    "connecting": "Connessione in corso..."
+  },
+  "widget": {
+    "add_title": "Aggiungi Widget",
+    "config_title": "Configura Widget",
+    "none_selected": "Nessun widget selezionato",
+    "unknown_type": "Tipo di widget sconosciuto",
+    "remove": "Rimuovi",
+    "configure": "Configura",
+    "clone": "Duplica",
+    "sensor": {
+      "label": "Sensore",
+      "description": "Visualizza valore del sensore"
+    },
+    "switch": {
+      "label": "Interruttore",
+      "description": "Toggle Acceso/Spento"
+    },
+    "light": {
+      "label": "Luce",
+      "description": "Controlla luce"
+    },
+    "chart": {
+      "label": "Grafico",
+      "description": "Dati storici come grafico"
+    },
+    "camera": {
+      "label": "Telecamera",
+      "description": "Mostra immagine telecamera"
+    },
+    "thermostat": {
+      "label": "Termostato",
+      "description": "Controlla temperatura"
+    },
+    "media_player": {
+      "label": "Media Player",
+      "description": "Controlla musica/video"
+    },
+    "cover": {
+      "label": "Tapparella/Tenda",
+      "description": "Controlla tapparelle"
+    },
+    "cover_dial": {
+      "label": "Selettore Tapparella",
+      "description": "Tapparella con indicatore circolare"
+    },
+    "cover_dial2": {
+      "label": "Selettore Tapparella 2",
+      "description": "Tapparella con indicatore circolare"
+    },
+    "lock": {
+      "label": "Serratura",
+      "description": "Controlla serratura"
+    },
+    "weather": {
+      "label": "Meteo",
+      "description": "Mostra dati meteo"
+    },
+    "clock": {
+      "label": "Orologio",
+      "description": "Mostra ora/data"
+    },
+    "label": {
+      "label": "Testo",
+      "description": "Etichetta/Titolo"
+    },
+    "room_card": {
+      "label": "Scheda Stanza",
+      "description": "Panoramica stanza con temp & stato"
+    },
+    "calendar": {
+      "label": "Calendario",
+      "description": "Mostra appuntamenti di oggi"
+    },
+    "person": {
+      "label": "Persone",
+      "description": "Chi è a casa"
+    },
+    "energy": {
+      "label": "Energia",
+      "description": "Panoramica elettricità e solare"
+    }
+  },
+  "door": {
+    "label": "Porta",
+    "description": "Mostra stato porta",
+    "open": "Apri porta",
+    "close": "Chiudi porta"
+  },
+  "lock": {
+    "door_open": "Porta aperta",
+    "door_closed": "Porta chiusa",
+    "door_sensor": "Sensore porta"
+  },
+  "config": {
+    "entity": "Entità",
+    "display_name": "Nome visualizzato (opzionale)",
+    "display_name_hint": "Automatico dall'entità",
+    "unit": "Unità (opzionale)",
+    "unit_auto": "Auto",
+    "decimal_places": "Decimali",
+    "show_brightness": "Mostra regolatore luminosità",
+    "period": "Periodo",
+    "chart_type": "Tipo di grafico",
+    "line_color": "Colore linea",
+    "area_color": "Colore area",
+    "dial_color": "Colore anello",
+    "dial_bg_color": "Colore sfondo anello",
+    "refresh_interval": "Intervallo (secondi)",
+    "require_confirmation": "Conferma allo sblocco",
+    "forecast_rows": "Righe previsioni: {n}",
+    "format_24h": "Formato 24h",
+    "show_date": "Mostra data",
+    "text": "Testo",
+    "text_placeholder": "Titolo...",
+    "font_size": "Dimensione carattere",
+    "show_album_art": "Mostra copertina album",
+    "days": "Giorni da mostrare",
+    "show_time": "Mostra ora",
+    "room_name": "Nome stanza",
+    "show_temp_control": "Mostra controllo temperatura",
+    "sensor_no_thermostat": "Sensore (senza termostato)",
+    "icon_field": "Icona (mdi-...)",
+    "light_dblclick_hint": "Doppio clic sulla scheda per commutare la luce",
+    "status_entities": "Entità di stato",
+    "add_status": "Aggiungi entità di stato",
+    "inactive_color": "Colore (inattivo)",
+    "active_state": "Stato attivo (opzionale)",
+    "active_state_hint": "es. locked, open, playing",
+    "appearance": "Aspetto",
+    "bg_color": "Colore di sfondo",
+    "border_color": "Colore bordo",
+    "active_color": "Colore attivo",
+    "text_color": "Colore testo",
+    "border_width": "Spessore bordo: {n}px",
+    "min_width": "Larghezza minima (px)",
+    "min_width_hint": "Larghezza attuale: {n}px",
+    "period_1h": "1 Ora",
+    "period_6h": "6 Ore",
+    "period_24h": "24 Ore",
+    "period_7d": "7 Giorni",
+    "period_30d": "30 Giorni",
+    "chart_line": "Linea",
+    "chart_area": "Area",
+    "chart_bar": "Barre",
+    "font_sm": "Piccolo",
+    "font_md": "Normale",
+    "font_lg": "Grande",
+    "font_xl": "Molto grande",
+    "days_1": "1 Giorno",
+    "days_3": "3 Giorni",
+    "days_7": "7 Giorni",
+    "days_14": "14 Giorni"
+  },
+  "entity_picker": {
+    "placeholder": "Cerca entità...",
+    "no_results": "Nessun risultato",
+    "all_areas": "Tutte le aree"
+  },
+  "camera": {
+    "unavailable": "Telecamera non disponibile",
+    "stream_unavailable": "Stream non disponibile",
+    "connecting": "Connessione in corso…",
+    "stop_stream": "Ferma stream",
+    "disconnected": "Connessione interrotta"
+  },
+  "media": {
+    "library": "Libreria multimediale",
+    "no_content": "Nessun contenuto trovato",
+    "load_error": "Errore di caricamento"
+  },
+  "thermostat": {
+    "mode_heat": "Riscaldamento",
+    "mode_cool": "Raffreddamento",
+    "mode_auto": "Auto",
+    "mode_off": "Spento"
+  },
+  "climate_detail": {
+    "current_temp": "Temperatura attuale",
+    "humidity": "Umidità",
+    "mode": "Modalità",
+    "preset": "Preimpostazione",
+    "preset_none": "Nessuno",
+    "mode_heat_cool": "Riscaldamento e Raffreddamento",
+    "mode_fan_only": "Solo ventilazione",
+    "mode_dry": "Deumidificazione",
+    "action_heating": "Riscaldamento",
+    "action_cooling": "Raffreddamento",
+    "action_idle": "Inattivo",
+    "action_fan": "Ventilazione",
+    "action_drying": "Deumidificazione"
+  },
+  "weather": {
+    "sunny": "Soleggiato",
+    "clear_night": "Sereno",
+    "partlycloudy": "Parzialmente nuvoloso",
+    "cloudy": "Nuvoloso",
+    "fog": "Nebbia",
+    "hail": "Grandine",
+    "lightning": "Temporale",
+    "lightning_rainy": "Temporale",
+    "pouring": "Pioggia forte",
+    "rainy": "Pioggia",
+    "snowy": "Neve",
+    "snowy_rainy": "Neve e pioggia",
+    "windy": "Ventoso",
+    "windy_variant": "Ventoso",
+    "exceptional": "Eccezionale"
+  },
+  "cover": {
+    "open": "Aperta",
+    "opening": "Apertura…",
+    "closed": "Chiusa",
+    "closing": "Chiusura…",
+    "stopped": "Fermata"
+  },
+  "cover_detail": {
+    "open": "Apri",
+    "close": "Chiudi",
+    "stop": "Stop",
+    "position": "Posizione"
+  },
+  "room_card": {
+    "light_on": "Luce accesa",
+    "light_off": "Luce spenta"
+  },
+  "detail": {
+    "brightness": "Luminosità",
+    "color_temp": "Temperatura colore"
+  },
+  "media_player": {
+    "idle": "Inattivo",
+    "off": "Spento"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "empty": "Ancora nessuna regola configurata.",
+    "add_rule": "Aggiungi regola",
+    "edit_rule": "Modifica regola",
+    "rule_name": "Nome",
+    "trigger_entity": "Entità Trigger",
+    "trigger_state": "Stato Trigger",
+    "action_entity": "Entità Azione",
+    "type_camera": "Telecamera",
+    "type_entity": "Entità",
+    "cooldown": "Cooldown",
+    "trigger_event_type": "Tipo di evento (opzionale)",
+    "any_event": "Qualsiasi evento",
+    "event_hint": "Si attiva ad ogni attivazione dell'entità evento (indipendentemente dallo stato).",
+    "log": "Cronologia",
+    "log_empty": "Nessuna cronologia."
+  },
+  "notification": {
+    "live": "Guarda dal vivo",
+    "details": "Dettagli"
+  },
+  "person": {
+    "home": "A casa",
+    "away": "Fuori",
+    "persons": "Persone",
+    "add_person": "Aggiungi persona"
+  },
+  "energy": {
+    "grid": "Rete",
+    "solar": "Solare",
+    "battery": "Batteria",
+    "importing": "Importazione",
+    "exporting": "Esportazione"
+  }
+}

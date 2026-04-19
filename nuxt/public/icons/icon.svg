@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d1117"/>
+  <rect width="512" height="512" rx="96" fill="url(#g)"/>
+  <defs>
+    <radialGradient id="g" cx="30%" cy="30%">
+      <stop offset="0%" stop-color="#18BCF2" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+  <!-- House shape -->
+  <path d="M256 120 L380 220 L380 400 L290 400 L290 310 L222 310 L222 400 L132 400 L132 220 Z" fill="#18BCF2"/>
+  <!-- Circuit dots -->
+  <circle cx="256" cy="240" r="14" fill="#0d1117"/>
+  <circle cx="210" cy="280" r="8" fill="#0d1117"/>
+  <circle cx="302" cy="280" r="8" fill="#0d1117"/>
+  <line x1="256" y1="240" x2="210" y2="280" stroke="#0d1117" stroke-width="6"/>
+  <line x1="256" y1="240" x2="302" y2="280" stroke="#0d1117" stroke-width="6"/>
+  <line x1="210" y1="280" x2="210" y2="310" stroke="#0d1117" stroke-width="6"/>
+  <line x1="302" y1="280" x2="302" y2="310" stroke="#0d1117" stroke-width="6"/>
+</svg>

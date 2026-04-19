@@ -1,0 +1,40 @@
+services:
+  ha-dashboard:
+    image: ha-dashboard-nuxt:latest
+    volumes:
+      - ha-dashboard-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - HA_URL=${HA_URL:-http://homeassistent.carlo-web.de:8123}
+      - HA_TOKEN=${HA_TOKEN}
+      - DATA_DIR=/app/data
+    networks:
+      - proxy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "info.admin=true"
+        - "info.title=HA Dashboard"
+        - "info.group=Home Assistant"
+        - "info.logo=dashboard.png"
+        - "info.description=HA Custom Dashboard"
+        - "info.url=https://dashboard.carlo-cloud.de"
+        - "traefik.docker.network=proxy"
+        - "traefik.http.routers.ha-dashboard.rule=Host(`dashboard.carlo-cloud.de`)"
+        - "traefik.http.routers.ha-dashboard.entrypoints=websecure"
+        - "traefik.http.routers.ha-dashboard.tls=true"
+        - "traefik.http.routers.ha-dashboard.tls.certresolver=letsencrypt"
+        - "traefik.http.services.ha-dashboard.loadbalancer.server.port=3000"
+
+volumes:
+  ha-dashboard-data:
+    driver: local
+
+networks:
+  proxy:
+    external: true
