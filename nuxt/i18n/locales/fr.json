@@ -333,7 +333,8 @@
     "password": "Mot de passe",
     "submit": "Se connecter",
     "keycloak_btn": "Se connecter avec Keycloak",
-    "error_default": "Échec de la connexion"
+    "error_default": "Échec de la connexion",
+    "ha_unreachable": "Home Assistant est inaccessible. Veuillez vérifier la connexion."
   },
   "setup": {
     "subtitle": "Créer le premier compte administrateur",

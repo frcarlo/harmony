@@ -11,7 +11,11 @@
             <div class="text-h6 font-weight-bold">HArmony</div>
           </div>
 
-          <v-tabs v-if="keycloakEnabled" v-model="tab" grow class="mb-5">
+          <!-- HA nicht erreichbar -->
+          <v-alert v-if="appConfig && !appConfig.haReachable" type="warning" density="compact"
+            class="mb-4" prepend-icon="mdi-home-assistant" :text="t('login.ha_unreachable')" />
+
+          <v-tabs v-if="keycloakEnabled && appConfig?.haReachable" v-model="tab" grow class="mb-5">
             <v-tab value="local">{{ t('login.tab_local') }}</v-tab>
             <v-tab value="keycloak">{{ t('login.tab_keycloak') }}</v-tab>
           </v-tabs>
@@ -19,13 +23,14 @@
           <!-- Local login -->
           <v-form v-if="!keycloakEnabled || tab === 'local'" @submit.prevent="submitLocal">
             <v-text-field v-model="form.username" :label="t('login.username')" variant="outlined"
-              density="compact" class="mb-3" autofocus />
+              density="compact" class="mb-3" autofocus :disabled="!appConfig?.haReachable" />
             <v-text-field v-model="form.password" :label="t('login.password')" type="password" variant="outlined"
-              density="compact" class="mb-4" />
+              density="compact" class="mb-4" :disabled="!appConfig?.haReachable" />
 
             <v-alert v-if="loginError" type="error" density="compact" class="mb-4" :text="loginError" />
 
-            <v-btn type="submit" color="primary" variant="flat" block :loading="loading">
+            <v-btn type="submit" color="primary" variant="flat" block :loading="loading"
+              :disabled="!appConfig?.haReachable">
               {{ t('login.submit') }}
             </v-btn>
           </v-form>
@@ -33,7 +38,7 @@
           <!-- Keycloak login -->
           <div v-else class="text-center">
             <v-btn color="primary" variant="flat" prepend-icon="mdi-shield-key-outline"
-              size="large" @click="loginKeycloak">
+              size="large" :disabled="!appConfig?.haReachable" @click="loginKeycloak">
               {{ t('login.keycloak_btn') }}
             </v-btn>
           </div>

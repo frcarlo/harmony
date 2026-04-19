@@ -333,7 +333,8 @@
     "password": "Wachtwoord",
     "submit": "Inloggen",
     "keycloak_btn": "Inloggen met Keycloak",
-    "error_default": "Aanmelden mislukt"
+    "error_default": "Aanmelden mislukt",
+    "ha_unreachable": "Home Assistant is niet bereikbaar. Controleer de verbinding."
   },
   "setup": {
     "subtitle": "Eerste beheerdersaccount aanmaken",
