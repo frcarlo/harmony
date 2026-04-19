@@ -331,6 +331,9 @@
     "submit": "Accedi",
     "keycloak_btn": "Accedi con Keycloak",
     "error_default": "Accesso non riuscito",
-    "ha_unreachable": "Home Assistant non è raggiungibile. Controlla la connessione."
+    "ha_unreachable": "Home Assistant non è raggiungibile. Controlla la connessione.",
+    "sign_in_to": "Accedi a",
+    "subtitle": "Il tuo pannello domotico",
+    "or": "oppure"
   }
 }

@@ -334,7 +334,10 @@
     "submit": "Iniciar sesión",
     "keycloak_btn": "Iniciar sesión con Keycloak",
     "error_default": "Error al iniciar sesión",
-    "ha_unreachable": "Home Assistant no está disponible. Por favor compruebe la conexión."
+    "ha_unreachable": "Home Assistant no está disponible. Por favor compruebe la conexión.",
+    "sign_in_to": "Iniciar sesión en",
+    "subtitle": "Tu panel de domótica",
+    "or": "o"
   },
   "setup": {
     "subtitle": "Crear la primera cuenta de administrador",

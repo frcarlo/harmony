@@ -334,7 +334,10 @@
     "submit": "Anmelden",
     "keycloak_btn": "Mit Keycloak anmelden",
     "error_default": "Anmeldung fehlgeschlagen",
-    "ha_unreachable": "Home Assistant ist nicht erreichbar. Bitte Verbindung prüfen."
+    "ha_unreachable": "Home Assistant ist nicht erreichbar. Bitte Verbindung prüfen.",
+    "sign_in_to": "Anmelden bei",
+    "subtitle": "Dein Smart Home Dashboard",
+    "or": "oder"
   },
   "setup": {
     "subtitle": "Ersten Admin-Account anlegen",
