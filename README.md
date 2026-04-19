@@ -1,6 +1,6 @@
 # HArmony
 
-[![Version](https://img.shields.io/badge/version-v1.1.3-blue)](https://github.com/frcarlo/harmony/releases)
+[![Version](https://img.shields.io/badge/version-v2.0.0-blue)](https://github.com/frcarlo/harmony/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
@@ -96,7 +96,6 @@ services:
       # NUXT_KEYCLOAK_ISSUER: https://auth.example.com/realms/myrealm
       # NUXT_KEYCLOAK_CLIENT_ID: harmony
       # NUXT_KEYCLOAK_CLIENT_SECRET: your_secret
-      # NUXT_PUBLIC_KEYCLOAK_ENABLED: "true"
     volumes:
       - harmony_data:/app/data
     ports:
@@ -132,7 +131,6 @@ npm run dev            # http://localhost:3000
 | `NUXT_KEYCLOAK_ISSUER` | | Keycloak realm URL — enables SSO login tab |
 | `NUXT_KEYCLOAK_CLIENT_ID` | | Keycloak client ID |
 | `NUXT_KEYCLOAK_CLIENT_SECRET` | | Keycloak client secret |
-| `NUXT_PUBLIC_KEYCLOAK_ENABLED` | | Set to `true` to show Keycloak login tab |
 
 ---
 
