@@ -19,7 +19,16 @@ warn()    { echo -e "${YELLOW}⚠${RESET} $1"; }
 error()   { echo -e "${RED}✗${RESET} $1"; exit 1; }
 
 # ── Read current version ───────────────────────
-CURRENT=$(python3 -c "import json; print(json.load(open('$PACKAGE'))['version'])")
+CURRENT=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('$PACKAGE'))
+    v = d.get('version','')
+    if not v: raise KeyError
+    print(v)
+except:
+    sys.exit(1)
+" 2>/dev/null) || CURRENT=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
 IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
 
 echo -e "\n${BOLD}HArmony Release${RESET}"
