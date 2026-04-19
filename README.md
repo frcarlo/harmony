@@ -1,7 +1,7 @@
 # HArmony
 
-[![GitHub tag](https://img.shields.io/github/v/tag/frcarlo/harmony?label=version)](https://github.com/frcarlo/harmony/tags)
-[![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-blue?logo=docker)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
+[![Version](https://img.shields.io/badge/version-v1.0.3-blue)](https://github.com/frcarlo/harmony/releases)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
 
