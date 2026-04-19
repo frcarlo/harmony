@@ -334,7 +334,10 @@
     "submit": "Sign in",
     "keycloak_btn": "Sign in with Keycloak",
     "error_default": "Login failed",
-    "ha_unreachable": "Home Assistant is unreachable. Please check the connection."
+    "ha_unreachable": "Home Assistant is unreachable. Please check the connection.",
+    "sign_in_to": "Sign in to",
+    "subtitle": "Your smart home dashboard",
+    "or": "or"
   },
   "setup": {
     "subtitle": "Create first admin account",

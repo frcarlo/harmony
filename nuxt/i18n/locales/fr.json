@@ -334,7 +334,10 @@
     "submit": "Se connecter",
     "keycloak_btn": "Se connecter avec Keycloak",
     "error_default": "Échec de la connexion",
-    "ha_unreachable": "Home Assistant est inaccessible. Veuillez vérifier la connexion."
+    "ha_unreachable": "Home Assistant est inaccessible. Veuillez vérifier la connexion.",
+    "sign_in_to": "Se connecter à",
+    "subtitle": "Votre tableau de bord domotique",
+    "or": "ou"
   },
   "setup": {
     "subtitle": "Créer le premier compte administrateur",
