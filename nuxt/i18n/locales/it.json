@@ -321,5 +321,16 @@
     "battery": "Batteria",
     "importing": "Importazione",
     "exporting": "Esportazione"
+  },
+  "login": {
+    "title": "HA Dashboard",
+    "tab_local": "Diretto",
+    "tab_keycloak": "Keycloak",
+    "username": "Nome utente",
+    "password": "Password",
+    "submit": "Accedi",
+    "keycloak_btn": "Accedi con Keycloak",
+    "error_default": "Accesso non riuscito",
+    "ha_unreachable": "Home Assistant non è raggiungibile. Controlla la connessione."
   }
 }

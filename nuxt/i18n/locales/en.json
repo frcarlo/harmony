@@ -333,7 +333,8 @@
     "password": "Password",
     "submit": "Sign in",
     "keycloak_btn": "Sign in with Keycloak",
-    "error_default": "Login failed"
+    "error_default": "Login failed",
+    "ha_unreachable": "Home Assistant is unreachable. Please check the connection."
   },
   "setup": {
     "subtitle": "Create first admin account",

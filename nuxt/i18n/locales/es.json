@@ -333,7 +333,8 @@
     "password": "Contraseña",
     "submit": "Iniciar sesión",
     "keycloak_btn": "Iniciar sesión con Keycloak",
-    "error_default": "Error al iniciar sesión"
+    "error_default": "Error al iniciar sesión",
+    "ha_unreachable": "Home Assistant no está disponible. Por favor compruebe la conexión."
   },
   "setup": {
     "subtitle": "Crear la primera cuenta de administrador",

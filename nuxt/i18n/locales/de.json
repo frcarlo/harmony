@@ -333,7 +333,8 @@
     "password": "Passwort",
     "submit": "Anmelden",
     "keycloak_btn": "Mit Keycloak anmelden",
-    "error_default": "Anmeldung fehlgeschlagen"
+    "error_default": "Anmeldung fehlgeschlagen",
+    "ha_unreachable": "Home Assistant ist nicht erreichbar. Bitte Verbindung prüfen."
   },
   "setup": {
     "subtitle": "Ersten Admin-Account anlegen",
