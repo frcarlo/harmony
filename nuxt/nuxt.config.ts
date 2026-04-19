@@ -38,8 +38,7 @@ export default defineNuxtConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/dashboard',
-        navigateFallbackDenylist: [/^\/api\//, /^\/login/, /^\/setup/],
+        navigateFallback: null,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
