@@ -13,7 +13,7 @@
     <v-container fluid class="pa-6">
 
       <draggable v-if="dashboards.length > 0" v-model="dashboards" item-key="id"
-        :handle="isAdmin ? '.drag-handle' : ''" :animation="150"
+        handle=".drag-handle" :animation="150" :disabled="!isAdmin"
         class="v-row" @end="saveOrder">
         <template #item="{ element }">
           <v-col cols="12" sm="6" lg="4" xl="3">
