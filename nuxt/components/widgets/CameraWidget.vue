@@ -18,6 +18,12 @@
         :title="t('camera.stop_stream')"
         @click="stopStream"
       />
+      <v-btn
+        icon="mdi-fullscreen"
+        size="x-small" variant="text" density="compact"
+        :title="t('camera.fullscreen')"
+        @click="openFullscreen"
+      />
     </div>
 
     <div class="flex-grow-1 position-relative overflow-hidden d-flex align-center justify-center"
@@ -56,6 +62,44 @@
       </div>
     </div>
   </div>
+
+  <!-- Fullscreen dialog -->
+  <v-dialog v-model="fullscreen" max-width="100vw" max-height="100vh" :scrim="true">
+    <v-card color="black" rounded="0" class="d-flex flex-column" style="width:100vw;height:100vh">
+      <div class="d-flex align-center px-3 py-2" style="background:rgba(0,0,0,0.7);position:absolute;top:0;left:0;right:0;z-index:2">
+        <v-icon icon="mdi-camera" size="14" color="white" class="mr-2" />
+        <span class="text-caption text-white flex-grow-1">{{ name }}</span>
+        <v-btn
+          v-if="streamState === 'playing'"
+          :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
+          size="x-small" variant="text" color="white"
+          @click="toggleMute"
+        />
+        <v-btn icon="mdi-fullscreen-exit" size="x-small" variant="text" color="white"
+          @click="fullscreen = false" />
+      </div>
+
+      <div class="flex-grow-1 d-flex align-center justify-center" style="background:#000">
+        <template v-if="streamState === 'idle'">
+          <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+          <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary"
+            style="position:absolute" @click="startStream" />
+        </template>
+        <template v-else-if="streamState === 'waking'">
+          <v-progress-circular indeterminate color="primary" size="48" />
+        </template>
+        <video ref="videoElFs"
+          style="max-width:100%;max-height:100%;object-fit:contain"
+          :style="{ display: streamState === 'playing' ? 'block' : 'none' }"
+          autoplay playsinline />
+        <div v-if="streamState === 'error'" class="d-flex flex-column align-center ga-3 text-white">
+          <v-icon icon="mdi-camera-off" size="48" />
+          <span class="text-body-2">{{ errorMsg }}</span>
+          <v-btn variant="tonal" @click="startStream">{{ t('common.retry') }}</v-btn>
+        </div>
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -68,8 +112,10 @@ const name = computed(() => props.config.name ?? props.config.entity_id)
 type StreamState = 'idle' | 'waking' | 'playing' | 'error'
 const streamState = ref<StreamState>('idle')
 const videoEl = ref<HTMLVideoElement | null>(null)
+const videoElFs = ref<HTMLVideoElement | null>(null)
 const snapshotSrc = ref('')
 const errorMsg = ref('')
+const fullscreen = ref(false)
 
 const client = useHAClient()
 let pc: RTCPeerConnection | null = null
@@ -79,6 +125,18 @@ const muted = ref(true)
 function toggleMute() {
   muted.value = !muted.value
   if (videoEl.value) videoEl.value.muted = muted.value
+  if (videoElFs.value) videoElFs.value.muted = muted.value
+}
+
+function openFullscreen() {
+  fullscreen.value = true
+  nextTick(() => {
+    if (videoElFs.value && videoEl.value?.srcObject) {
+      videoElFs.value.srcObject = videoEl.value.srcObject
+      videoElFs.value.muted = muted.value
+      videoElFs.value.play().catch(() => {})
+    }
+  })
 }
 
 onMounted(() => {
@@ -112,6 +170,11 @@ async function startStream() {
         }
         videoEl.value.muted = true
         videoEl.value.play().catch(() => {})
+      }
+      if (videoElFs.value && fullscreen.value) {
+        videoElFs.value.srcObject = videoEl.value?.srcObject ?? null
+        videoElFs.value.muted = muted.value
+        videoElFs.value.play().catch(() => {})
       }
       if (event.track.kind === 'video') streamState.value = 'playing'
     }

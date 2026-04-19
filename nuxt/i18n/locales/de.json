@@ -219,7 +219,8 @@
     "stream_unavailable": "Stream nicht verfügbar",
     "connecting": "Verbinde…",
     "stop_stream": "Stream stoppen",
-    "disconnected": "Verbindung unterbrochen"
+    "disconnected": "Verbindung unterbrochen",
+    "fullscreen": "Vollbild"
   },
   "media": {
     "library": "Medienbibliothek",

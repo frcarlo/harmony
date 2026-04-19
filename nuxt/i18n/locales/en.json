@@ -219,7 +219,8 @@
     "stream_unavailable": "Stream unavailable",
     "connecting": "Connecting…",
     "stop_stream": "Stop stream",
-    "disconnected": "Connection lost"
+    "disconnected": "Connection lost",
+    "fullscreen": "Fullscreen"
   },
   "media": {
     "library": "Media Library",
