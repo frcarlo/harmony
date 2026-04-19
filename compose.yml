@@ -8,6 +8,7 @@ services:
       - HA_URL=${HA_URL:-http://homeassistent.carlo-web.de:8123}
       - HA_TOKEN=${HA_TOKEN}
       - DATA_DIR=/app/data
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
     networks:
       - proxy
     deploy:
