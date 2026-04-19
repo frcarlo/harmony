@@ -2,6 +2,7 @@
 const PUBLIC_PREFIXES = [
   '/api/auth/',
   '/api/setup',
+  '/api/app-config',
   '/api/_hub/',       // nuxt-auth-utils internal
   '/_nuxt/',
   '/__nuxt_devtools__',

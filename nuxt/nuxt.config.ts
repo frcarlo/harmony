@@ -63,6 +63,7 @@ export default defineNuxtConfig({
       defaultLocale: 'de',
       langDir: 'locales/',
       strategy: 'no_prefix',
+      detectBrowserLanguage: false,
     }],
     'nuxt-auth-utils',
   ],
@@ -90,20 +91,20 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    haUrl: process.env.HA_URL ?? 'http://localhost:8123',
-    haToken: process.env.HA_TOKEN ?? '',
-    dataDir: process.env.DATA_DIR ?? './data',
+    haUrl: process.env.NUXT_HA_URL ?? process.env.HA_URL ?? 'http://localhost:8123',
+    haToken: process.env.NUXT_HA_TOKEN ?? process.env.HA_TOKEN ?? '',
+    dataDir: process.env.NUXT_DATA_DIR ?? process.env.DATA_DIR ?? '/app/data',
     session: {
       password: process.env.NUXT_SESSION_PASSWORD ?? '',
       maxAge: 60 * 60 * 24 * 7,
     },
     keycloak: {
-      clientId: process.env.KEYCLOAK_CLIENT_ID ?? '',
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET ?? '',
-      issuer: process.env.KEYCLOAK_ISSUER ?? '',
+      clientId: process.env.NUXT_KEYCLOAK_CLIENT_ID ?? process.env.KEYCLOAK_CLIENT_ID ?? '',
+      clientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET ?? process.env.KEYCLOAK_CLIENT_SECRET ?? '',
+      issuer: process.env.NUXT_KEYCLOAK_ISSUER ?? process.env.KEYCLOAK_ISSUER ?? '',
     },
     public: {
-      keycloakEnabled: !!(process.env.KEYCLOAK_ISSUER),
+      keycloakEnabled: false,
       appVersion: process.env.npm_package_version ?? '1.0.0',
       githubUrl: 'https://github.com/frcarlo/harmony',
     },

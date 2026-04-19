@@ -47,8 +47,8 @@
 definePageMeta({ layout: false })
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
-const keycloakEnabled = computed(() => config.public.keycloakEnabled)
+const { data: appConfig } = await useFetch('/api/app-config')
+const keycloakEnabled = computed(() => appConfig.value?.keycloakEnabled ?? false)
 const { fetch: refreshSession } = useUserSession()
 
 const tab = ref<'local' | 'keycloak'>('local')
