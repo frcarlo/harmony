@@ -19,15 +19,17 @@ export default defineNuxtConfig({
     ['@vite-pwa/nuxt', {
       registerType: 'autoUpdate',
       manifest: {
+        id: '/',
         name: 'HArmony',
         short_name: 'HArmony',
         description: 'Home Assistant Dashboard Builder',
         theme_color: '#0d1117',
         background_color: '#0d1117',
         display: 'standalone',
+        display_override: ['standalone', 'minimal-ui'],
         orientation: 'any',
         scope: '/',
-        start_url: '/dashboard',
+        start_url: '/',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -35,8 +37,12 @@ export default defineNuxtConfig({
         ],
       },
       workbox: {
-        navigateFallback: null,
+        navigateFallback: '/',
+        navigateFallbackDenylist: [/^\/api\//],
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           { urlPattern: /^\/api\/ha\//, handler: 'NetworkOnly' },
           { urlPattern: /^\/api\//, handler: 'NetworkFirst', options: { cacheName: 'api-cache', networkTimeoutSeconds: 5 } },
