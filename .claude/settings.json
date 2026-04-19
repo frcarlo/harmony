@@ -5,7 +5,15 @@
       "Bash(python3 -c \"import json; d=json.load\\(open\\('/data/docker-configs/ha-dashboard/nuxt/i18n/locales/de.json'\\)\\); print\\(json.dumps\\(d['toolbar'], indent=2\\)\\)\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); d['name']='harmony'; d['description']='HArmony — Home Assistant Dashboard Builder'; print\\(json.dumps\\(d, indent=2\\)\\)\")",
       "Bash(git init *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git tag *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('version','1.0.0'\\)\\)\")",
+      "Bash(chmod +x /data/docker-configs/ha-dashboard/release.sh)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/data/docker-configs/ha-dashboard/nuxt/package.json'\\)\\); print\\(list\\(d.keys\\(\\)\\)\\)\")"
     ]
   }
 }
