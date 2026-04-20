@@ -55,6 +55,15 @@
             <v-btn value="bottom" size="small" class="flex-1-1" icon="mdi-arrow-down-bold" :title="t('config.pos_bottom')" />
           </v-btn-toggle>
         </div>
+        <div>
+          <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_size') }}</p>
+          <v-btn-toggle v-model="cfg.buttons_size" mandatory density="compact" color="primary" class="w-100">
+            <v-btn value="x-small" size="small" class="flex-1-1">XS</v-btn>
+            <v-btn value="small"   size="small" class="flex-1-1">S</v-btn>
+            <v-btn value="default" size="small" class="flex-1-1">M</v-btn>
+            <v-btn value="large"   size="small" class="flex-1-1">L</v-btn>
+          </v-btn-toggle>
+        </div>
       </template>
       <template v-if="widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
         <UiColorPicker v-model="cfg.dial_color" :label="t('config.dial_color')" clearable />

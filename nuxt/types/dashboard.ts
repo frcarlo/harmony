@@ -81,6 +81,7 @@ export interface CoverWidgetConfig {
   dial_color?: string
   dial_bg_color?: string
   buttons_position?: 'left' | 'right' | 'top' | 'bottom'
+  buttons_size?: 'x-small' | 'small' | 'default' | 'large'
 }
 
 export interface LockWidgetConfig {

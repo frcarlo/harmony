@@ -10,12 +10,12 @@
         <span class="text-caption text-medium-emphasis">{{ stateLabel }}</span>
       </div>
       <div class="d-flex ga-2" :class="buttonsClass">
-        <v-btn :disabled="isUnavailable || isFullyOpen" variant="tonal" size="small" icon="mdi-chevron-up"
+        <v-btn :disabled="isUnavailable || isFullyOpen" variant="tonal" :size="btnSize" icon="mdi-chevron-up"
           v-tooltip="{ text: openCoverText, location: 'top' }" @click="callCover('open_cover')" />
-        <v-btn :disabled="isUnavailable" variant="tonal" size="small" icon="mdi-stop"
+        <v-btn :disabled="isUnavailable" variant="tonal" :size="btnSize" icon="mdi-stop"
           @click="callCover('stop_cover')" />
         <v-btn :disabled="isUnavailable || isFullyClosed" v-tooltip="{ text: closeCoverText, location: 'top' }"
-          variant="tonal" size="small" icon="mdi-chevron-down" @click="callCover('close_cover')" />
+          variant="tonal" :size="btnSize" icon="mdi-chevron-down" @click="callCover('close_cover')" />
       </div>
     </div>
   </div>
@@ -55,6 +55,7 @@ const containerClass = computed(() => {
   return 'flex-column-reverse align-center ga-2'
 })
 const infoClass = computed(() => 'flex-column align-center')
+const btnSize = computed(() => props.config.buttons_size ?? 'small')
 const buttonsClass = computed(() => {
   if (pos.value === 'left' || pos.value === 'right') return 'flex-column'
   return 'flex-row'
