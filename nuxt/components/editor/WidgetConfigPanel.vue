@@ -5,6 +5,15 @@
     </template>
 
     <div v-if="widget" class="d-flex flex-column ga-4">
+      <!-- Widget type badge -->
+      <div class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.05)">
+        <v-icon :icon="WIDGET_ICONS[widget.type] ?? 'mdi-widgets-outline'" size="18" color="primary" />
+        <span class="text-body-2 font-weight-medium">{{ t(`widget.${widget.type}.label`) }}</span>
+        <span v-if="cfg.name || cfg.entity_id" class="text-caption text-medium-emphasis text-truncate ml-1">
+          — {{ cfg.name || cfg.entity_id }}
+        </span>
+      </div>
+
       <!-- Entity -->
       <div
         v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'person' && widget.type !== 'energy' && widget.type !== 'status_bar'">
@@ -35,7 +44,18 @@
           clearable />
       </template>
 
-      <!-- Cover Dial -->
+      <!-- Cover / Cover Dial -->
+      <template v-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
+        <div>
+          <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_position') }}</p>
+          <v-btn-toggle v-model="cfg.buttons_position" mandatory density="compact" color="primary" class="w-100">
+            <v-btn value="left"   size="small" class="flex-1-1" icon="mdi-arrow-left-bold" :title="t('config.pos_left')" />
+            <v-btn value="right"  size="small" class="flex-1-1" icon="mdi-arrow-right-bold" :title="t('config.pos_right')" />
+            <v-btn value="top"    size="small" class="flex-1-1" icon="mdi-arrow-up-bold" :title="t('config.pos_top')" />
+            <v-btn value="bottom" size="small" class="flex-1-1" icon="mdi-arrow-down-bold" :title="t('config.pos_bottom')" />
+          </v-btn-toggle>
+        </div>
+      </template>
       <template v-if="widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
         <UiColorPicker v-model="cfg.dial_color" :label="t('config.dial_color')" clearable />
         <UiColorPicker v-model="cfg.dial_bg_color" :label="t('config.dial_bg_color')" clearable />
@@ -218,6 +238,17 @@ const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknow
 
 watch(widget, (w) => { if (w && !w.appearance) w.appearance = {} }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
+
+const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
+  sensor: 'mdi-gauge', switch: 'mdi-toggle-switch-outline', light: 'mdi-lightbulb-outline',
+  chart: 'mdi-chart-line', camera: 'mdi-cctv', thermostat: 'mdi-thermostat',
+  media_player: 'mdi-play-circle-outline', cover: 'mdi-window-shutter',
+  cover_dial: 'mdi-window-shutter', cover_dial2: 'mdi-window-shutter',
+  lock: 'mdi-lock-outline', weather: 'mdi-weather-partly-cloudy',
+  clock: 'mdi-clock-outline', label: 'mdi-format-text', room_card: 'mdi-floor-plan',
+  calendar: 'mdi-calendar-outline', person: 'mdi-account-group-outline',
+  energy: 'mdi-lightning-bolt', status_bar: 'mdi-view-list-outline',
+}
 
 const ENTITY_DOMAINS: Partial<Record<WidgetType, string>> = {
   switch: 'switch', light: 'light', camera: 'camera',

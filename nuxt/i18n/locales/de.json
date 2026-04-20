@@ -233,7 +233,12 @@
     "days_3": "3 Tage",
     "days_7": "7 Tage",
     "days_14": "14 Tage",
-    "show_labels": "Beschriftungen anzeigen"
+    "show_labels": "Beschriftungen anzeigen",
+    "buttons_position": "Button-Position",
+    "pos_left": "Links",
+    "pos_right": "Rechts",
+    "pos_top": "Oben",
+    "pos_bottom": "Unten"
   },
   "entity_picker": {
     "placeholder": "Entity suchen...",

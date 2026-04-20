@@ -233,7 +233,12 @@
     "days_3": "3 days",
     "days_7": "7 days",
     "days_14": "14 days",
-    "show_labels": "Show labels"
+    "show_labels": "Show labels",
+    "buttons_position": "Button position",
+    "pos_left": "Left",
+    "pos_right": "Right",
+    "pos_top": "Top",
+    "pos_bottom": "Bottom"
   },
   "entity_picker": {
     "placeholder": "Search entity...",
