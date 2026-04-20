@@ -80,6 +80,7 @@ export interface CoverWidgetConfig {
   name?: string
   dial_color?: string
   dial_bg_color?: string
+  buttons_position?: 'left' | 'right' | 'top' | 'bottom'
 }
 
 export interface LockWidgetConfig {

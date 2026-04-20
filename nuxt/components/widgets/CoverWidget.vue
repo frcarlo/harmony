@@ -4,20 +4,19 @@
       <v-icon icon="mdi-window-shutter" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate">{{ name }}</span>
     </div>
-    <div class="flex-grow-1 d-flex flex-column justify-center ga-2">
-      <div class="d-flex align-center ga-2 mx-auto">
+    <div class="flex-grow-1 d-flex justify-center" :class="containerClass">
+      <div class="d-flex align-center ga-2" :class="infoClass">
         <span v-if="position !== undefined" class="text-h6 font-weight-semibold">{{ position }}%</span>
         <span class="text-caption text-medium-emphasis">{{ stateLabel }}</span>
       </div>
-      <div class="d-flex ga-2 mx-auto">
+      <div class="d-flex ga-2" :class="buttonsClass">
         <v-btn :disabled="isUnavailable || isFullyOpen" variant="tonal" size="small" icon="mdi-chevron-up"
-          v-tooltip="{ text: openCoverText, location: 'top' }" @click="callCover('open_cover')"></v-btn>
+          v-tooltip="{ text: openCoverText, location: 'top' }" @click="callCover('open_cover')" />
         <v-btn :disabled="isUnavailable" variant="tonal" size="small" icon="mdi-stop"
           @click="callCover('stop_cover')" />
         <v-btn :disabled="isUnavailable || isFullyClosed" v-tooltip="{ text: closeCoverText, location: 'top' }"
-          variant="tonal" size="small" icon="mdi-chevron-down" @click="callCover('close_cover')"></v-btn>
+          variant="tonal" size="small" icon="mdi-chevron-down" @click="callCover('close_cover')" />
       </div>
-
     </div>
   </div>
 </template>
@@ -45,11 +44,20 @@ const stateLabel = computed(() => {
   }
   return labels[state.value] ?? state.value
 })
-const closeCoverText = computed(() => {
-  return t('common.close_cover')
+const closeCoverText = computed(() => t('common.close_cover'))
+const openCoverText = computed(() => t('common.open'))
+
+const pos = computed(() => props.config.buttons_position ?? 'bottom')
+const containerClass = computed(() => {
+  if (pos.value === 'left')  return 'flex-row-reverse align-center ga-3'
+  if (pos.value === 'right') return 'flex-row align-center ga-3'
+  if (pos.value === 'top')   return 'flex-column-reverse align-center ga-2'
+  return 'flex-column align-center ga-2'
 })
-const openCoverText = computed(() => {
-  return t('common.open')
+const infoClass = computed(() => 'flex-column align-center')
+const buttonsClass = computed(() => {
+  if (pos.value === 'left' || pos.value === 'right') return 'flex-column'
+  return 'flex-row'
 })
 
 async function callCover(service: string) {

@@ -7,8 +7,8 @@
       <span class="text-caption text-medium-emphasis text-truncate">{{ name }}</span>
     </div>
 
-    <div class="flex-grow-1 d-flex align-center justify-center ga-4">
-      <div class="d-flex flex-column align-center" style="gap: 2px">
+    <div class="flex-grow-1 d-flex align-center justify-center" :class="containerClass">
+      <div :class="buttonsClass" style="gap: 2px">
         <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="isUnavailable || isFullyOpen"
           @click.stop="callCover('open_cover')" />
         <v-btn icon="mdi-stop" size="x-small" variant="text" :disabled="isUnavailable"
@@ -72,6 +72,18 @@ const dialStyle = computed(() => ({
   ...(props.config.dial_color ? { '--dial-color': props.config.dial_color } : {}),
   ...(props.config.dial_bg_color ? { '--dial-bg-color': props.config.dial_bg_color } : {}),
 }))
+
+const pos = computed(() => props.config.buttons_position ?? 'left')
+const containerClass = computed(() => {
+  if (pos.value === 'right') return 'flex-row ga-4'
+  if (pos.value === 'top')   return 'flex-column-reverse ga-3'
+  if (pos.value === 'bottom') return 'flex-column ga-3'
+  return 'flex-row-reverse ga-4'
+})
+const buttonsClass = computed(() => {
+  if (pos.value === 'top' || pos.value === 'bottom') return 'd-flex flex-row align-center'
+  return 'd-flex flex-column align-center'
+})
 
 const dialogOpen = ref(false)
 
