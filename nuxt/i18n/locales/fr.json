@@ -136,6 +136,10 @@
     "energy": {
       "label": "Énergie",
       "description": "Aperçu électricité & solaire"
+    },
+    "status_bar": {
+      "label": "Barre de statut",
+      "description": "Icônes de statut en ligne"
     }
   },
   "door": {
@@ -207,7 +211,8 @@
     "days_1": "1 jour",
     "days_3": "3 jours",
     "days_7": "7 jours",
-    "days_14": "14 jours"
+    "days_14": "14 jours",
+    "show_labels": "Afficher les étiquettes"
   },
   "entity_picker": {
     "placeholder": "Rechercher une entité...",

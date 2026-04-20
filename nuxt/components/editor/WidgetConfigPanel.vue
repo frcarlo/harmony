@@ -7,13 +7,13 @@
     <div v-if="widget" class="d-flex flex-column ga-4">
       <!-- Entity -->
       <div
-        v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'person' && widget.type !== 'energy'">
+        v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'person' && widget.type !== 'energy' && widget.type !== 'status_bar'">
         <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
         <EntityPicker v-model="cfg.entity_id" :domain="ENTITY_DOMAINS[widget.type]" />
       </div>
 
       <!-- Name -->
-      <v-text-field v-if="widget.type !== 'clock' && widget.type !== 'room_card'" v-model="cfg.name"
+      <v-text-field v-if="widget.type !== 'clock' && widget.type !== 'room_card' && widget.type !== 'status_bar'" v-model="cfg.name"
         :label="t('config.display_name')" :placeholder="t('config.display_name_hint')" />
 
       <!-- Sensor -->
@@ -144,6 +144,31 @@
         </v-btn>
       </template>
 
+      <!-- Status Bar -->
+      <template v-if="widget.type === 'status_bar'">
+        <v-checkbox v-model="cfg.show_labels" :label="t('config.show_labels')" hide-details density="compact" />
+        <v-divider />
+        <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.status_entities') }}</p>
+        <template v-for="(entry, idx) in statusBarEntries" :key="idx">
+          <div class="d-flex align-center ga-1">
+            <span class="text-caption text-medium-emphasis flex-grow-1">{{ idx + 1 }}.</span>
+            <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeStatusBarEntry(idx)" />
+          </div>
+          <EntityPicker v-model="entry.entity_id" :placeholder="`Entity ${idx + 1}`" />
+          <div v-if="entry.entity_id" class="d-flex flex-column ga-2">
+            <UiIconPicker v-model="entry.icon" :label="t('config.icon_field')" placeholder="mdi-circle" />
+            <v-text-field v-model="entry.label" :label="t('config.display_name')" density="compact" hide-details clearable />
+            <v-text-field v-model="entry.active_state" :label="t('config.active_state')"
+              :placeholder="t('config.active_state_hint')" density="compact" hide-details clearable />
+            <UiColorPicker v-model="entry.active_color" :label="t('config.active_color')" clearable />
+            <UiColorPicker v-model="entry.inactive_color" :label="t('config.inactive_color')" clearable />
+          </div>
+        </template>
+        <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" class="mt-1" @click="addStatusBarEntry">
+          {{ t('config.add_status') }}
+        </v-btn>
+      </template>
+
       <!-- Appearance -->
       <v-divider />
       <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.appearance') }}</p>
@@ -229,5 +254,19 @@ function removeStatusSlot(index: number) {
   const list = [...roomStatusEntities.value]
   list.splice(index, 1)
   cfg.value.status_entities = list
+}
+
+const statusBarEntries = computed(() => (cfg.value.entries as Array<Record<string, unknown>>) ?? [])
+
+function addStatusBarEntry() {
+  const list = [...statusBarEntries.value]
+  list.push({ entity_id: '', icon: 'mdi-circle', active_state: 'on' })
+  cfg.value.entries = list
+}
+
+function removeStatusBarEntry(index: number) {
+  const list = [...statusBarEntries.value]
+  list.splice(index, 1)
+  cfg.value.entries = list
 }
 </script>

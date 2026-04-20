@@ -136,6 +136,10 @@
     "energy": {
       "label": "Energía",
       "description": "Resumen eléctrico y solar"
+    },
+    "status_bar": {
+      "label": "Barra de estado",
+      "description": "Iconos de estado en una fila"
     }
   },
   "door": {
@@ -207,7 +211,8 @@
     "days_1": "1 día",
     "days_3": "3 días",
     "days_7": "7 días",
-    "days_14": "14 días"
+    "days_14": "14 días",
+    "show_labels": "Mostrar etiquetas"
   },
   "entity_picker": {
     "placeholder": "Buscar entidad...",

@@ -17,6 +17,7 @@ export type WidgetType =
   | 'calendar'
   | 'person'
   | 'energy'
+  | 'status_bar'
 
 export interface WidgetLayout {
   x: number
@@ -142,6 +143,20 @@ export interface PersonWidgetConfig {
   name?: string
 }
 
+export interface StatusBarEntry {
+  entity_id: string
+  icon: string
+  label?: string
+  active_state?: string
+  active_color?: string
+  inactive_color?: string
+}
+
+export interface StatusBarWidgetConfig {
+  entries: StatusBarEntry[]
+  show_labels?: boolean
+}
+
 export interface EnergyWidgetConfig {
   grid_entity_id?: string
   solar_entity_id?: string
@@ -166,6 +181,7 @@ export type WidgetConfig =
   | CalendarWidgetConfig
   | PersonWidgetConfig
   | EnergyWidgetConfig
+  | StatusBarWidgetConfig
 
 export interface WidgetAppearance {
   bg_color?: string        // Hintergrundfarbe der Karte

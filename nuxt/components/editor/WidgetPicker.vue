@@ -34,11 +34,12 @@ const widgetTypes = computed(() => [
   { type: 'lock' as WidgetType, label: t('widget.lock.label'), icon: 'mdi-lock', description: t('widget.lock.description'), defaultW: 4, defaultH: 4 },
   { type: 'weather' as WidgetType, label: t('widget.weather.label'), icon: 'mdi-weather-partly-cloudy', description: t('widget.weather.description'), defaultW: 8, defaultH: 5 },
   { type: 'clock' as WidgetType, label: t('widget.clock.label'), icon: 'mdi-clock-outline', description: t('widget.clock.description'), defaultW: 4, defaultH: 3 },
-  { type: 'label' as WidgetType, label: t('widget.label.label'), icon: 'mdi-format-text', description: t('widget.label.description'), defaultW: 6, defaultH: 2 },
+  { type: 'label' as WidgetType, label: t('widget.label.label'), icon: 'mdi-format-text', description: t('widget.label.description'), defaultW: 6, defaultH: 1, minH: 1 },
   { type: 'room_card' as WidgetType, label: t('widget.room_card.label'), icon: 'mdi-home-outline', description: t('widget.room_card.description'), defaultW: 6, defaultH: 4 },
   { type: 'calendar' as WidgetType, label: t('widget.calendar.label'), icon: 'mdi-calendar-today', description: t('widget.calendar.description'), defaultW: 6, defaultH: 6 },
   { type: 'person' as WidgetType, label: t('widget.person.label'), icon: 'mdi-account-group-outline', description: t('widget.person.description'), defaultW: 4, defaultH: 4 },
   { type: 'energy' as WidgetType, label: t('widget.energy.label'), icon: 'mdi-lightning-bolt', description: t('widget.energy.description'), defaultW: 4, defaultH: 4 },
+  { type: 'status_bar' as WidgetType, label: t('widget.status_bar.label'), icon: 'mdi-view-dashboard-variant', description: t('widget.status_bar.description'), defaultW: 6, defaultH: 1, minH: 1 },
 ])
 
 const DEFAULT_CONFIGS: Record<WidgetType, object> = {
@@ -55,15 +56,16 @@ const DEFAULT_CONFIGS: Record<WidgetType, object> = {
   calendar: { entity_id: '', show_time: true },
   person: { persons: [] },
   energy: { grid_entity_id: '', solar_entity_id: '', battery_entity_id: '' },
+  status_bar: { entries: [], show_labels: false },
 }
 
-type WTDef = { type: WidgetType; label: string; icon: string; description: string; defaultW: number; defaultH: number }
+type WTDef = { type: WidgetType; label: string; icon: string; description: string; defaultW: number; defaultH: number; minH?: number }
 function handleAdd(wt: WTDef) {
   const id = crypto.randomUUID()
   const maxY = dashboardStore.dashboard?.widgets.reduce((m, w) => Math.max(m, w.layout.y + w.layout.h), 0) ?? 0
   dashboardStore.addWidget({
     id, type: wt.type,
-    layout: { x: 0, y: maxY, w: wt.defaultW, h: wt.defaultH },
+    layout: { x: 0, y: maxY, w: wt.defaultW, h: wt.defaultH, ...(wt.minH != null ? { minH: wt.minH } : {}) },
     config: DEFAULT_CONFIGS[wt.type as WidgetType] as never,
   })
   dashboardStore.setSelectedWidget(id)

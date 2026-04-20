@@ -136,6 +136,10 @@
     "energy": {
       "label": "Energy",
       "description": "Power & Solar overview"
+    },
+    "status_bar": {
+      "label": "Status Bar",
+      "description": "Status icons in one row"
     }
   },
   "door": {
@@ -207,7 +211,8 @@
     "days_1": "1 day",
     "days_3": "3 days",
     "days_7": "7 days",
-    "days_14": "14 days"
+    "days_14": "14 days",
+    "show_labels": "Show labels"
   },
   "entity_picker": {
     "placeholder": "Search entity...",
