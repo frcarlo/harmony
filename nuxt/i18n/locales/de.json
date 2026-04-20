@@ -211,6 +211,7 @@
     "active_state_hint": "z.B. locked, open, playing",
     "appearance": "Aussehen",
     "bg_color": "Hintergrundfarbe",
+    "bg_transparent": "Transparent",
     "border_color": "Rahmenfarbe",
     "active_color": "Aktiv-Farbe",
     "text_color": "Textfarbe",
@@ -234,6 +235,16 @@
     "days_7": "7 Tage",
     "days_14": "14 Tage",
     "show_labels": "Beschriftungen anzeigen",
+    "entry_type_single": "Einzeln",
+    "entry_type_group": "Gruppe",
+    "add_group": "Gruppe hinzufügen",
+    "group_filter": "Filter",
+    "filter_domains": "Domains",
+    "filter_name_contains": "Entity-ID enthält",
+    "filter_name_starts_with": "Entity-ID beginnt mit",
+    "filter_areas": "Bereiche",
+    "filter_labels": "Labels",
+    "show_badge": "Anzahl als Badge anzeigen",
     "buttons_position": "Button-Position",
     "buttons_size": "Button-Größe",
     "pos_left": "Links",
@@ -256,8 +267,16 @@
   },
   "media": {
     "library": "Medienbibliothek",
+    "search": "Suche",
+    "search_placeholder": "Titel, Alben, Künstler suchen…",
     "no_content": "Keine Inhalte gefunden",
-    "load_error": "Fehler beim Laden"
+    "no_results": "Keine Ergebnisse gefunden.",
+    "load_error": "Fehler beim Laden",
+    "tracks": "Titel",
+    "albums": "Alben",
+    "artists": "Künstler",
+    "playlists": "Playlists",
+    "radio": "Radio"
   },
   "thermostat": {
     "mode_heat": "Heizen",
@@ -317,6 +336,10 @@
   "detail": {
     "brightness": "Helligkeit",
     "color_temp": "Farbtemperatur"
+  },
+  "group": {
+    "title": "Gruppe",
+    "empty": "Keine passenden Entities gefunden."
   },
   "media_player": {
     "idle": "Bereit",
