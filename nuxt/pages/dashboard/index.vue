@@ -9,18 +9,18 @@
         <v-btn v-if="isAdmin" icon="mdi-import" size="small" variant="text" :title="t('dashboard.import')"
           :loading="importing" @click="importInput?.click()" />
         <input ref="importInput" type="file" accept=".json,application/json" class="d-none" @change="handleImport" />
-        <ToolbarActions />
+        <ToolbarActions :edit-mode="listEditMode" :can-edit="isAdmin" @toggle-edit="listEditMode = !listEditMode" />
       </template>
     </v-app-bar>
 
     <v-container fluid class="pa-6">
 
       <draggable v-if="dashboards.length > 0" v-model="dashboards" item-key="id"
-        handle=".drag-handle" :animation="150" :disabled="!isAdmin"
+        handle=".drag-handle" :animation="150" :disabled="!isAdmin || !listEditMode"
         class="v-row" @end="saveOrder">
         <template #item="{ element }">
           <v-col cols="12" sm="6" lg="4" xl="3">
-            <DashboardCard :dashboard="element" :is-admin="isAdmin" @deleted="loadDashboards" />
+            <DashboardCard :dashboard="element" :is-admin="isAdmin" :edit-mode="listEditMode" @deleted="loadDashboards" />
           </v-col>
         </template>
       </draggable>
@@ -48,6 +48,7 @@ const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 
 const dashboards = ref<DashboardListItem[]>([])
+const listEditMode = ref(false)
 const importing = ref(false)
 const importInput = ref<HTMLInputElement | null>(null)
 

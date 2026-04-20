@@ -1,5 +1,5 @@
 <template>
-  <UiSheet :open="open" side="right" width="320" @close="$emit('close')">
+  <UiSheet :open="open" side="right" width="400" @close="$emit('close')">
     <template #header>
       <p class="text-subtitle-1 font-weight-semibold mb-2">{{ t('widget.config_title') }}</p>
     </template>
@@ -180,31 +180,56 @@
         <v-checkbox v-model="cfg.show_labels" :label="t('config.show_labels')" hide-details density="compact" />
         <v-divider />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.status_entities') }}</p>
-        <template v-for="(entry, idx) in statusBarEntries" :key="idx">
-          <div class="d-flex align-center ga-1">
-            <span class="text-caption text-medium-emphasis flex-grow-1">{{ idx + 1 }}.</span>
+
+        <!-- Compact entry list -->
+        <div class="d-flex flex-column ga-1">
+          <div v-for="(entry, idx) in statusBarEntries" :key="idx"
+            class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
+            <v-icon :icon="entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : 'mdi-circle')"
+              size="18" class="flex-shrink-0" />
+            <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
+              {{ entry.label || entry.entity_id || (entry.entry_type === 'group' ? entryGroupSummary(entry) : '—') }}
+            </div>
+            <v-chip :color="entry.entry_type === 'group' ? 'primary' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
+              {{ entry.entry_type === 'group' ? t('config.entry_type_group') : t('config.entry_type_single') }}
+            </v-chip>
+            <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" @click="openEntryDialog(idx)" />
             <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeStatusBarEntry(idx)" />
           </div>
-          <EntityPicker v-model="entry.entity_id" :placeholder="`Entity ${idx + 1}`" />
-          <div v-if="entry.entity_id" class="d-flex flex-column ga-2">
-            <UiIconPicker v-model="entry.icon" :label="t('config.icon_field')" placeholder="mdi-circle" />
-            <v-text-field v-model="entry.label" :label="t('config.display_name')" density="compact" hide-details clearable />
-            <v-text-field v-model="entry.active_state" :label="t('config.active_state')"
-              :placeholder="t('config.active_state_hint')" density="compact" hide-details clearable />
-            <UiColorPicker v-model="entry.active_color" :label="t('config.active_color')" clearable />
-            <UiColorPicker v-model="entry.inactive_color" :label="t('config.inactive_color')" clearable />
-          </div>
-        </template>
-        <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" class="mt-1" @click="addStatusBarEntry">
-          {{ t('config.add_status') }}
-        </v-btn>
+        </div>
+
+        <div class="d-flex ga-2 mt-2">
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" flex @click="addStatusBarEntry">
+            {{ t('config.add_status') }}
+          </v-btn>
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" color="primary" flex @click="addStatusBarGroupEntry">
+            {{ t('config.add_group') }}
+          </v-btn>
+        </div>
+
+        <!-- Entry edit dialog -->
+        <StatusBarEntryDialog
+          v-if="editingEntryIdx !== null"
+          v-model="entryDialogOpen"
+          :entry="statusBarEntries[editingEntryIdx]"
+          @save="saveEntryDialog"
+        />
       </template>
 
       <!-- Appearance -->
       <v-divider />
       <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.appearance') }}</p>
 
-      <UiColorPicker v-model="appearance.bg_color" :label="t('config.bg_color')" clearable />
+      <div class="d-flex align-center ga-2">
+        <UiColorPicker v-model="appearance.bg_color" :label="t('config.bg_color')" clearable class="flex-grow-1"
+          :disabled="appearance.bg_color === 'transparent'" />
+        <v-btn
+          size="small" variant="tonal" density="comfortable"
+          :color="appearance.bg_color === 'transparent' ? 'primary' : undefined"
+          :title="t('config.bg_transparent')"
+          @click="appearance.bg_color = appearance.bg_color === 'transparent' ? undefined : 'transparent'"
+        >T</v-btn>
+      </div>
       <UiColorPicker v-model="appearance.border_color" :label="t('config.border_color')" clearable />
       <UiColorPicker v-model="appearance.active_color" :label="t('config.active_color')" clearable />
       <UiColorPicker v-model="appearance.text_color" :label="t('config.text_color')" clearable />
@@ -228,6 +253,8 @@
 
 <script setup lang="ts">
 import type { WidgetType, WidgetAppearance } from '~/types/dashboard'
+
+const entityStore = useEntityStore()
 
 const { t } = useI18n()
 defineProps<{ open: boolean }>()
@@ -300,10 +327,39 @@ function removeStatusSlot(index: number) {
 
 const statusBarEntries = computed(() => (cfg.value.entries as Array<Record<string, unknown>>) ?? [])
 
+const entryDialogOpen = ref(false)
+const editingEntryIdx = ref<number | null>(null)
+
+function openEntryDialog(idx: number) {
+  editingEntryIdx.value = idx
+  entryDialogOpen.value = true
+}
+
+function saveEntryDialog(updated: Record<string, unknown>) {
+  console.log('[panel save] updated:', JSON.stringify(updated))
+  const list = [...statusBarEntries.value]
+  if (editingEntryIdx.value !== null) list[editingEntryIdx.value] = updated
+  cfg.value.entries = list
+  console.log('[panel save] entries after:', JSON.stringify(cfg.value.entries))
+}
+
+function entryGroupSummary(entry: Record<string, unknown>) {
+  const filter = entry.filter as Record<string, unknown> | undefined
+  return (filter?.domains as string[] | undefined)?.join(', ') ?? t('config.entry_type_group')
+}
+
 function addStatusBarEntry() {
   const list = [...statusBarEntries.value]
   list.push({ entity_id: '', icon: 'mdi-circle', active_state: 'on' })
   cfg.value.entries = list
+  openEntryDialog(list.length - 1)
+}
+
+function addStatusBarGroupEntry() {
+  const list = [...statusBarEntries.value]
+  list.push({ entry_type: 'group', icon: 'mdi-lightbulb-group-outline', filter: { domains: ['light'] }, show_badge: true })
+  cfg.value.entries = list
+  openEntryDialog(list.length - 1)
 }
 
 function removeStatusBarEntry(index: number) {

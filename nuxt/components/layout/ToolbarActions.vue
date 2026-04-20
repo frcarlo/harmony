@@ -22,6 +22,12 @@
     </v-menu>
 
     <ThemeToggle />
+
+    <v-divider v-if="canEdit" vertical class="mx-1 my-2" />
+    <v-btn v-if="canEdit" :icon="editMode ? 'mdi-pencil-off-outline' : 'mdi-pencil-outline'"
+      size="small" variant="text" :color="editMode ? 'primary' : undefined"
+      :title="editMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on')"
+      @click="emit('toggle-edit')" />
   </div>
 
   <!-- User menu (always visible, contains mobile extras) -->
@@ -51,6 +57,15 @@
             </div>
           </template>
         </v-list-item>
+        <v-list-item
+          v-if="canEdit"
+          :prepend-icon="editMode ? 'mdi-pencil-off-outline' : 'mdi-pencil-outline'"
+          :title="editMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on')"
+          :active="editMode"
+          :color="editMode ? 'primary' : undefined"
+          rounded="lg"
+          @click="emit('toggle-edit')"
+        />
         <v-divider class="d-sm-none my-1" />
 
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
@@ -71,6 +86,9 @@ const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const availableLocales = computed(() => (locales.value as { code: string; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
+
+const props = defineProps<{ editMode?: boolean; canEdit?: boolean }>()
+const emit = defineEmits<{ 'toggle-edit': [] }>()
 
 const { user, clear } = useUserSession()
 

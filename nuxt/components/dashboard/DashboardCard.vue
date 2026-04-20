@@ -2,7 +2,7 @@
   <v-card :to="`/dashboard/${dashboard.id}`" hover :class="{ 'widget-glass': glass }"
     class="border-md border-primary rounded-lg dashboard-card">
     <v-card-item>
-      <template v-if="isAdmin" #prepend>
+      <template v-if="isAdmin && editMode" #prepend>
         <v-icon class="drag-handle card-drag-handle" icon="mdi-drag-vertical" color="medium-emphasis" size="18" @click.prevent />
       </template>
       <v-card-title class="text-body-1 d-flex align-center ga-2">
@@ -10,7 +10,7 @@
         {{ dashboard.name }}
       </v-card-title>
       <v-card-subtitle>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</v-card-subtitle>
-      <template v-if="isAdmin" #append>
+      <template v-if="isAdmin && editMode" #append>
         <div class="card-actions d-flex ga-1">
           <v-btn icon="mdi-pencil-outline" size="x-small" variant="plain" :to="`/edit/${dashboard.id}`"
             @click.stop />
@@ -57,7 +57,7 @@ dayjs.extend(relativeTime)
 
 const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
-const props = defineProps<{ dashboard: DashboardListItem; isAdmin?: boolean }>()
+const props = defineProps<{ dashboard: DashboardListItem; isAdmin?: boolean; editMode?: boolean }>()
 const emit = defineEmits<{ deleted: [] }>()
 
 const now = useNow({ interval: 60_000 })
@@ -130,15 +130,6 @@ async function handleDelete() {
 </script>
 
 <style scoped>
-.card-actions,
-.card-drag-handle {
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-.dashboard-card:hover .card-actions,
-.dashboard-card:hover .card-drag-handle {
-  opacity: 1;
-}
 .drag-handle {
   cursor: grab;
 }

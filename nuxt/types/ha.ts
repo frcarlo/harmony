@@ -76,11 +76,20 @@ export interface HAEntityRegistryEntry {
   area_id?: string | null
   device_id?: string | null
   disabled_by?: string | null
+  labels?: string[]
+}
+
+export interface HALabel {
+  label_id: string
+  name: string
+  color?: string | null
+  icon?: string | null
 }
 
 export interface HADeviceRegistryEntry {
   id: string
   area_id?: string | null
+  labels?: string[]
 }
 
 export interface HAServiceCall {

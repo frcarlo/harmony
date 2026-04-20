@@ -8,6 +8,7 @@
     "add": "Hinzufügen",
     "create": "Erstellen",
     "retry": "Erneut versuchen",
+    "connecting": "Verbinde mit Home Assistant…",
     "loading": "Laden…",
     "unavailable": "Nicht verfügbar",
     "on": "An",
@@ -71,7 +72,9 @@
     "grid_preview_mobile": "Handy (375px)",
     "signed_in": "Angemeldet",
     "user_mgmt": "Benutzerverwaltung",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "edit_mode_on": "Bearbeiten aktivieren",
+    "edit_mode_off": "Bearbeiten beenden"
   },
   "connection": {
     "connected": "Verbunden",
@@ -244,6 +247,7 @@
     "filter_name_starts_with": "Entity-ID beginnt mit",
     "filter_areas": "Bereiche",
     "filter_labels": "Labels",
+    "exclude_groups": "HA-Gruppen ausblenden",
     "show_badge": "Anzahl als Badge anzeigen",
     "buttons_position": "Button-Position",
     "buttons_size": "Button-Größe",

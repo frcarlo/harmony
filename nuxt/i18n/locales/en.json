@@ -8,6 +8,7 @@
     "add": "Add",
     "create": "Create",
     "retry": "Retry",
+    "connecting": "Connecting to Home Assistant…",
     "loading": "Loading…",
     "unavailable": "Unavailable",
     "on": "On",
@@ -71,7 +72,9 @@
     "grid_preview_mobile": "Mobile (375px)",
     "signed_in": "Signed in",
     "user_mgmt": "User management",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "edit_mode_on": "Enable editing",
+    "edit_mode_off": "Stop editing"
   },
   "connection": {
     "connected": "Connected",
@@ -244,6 +247,7 @@
     "filter_name_starts_with": "Entity ID starts with",
     "filter_areas": "Areas",
     "filter_labels": "Labels",
+    "exclude_groups": "Exclude HA groups",
     "show_badge": "Show count badge",
     "buttons_position": "Button position",
     "buttons_size": "Button size",

@@ -35,11 +35,9 @@
     </v-app-bar-title>
 
     <template #append>
-      <ToolbarActions />
+      <ToolbarActions :edit-mode="editMode" :can-edit="!hideEdit" @toggle-edit="$emit('toggle-edit')" />
       <v-divider vertical class="mx-2 my-2" />
 
-      <v-btn v-if="!hideEdit" :color="editMode ? 'primary' : undefined" variant="text" :icon="editMode ? 'mdi-check' : 'mdi-pencil'"
-        size="small" class="mr-1 d-none d-sm-inline-flex" @click="$emit('toggle-edit')" />
 
       <!-- Background picker -->
       <v-menu v-if="editMode" v-model="bgMenuOpen" :close-on-content-click="false" offset="8">

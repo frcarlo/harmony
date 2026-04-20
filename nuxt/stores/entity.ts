@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
-import type { HAState, HAArea } from '~/types/ha'
+import type { HAState, HAArea, HALabel } from '~/types/ha'
 
 export const useEntityStore = defineStore('entity', {
   state: () => ({
     entities: {} as Record<string, HAState>,
     connected: false,
     areas: [] as HAArea[],
-    entityAreaMap: {} as Record<string, string>, // entity_id → area_id
+    labels: [] as HALabel[],
+    entityAreaMap: {} as Record<string, string>,   // entity_id → area_id
+    entityLabelsMap: {} as Record<string, string[]>, // entity_id → label_ids
   }),
 
   actions: {
@@ -37,8 +39,16 @@ export const useEntityStore = defineStore('entity', {
       this.areas = areas
     },
 
+    setLabels(labels: HALabel[]) {
+      this.labels = labels
+    },
+
     setEntityAreaMap(map: Record<string, string>) {
       this.entityAreaMap = map
+    },
+
+    setEntityLabelsMap(map: Record<string, string[]>) {
+      this.entityLabelsMap = map
     },
   },
 
