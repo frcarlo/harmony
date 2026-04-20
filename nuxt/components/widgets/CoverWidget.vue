@@ -49,10 +49,10 @@ const openCoverText = computed(() => t('common.open'))
 
 const pos = computed(() => props.config.buttons_position ?? 'bottom')
 const containerClass = computed(() => {
-  if (pos.value === 'left')  return 'flex-row-reverse align-center ga-3'
-  if (pos.value === 'right') return 'flex-row align-center ga-3'
-  if (pos.value === 'top')   return 'flex-column-reverse align-center ga-2'
-  return 'flex-column align-center ga-2'
+  if (pos.value === 'left')  return 'flex-row align-center ga-3'
+  if (pos.value === 'right') return 'flex-row-reverse align-center ga-3'
+  if (pos.value === 'top')   return 'flex-column align-center ga-2'
+  return 'flex-column-reverse align-center ga-2'
 })
 const infoClass = computed(() => 'flex-column align-center')
 const buttonsClass = computed(() => {
