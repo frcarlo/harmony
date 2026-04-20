@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Dashboard, Widget } from '~/types/dashboard'
+import type { Dashboard, Widget, GridConfig } from '~/types/dashboard'
 
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
@@ -61,6 +61,11 @@ export const useDashboardStore = defineStore('dashboard', {
     updateDashboardBackground(background: string | undefined) {
       if (!this.dashboard) return
       this.dashboard.background = background || undefined
+    },
+
+    updateGridConfig(config: GridConfig) {
+      if (!this.dashboard) return
+      this.dashboard.grid_config = config
     },
 
     cloneWidget(id: string) {

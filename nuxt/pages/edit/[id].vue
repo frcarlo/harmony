@@ -5,6 +5,7 @@
       :dashboard-id="dashboard.id"
       :dashboard-icon="dashboard.icon"
       :dashboard-background="dashboard.background"
+      :dashboard-grid-config="dashboard.grid_config"
       :edit-mode="editMode"
       :saving="saving"
       @toggle-edit="handleToggleEdit"
@@ -13,6 +14,7 @@
       @rename="dashboardStore.updateDashboardName($event)"
       @reicon="dashboardStore.updateDashboardIcon($event)"
       @rebackground="dashboardStore.updateDashboardBackground($event)"
+      @regrid="dashboardStore.updateGridConfig($event)"
     />
     <v-main>
       <div class="pa-4" style="min-width: 900px">

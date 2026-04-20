@@ -1,14 +1,17 @@
 services:
   ha-dashboard:
-    image: ghcr.io/frcarlo/harmony:latest
+    image: ha-dashboard-nuxt:latest
     volumes:
       - ha-dashboard-data:/app/data
     environment:
       - NODE_ENV=production
-      - HA_URL=${HA_URL:-http://homeassistent.carlo-web.de:8123}
-      - HA_TOKEN=${HA_TOKEN}
-      - DATA_DIR=/app/data
-      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
+      - NUXT_HA_URL=http://homeassistent.carlo-web.de:8123
+      - NUXT_HA_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4N2I2YWU4MDAyNDA0ZDY5ODNkZmVlOTA0ZWM2ODdjZiIsImlhdCI6MTc3NjEwODg2NiwiZXhwIjoyMDkxNDY4ODY2fQ.qDyqA2SBaXrUHbxrTtGVb8r7H_4J_-mH7oXt0Bf97E0
+      - NUXT_DATA_DIR=/app/data
+      - NUXT_SESSION_PASSWORD=d799ada8521a2288afff51bc1833f499996bbabeb81a0bd1dc80182bfef0ff70
+      - NUXT_KEYCLOAK_ISSUER=https://auth.carlo-cloud.de/realms/carlo-web.de
+      - NUXT_KEYCLOAK_CLIENT_ID=ha-dashboard
+      - NUXT_KEYCLOAK_CLIENT_SECRET=wq5x7NUIjQJs5cqcm2iZwtLU6E7QKV0X
     networks:
       - proxy
     deploy:
@@ -20,10 +23,10 @@ services:
       labels:
         - "traefik.enable=true"
         - "info.admin=true"
-        - "info.title=HA Dashboard"
+        - "info.title=HArmony"
         - "info.group=Home Assistant"
         - "info.logo=dashboard.png"
-        - "info.description=HA Custom Dashboard"
+        - "info.description=HArmony Custom Dashboard"
         - "info.url=https://dashboard.carlo-cloud.de"
         - "traefik.docker.network=proxy"
         - "traefik.http.routers.ha-dashboard.rule=Host(`dashboard.carlo-cloud.de`)"

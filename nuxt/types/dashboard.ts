@@ -87,6 +87,7 @@ export interface LockWidgetConfig {
   name?: string
   require_confirmation?: boolean
   door_sensor_entity?: string
+  show_door_button?: boolean
 }
 
 export interface WeatherWidgetConfig {
@@ -200,11 +201,20 @@ export interface Widget {
   appearance?: WidgetAppearance
 }
 
+export interface GridConfig {
+  columns?: number
+  cell_height?: number
+  margin?: number
+  breakpoints?: boolean
+  max_width?: number
+}
+
 export interface Dashboard {
   id: string
   name: string
   icon?: string
   background?: string
+  grid_config?: GridConfig
   widgets: Widget[]
   created_at: string
   updated_at: string

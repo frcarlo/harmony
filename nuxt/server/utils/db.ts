@@ -106,6 +106,9 @@ function getDb(): DatabaseSync {
     _db.exec('ALTER TABLE dashboards ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0')
     _db.exec('UPDATE dashboards SET sort_order = rowid')
   }
+  if (!dashCols.some((c) => c.name === 'grid_config')) {
+    _db.exec('ALTER TABLE dashboards ADD COLUMN grid_config TEXT')
+  }
 
   return _db
 }
@@ -194,6 +197,7 @@ export function getDashboard(id: string): Dashboard | null {
     name: row.name,
     icon: row.icon ?? undefined,
     background: row.background ?? undefined,
+    grid_config: row.grid_config ? JSON.parse(row.grid_config) : undefined,
     widgets,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -219,8 +223,10 @@ export function saveDashboard(dashboard: Dashboard): void {
 
   db.exec('BEGIN')
   try {
-    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, updated_at=? WHERE id=?`)
-      .run(dashboard.name, dashboard.icon ?? null, dashboard.background ?? null, now, dashboard.id)
+    const gridConfigJson = dashboard.grid_config && Object.keys(dashboard.grid_config).length > 0
+      ? JSON.stringify(dashboard.grid_config) : null
+    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, grid_config=?, updated_at=? WHERE id=?`)
+      .run(dashboard.name, dashboard.icon ?? null, dashboard.background ?? null, gridConfigJson, now, dashboard.id)
 
     db.prepare('DELETE FROM widgets WHERE dashboard_id = ?').run(dashboard.id)
 

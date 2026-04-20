@@ -4,11 +4,13 @@
       <div class="d-flex align-center mb-2">
         <v-icon icon="mdi-bell-cog-outline" class="mr-2" />
         <span class="text-subtitle-1 font-weight-bold flex-grow-1">{{ t('notifications.title') }}</span>
-        <div style="width: 32px; height: 32px; flex-shrink: 0">
+        <div class="d-flex align-center ga-1" style="flex-shrink: 0">
           <v-btn v-if="isAdmin && activeTab === 'rules'" icon="mdi-cog-outline" size="small" variant="text"
             to="/admin/notifications" :title="t('notifications.title')" @click="closeDialog" />
           <v-btn v-else-if="activeTab === 'log' && log.length > 0" icon="mdi-delete-sweep-outline" size="small"
             variant="text" color="error" @click="handleClearLog" />
+          <v-btn class="d-sm-none" icon="mdi-close" size="small" variant="text"
+            @click="emit('update:modelValue', false); closeDialog()" />
         </div>
       </div>
       <v-tabs v-model="activeTab" density="compact" class="mb-1">
