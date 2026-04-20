@@ -75,10 +75,10 @@ const dialStyle = computed(() => ({
 
 const pos = computed(() => props.config.buttons_position ?? 'left')
 const containerClass = computed(() => {
-  if (pos.value === 'right') return 'flex-row ga-4'
-  if (pos.value === 'top')   return 'flex-column-reverse ga-3'
-  if (pos.value === 'bottom') return 'flex-column ga-3'
-  return 'flex-row-reverse ga-4'
+  if (pos.value === 'right')  return 'flex-row-reverse ga-4'
+  if (pos.value === 'top')    return 'flex-column ga-3'
+  if (pos.value === 'bottom') return 'flex-column-reverse ga-3'
+  return 'flex-row ga-4'
 })
 const buttonsClass = computed(() => {
   if (pos.value === 'top' || pos.value === 'bottom') return 'd-flex flex-row align-center'
