@@ -1,0 +1,43 @@
+services:
+  ha-dashboard:
+    image: ghcr.io/frcarlo/harmony:latest
+    volumes:
+      - ha-dashboard-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - NUXT_HA_URL=http://homeassistant.local:8123
+      - NUXT_HA_TOKEN=your_long_lived_access_token
+      - NUXT_DATA_DIR=/app/data
+      - NUXT_SESSION_PASSWORD=a_random_64_char_hex_string
+      # Optional: Music Assistant token (enables search in media player widget)
+      # NUXT_MA_TOKEN=your_ma_api_token
+      # Optional: Override Music Assistant URL (default: HA host on port 8095)
+      # NUXT_MA_URL=http://homeassistant.local:8095
+      # Optional: Keycloak SSO
+      # NUXT_KEYCLOAK_ISSUER=https://auth.example.com/realms/myrealm
+      # NUXT_KEYCLOAK_CLIENT_ID=harmony
+      # NUXT_KEYCLOAK_CLIENT_SECRET=your_keycloak_client_secret
+    networks:
+      - proxy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=proxy"
+        - "traefik.http.routers.ha-dashboard.rule=Host(`harmony.example.com`)"
+        - "traefik.http.routers.ha-dashboard.entrypoints=websecure"
+        - "traefik.http.routers.ha-dashboard.tls=true"
+        - "traefik.http.routers.ha-dashboard.tls.certresolver=letsencrypt"
+        - "traefik.http.services.ha-dashboard.loadbalancer.server.port=3000"
+
+volumes:
+  ha-dashboard-data:
+    driver: local
+
+networks:
+  proxy:
+    external: true

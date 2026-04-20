@@ -1,6 +1,7 @@
 # Environment files with secrets
 .env
 nuxt/.env
+compose.yml
 
 # Nuxt build artifacts
 nuxt/node_modules/
