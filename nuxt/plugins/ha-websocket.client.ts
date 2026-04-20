@@ -27,23 +27,36 @@ export default defineNuxtPlugin(() => {
 
   client.onConnect(async () => {
     entityStore.setConnected(true)
-    const [states, areas, entityRegistry, deviceRegistry] = await Promise.all([
-      client.getStates(),
-      client.getAreas(),
-      client.getEntityRegistry(),
-      client.getDeviceRegistry(),
-    ])
-    entityStore.setEntities(states)
-    entityStore.setAreas(areas)
+    try {
+      const [states, areas, entityRegistry, deviceRegistry, labelRegistry] = await Promise.all([
+        client.getStates(),
+        client.getAreas(),
+        client.getEntityRegistry(),
+        client.getDeviceRegistry(),
+        client.getLabelRegistry().catch(() => []),
+      ])
+      entityStore.setEntities(states)
+      entityStore.setAreas(areas)
+      entityStore.setLabels(labelRegistry)
 
-    // Build entity → area map: entity direct area_id, fallback to device area_id
-    const deviceAreaMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.area_id]))
-    const entityAreaMap: Record<string, string> = {}
-    for (const entry of entityRegistry) {
-      const areaId = entry.area_id ?? (entry.device_id ? deviceAreaMap[entry.device_id] : null)
-      if (areaId) entityAreaMap[entry.entity_id] = areaId
+      const deviceAreaMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.area_id]))
+      const deviceLabelsMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.labels ?? []]))
+      const entityAreaMap: Record<string, string> = {}
+      const entityLabelsMap: Record<string, string[]> = {}
+      for (const entry of entityRegistry) {
+        const areaId = entry.area_id ?? (entry.device_id ? deviceAreaMap[entry.device_id] : null)
+        if (areaId) entityAreaMap[entry.entity_id] = areaId
+        const entityLabels = entry.labels ?? []
+        const deviceLabels = entry.device_id ? (deviceLabelsMap[entry.device_id] ?? []) : []
+        const combined = [...new Set([...entityLabels, ...deviceLabels])]
+        if (combined.length) entityLabelsMap[entry.entity_id] = combined
+      }
+      entityStore.setEntityAreaMap(entityAreaMap)
+      entityStore.setEntityLabelsMap(entityLabelsMap)
+      console.log('[HA] init done — states:', states.length, 'labels:', labelRegistry.length, 'entities with labels:', Object.keys(entityLabelsMap).length)
+    } catch (e) {
+      console.error('[HA] onConnect init failed:', e)
     }
-    entityStore.setEntityAreaMap(entityAreaMap)
   })
 
   client.onDisconnect(() => {

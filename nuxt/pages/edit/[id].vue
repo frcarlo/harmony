@@ -52,7 +52,7 @@ onMounted(async () => {
   const data = await $fetch<Dashboard>(`/api/dashboards/${route.params.id}`)
   if (!data) throw createError({ statusCode: 404 })
   dashboardStore.setDashboard(data)
-  dashboardStore.setEditMode(true)
+  dashboardStore.setEditMode(false)
 })
 
 async function handleSave() {

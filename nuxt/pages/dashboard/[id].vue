@@ -1,5 +1,12 @@
 <template>
-  <div v-if="dashboard" class="d-flex flex-column" :style="bgStyle" style="min-height:100vh">
+  <div v-if="!connected" class="d-flex align-center justify-center" style="min-height:100vh">
+    <div class="d-flex flex-column align-center ga-4">
+      <v-progress-circular indeterminate color="primary" size="48" />
+      <span class="text-body-2 text-medium-emphasis">{{ t('common.connecting') }}</span>
+    </div>
+  </div>
+
+  <div v-else-if="dashboard" class="d-flex flex-column" :style="bgStyle" style="min-height:100vh">
     <AppToolbar
       :dashboard-name="dashboard.name"
       :dashboard-id="dashboard.id"
@@ -18,12 +25,15 @@
 <script setup lang="ts">
 import type { Dashboard } from '~/types/dashboard'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 const dashboardStore = useDashboardStore()
+const entityStore = useEntityStore()
 const dashboard = computed(() => dashboardStore.dashboard)
+const connected = computed(() => entityStore.connected)
 
 const bgStyle = computed(() => {
   const bg = dashboard.value?.background

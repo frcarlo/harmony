@@ -146,17 +146,39 @@ export interface PersonWidgetConfig {
   name?: string
 }
 
+export interface EntityGroupFilter {
+  domains?: string[]
+  name_contains?: string
+  name_starts_with?: string
+  areas?: string[]
+  labels?: string[]
+  exclude_groups?: boolean
+}
+
 export interface StatusBarEntry {
+  entry_type?: 'single'
   entity_id: string
   icon: string
   label?: string
   active_state?: string
   active_color?: string
   inactive_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
+}
+
+export interface StatusBarGroupEntry {
+  entry_type: 'group'
+  icon: string
+  label?: string
+  filter: EntityGroupFilter
+  show_badge?: boolean
+  active_color?: string
+  inactive_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
 }
 
 export interface StatusBarWidgetConfig {
-  entries: StatusBarEntry[]
+  entries: (StatusBarEntry | StatusBarGroupEntry)[]
   show_labels?: boolean
 }
 
