@@ -15,7 +15,7 @@
         <v-btn icon="mdi-close" size="x-small" variant="text" @click="$emit('close')" />
       </v-card-title>
 
-      <v-card-text class="pa-2" style="max-height: 420px; overflow-y: auto;">
+      <v-card-text class="pa-2 bg-transparent" style="max-height: 420px; overflow-y: auto;">
         <div v-if="loading" class="d-flex justify-center py-6">
           <v-progress-circular indeterminate size="28" color="primary" />
         </div>
@@ -24,7 +24,7 @@
           {{ error }}
         </div>
 
-        <v-list v-else density="compact" nav>
+        <v-list v-else density="compact" nav class="bg-transparent">
           <v-list-item
             v-for="item in children"
             :key="item.media_content_id"

@@ -3,7 +3,7 @@
     <div ref="gridEl" class="grid-stack">
       <div v-for="widget in widgets" :key="widget.id" class="grid-stack-item" :gs-id="widget.id" :gs-x="widget.layout.x"
         :gs-y="widget.layout.y" :gs-w="widget.layout.w" :gs-h="widget.layout.h" :gs-min-w="widget.layout.minW ?? 2"
-        :gs-min-h="widget.layout.minH ?? 2"
+        :gs-min-h="widget.layout.minH ?? (['label', 'status_bar'].includes(widget.type) ? 1 : 2)"
         :style="widget.appearance?.min_width ? { minWidth: widget.appearance.min_width + 'px' } : undefined">
         <div class="grid-stack-item-content">
           <WidgetWrapper :widget="widget" :edit-mode="editMode" />
@@ -75,6 +75,7 @@ async function reinitGrid() {
     el.setAttribute('gs-y', String(w.layout.y))
     el.setAttribute('gs-w', String(w.layout.w))
     el.setAttribute('gs-h', String(w.layout.h))
+    el.setAttribute('gs-min-h', String(w.layout.minH ?? (['label', 'status_bar'].includes(w.type) ? 1 : 2)))
   })
   initGrid()
 }

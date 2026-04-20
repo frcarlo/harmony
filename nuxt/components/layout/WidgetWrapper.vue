@@ -39,6 +39,7 @@
       <CalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
       <PersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
       <EnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
+      <StatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
       <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
     </div>
   </v-card>

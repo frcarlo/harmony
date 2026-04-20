@@ -13,12 +13,16 @@
       </div>
 
       <v-card-text class="px-4 pb-4">
-        <!-- State -->
+        <!-- State + Toggle -->
         <div class="d-flex justify-space-between align-center mb-3">
           <span class="text-body-2 text-medium-emphasis">{{ t('common.status') }}</span>
-          <v-chip :color="isActive ? (activeColor ?? 'primary') : undefined" size="small" variant="tonal">
-            {{ entity.state }}
-          </v-chip>
+          <div class="d-flex align-center ga-2">
+            <v-chip :color="isActive ? (activeColor ?? 'primary') : undefined" size="small" variant="tonal">
+              {{ entity.state }}
+            </v-chip>
+            <v-switch v-if="isToggleable" :model-value="isActive" :color="activeColor ?? 'primary'"
+              hide-details density="compact" :disabled="isUnavailable" @update:model-value="toggle" />
+          </div>
         </div>
 
         <!-- History -->
@@ -56,7 +60,11 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const entityStore = useEntityStore()
+const client = useHAClient()
 const entity = computed(() => entityStore.entities[props.entityId])
+const domain = computed(() => props.entityId.split('.')[0])
+const isToggleable = computed(() => ['light', 'switch'].includes(domain.value))
+const isUnavailable = computed(() => entity.value?.state === 'unavailable')
 const name = computed(() => (entity.value?.attributes?.friendly_name as string) ?? props.entityId)
 const areaName = computed(() => {
   const areaId = entityStore.entityAreaMap[props.entityId]
@@ -87,6 +95,11 @@ const lastUpdated = computed(() => {
   if (!ts) return '–'
   return new Date(ts).toLocaleString(locale.value, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 })
+
+async function toggle() {
+  if (isUnavailable.value) return
+  await client.callService({ domain: domain.value, service: isActive.value ? 'turn_off' : 'turn_on', target: { entity_id: props.entityId } })
+}
 
 function formatVal(v: unknown): string {
   if (v === null || v === undefined) return '–'

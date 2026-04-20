@@ -26,7 +26,7 @@ export const useDashboardStore = defineStore('dashboard', {
       if (!this.dashboard) return
       const w = this.dashboard.widgets.find((w) => w.id === id)
       console.log('Updated layout for widget', id, layout)
-      if (w) w.layout = layout
+      if (w) w.layout = { ...w.layout, ...layout }
 
     },
 

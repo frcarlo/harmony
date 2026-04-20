@@ -5,13 +5,9 @@
       <span class="text-caption text-medium-emphasis">{{ title }}</span>
     </div>
 
-    <div class="flex-grow-1 d-flex flex-column ga-2 overflow-auto">
-      <div
-        v-for="p in persons"
-        :key="p.entity_id"
-        class="d-flex align-center ga-3 pa-2 rounded-lg"
-        :class="p.isHome ? 'person-home' : 'person-away'"
-      >
+    <div class="flex-grow-1 d-flex flex-column gap-1">
+      <div v-for="p in persons" :key="p.entity_id" class="d-flex align-center ga-3 pa-2 rounded-lg"
+        :class="p.isHome ? 'person-home' : 'person-away'">
         <v-avatar size="36" :color="p.isHome ? 'success' : 'surface-variant'">
           <v-img v-if="p.picture" :src="p.picture" />
           <v-icon v-else icon="mdi-account" size="20" />
@@ -22,11 +18,12 @@
             {{ p.isHome ? t('person.home') : (p.location || t('person.away')) }}
           </div>
         </div>
-        <v-icon
-          :icon="p.isHome ? 'mdi-home-circle' : 'mdi-map-marker-outline'"
-          :color="p.isHome ? 'success' : 'medium-emphasis'"
-          size="18"
-        />
+        <a v-if="!p.isHome && p.mapsUrl" :href="p.mapsUrl" target="_blank" rel="noopener"
+          style="line-height:0; color:inherit" @click.stop>
+          <v-icon icon="mdi-map-marker" color="primary" size="18" />
+        </a>
+        <v-icon v-else :icon="p.isHome ? 'mdi-home-circle' : 'mdi-map-marker-outline'"
+          :color="p.isHome ? 'success' : 'medium-emphasis'" size="18" />
       </div>
     </div>
   </div>
@@ -56,6 +53,11 @@ const persons = computed(() => {
       isHome,
       location: isHome ? null : (state !== 'not_home' ? state : null),
       picture: attrs?.entity_picture as string | undefined,
+      mapsUrl: (() => {
+        const lat = attrs?.latitude as number | undefined
+        const lon = attrs?.longitude as number | undefined
+        return lat != null && lon != null ? `https://maps.google.com/?q=${lat},${lon}` : null
+      })(),
     }
   })
 })
@@ -65,6 +67,7 @@ const persons = computed(() => {
 .person-home {
   background: rgb(var(--v-theme-success) / 0.08);
 }
+
 .person-away {
   background: rgb(var(--v-theme-surface-variant) / 0.4);
 }

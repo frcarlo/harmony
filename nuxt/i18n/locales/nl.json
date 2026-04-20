@@ -136,6 +136,10 @@
     "energy": {
       "label": "Energie",
       "description": "Stroom & Zonne-energie overzicht"
+    },
+    "status_bar": {
+      "label": "Statusbalk",
+      "description": "Statuspictogrammen in één rij"
     }
   },
   "door": {
@@ -207,7 +211,8 @@
     "days_1": "1 dag",
     "days_3": "3 dagen",
     "days_7": "7 dagen",
-    "days_14": "14 dagen"
+    "days_14": "14 dagen",
+    "show_labels": "Labels tonen"
   },
   "entity_picker": {
     "placeholder": "Entiteit zoeken...",
