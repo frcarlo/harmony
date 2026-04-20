@@ -1,5 +1,6 @@
 <template>
   <v-btn color="primary" icon="mdi-plus" size="large" elevation="4"
+    class="d-none d-sm-inline-flex"
     style="position: fixed; bottom: 28px; right: 28px; z-index: 10"
     @click="dialog = true" />
 

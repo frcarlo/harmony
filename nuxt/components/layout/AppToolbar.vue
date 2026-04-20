@@ -39,7 +39,7 @@
       <v-divider vertical class="mx-2 my-2" />
 
       <v-btn v-if="!hideEdit" :color="editMode ? 'primary' : undefined" variant="text" :icon="editMode ? 'mdi-check' : 'mdi-pencil'"
-        size="small" class="mr-1" @click="$emit('toggle-edit')" />
+        size="small" class="mr-1 d-none d-sm-inline-flex" @click="$emit('toggle-edit')" />
 
       <!-- Background picker -->
       <v-menu v-if="editMode" v-model="bgMenuOpen" :close-on-content-click="false" offset="8">
@@ -62,6 +62,39 @@
         </v-card>
       </v-menu>
 
+      <!-- Grid settings -->
+      <v-menu v-if="editMode" v-model="gridMenuOpen" :close-on-content-click="false" offset="8">
+        <template #activator="{ props: menuProps }">
+          <v-btn v-bind="menuProps" icon="mdi-view-grid-plus-outline" size="small" variant="text" class="mr-1"
+            :title="t('toolbar.grid_settings')" />
+        </template>
+        <v-card min-width="260" rounded="lg">
+          <v-card-text class="pa-3">
+            <div class="text-caption text-medium-emphasis mb-3">{{ t('toolbar.grid_settings') }}</div>
+            <div class="text-caption mb-1">{{ t('toolbar.grid_columns', { n: localGrid.columns }) }}</div>
+            <v-slider v-model="localGrid.columns" :min="8" :max="48" :step="4" hide-details density="compact"
+              color="primary" class="mb-3" @update:model-value="emitGrid" />
+            <div class="text-caption mb-1">{{ t('toolbar.grid_cell_height', { n: localGrid.cell_height }) }}</div>
+            <v-slider v-model="localGrid.cell_height" :min="40" :max="160" :step="10" hide-details density="compact"
+              color="primary" class="mb-3" @update:model-value="emitGrid" />
+            <div class="text-caption mb-1">{{ t('toolbar.grid_margin', { n: localGrid.margin }) }}</div>
+            <v-slider v-model="localGrid.margin" :min="0" :max="24" :step="2" hide-details density="compact"
+              color="primary" class="mb-3" @update:model-value="emitGrid" />
+            <v-switch v-model="localGrid.breakpoints" :label="t('toolbar.grid_breakpoints')" density="compact"
+              hide-details color="primary" class="mb-3" @update:model-value="emitGrid" />
+            <div class="text-caption mb-2">{{ t('toolbar.grid_preview') }}</div>
+            <v-btn-toggle v-model="localGrid.max_width" density="compact" color="primary" class="w-100"
+              @update:model-value="emitGrid">
+              <v-btn :value="undefined" size="small" class="flex-1-1" icon="mdi-monitor" :title="t('toolbar.grid_preview_full')" />
+              <v-btn :value="1280" size="small" class="flex-1-1" icon="mdi-laptop" :title="t('toolbar.grid_preview_laptop')" />
+              <v-btn :value="1024" size="small" class="flex-1-1" icon="mdi-tablet" :title="t('toolbar.grid_preview_tablet')" />
+              <v-btn :value="768" size="small" class="flex-1-1" icon="mdi-tablet-cellphone" :title="t('toolbar.grid_preview_tablet_portrait')" />
+              <v-btn :value="375" size="small" class="flex-1-1" icon="mdi-cellphone" :title="t('toolbar.grid_preview_mobile')" />
+            </v-btn-toggle>
+          </v-card-text>
+        </v-card>
+      </v-menu>
+
       <v-btn v-if="editMode" color="primary" variant="flat" prepend-icon="mdi-plus" size="small" class="mr-1"
         @click="$emit('add-widget')">{{ t('toolbar.add_widget') }}</v-btn>
 
@@ -79,6 +112,7 @@ const props = defineProps<{
   dashboardId: string
   dashboardIcon?: string
   dashboardBackground?: string
+  dashboardGridConfig?: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }
   editMode?: boolean
   saving?: boolean
   hideEdit?: boolean
@@ -91,6 +125,7 @@ const emit = defineEmits<{
   'rename': [name: string]
   'reicon': [icon: string]
   'rebackground': [bg: string | undefined]
+  'regrid': [cfg: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }]
 }>()
 
 const PRESET_ICONS = [
@@ -113,11 +148,28 @@ const editingName = ref(false)
 const localName = ref('')
 const iconMenuOpen = ref(false)
 const bgMenuOpen = ref(false)
+const gridMenuOpen = ref(false)
 const localIcon = ref(props.dashboardIcon ?? '')
 const localBg = ref(props.dashboardBackground ?? '')
+const localGrid = ref({
+  columns: props.dashboardGridConfig?.columns ?? 24,
+  cell_height: props.dashboardGridConfig?.cell_height ?? 60,
+  margin: props.dashboardGridConfig?.margin ?? 6,
+  breakpoints: props.dashboardGridConfig?.breakpoints ?? true,
+  max_width: props.dashboardGridConfig?.max_width as number | undefined,
+})
 
 watch(() => props.dashboardIcon, (v) => { localIcon.value = v ?? '' }, { immediate: true })
 watch(() => props.dashboardBackground, (v) => { localBg.value = v ?? '' }, { immediate: true })
+watch(() => props.dashboardGridConfig, (v) => {
+  localGrid.value = {
+    columns: v?.columns ?? 24,
+    cell_height: v?.cell_height ?? 60,
+    margin: v?.margin ?? 6,
+    breakpoints: v?.breakpoints ?? true,
+    max_width: v?.max_width,
+  }
+}, { immediate: true })
 
 function pickIcon(ic: string) {
   localIcon.value = ic
@@ -134,6 +186,8 @@ function pickBg(val: string | undefined) {
 }
 
 function commitBg(val: string) { emit('rebackground', val || undefined) }
+
+function emitGrid() { emit('regrid', { ...localGrid.value }) }
 
 function startEditName() {
   localName.value = props.dashboardName

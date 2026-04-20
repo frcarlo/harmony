@@ -14,6 +14,10 @@
         <div class="card-actions d-flex ga-1">
           <v-btn icon="mdi-pencil-outline" size="x-small" variant="plain" :to="`/edit/${dashboard.id}`"
             @click.stop />
+          <v-btn icon="mdi-content-copy" size="x-small" variant="plain" :loading="cloning"
+            :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
+          <v-btn icon="mdi-export-variant" size="x-small" variant="plain" :loading="exporting"
+            :title="t('dashboard.export')" @click.stop.prevent="handleExport" />
           <v-btn icon="mdi-trash-can-outline" size="x-small" variant="plain" color="error"
             @click.stop.prevent="confirmOpen = true" />
         </div>
@@ -59,10 +63,55 @@ const emit = defineEmits<{ deleted: [] }>()
 const now = useNow({ interval: 60_000 })
 const confirmOpen = ref(false)
 const deleting = ref(false)
+const exporting = ref(false)
+const cloning = ref(false)
 
 function formatDate(iso: string) {
   void now.value
   return dayjs(iso).locale(locale.value).fromNow()
+}
+
+async function handleClone() {
+  cloning.value = true
+  try {
+    const full = await $fetch<Record<string, unknown>>(`/api/dashboards/${props.dashboard.id}`)
+    const cloneName = `${full.name} (Kopie)`
+    const created = await $fetch<{ id: string }>('/api/dashboards', {
+      method: 'POST',
+      body: { name: cloneName, icon: full.icon },
+    })
+    const widgets = Array.isArray(full.widgets)
+      ? (full.widgets as Record<string, unknown>[]).map(w => ({ ...w, id: crypto.randomUUID() }))
+      : []
+    await $fetch(`/api/dashboards/${created.id}`, {
+      method: 'PUT',
+      body: { ...full, id: created.id, name: cloneName, widgets },
+    })
+    toast.success(t('dashboard.cloned', { name: cloneName }))
+    emit('deleted') // reused to trigger list reload
+  } catch {
+    toast.error(t('dashboard.clone_error'))
+  } finally {
+    cloning.value = false
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    const full = await $fetch<object>(`/api/dashboards/${props.dashboard.id}`)
+    const blob = new Blob([JSON.stringify(full, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${props.dashboard.name}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    toast.error(t('dashboard.export_error'))
+  } finally {
+    exporting.value = false
+  }
 }
 
 async function handleDelete() {

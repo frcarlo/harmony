@@ -48,6 +48,8 @@
       <!-- Lock -->
       <template v-if="widget.type === 'lock'">
         <v-checkbox v-model="cfg.require_confirmation" :label="t('config.require_confirmation')" />
+        <v-checkbox :model-value="cfg.show_door_button !== false" :label="t('config.show_door_button')"
+          @update:model-value="cfg.show_door_button = $event ? undefined : false" />
         <EntityPicker v-model="cfg.door_sensor_entity" domain="binary_sensor" :label="t('lock.door_sensor')" />
       </template>
 

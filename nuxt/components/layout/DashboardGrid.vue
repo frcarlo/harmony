@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100">
+  <div :style="maxWidthStyle">
     <div ref="gridEl" class="grid-stack">
       <div v-for="widget in widgets" :key="widget.id" class="grid-stack-item" :gs-id="widget.id" :gs-x="widget.layout.x"
         :gs-y="widget.layout.y" :gs-w="widget.layout.w" :gs-h="widget.layout.h" :gs-min-w="widget.layout.minW ?? 2"
@@ -27,26 +27,37 @@ const props = defineProps<{ editMode?: boolean }>()
 
 const dashboardStore = useDashboardStore()
 const widgets = computed(() => dashboardStore.dashboard?.widgets ?? [])
+const maxWidthStyle = computed(() => {
+  const mw = dashboardStore.dashboard?.grid_config?.max_width
+  return mw ? { maxWidth: `${mw}px`, margin: '0 auto' } : {}
+})
 const gridEl = ref<HTMLElement | null>(null)
 let grid: GridStack | null = null
 
 function initGrid() {
   if (!gridEl.value) return
+  const gc = dashboardStore.dashboard?.grid_config ?? {}
+  const columns = gc.columns ?? 24
+  const cellHeight = gc.cell_height ?? 60
+  const margin = gc.margin ?? 6
+  const columnOpts = gc.breakpoints === false ? {} : {
+    columnOpts: {
+      breakpoints: [
+        { w: 480,  c: Math.min(Math.round(columns * 0.17), columns), layout: 'scale' as const },
+        { w: 768,  c: Math.min(Math.round(columns * 0.33), columns), layout: 'scale' as const },
+        { w: 1024, c: Math.min(Math.round(columns * 0.5),  columns), layout: 'scale' as const },
+        { w: 1440, c: Math.min(Math.round(columns * 0.67), columns), layout: 'scale' as const },
+        { w: 1920, c: Math.min(Math.round(columns * 0.83), columns), layout: 'scale' as const },
+      ],
+      layout: 'scale' as const,
+    },
+  }
   grid = GridStack.init(
     {
-      column: 24,
-      columnOpts: {
-        breakpoints: [
-          { w: 480,  c: 2,  layout: 'list'  },
-          { w: 768,  c: 4,  layout: 'list'  },
-          { w: 1024, c: 12, layout: 'scale' },
-          { w: 1440, c: 16, layout: 'scale' },
-          { w: 1920, c: 20, layout: 'scale' },
-        ],
-        layout: 'scale',
-      },
-      cellHeight: 60,
-      margin: 6,
+      column: columns,
+      ...columnOpts,
+      cellHeight,
+      margin,
       animate: true,
       float: true,
       draggable: { handle: '.drag-handle' },
@@ -103,8 +114,11 @@ watch(() => widgets.value.length, async () => {
 
 watch(() => props.editMode, (v) => { if (!grid) return; v ? grid.enable() : grid.disable() })
 
+watch(() => dashboardStore.dashboard?.grid_config, async () => { await reinitGrid() }, { deep: true })
+
 onUnmounted(() => {
   grid?.destroy(false)
   grid = null
 })
 </script>
+

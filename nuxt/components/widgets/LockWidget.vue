@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <div class="mt-2">
+    <div v-if="props.config.show_door_button !== false" class="mt-2">
       <Transition name="pill-swap" mode="out-in">
         <div v-if="!confirmingDoor" key="door-btn" class="door-btn-track" @click="confirmingDoor = true">
           <v-icon icon="mdi-door-open" size="18" color="white" class="mr-2" />

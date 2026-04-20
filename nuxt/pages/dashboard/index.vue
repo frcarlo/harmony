@@ -6,6 +6,9 @@
       </template>
       <v-app-bar-title class="text-body-1 font-weight-semibold">HArmony</v-app-bar-title>
       <template #append>
+        <v-btn v-if="isAdmin" icon="mdi-import" size="small" variant="text" :title="t('dashboard.import')"
+          :loading="importing" @click="importInput?.click()" />
+        <input ref="importInput" type="file" accept=".json,application/json" class="d-none" @change="handleImport" />
         <ToolbarActions />
       </template>
     </v-app-bar>
@@ -37,6 +40,7 @@
 
 <script setup lang="ts">
 import draggable from 'vuedraggable'
+import { toast } from 'vue-sonner'
 import type { DashboardListItem } from '~/types/dashboard'
 
 const { t } = useI18n()
@@ -44,12 +48,58 @@ const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 
 const dashboards = ref<DashboardListItem[]>([])
+const importing = ref(false)
+const importInput = ref<HTMLInputElement | null>(null)
 
 async function loadDashboards() {
   dashboards.value = await $fetch<DashboardListItem[]>('/api/dashboards')
 }
 
 onMounted(loadDashboards)
+
+async function handleImport(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!importInput.value) return
+  importInput.value.value = ''
+  if (!file) return
+
+  importing.value = true
+  try {
+    const text = await file.text()
+    const data = JSON.parse(text)
+
+    if (!data.name || !Array.isArray(data.widgets)) {
+      toast.error(t('dashboard.import_error'))
+      return
+    }
+
+    const idExists = dashboards.value.some(d => d.id === data.id)
+    let importName = data.name
+    if (idExists) {
+      importName = `${data.name} (Kopie)`
+      toast.info(t('dashboard.import_exists', { name: data.name }))
+    }
+
+    const created = await $fetch<{ id: string }>('/api/dashboards', {
+      method: 'POST',
+      body: { name: importName, icon: data.icon },
+    })
+    const widgets = Array.isArray(data.widgets)
+      ? data.widgets.map((w: Record<string, unknown>) => ({ ...w, id: crypto.randomUUID() }))
+      : []
+    await $fetch(`/api/dashboards/${created.id}`, {
+      method: 'PUT',
+      body: { ...data, id: created.id, name: importName, widgets },
+    })
+
+    toast.success(t('dashboard.imported', { name: importName }))
+    await loadDashboards()
+  } catch {
+    toast.error(t('dashboard.import_error'))
+  } finally {
+    importing.value = false
+  }
+}
 
 async function saveOrder() {
   if (!isAdmin.value) return
