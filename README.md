@@ -1,6 +1,6 @@
 # HArmony
 
-[![Version](https://img.shields.io/badge/version-v3.0.3-blue)](https://github.com/frcarlo/harmony/releases)
+[![Version](https://img.shields.io/badge/version-v3.1.0-blue)](https://github.com/frcarlo/harmony/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
@@ -13,6 +13,10 @@
 - **19+ widget types** — Sensors, lights, switches, cameras, media players, covers, thermostats, weather, charts, clocks, calendars, person presence, energy flow, and more
 - **Real-time sync** — WebSocket connection to Home Assistant for live state updates
 - **Multi-user** — Role-based access control (admin / user), per-user dashboard visibility
+- **Per-dashboard grid config** — Columns, cell height, margin, and responsive breakpoints configurable per dashboard
+- **Device preview** — Preview dashboards at mobile (375px), tablet portrait (768px), tablet landscape (1024px), or laptop (1280px) widths while editing
+- **Widget appearance** — Per-widget background, border, active color, and text color customization
+- **Dashboard export / import / clone** — Share or duplicate dashboards as JSON files
 - **Notification rules** — Trigger alerts or camera snapshots based on entity state changes, with cooldown and history log
 - **Audit log** — Track all administrative actions
 - **21 themes** — Dark, Light, Dracula, Nord, Catppuccin, Aura Dark, Anthropic, Matrix, and many more
@@ -51,8 +55,8 @@
 | `camera` | Live snapshot with auto-refresh |
 | `thermostat` | Temperature display and HVAC control |
 | `media_player` | Playback controls with album art |
-| `cover` | Blind/shutter with position dial |
-| `lock` | Lock/unlock with optional confirmation |
+| `cover` | Blind/shutter with position dial; configurable button position (left/right/top/bottom) and size |
+| `lock` | Lock/unlock with optional confirmation and optional door sensor button |
 | `weather` | Current conditions and multi-day forecast |
 | `clock` | Analog or digital, any timezone |
 | `label` | Static text / heading |
