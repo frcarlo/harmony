@@ -1,6 +1,6 @@
 # HArmony
 
-[![Version](https://img.shields.io/badge/version-v3.1.0-blue)](https://github.com/frcarlo/harmony/releases)
+[![Version](https://img.shields.io/badge/version-v3.1.1-blue)](https://github.com/frcarlo/harmony/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
@@ -10,7 +10,7 @@
 ## Features
 
 - **Drag-and-drop editor** — Build and rearrange dashboards with GridStack
-- **19+ widget types** — Sensors, lights, switches, cameras, media players, covers, thermostats, weather, charts, clocks, calendars, person presence, energy flow, and more
+- **20+ widget types** — Sensors, lights, switches, cameras, media players, covers, thermostats, weather, charts, clocks, calendars, person presence, energy flow, status bar, and more
 - **Real-time sync** — WebSocket connection to Home Assistant for live state updates
 - **Multi-user** — Role-based access control (admin / user), per-user dashboard visibility
 - **Per-dashboard grid config** — Columns, cell height, margin, and responsive breakpoints configurable per dashboard
@@ -20,7 +20,8 @@
 - **Notification rules** — Trigger alerts or camera snapshots based on entity state changes, with cooldown and history log
 - **Audit log** — Track all administrative actions
 - **21 themes** — Dark, Light, Dracula, Nord, Catppuccin, Aura Dark, Anthropic, Matrix, and many more
-- **Glass effect** — Animated backdrop blur UI (toggleable)
+- **Glass effect** — Animated backdrop blur UI (toggleable); supports custom background colors with semi-transparent blending and transparent mode
+- **Music Assistant integration** — Search tracks, albums, artists, playlists, and radio stations directly from the media player widget; auto-detected when MA runs as a HA add-on
 - **PWA** — Installable as a native app on mobile and desktop
 - **Internationalization** — German, English, Spanish, French, Italian, Dutch
 - **Keycloak SSO** — Optional OAuth2 integration
@@ -64,6 +65,7 @@
 | `calendar` | Upcoming events from HA calendar entities |
 | `person` | Presence status and location |
 | `energy` | Grid import/export, solar, battery flow |
+| `status_bar` | Compact row of entity badges — single entities or dynamic groups filtered by domain, name, area, or label; tap badge to toggle or inspect |
 
 ---
 
@@ -135,6 +137,8 @@ npm run dev            # http://localhost:3000
 | `NUXT_KEYCLOAK_ISSUER` | | Keycloak realm URL — enables SSO login tab |
 | `NUXT_KEYCLOAK_CLIENT_ID` | | Keycloak client ID |
 | `NUXT_KEYCLOAK_CLIENT_SECRET` | | Keycloak client secret |
+| `NUXT_MA_TOKEN` | | Music Assistant API token — enables search tab in media player widget |
+| `NUXT_MA_URL` | | Override Music Assistant URL (default: derived from `NUXT_HA_URL` on port 8095) |
 
 ---
 
@@ -178,6 +182,8 @@ npm run dev            # http://localhost:3000
 | `GET /api/auth/keycloak` | Keycloak OAuth redirect |
 | `GET /api/ha/history` | Entity state history from HA |
 | `GET /api/camera/[entityId]` | Camera snapshot proxy |
+| `GET /api/ma/status` | Music Assistant reachability and auth check |
+| `GET /api/ma/search?q=` | Proxy search to Music Assistant (tracks, albums, artists, playlists, radio) |
 
 ---
 
@@ -207,7 +213,7 @@ nuxt/
 │   ├── api/           # 33+ REST endpoints
 │   ├── middleware/    # API auth guard
 │   ├── routes/        # WebSocket proxy (ha-ws)
-│   └── utils/         # db.ts (SQLite), ha-api.ts
+│   └── utils/         # db.ts (SQLite), ha-api.ts, ma-api.ts
 ├── stores/            # Pinia: dashboard.ts, entity.ts
 ├── types/             # dashboard.ts, ha.ts
 └── i18n/locales/      # de, en, es, fr, it, nl
