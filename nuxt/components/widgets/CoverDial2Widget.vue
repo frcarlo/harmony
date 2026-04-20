@@ -9,11 +9,11 @@
 
     <div class="flex-grow-1 d-flex align-center justify-center" :class="containerClass">
       <div :class="buttonsClass" style="gap: 2px">
-        <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="isUnavailable || isFullyOpen"
+        <v-btn icon="mdi-chevron-up" :size="btnSize" variant="text" :disabled="isUnavailable || isFullyOpen"
           @click.stop="callCover('open_cover')" />
-        <v-btn icon="mdi-stop" size="x-small" variant="text" :disabled="isUnavailable"
+        <v-btn icon="mdi-stop" :size="btnSize" variant="text" :disabled="isUnavailable"
           @click.stop="callCover('stop_cover')" />
-        <v-btn icon="mdi-chevron-down" size="x-small" variant="text" :disabled="isUnavailable || isFullyClosed"
+        <v-btn icon="mdi-chevron-down" :size="btnSize" variant="text" :disabled="isUnavailable || isFullyClosed"
           @click.stop="callCover('close_cover')" />
       </div>
 
@@ -73,6 +73,7 @@ const dialStyle = computed(() => ({
   ...(props.config.dial_bg_color ? { '--dial-bg-color': props.config.dial_bg_color } : {}),
 }))
 
+const btnSize = computed(() => props.config.buttons_size ?? 'x-small')
 const pos = computed(() => props.config.buttons_position ?? 'left')
 const containerClass = computed(() => {
   if (pos.value === 'right')  return 'flex-row-reverse ga-4'
