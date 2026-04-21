@@ -22,7 +22,9 @@
     "unlock": "Unlock",
     "status": "Status",
     "last_updated": "Last updated",
-    "name": "Name"
+    "name": "Name",
+    "all": "All",
+    "dashboards": "Dashboards"
   },
   "dashboard": {
     "title": "My Dashboards",
@@ -187,10 +189,23 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Locked", "unlocked": "Unlocked", "do_lock": "Lock", "do_unlock": "Unlock" },
-      "gate": { "locked": "Closed", "unlocked": "Open", "do_lock": "Close", "do_unlock": "Open" }
+      "lock": {
+        "locked": "Locked",
+        "unlocked": "Unlocked",
+        "do_lock": "Lock",
+        "do_unlock": "Unlock"
+      },
+      "gate": {
+        "locked": "Closed",
+        "unlocked": "Open",
+        "do_lock": "Close",
+        "do_unlock": "Open"
+      }
     },
-    "type_label": { "lock": "Lock", "gate": "Gate / Garage" },
+    "type_label": {
+      "lock": "Lock",
+      "gate": "Gate / Garage"
+    },
     "door_open": "Door open",
     "door_closed": "Door closed",
     "door_sensor": "Door sensor",
@@ -219,7 +234,7 @@
     "refresh_interval": "Interval (seconds)",
     "locked_icon": "Locked icon",
     "unlocked_icon": "Unlocked icon",
-    "require_confirmation":"Confirm before unlocking",
+    "require_confirmation": "Confirm before unlocking",
     "show_door_button": "Show door button",
     "forecast_rows": "Forecast rows: {n}",
     "format_24h": "24h format",

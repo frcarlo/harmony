@@ -22,7 +22,9 @@
     "unlock": "Entsperren",
     "status": "Status",
     "last_updated": "Zuletzt aktualisiert",
-    "name": "Name"
+    "name": "Name",
+    "all": "Alle",
+    "dashboards": "Dashboards"
   },
   "dashboard": {
     "title": "Meine Dashboards",
@@ -187,10 +189,23 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Gesperrt", "unlocked": "Entsperrt", "do_lock": "Sperren", "do_unlock": "Entsperren" },
-      "gate": { "locked": "Geschlossen", "unlocked": "Offen", "do_lock": "Schließen", "do_unlock": "Öffnen" }
+      "lock": {
+        "locked": "Gesperrt",
+        "unlocked": "Entsperrt",
+        "do_lock": "Sperren",
+        "do_unlock": "Entsperren"
+      },
+      "gate": {
+        "locked": "Geschlossen",
+        "unlocked": "Offen",
+        "do_lock": "Schließen",
+        "do_unlock": "Öffnen"
+      }
     },
-    "type_label": { "lock": "Schloss", "gate": "Tor / Garage" },
+    "type_label": {
+      "lock": "Schloss",
+      "gate": "Tor / Garage"
+    },
     "state": {
       "locking": "Wird gesperrt…",
       "unlocking": "Wird entsperrt…",
@@ -198,7 +213,7 @@
       "opening": "Wird geöffnet…",
       "jammed": "Blockiert"
     },
-    "door_open":"Tür geöffnet",
+    "door_open": "Tür geöffnet",
     "door_closed": "Tür geschlossen",
     "door_sensor": "Türsensor"
   },
