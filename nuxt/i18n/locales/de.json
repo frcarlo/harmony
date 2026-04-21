@@ -24,7 +24,8 @@
     "last_updated": "Zuletzt aktualisiert",
     "name": "Name",
     "all": "Alle",
-    "dashboards": "Dashboards"
+    "dashboards": "Dashboards",
+    "undo": "Rückgängig"
   },
   "dashboard": {
     "title": "Meine Dashboards",
@@ -170,7 +171,8 @@
     "status_bar": {
       "label": "Statusleiste",
       "description": "Status-Icons in einer Zeile"
-    }
+    },
+    "removed": "Widget entfernt"
   },
   "calendar_v2": {
     "day": "Tag",
@@ -301,7 +303,15 @@
     "pos_left": "Links",
     "pos_right": "Rechts",
     "pos_top": "Oben",
-    "pos_bottom": "Unten"
+    "pos_bottom": "Unten",
+    "horizontal": "Horizontal",
+    "vertical": "Vertikal",
+    "nav_start": "Nav links",
+    "nav_end": "Nav rechts",
+    "entry_type_nav": "Navigation",
+    "target_dashboard": "Ziel-Dashboard",
+    "icon_color": "Icon-Farbe",
+    "add_nav": "Navigation hinzufügen"
   },
   "entity_picker": {
     "placeholder": "Entity suchen...",

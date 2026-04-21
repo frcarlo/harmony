@@ -191,9 +191,20 @@ export interface StatusBarGroupEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
+export interface StatusBarNavEntry {
+  entry_type: 'nav'
+  icon: string
+  label?: string
+  dashboard_id: string
+  icon_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
+}
+
 export interface StatusBarWidgetConfig {
-  entries: (StatusBarEntry | StatusBarGroupEntry)[]
+  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry)[]
   show_labels?: boolean
+  orientation?: 'horizontal' | 'vertical'
+  nav_position?: 'start' | 'end'
 }
 
 export interface EnergyWidgetConfig {

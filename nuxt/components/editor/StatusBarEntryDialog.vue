@@ -2,23 +2,32 @@
   <v-dialog :model-value="modelValue" max-width="420" scrollable @update:model-value="v => emit('update:modelValue', v)">
     <v-card rounded="xl" :class="{ 'dialog-glass': glass }">
       <v-card-title class="d-flex align-center ga-2 pt-4 px-4">
-        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : 'mdi-eye-outline'" size="18" />
+        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : 'mdi-eye-outline'" size="18" />
         <span class="text-body-1 font-weight-bold flex-grow-1">
-          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : t('config.entry_type_single') }}
+          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : t('config.entry_type_single') }}
         </span>
         <v-btn-toggle
-          :model-value="draft.entry_type === 'group' ? 'group' : 'single'"
+          :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : 'single'"
           density="compact" rounded="lg" variant="outlined" mandatory
           @update:model-value="switchType"
         >
           <v-btn value="single" size="small">{{ t('config.entry_type_single') }}</v-btn>
           <v-btn value="group" size="small" color="primary">{{ t('config.entry_type_group') }}</v-btn>
+          <v-btn value="nav" size="small" color="secondary">{{ t('config.entry_type_nav') }}</v-btn>
         </v-btn-toggle>
       </v-card-title>
 
       <v-card-text class="d-flex flex-column ga-3 px-4 py-3">
+        <!-- Nav entry -->
+        <template v-if="draft.entry_type === 'nav'">
+          <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-arrow-right-circle-outline" />
+          <v-text-field v-model="draft.label" :label="t('config.display_name')" density="compact" hide-details clearable />
+          <UiColorPicker v-model="draft.icon_color" :label="t('config.icon_color')" clearable />
+          <DashboardPicker v-model="draft.dashboard_id" />
+        </template>
+
         <!-- Single entity -->
-        <template v-if="draft.entry_type !== 'group'">
+        <template v-else-if="draft.entry_type !== 'group'">
           <EntityPicker v-model="draft.entity_id" />
           <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-circle" />
           <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
@@ -34,7 +43,7 @@
         </template>
 
         <!-- Group -->
-        <template v-else>
+        <template v-else-if="draft.entry_type === 'group'">
           <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-lightbulb-group-outline" />
           <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
             <v-btn value="sm" size="small">S</v-btn>
@@ -108,6 +117,8 @@ watch(() => props.modelValue, (v) => {
 function switchType(type: string) {
   if (type === 'group') {
     draft.value = { entry_type: 'group', icon: draft.value.icon ?? 'mdi-lightbulb-group-outline', filter: { domains: [] }, show_badge: true }
+  } else if (type === 'nav') {
+    draft.value = { entry_type: 'nav', icon: draft.value.icon ?? 'mdi-arrow-right-circle-outline', label: draft.value.label ?? '', dashboard_id: '' }
   } else {
     draft.value = { entity_id: '', icon: draft.value.icon ?? 'mdi-circle', active_state: 'on', label: draft.value.label }
   }

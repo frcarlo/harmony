@@ -23,7 +23,8 @@
     "last_updated": "Última actualización",
     "name": "Nombre",
     "all": "Todos",
-    "dashboards": "Paneles"
+    "dashboards": "Paneles",
+    "undo": "Deshacer"
   },
   "dashboard": {
     "title": "Mis paneles",
@@ -147,7 +148,8 @@
     "calendar_v2": {
       "label": "Calendario (Mes/Semana/Día)",
       "description": "Vista de calendario interactiva con múltiples calendarios"
-    }
+    },
+    "removed": "Widget eliminado"
   },
   "calendar_v2": {
     "day": "Día",
@@ -252,7 +254,15 @@
     "show_labels": "Mostrar etiquetas",
     "compact_mode": "Modo compacto",
     "open_color": "Color (abierto)",
-    "closed_color": "Color (cerrado)"
+    "closed_color": "Color (cerrado)",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "nav_start": "Nav izquierda",
+    "nav_end": "Nav derecha",
+    "entry_type_nav": "Navegación",
+    "target_dashboard": "Dashboard destino",
+    "icon_color": "Color del icono",
+    "add_nav": "Agregar navegación"
   },
   "entity_picker": {
     "placeholder": "Buscar entidad...",

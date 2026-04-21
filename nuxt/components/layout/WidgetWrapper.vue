@@ -18,7 +18,7 @@
       <v-btn icon="mdi-content-copy" size="x-small" variant="tonal" density="comfortable"
         :title="t('widget.clone')" @click="dashboardStore.cloneWidget(widget.id)" />
       <v-btn icon="mdi-close" size="x-small" variant="tonal" density="comfortable" color="error"
-        :title="t('widget.remove')" @click="dashboardStore.removeWidget(widget.id)" />
+        :title="t('widget.remove')" @click="removeWithUndo" />
     </div>
 
     <!-- Widget content -->
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 import type { Widget } from '~/types/dashboard'
 
 const { t } = useI18n()
@@ -61,6 +62,18 @@ const entityStore = useEntityStore()
 const { glass } = useGlassEffect()
 
 const isSelected = computed(() => dashboardStore.selectedWidgetId === props.widget.id)
+
+function removeWithUndo() {
+  const snapshot = JSON.parse(JSON.stringify(props.widget)) as Widget
+  dashboardStore.removeWidget(snapshot.id)
+  toast(t('widget.removed'), {
+    duration: 5000,
+    action: {
+      label: t('common.undo'),
+      onClick: () => dashboardStore.addWidget(snapshot),
+    },
+  })
+}
 
 const entityId = computed(() => {
   const c = props.widget.config as Record<string, unknown>

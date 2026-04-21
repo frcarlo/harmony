@@ -23,7 +23,8 @@
     "last_updated": "Dernière mise à jour",
     "name": "Nom",
     "all": "Tous",
-    "dashboards": "Tableaux"
+    "dashboards": "Tableaux",
+    "undo": "Annuler"
   },
   "dashboard": {
     "title": "Mes tableaux de bord",
@@ -147,7 +148,8 @@
     "calendar_v2": {
       "label": "Calendrier (Mois/Semaine/Jour)",
       "description": "Vue calendrier interactive avec plusieurs calendriers"
-    }
+    },
+    "removed": "Widget supprimé"
   },
   "calendar_v2": {
     "day": "Jour",
@@ -252,7 +254,15 @@
     "show_labels": "Afficher les étiquettes",
     "compact_mode": "Mode compact",
     "open_color": "Couleur (ouvert)",
-    "closed_color": "Couleur (fermé)"
+    "closed_color": "Couleur (fermé)",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "nav_start": "Nav gauche",
+    "nav_end": "Nav droite",
+    "entry_type_nav": "Navigation",
+    "target_dashboard": "Dashboard cible",
+    "icon_color": "Couleur de l'icône",
+    "add_nav": "Ajouter navigation"
   },
   "entity_picker": {
     "placeholder": "Rechercher une entité...",

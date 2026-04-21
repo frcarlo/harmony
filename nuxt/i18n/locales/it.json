@@ -23,7 +23,8 @@
     "last_updated": "Ultimo aggiornamento",
     "name": "Nome",
     "all": "Tutti",
-    "dashboards": "Dashboard"
+    "dashboards": "Dashboard",
+    "undo": "Annulla"
   },
   "dashboard": {
     "title": "I miei Dashboard",
@@ -144,7 +145,8 @@
     "calendar_v2": {
       "label": "Calendario (Mese/Settimana/Giorno)",
       "description": "Vista calendario interattiva con più calendari"
-    }
+    },
+    "removed": "Widget rimosso"
   },
   "calendar_v2": {
     "day": "Giorno",
@@ -249,7 +251,15 @@
     "show_labels": "Mostra etichette",
     "compact_mode": "Modalità compatta",
     "open_color": "Colore (aperto)",
-    "closed_color": "Colore (chiuso)"
+    "closed_color": "Colore (chiuso)",
+    "horizontal": "Orizzontale",
+    "vertical": "Verticale",
+    "nav_start": "Nav sinistra",
+    "nav_end": "Nav destra",
+    "entry_type_nav": "Navigazione",
+    "target_dashboard": "Dashboard destinazione",
+    "icon_color": "Colore icona",
+    "add_nav": "Aggiungi navigazione"
   },
   "entity_picker": {
     "placeholder": "Cerca entità...",

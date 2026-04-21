@@ -24,7 +24,8 @@
     "last_updated": "Last updated",
     "name": "Name",
     "all": "All",
-    "dashboards": "Dashboards"
+    "dashboards": "Dashboards",
+    "undo": "Undo"
   },
   "dashboard": {
     "title": "My Dashboards",
@@ -170,7 +171,8 @@
     "calendar_v2": {
       "label": "Calendar (Month/Week/Day)",
       "description": "Interactive calendar with multiple calendars"
-    }
+    },
+    "removed": "Widget removed"
   },
   "calendar_v2": {
     "day": "Day",
@@ -301,7 +303,15 @@
     "pos_left": "Left",
     "pos_right": "Right",
     "pos_top": "Top",
-    "pos_bottom": "Bottom"
+    "pos_bottom": "Bottom",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "nav_start": "Nav left",
+    "nav_end": "Nav right",
+    "entry_type_nav": "Navigation",
+    "target_dashboard": "Target dashboard",
+    "icon_color": "Icon color",
+    "add_nav": "Add navigation"
   },
   "entity_picker": {
     "placeholder": "Search entity...",

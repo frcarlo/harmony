@@ -2,7 +2,7 @@
   <div :style="maxWidthStyle">
     <div ref="gridEl" class="grid-stack">
       <div v-for="widget in widgets" :key="widget.id" class="grid-stack-item" :gs-id="widget.id" :gs-x="widget.layout.x"
-        :gs-y="widget.layout.y" :gs-w="widget.layout.w" :gs-h="widget.layout.h" :gs-min-w="widget.layout.minW ?? 2"
+        :gs-y="widget.layout.y" :gs-w="widget.layout.w" :gs-h="widget.layout.h" :gs-min-w="widget.layout.minW ?? (widget.type === 'status_bar' ? 1 : 2)"
         :gs-min-h="widget.layout.minH ?? (['label', 'status_bar'].includes(widget.type) ? 1 : 2)"
         :style="widget.appearance?.min_width ? { minWidth: widget.appearance.min_width + 'px' } : undefined">
         <div class="grid-stack-item-content">
@@ -36,6 +36,13 @@ let grid: GridStack | null = null
 
 function initGrid() {
   if (!gridEl.value) return
+  // Set per-type min constraints before GridStack reads the attributes
+  widgets.value.forEach(w => {
+    const el = gridEl.value!.querySelector(`[gs-id="${w.id}"]`)
+    if (!el) return
+    el.setAttribute('gs-min-h', String(w.layout.minH ?? (['label', 'status_bar'].includes(w.type) ? 1 : 2)))
+    el.setAttribute('gs-min-w', String(w.layout.minW ?? (w.type === 'status_bar' ? 1 : 2)))
+  })
   const gc = dashboardStore.dashboard?.grid_config ?? {}
   const columns = gc.columns ?? 24
   const cellHeight = gc.cell_height ?? 60
@@ -66,6 +73,7 @@ function initGrid() {
     },
     gridEl.value,
   )
+
   grid.on('change', (_event, items) => {
     if (!props.editMode || !items) return
     for (const item of items as Array<{ id?: string; x: number; y: number; w: number; h: number }>) {
@@ -87,6 +95,7 @@ async function reinitGrid() {
     el.setAttribute('gs-w', String(w.layout.w))
     el.setAttribute('gs-h', String(w.layout.h))
     el.setAttribute('gs-min-h', String(w.layout.minH ?? (['label', 'status_bar'].includes(w.type) ? 1 : 2)))
+    el.setAttribute('gs-min-w', String(w.layout.minW ?? (w.type === 'status_bar' ? 1 : 2)))
   })
   initGrid()
 }

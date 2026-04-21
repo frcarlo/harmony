@@ -216,6 +216,14 @@
       <!-- Status Bar -->
       <template v-if="widget.type === 'status_bar'">
         <v-checkbox v-model="cfg.show_labels" :label="t('config.show_labels')" hide-details density="compact" />
+        <v-btn-toggle v-model="cfg.orientation" density="compact" rounded="lg" mandatory class="mb-1">
+          <v-btn value="horizontal" size="small" prepend-icon="mdi-arrow-left-right">{{ t('config.horizontal') }}</v-btn>
+          <v-btn value="vertical" size="small" prepend-icon="mdi-arrow-up-down">{{ t('config.vertical') }}</v-btn>
+        </v-btn-toggle>
+        <v-btn-toggle v-model="cfg.nav_position" density="compact" rounded="lg" mandatory class="mb-1">
+          <v-btn value="start" size="small" prepend-icon="mdi-dock-left">{{ t('config.nav_start') }}</v-btn>
+          <v-btn value="end" size="small" prepend-icon="mdi-dock-right">{{ t('config.nav_end') }}</v-btn>
+        </v-btn-toggle>
         <v-divider />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.status_entities') }}</p>
 
@@ -223,25 +231,28 @@
         <div class="d-flex flex-column ga-1">
           <div v-for="(entry, idx) in statusBarEntries" :key="idx"
             class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
-            <v-icon :icon="entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : 'mdi-circle')"
+            <v-icon :icon="entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : 'mdi-circle')"
               size="18" class="flex-shrink-0" />
             <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
-              {{ entry.label || entry.entity_id || (entry.entry_type === 'group' ? entryGroupSummary(entry) : '—') }}
+              {{ entry.label || entry.entity_id || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ? entry.dashboard_id : '—') }}
             </div>
-            <v-chip :color="entry.entry_type === 'group' ? 'primary' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
-              {{ entry.entry_type === 'group' ? t('config.entry_type_group') : t('config.entry_type_single') }}
+            <v-chip :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
+              {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ? t('config.entry_type_nav') : t('config.entry_type_single') }}
             </v-chip>
             <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" @click="openEntryDialog(idx)" />
             <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeStatusBarEntry(idx)" />
           </div>
         </div>
 
-        <div class="d-flex ga-2 mt-2">
-          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" flex @click="addStatusBarEntry">
+        <div class="d-flex flex-column ga-1 mt-2">
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block @click="addStatusBarEntry">
             {{ t('config.add_status') }}
           </v-btn>
-          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" color="primary" flex @click="addStatusBarGroupEntry">
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="primary" @click="addStatusBarGroupEntry">
             {{ t('config.add_group') }}
+          </v-btn>
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="secondary" @click="addStatusBarNavEntry">
+            {{ t('config.add_nav') }}
           </v-btn>
         </div>
 
@@ -386,6 +397,13 @@ function entryGroupSummary(entry: Record<string, unknown>) {
 function addStatusBarEntry() {
   const list = [...statusBarEntries.value]
   list.push({ entity_id: '', icon: 'mdi-circle', active_state: 'on' })
+  cfg.value.entries = list
+  openEntryDialog(list.length - 1)
+}
+
+function addStatusBarNavEntry() {
+  const list = [...statusBarEntries.value]
+  list.push({ entry_type: 'nav', icon: 'mdi-arrow-right-circle-outline', label: '', dashboard_id: '' })
   cfg.value.entries = list
   openEntryDialog(list.length - 1)
 }
