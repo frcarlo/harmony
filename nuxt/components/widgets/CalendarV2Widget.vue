@@ -230,6 +230,11 @@ const legendItems = computed(() =>
   border-color: rgba(var(--v-border-color), 0.08) !important;
 }
 
+.calv2 :deep(.v-calendar-weekly__day.v-outside) {
+  background: transparent !important;
+  opacity: 0.35;
+}
+
 .calv2 :deep(.v-calendar-daily__intervals-body),
 .calv2 :deep(.v-calendar-daily__day-container) {
   background: transparent !important;

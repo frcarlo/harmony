@@ -237,7 +237,10 @@
     "days_3": "3 dagen",
     "days_7": "7 dagen",
     "days_14": "14 dagen",
-    "show_labels": "Labels tonen"
+    "show_labels": "Labels tonen",
+    "compact_mode": "Compacte modus",
+    "open_color": "Kleur (open)",
+    "closed_color": "Kleur (gesloten)"
   },
   "entity_picker": {
     "placeholder": "Entiteit zoeken...",

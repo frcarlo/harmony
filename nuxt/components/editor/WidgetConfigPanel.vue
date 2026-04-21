@@ -45,7 +45,7 @@
       </template>
 
       <!-- Cover / Cover Dial -->
-      <template v-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
+      <template v-if="widget.type === 'cover' || widget.type === 'cover_dial'">
         <div>
           <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_position') }}</p>
           <v-btn-toggle v-model="cfg.buttons_position" mandatory density="compact" color="primary" class="w-100">
@@ -64,10 +64,15 @@
             <v-btn value="large"   size="small" class="flex-1-1">L</v-btn>
           </v-btn-toggle>
         </div>
+        <UiColorPicker v-if="widget.type === 'cover_dial'" v-model="cfg.dial_color" :label="t('config.dial_color')" clearable />
+        <UiColorPicker v-if="widget.type === 'cover_dial'" v-model="cfg.dial_bg_color" :label="t('config.dial_bg_color')" clearable />
       </template>
-      <template v-if="widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
-        <UiColorPicker v-model="cfg.dial_color" :label="t('config.dial_color')" clearable />
-        <UiColorPicker v-model="cfg.dial_bg_color" :label="t('config.dial_bg_color')" clearable />
+
+      <!-- Cover Dial 2 -->
+      <template v-if="widget.type === 'cover_dial2'">
+        <v-checkbox v-model="cfg.compact" :label="t('config.compact_mode')" hide-details density="compact" />
+        <UiColorPicker v-model="cfg.open_color" :label="t('config.open_color')" clearable />
+        <UiColorPicker v-model="cfg.closed_color" :label="t('config.closed_color')" clearable />
       </template>
 
       <!-- Camera -->

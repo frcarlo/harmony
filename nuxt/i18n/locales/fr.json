@@ -237,7 +237,10 @@
     "days_3": "3 jours",
     "days_7": "7 jours",
     "days_14": "14 jours",
-    "show_labels": "Afficher les étiquettes"
+    "show_labels": "Afficher les étiquettes",
+    "compact_mode": "Mode compact",
+    "open_color": "Couleur (ouvert)",
+    "closed_color": "Couleur (fermé)"
   },
   "entity_picker": {
     "placeholder": "Rechercher une entité...",
