@@ -40,7 +40,7 @@ function getConfig() {
   }
 }
 
-export async function maCall(command: string, args: Record<string, unknown> = {}): Promise<unknown> {
+export async function maCall(command: string, args: Record<string, unknown> = {}, timeout = 10_000): Promise<unknown> {
   const { url, token } = getConfig()
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (token) {
@@ -52,7 +52,7 @@ export async function maCall(command: string, args: Record<string, unknown> = {}
     method: 'POST',
     headers,
     body,
-    timeout: 5000,
+    timeout,
     redirect: 'error',
   })
   if (res.error && typeof res.error === 'object' && res.error !== null && 'message' in res.error)
@@ -81,7 +81,7 @@ export async function maSearch(query: string, limit = 25): Promise<MASearchResul
     media_types: ['track', 'album', 'artist', 'playlist', 'radio'],
     limit,
     library_only: false,
-  })
+  }, 20_000)
 
   // MA may return { tracks: [...], albums: [...] } directly or wrapped
   const result = (raw && typeof raw === 'object' && !Array.isArray(raw))

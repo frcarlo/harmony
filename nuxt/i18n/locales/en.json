@@ -164,7 +164,20 @@
     "status_bar": {
       "label": "Status Bar",
       "description": "Status icons in one row"
+    },
+    "calendar_v2": {
+      "label": "Calendar (Month/Week/Day)",
+      "description": "Interactive calendar with multiple calendars"
     }
+  },
+  "calendar_v2": {
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "today": "Today",
+    "calendars": "Calendars",
+    "add_calendar": "Add calendar",
+    "all_day": "All day"
   },
   "door": {
     "label": "Door",
@@ -173,9 +186,21 @@
     "close": "Close Door"
   },
   "lock": {
+    "type": {
+      "lock": { "locked": "Locked", "unlocked": "Unlocked", "do_lock": "Lock", "do_unlock": "Unlock" },
+      "gate": { "locked": "Closed", "unlocked": "Open", "do_lock": "Close", "do_unlock": "Open" }
+    },
+    "type_label": { "lock": "Lock", "gate": "Gate / Garage" },
     "door_open": "Door open",
     "door_closed": "Door closed",
-    "door_sensor": "Door sensor"
+    "door_sensor": "Door sensor",
+    "state": {
+      "locking": "Locking…",
+      "unlocking": "Unlocking…",
+      "open": "Open",
+      "opening": "Opening…",
+      "jammed": "Jammed"
+    }
   },
   "config": {
     "entity": "Entity",
@@ -192,7 +217,9 @@
     "dial_color": "Ring color",
     "dial_bg_color": "Ring background color",
     "refresh_interval": "Interval (seconds)",
-    "require_confirmation": "Confirm before unlocking",
+    "locked_icon": "Locked icon",
+    "unlocked_icon": "Unlocked icon",
+    "require_confirmation":"Confirm before unlocking",
     "show_door_button": "Show door button",
     "forecast_rows": "Forecast rows: {n}",
     "format_24h": "24h format",

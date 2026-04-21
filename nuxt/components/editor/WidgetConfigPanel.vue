@@ -16,13 +16,13 @@
 
       <!-- Entity -->
       <div
-        v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'person' && widget.type !== 'energy' && widget.type !== 'status_bar'">
+        v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'calendar_v2' && widget.type !== 'person' && widget.type !== 'energy' && widget.type !== 'status_bar'">
         <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
         <EntityPicker v-model="cfg.entity_id" :domain="ENTITY_DOMAINS[widget.type]" />
       </div>
 
       <!-- Name -->
-      <v-text-field v-if="widget.type !== 'clock' && widget.type !== 'room_card' && widget.type !== 'status_bar'" v-model="cfg.name"
+      <v-text-field v-if="widget.type !== 'clock' && widget.type !== 'room_card' && widget.type !== 'status_bar' && widget.type !== 'calendar_v2'" v-model="cfg.name"
         :label="t('config.display_name')" :placeholder="t('config.display_name_hint')" />
 
       <!-- Sensor -->
@@ -76,10 +76,23 @@
 
       <!-- Lock -->
       <template v-if="widget.type === 'lock'">
+        <v-btn-toggle :model-value="cfg.lock_type ?? 'lock'" mandatory density="compact" variant="tonal" class="w-100"
+          @update:model-value="cfg.lock_type = $event">
+          <v-btn value="lock" class="flex-grow-1 text-none">
+            <v-icon icon="mdi-lock" size="16" class="mr-1" />{{ t('lock.type_label.lock') }}
+          </v-btn>
+          <v-btn value="gate" class="flex-grow-1 text-none">
+            <v-icon icon="mdi-garage" size="16" class="mr-1" />{{ t('lock.type_label.gate') }}
+          </v-btn>
+        </v-btn-toggle>
+        <div class="d-flex ga-2">
+          <UiIconPicker v-model="cfg.locked_icon" :label="t('config.locked_icon')" placeholder="mdi-lock" class="flex-grow-1" />
+          <UiIconPicker v-model="cfg.unlocked_icon" :label="t('config.unlocked_icon')" placeholder="mdi-lock-open-variant" class="flex-grow-1" />
+        </div>
+        <EntityPicker v-model="cfg.door_sensor_entity" domain="binary_sensor" :placeholder="t('lock.door_sensor')" />
         <v-checkbox v-model="cfg.require_confirmation" :label="t('config.require_confirmation')" />
         <v-checkbox :model-value="cfg.show_door_button !== false" :label="t('config.show_door_button')"
           @update:model-value="cfg.show_door_button = $event ? undefined : false" />
-        <EntityPicker v-model="cfg.door_sensor_entity" domain="binary_sensor" :label="t('lock.door_sensor')" />
       </template>
 
       <!-- Weather -->
@@ -112,6 +125,26 @@
         <EntityPicker v-model="cfg.entity_id" domain="calendar" />
         <v-select v-model="cfg.days" :label="t('config.days')" :items="dayItems" />
         <v-checkbox v-model="cfg.show_time" :label="t('config.show_time')" />
+      </template>
+
+      <!-- Calendar v2 -->
+      <template v-if="widget.type === 'calendar_v2'">
+        <v-btn-toggle :model-value="cfg.view ?? 'month'" mandatory density="compact" variant="tonal" rounded="lg" class="w-100 mb-1"
+          @update:model-value="cfg.view = $event">
+          <v-btn value="day" class="flex-grow-1 text-none">{{ t('calendar_v2.day') }}</v-btn>
+          <v-btn value="week" class="flex-grow-1 text-none">{{ t('calendar_v2.week') }}</v-btn>
+          <v-btn value="month" class="flex-grow-1 text-none">{{ t('calendar_v2.month') }}</v-btn>
+        </v-btn-toggle>
+        <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('calendar_v2.calendars') }}</p>
+        <div v-for="(_, idx) in (cfg.calendars ?? [])" :key="idx" class="d-flex ga-2 align-center mb-1">
+          <EntityPicker v-model="cfg.calendars[idx]" domain="calendar" class="flex-grow-1" />
+          <v-btn icon="mdi-delete" size="x-small" variant="text" color="error"
+            @click="cfg.calendars.splice(idx, 1)" />
+        </div>
+        <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" class="text-none"
+          @click="cfg.calendars = [...(cfg.calendars ?? []), '']">
+          {{ t('calendar_v2.add_calendar') }}
+        </v-btn>
       </template>
 
       <!-- Person Widget -->
@@ -281,7 +314,7 @@ const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   cover_dial: 'mdi-window-shutter', cover_dial2: 'mdi-window-shutter',
   lock: 'mdi-lock-outline', weather: 'mdi-weather-partly-cloudy',
   clock: 'mdi-clock-outline', label: 'mdi-format-text', room_card: 'mdi-floor-plan',
-  calendar: 'mdi-calendar-outline', person: 'mdi-account-group-outline',
+  calendar: 'mdi-calendar-outline', calendar_v2: 'mdi-calendar-month-outline', person: 'mdi-account-group-outline',
   energy: 'mdi-lightning-bolt', status_bar: 'mdi-view-list-outline',
 }
 

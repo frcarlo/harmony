@@ -41,6 +41,7 @@
       <LabelWidget v-else-if="widget.type === 'label'" :config="widget.config as any" />
       <RoomCardWidget v-else-if="widget.type === 'room_card'" :config="widget.config as any" />
       <CalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
+      <CalendarV2Widget v-else-if="widget.type === 'calendar_v2'" :config="widget.config as any" />
       <PersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
       <EnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
       <StatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />

@@ -141,7 +141,20 @@
     "status_bar": {
       "label": "Barre de statut",
       "description": "Icônes de statut en ligne"
+    },
+    "calendar_v2": {
+      "label": "Calendrier (Mois/Semaine/Jour)",
+      "description": "Vue calendrier interactive avec plusieurs calendriers"
     }
+  },
+  "calendar_v2": {
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "today": "Aujourd'hui",
+    "calendars": "Calendriers",
+    "add_calendar": "Ajouter un calendrier",
+    "all_day": "Toute la journée"
   },
   "door": {
     "label": "Porte",
@@ -150,6 +163,17 @@
     "close": "Fermer la porte"
   },
   "lock": {
+    "type": {
+      "lock": { "locked": "Verrouillé", "unlocked": "Déverrouillé", "do_lock": "Verrouiller", "do_unlock": "Déverrouiller" },
+      "gate": { "locked": "Fermé", "unlocked": "Ouvert", "do_lock": "Fermer", "do_unlock": "Ouvrir" }
+    },
+    "state": {
+      "locking": "Verrouillage…",
+      "unlocking": "Déverrouillage…",
+      "open": "Ouvert",
+      "opening": "Ouverture…",
+      "jammed": "Bloqué"
+    },
     "door_open": "Porte ouverte",
     "door_closed": "Porte fermée",
     "door_sensor": "Capteur de porte"

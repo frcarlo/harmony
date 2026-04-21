@@ -138,7 +138,20 @@
     "status_bar": {
       "label": "Barra di stato",
       "description": "Icone di stato in una riga"
+    },
+    "calendar_v2": {
+      "label": "Calendario (Mese/Settimana/Giorno)",
+      "description": "Vista calendario interattiva con più calendari"
     }
+  },
+  "calendar_v2": {
+    "day": "Giorno",
+    "week": "Settimana",
+    "month": "Mese",
+    "today": "Oggi",
+    "calendars": "Calendari",
+    "add_calendar": "Aggiungi calendario",
+    "all_day": "Tutto il giorno"
   },
   "door": {
     "label": "Porta",
@@ -147,6 +160,17 @@
     "close": "Chiudi porta"
   },
   "lock": {
+    "type": {
+      "lock": { "locked": "Bloccato", "unlocked": "Sbloccato", "do_lock": "Blocca", "do_unlock": "Sblocca" },
+      "gate": { "locked": "Chiuso", "unlocked": "Aperto", "do_lock": "Chiudi", "do_unlock": "Apri" }
+    },
+    "state": {
+      "locking": "Blocco in corso…",
+      "unlocking": "Sblocco in corso…",
+      "open": "Aperto",
+      "opening": "Apertura in corso…",
+      "jammed": "Bloccato"
+    },
     "door_open": "Porta aperta",
     "door_closed": "Porta chiusa",
     "door_sensor": "Sensore porta"

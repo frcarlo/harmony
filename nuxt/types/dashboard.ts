@@ -15,6 +15,7 @@ export type WidgetType =
   | 'label'
   | 'room_card'
   | 'calendar'
+  | 'calendar_v2'
   | 'person'
   | 'energy'
   | 'status_bar'
@@ -87,6 +88,9 @@ export interface CoverWidgetConfig {
 export interface LockWidgetConfig {
   entity_id: string
   name?: string
+  lock_type?: 'lock' | 'gate'
+  locked_icon?: string
+  unlocked_icon?: string
   require_confirmation?: boolean
   door_sensor_entity?: string
   show_door_button?: boolean
@@ -115,6 +119,13 @@ export interface CalendarWidgetConfig {
   name?: string
   show_time?: boolean
   days?: number
+}
+
+export interface CalendarV2WidgetConfig {
+  calendars: string[]
+  name?: string
+  view?: 'day' | 'week' | 'month'
+  calendar_colors?: string[]
 }
 
 export interface RoomCardStatusEntity {
@@ -204,6 +215,7 @@ export type WidgetConfig =
   | LabelWidgetConfig
   | RoomCardWidgetConfig
   | CalendarWidgetConfig
+  | CalendarV2WidgetConfig
   | PersonWidgetConfig
   | EnergyWidgetConfig
   | StatusBarWidgetConfig
