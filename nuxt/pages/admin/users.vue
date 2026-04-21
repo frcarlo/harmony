@@ -109,30 +109,60 @@
 
         <!-- Audit Log -->
         <div v-else-if="activeTab === 'audit'">
-          <div v-if="auditLog.length === 0" class="text-center py-12 text-medium-emphasis">
+          <!-- Filter toggles -->
+          <div v-if="auditLog.length > 0" class="d-flex flex-wrap ga-2 mb-4">
+            <v-chip
+              v-for="f in auditFilters" :key="f.value"
+              :prepend-icon="f.icon"
+              :color="auditFilter === f.value ? f.color : undefined"
+              :variant="auditFilter === f.value ? 'flat' : 'outlined'"
+              size="small" style="cursor:pointer"
+              @click="auditFilter = f.value"
+            >{{ f.label }}</v-chip>
+          </div>
+
+          <div v-if="filteredAuditLog.length === 0" class="text-center py-12 text-medium-emphasis">
             <v-icon icon="mdi-clipboard-text-clock-outline" size="48" style="opacity:0.3" class="mb-3" />
             <p class="text-body-2">{{ t('users.audit_empty') }}</p>
           </div>
-          <v-timeline v-else density="compact" side="end">
-            <v-timeline-item
-              v-for="entry in auditLog" :key="entry.id"
-              :dot-color="auditColor(entry.action)"
-              size="small"
-            >
-              <template #icon>
-                <v-icon :icon="auditIcon(entry.action)" size="14" />
-              </template>
-              <div class="d-flex align-baseline ga-2 flex-wrap">
-                <span class="text-body-2">
-                  <strong>{{ entry.username }}</strong>
-                  {{ auditLabel(entry.action) }}
-                  <strong v-if="entry.target"> {{ entry.target }}</strong>
-                  <span v-if="entry.detail" class="text-medium-emphasis"> {{ entry.detail }}</span>
-                </span>
-                <span class="text-caption text-medium-emphasis">{{ formatDate(entry.created_at) }}</span>
+          <v-data-iterator
+            v-else
+            :items="filteredAuditLog"
+            :items-per-page="20"
+          >
+            <template #default="{ items }">
+              <v-card :class="{ 'widget-glass': glass }" rounded="lg" border>
+                <v-list density="compact" class="pa-0">
+                  <template v-for="(item, i) in items" :key="item.raw.id">
+                    <v-divider v-if="i > 0" />
+                    <v-list-item class="py-2">
+                      <template #prepend>
+                        <v-avatar :color="auditColor(item.raw.action)" size="30" class="mr-3">
+                          <v-icon :icon="auditIcon(item.raw.action)" size="15" />
+                        </v-avatar>
+                      </template>
+                      <v-list-item-title class="text-body-2">
+                        <strong>{{ item.raw.username }}</strong>
+                        {{ auditLabel(item.raw.action) }}
+                        <strong v-if="item.raw.target"> {{ item.raw.target }}</strong>
+                        <span v-if="item.raw.detail" class="text-medium-emphasis text-caption"> · {{ item.raw.detail }}</span>
+                      </v-list-item-title>
+                      <template #append>
+                        <span class="text-caption text-disabled">{{ formatDate(item.raw.created_at) }}</span>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </v-card>
+            </template>
+            <template #footer="{ page, pageCount, prevPage, nextPage }">
+              <div v-if="pageCount > 1" class="d-flex align-center justify-center ga-2 mt-3">
+                <v-btn icon="mdi-chevron-left" size="small" variant="text" :disabled="page <= 1" @click="prevPage" />
+                <span class="text-caption text-medium-emphasis">{{ page }} / {{ pageCount }}</span>
+                <v-btn icon="mdi-chevron-right" size="small" variant="text" :disabled="page >= pageCount" @click="nextPage" />
               </div>
-            </v-timeline-item>
-          </v-timeline>
+            </template>
+          </v-data-iterator>
         </div>
 
       </v-container>
@@ -224,6 +254,18 @@ const savingAccess = ref(false)
 
 // Audit log
 const auditLog = ref<AuditEntry[]>([])
+const auditFilter = ref<'all' | 'dashboard' | 'user'>('all')
+
+const auditFilters = computed(() => [
+  { value: 'all' as const, label: t('common.all'), icon: 'mdi-filter-outline', color: 'primary' },
+  { value: 'dashboard' as const, label: t('common.dashboards'), icon: 'mdi-view-dashboard-outline', color: 'secondary' },
+  { value: 'user' as const, label: t('users.tab_users'), icon: 'mdi-account-outline', color: 'secondary' },
+])
+
+const filteredAuditLog = computed(() => {
+  if (auditFilter.value === 'all') return auditLog.value
+  return auditLog.value.filter(e => e.action.startsWith(auditFilter.value))
+})
 
 onMounted(async () => {
   users.value = await $fetch<UserRow[]>('/api/users')

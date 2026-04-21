@@ -21,7 +21,9 @@
     "unlock": "Desbloquear",
     "status": "Estado",
     "last_updated": "Última actualización",
-    "name": "Nombre"
+    "name": "Nombre",
+    "all": "Todos",
+    "dashboards": "Paneles"
   },
   "dashboard": {
     "title": "Mis paneles",
@@ -164,8 +166,18 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Bloqueado", "unlocked": "Desbloqueado", "do_lock": "Bloquear", "do_unlock": "Desbloquear" },
-      "gate": { "locked": "Cerrado", "unlocked": "Abierto", "do_lock": "Cerrar", "do_unlock": "Abrir" }
+      "lock": {
+        "locked": "Bloqueado",
+        "unlocked": "Desbloqueado",
+        "do_lock": "Bloquear",
+        "do_unlock": "Desbloquear"
+      },
+      "gate": {
+        "locked": "Cerrado",
+        "unlocked": "Abierto",
+        "do_lock": "Cerrar",
+        "do_unlock": "Abrir"
+      }
     },
     "state": {
       "locking": "Bloqueando…",

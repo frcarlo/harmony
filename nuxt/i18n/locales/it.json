@@ -21,7 +21,9 @@
     "unlock": "Sblocca",
     "status": "Stato",
     "last_updated": "Ultimo aggiornamento",
-    "name": "Nome"
+    "name": "Nome",
+    "all": "Tutti",
+    "dashboards": "Dashboard"
   },
   "dashboard": {
     "title": "I miei Dashboard",
@@ -161,8 +163,18 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Bloccato", "unlocked": "Sbloccato", "do_lock": "Blocca", "do_unlock": "Sblocca" },
-      "gate": { "locked": "Chiuso", "unlocked": "Aperto", "do_lock": "Chiudi", "do_unlock": "Apri" }
+      "lock": {
+        "locked": "Bloccato",
+        "unlocked": "Sbloccato",
+        "do_lock": "Blocca",
+        "do_unlock": "Sblocca"
+      },
+      "gate": {
+        "locked": "Chiuso",
+        "unlocked": "Aperto",
+        "do_lock": "Chiudi",
+        "do_unlock": "Apri"
+      }
     },
     "state": {
       "locking": "Blocco in corso…",

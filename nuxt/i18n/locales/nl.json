@@ -21,7 +21,9 @@
     "unlock": "Ontgrendelen",
     "status": "Status",
     "last_updated": "Laatst bijgewerkt",
-    "name": "Naam"
+    "name": "Naam",
+    "all": "Alles",
+    "dashboards": "Dashboard's"
   },
   "dashboard": {
     "title": "Mijn dashboards",
@@ -164,8 +166,18 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Vergrendeld", "unlocked": "Ontgrendeld", "do_lock": "Vergrendelen", "do_unlock": "Ontgrendelen" },
-      "gate": { "locked": "Gesloten", "unlocked": "Open", "do_lock": "Sluiten", "do_unlock": "Openen" }
+      "lock": {
+        "locked": "Vergrendeld",
+        "unlocked": "Ontgrendeld",
+        "do_lock": "Vergrendelen",
+        "do_unlock": "Ontgrendelen"
+      },
+      "gate": {
+        "locked": "Gesloten",
+        "unlocked": "Open",
+        "do_lock": "Sluiten",
+        "do_unlock": "Openen"
+      }
     },
     "state": {
       "locking": "Vergrendelen…",

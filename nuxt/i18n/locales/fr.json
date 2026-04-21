@@ -21,7 +21,9 @@
     "unlock": "Déverrouiller",
     "status": "Statut",
     "last_updated": "Dernière mise à jour",
-    "name": "Nom"
+    "name": "Nom",
+    "all": "Tous",
+    "dashboards": "Tableaux"
   },
   "dashboard": {
     "title": "Mes tableaux de bord",
@@ -164,8 +166,18 @@
   },
   "lock": {
     "type": {
-      "lock": { "locked": "Verrouillé", "unlocked": "Déverrouillé", "do_lock": "Verrouiller", "do_unlock": "Déverrouiller" },
-      "gate": { "locked": "Fermé", "unlocked": "Ouvert", "do_lock": "Fermer", "do_unlock": "Ouvrir" }
+      "lock": {
+        "locked": "Verrouillé",
+        "unlocked": "Déverrouillé",
+        "do_lock": "Verrouiller",
+        "do_unlock": "Déverrouiller"
+      },
+      "gate": {
+        "locked": "Fermé",
+        "unlocked": "Ouvert",
+        "do_lock": "Fermer",
+        "do_unlock": "Ouvrir"
+      }
     },
     "state": {
       "locking": "Verrouillage…",
