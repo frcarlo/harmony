@@ -1,13 +1,16 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-4">
-    <div class="d-flex align-center ga-2 mb-2">
-      <v-icon icon="mdi-toggle-switch" size="14" color="medium-emphasis" />
-      <span class="text-caption text-medium-emphasis text-truncate">{{ name }}</span>
+  <div class="h-100 d-flex flex-column pa-3 ga-3">
+    <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
+      <v-icon :icon="isOn ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off'"
+        size="36" :color="isOn ? 'success' : 'medium-emphasis'" class="flex-shrink-0" />
+      <div class="overflow-hidden">
+        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
+        <div class="text-caption" :class="isOn ? 'text-success' : 'text-medium-emphasis'">
+          {{ isUnavailable ? 'N/A' : isOn ? t('common.on') : t('common.off') }}
+        </div>
+      </div>
     </div>
-    <div class="flex-grow-1 d-flex align-center justify-space-between">
-      <span class="text-h6 font-weight-semibold" :class="isOn ? 'text-on-surface' : 'text-medium-emphasis'">
-        {{ isUnavailable ? 'N/A' : isOn ? t('common.on') : t('common.off') }}
-      </span>
+    <div class="d-flex">
       <UiSwitch :checked="isOn" :disabled="isUnavailable" @change="toggle" />
     </div>
   </div>

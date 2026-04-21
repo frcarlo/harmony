@@ -1,32 +1,57 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-3"
-    style="cursor: pointer" @click="dialogOpen = true">
-    <!-- Name -->
-    <div class="d-flex align-center ga-1 mb-1">
-      <v-icon icon="mdi-window-shutter" size="14" color="medium-emphasis" />
-      <span class="text-caption text-medium-emphasis text-truncate">{{ name }}</span>
+  <!-- Compact: alles in einer Zeile -->
+  <div v-if="compact" class="h-100 d-flex flex-row align-center pa-3 ga-3"
+    style="cursor:pointer" @click="dialogOpen = true">
+    <div class="covd2-icon-wrapper flex-shrink-0">
+      <v-icon :icon="coverIcon" size="36" :color="iconColor" :style="iconStyle" />
+      <svg class="covd2-arc" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" />
+        <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3"
+          stroke-linecap="round" :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
+      </svg>
     </div>
-
-    <div class="flex-grow-1 d-flex align-center justify-center" :class="containerClass">
-      <div :class="buttonsClass" style="gap: 2px">
-        <v-btn icon="mdi-chevron-up" :size="btnSize" variant="text" :disabled="isUnavailable || isFullyOpen"
-          @click.stop="callCover('open_cover')" />
-        <v-btn icon="mdi-stop" :size="btnSize" variant="text" :disabled="isUnavailable"
-          @click.stop="callCover('stop_cover')" />
-        <v-btn icon="mdi-chevron-down" :size="btnSize" variant="text" :disabled="isUnavailable || isFullyClosed"
-          @click.stop="callCover('close_cover')" />
+    <div class="flex-grow-1 overflow-hidden">
+      <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
+      <div class="text-caption" :class="stateColor" :style="stateStyle">
+        {{ stateLabel }}<span v-if="position !== undefined"> · {{ position }}%</span>
       </div>
+    </div>
+    <div class="d-flex ga-1 flex-shrink-0" @click.stop>
+      <v-btn icon="mdi-chevron-up" variant="tonal" size="small"
+        :disabled="isUnavailable || isFullyOpen" @click="callCover('open_cover')" />
+      <v-btn icon="mdi-stop" variant="tonal" size="small"
+        :disabled="isUnavailable" @click="callCover('stop_cover')" />
+      <v-btn icon="mdi-chevron-down" variant="tonal" size="small"
+        :disabled="isUnavailable || isFullyClosed" @click="callCover('close_cover')" />
+    </div>
+  </div>
 
-      <v-progress-circular :model-value="position ?? 0" :color="dialColor"
-        size="130" bg-color="surface-light" width="12" reveal rounded
-        :style="dialStyle">
-        <v-avatar size="98" style="background: transparent">
-          <div class="d-flex flex-column align-center" style="line-height: 1.1">
-            <span class="text-h6 font-weight-bold">{{ position ?? '–' }}%</span>
-            <span class="text-caption text-medium-emphasis">{{ stateLabel }}</span>
-          </div>
-        </v-avatar>
-      </v-progress-circular>
+  <!-- Normal: Icon+Info oben, Buttons unten -->
+  <div v-else class="h-100 d-flex flex-column pa-3 ga-3"
+    style="cursor:pointer" @click="dialogOpen = true">
+    <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
+      <div class="covd2-icon-wrapper flex-shrink-0">
+        <v-icon :icon="coverIcon" size="36" :color="iconColor" :style="iconStyle" />
+        <svg class="covd2-arc" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" />
+          <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3"
+            stroke-linecap="round" :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
+        </svg>
+      </div>
+      <div class="overflow-hidden">
+        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
+        <div class="text-caption" :class="stateColor">
+          {{ stateLabel }}<span v-if="position !== undefined"> · {{ position }}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-center ga-1" @click.stop>
+      <v-btn icon="mdi-chevron-up" variant="tonal" size="small"
+        :disabled="isUnavailable || isFullyOpen" @click="callCover('open_cover')" />
+      <v-btn icon="mdi-stop" variant="tonal" size="small"
+        :disabled="isUnavailable" @click="callCover('stop_cover')" />
+      <v-btn icon="mdi-chevron-down" variant="tonal" size="small"
+        :disabled="isUnavailable || isFullyClosed" @click="callCover('close_cover')" />
     </div>
   </div>
 
@@ -43,6 +68,8 @@ const props = defineProps<{ config: CoverWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
 
+const compact = computed(() => props.config.compact ?? false)
+
 const entity = computed(() => entityStore.entities[props.config.entity_id])
 const name = computed(() => props.config.name ?? (entity.value?.attributes?.friendly_name as string) ?? props.config.entity_id)
 const state = computed(() => entity.value?.state ?? 'unknown')
@@ -51,39 +78,54 @@ const isUnavailable = computed(() => !entity.value || state.value === 'unavailab
 const isFullyOpen = computed(() => position.value !== undefined ? position.value >= 100 : state.value === 'open')
 const isFullyClosed = computed(() => position.value !== undefined ? position.value <= 0 : state.value === 'closed')
 
-const stateLabel = computed(() => {
-  const labels: Record<string, string> = {
-    open: t('cover.open'), opening: t('cover.opening'),
-    closed: t('cover.closed'), closing: t('cover.closing'),
-    stopped: t('cover.stopped'),
-  }
-  return labels[state.value] ?? state.value
-})
+const stateLabel = computed(() => ({
+  open: t('cover.open'), opening: t('cover.opening'),
+  closed: t('cover.closed'), closing: t('cover.closing'),
+  stopped: t('cover.stopped'),
+}[state.value] ?? state.value))
 
-const dialColor = computed(() => {
-  if (props.config.dial_color) return undefined
-  if (isUnavailable.value) return undefined
-  if (state.value === 'open') return 'success'
+const coverIcon = computed(() =>
+  (state.value === 'open' || (position.value !== undefined && position.value > 0))
+    ? 'mdi-window-shutter-open' : 'mdi-window-shutter'
+)
+
+const openColor = computed(() => props.config.open_color ?? 'rgb(var(--v-theme-success))')
+const closedColor = computed(() => props.config.closed_color ?? 'rgba(255,255,255,0.3)')
+
+const iconColor = computed(() => {
+  if (isUnavailable.value) return 'disabled'
   if (state.value === 'opening' || state.value === 'closing') return 'warning'
-  return 'medium-emphasis'
+  if (state.value === 'open') return props.config.open_color ? undefined : 'success'
+  return props.config.closed_color ? undefined : 'medium-emphasis'
 })
 
-const dialStyle = computed(() => ({
-  ...(props.config.dial_color ? { '--dial-color': props.config.dial_color } : {}),
-  ...(props.config.dial_bg_color ? { '--dial-bg-color': props.config.dial_bg_color } : {}),
-}))
-
-const btnSize = computed(() => props.config.buttons_size ?? 'x-small')
-const pos = computed(() => props.config.buttons_position ?? 'left')
-const containerClass = computed(() => {
-  if (pos.value === 'right')  return 'flex-row-reverse ga-4'
-  if (pos.value === 'top')    return 'flex-column ga-3'
-  if (pos.value === 'bottom') return 'flex-column-reverse ga-3'
-  return 'flex-row ga-4'
+const iconStyle = computed(() => {
+  if (isUnavailable.value) return {}
+  if (state.value === 'opening' || state.value === 'closing') return {}
+  if (state.value === 'open' && props.config.open_color) return { color: props.config.open_color }
+  if (state.value !== 'open' && props.config.closed_color) return { color: props.config.closed_color }
+  return {}
 })
-const buttonsClass = computed(() => {
-  if (pos.value === 'top' || pos.value === 'bottom') return 'd-flex flex-row align-center'
-  return 'd-flex flex-column align-center'
+
+const stateColor = computed(() => {
+  if (state.value === 'opening' || state.value === 'closing') return 'text-warning'
+  if (state.value === 'open') return props.config.open_color ? '' : 'text-success'
+  return props.config.closed_color ? '' : 'text-medium-emphasis'
+})
+
+const stateStyle = computed(() => {
+  if (state.value === 'opening' || state.value === 'closing') return {}
+  if (state.value === 'open' && props.config.open_color) return { color: props.config.open_color }
+  if (state.value !== 'open' && props.config.closed_color) return { color: props.config.closed_color }
+  return {}
+})
+
+const arcDash = computed(() => ((position.value ?? 0) / 100) * 119.4)
+const arcColor = computed(() => {
+  if (props.config.dial_color) return props.config.dial_color
+  if (state.value === 'opening' || state.value === 'closing') return 'rgb(var(--v-theme-warning))'
+  if (state.value === 'open') return openColor.value
+  return closedColor.value
 })
 
 const dialogOpen = ref(false)
@@ -95,10 +137,19 @@ async function callCover(service: string) {
 </script>
 
 <style scoped>
-:deep(.v-progress-circular__overlay) {
-  stroke: var(--dial-color, currentColor);
+.covd2-icon-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-:deep(.v-progress-circular__underlay) {
-  stroke: var(--dial-bg-color, currentColor);
+.covd2-arc {
+  position: absolute;
+  inset: 0;
+  width: 44px;
+  height: 44px;
 }
+.gap-3 { gap: 12px; }
 </style>

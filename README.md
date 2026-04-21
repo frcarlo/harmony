@@ -1,6 +1,6 @@
 # HArmony
 
-[![Version](https://img.shields.io/badge/version-v3.1.5-blue)](https://github.com/frcarlo/harmony/releases)
+[![Version](https://img.shields.io/badge/version-v3.1.6-blue)](https://github.com/frcarlo/harmony/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
@@ -56,13 +56,16 @@
 | `camera` | Live snapshot with auto-refresh |
 | `thermostat` | Temperature display and HVAC control |
 | `media_player` | Playback controls with album art |
-| `cover` | Blind/shutter with position dial; configurable button position (left/right/top/bottom) and size |
+| `cover` | Blind/shutter with open/stop/close buttons; configurable button position and size |
+| `cover_dial` | Cover with circular position dial and directional controls |
+| `cover_dial2` | Compact cover card: large icon with arc position indicator, open/closed colors, compact mode |
 | `lock` | Lock/unlock with optional confirmation and optional door sensor button |
 | `weather` | Current conditions and multi-day forecast |
 | `clock` | Analog or digital, any timezone |
 | `label` | Static text / heading |
 | `room_card` | Room summary (climate, lights, sensors) |
-| `calendar` | Upcoming events from HA calendar entities |
+| `calendar` | Upcoming events list from HA calendar entities |
+| `calendar_v2` | Full calendar view (day/week/month) with event detail, multi-calendar color coding |
 | `person` | Presence status and location |
 | `energy` | Grid import/export, solar, battery flow |
 | `status_bar` | Compact row of entity badges — single entities or dynamic groups filtered by domain, name, area, or label; tap badge to toggle or inspect |

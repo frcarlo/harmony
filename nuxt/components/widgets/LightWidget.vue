@@ -1,18 +1,19 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-4">
-    <div class="d-flex align-center ga-2 mb-2">
-      <v-icon icon="mdi-lightbulb" size="14" :color="isOn ? 'warning' : 'medium-emphasis'" />
-      <span class="text-caption text-medium-emphasis text-truncate">{{ name }}</span>
+  <div class="h-100 d-flex flex-column pa-3 ga-3">
+    <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
+      <v-icon icon="mdi-lightbulb"
+        size="36" :color="isOn ? 'warning' : 'medium-emphasis'" class="flex-shrink-0" />
+      <div class="overflow-hidden">
+        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
+        <div class="text-caption" :class="isOn ? 'text-warning' : 'text-medium-emphasis'">
+          {{ isUnavailable ? 'N/A' : isOn ? (showBrightness ? `${brightnessPercent}%` : t('common.on')) : t('common.off') }}
+        </div>
+      </div>
     </div>
-    <div class="d-flex align-center justify-space-between mb-2">
-      <span class="text-h6 font-weight-semibold" :class="isOn ? 'text-on-surface' : 'text-medium-emphasis'">
-        {{ isUnavailable ? 'N/A' : isOn ? (showBrightness ? `${brightnessPercent}%` : 'An') : 'Aus' }}
-      </span>
+    <div class="d-flex align-center ga-2">
       <UiSwitch :checked="isOn" :disabled="isUnavailable" @change="toggle" />
-    </div>
-
-    <div v-if="showBrightness" class="mt-auto">
-      <v-slider :model-value="brightnessPercent" min="1" max="100" color="warning" hide-details glow
+      <v-slider v-if="showBrightness" :model-value="brightnessPercent"
+        min="1" max="100" color="warning" hide-details class="flex-grow-1"
         @end="setBrightness" />
     </div>
   </div>
@@ -21,6 +22,7 @@
 <script setup lang="ts">
 import type { LightWidgetConfig } from '~/types/dashboard'
 
+const { t } = useI18n()
 const props = defineProps<{ config: LightWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
