@@ -153,6 +153,10 @@
       "label": "Kalender",
       "description": "Heutige Termine anzeigen"
     },
+    "calendar_v2": {
+      "label": "Kalender (Monat/Woche/Tag)",
+      "description": "Interaktive Kalenderansicht mit mehreren Kalendern"
+    },
     "person": {
       "label": "Personen",
       "description": "Wer ist zuhause"
@@ -166,6 +170,15 @@
       "description": "Status-Icons in einer Zeile"
     }
   },
+  "calendar_v2": {
+    "day": "Tag",
+    "week": "Woche",
+    "month": "Monat",
+    "today": "Heute",
+    "calendars": "Kalender",
+    "add_calendar": "Kalender hinzufügen",
+    "all_day": "Ganztägig"
+  },
   "door": {
     "label": "Tür",
     "description": "Türstatus anzeigen",
@@ -173,7 +186,19 @@
     "close": "Tür Schließen"
   },
   "lock": {
-    "door_open": "Tür geöffnet",
+    "type": {
+      "lock": { "locked": "Gesperrt", "unlocked": "Entsperrt", "do_lock": "Sperren", "do_unlock": "Entsperren" },
+      "gate": { "locked": "Geschlossen", "unlocked": "Offen", "do_lock": "Schließen", "do_unlock": "Öffnen" }
+    },
+    "type_label": { "lock": "Schloss", "gate": "Tor / Garage" },
+    "state": {
+      "locking": "Wird gesperrt…",
+      "unlocking": "Wird entsperrt…",
+      "open": "Geöffnet",
+      "opening": "Wird geöffnet…",
+      "jammed": "Blockiert"
+    },
+    "door_open":"Tür geöffnet",
     "door_closed": "Tür geschlossen",
     "door_sensor": "Türsensor"
   },
@@ -192,6 +217,8 @@
     "dial_color": "Ring-Farbe",
     "dial_bg_color": "Ring-Hintergrundfarbe",
     "refresh_interval": "Intervall (Sekunden)",
+    "locked_icon": "Gesperrt-Icon",
+    "unlocked_icon": "Entsperrt-Icon",
     "require_confirmation": "Bestätigung beim Entsperren",
     "show_door_button": "Tür-Button anzeigen",
     "forecast_rows": "Forecast-Zeilen: {n}",

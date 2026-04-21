@@ -141,7 +141,20 @@
     "status_bar": {
       "label": "Statusbalk",
       "description": "Statuspictogrammen in één rij"
+    },
+    "calendar_v2": {
+      "label": "Kalender (Maand/Week/Dag)",
+      "description": "Interactieve kalenderweergave met meerdere kalenders"
     }
+  },
+  "calendar_v2": {
+    "day": "Dag",
+    "week": "Week",
+    "month": "Maand",
+    "today": "Vandaag",
+    "calendars": "Kalenders",
+    "add_calendar": "Kalender toevoegen",
+    "all_day": "Hele dag"
   },
   "door": {
     "label": "Deur",
@@ -150,6 +163,17 @@
     "close": "Deur sluiten"
   },
   "lock": {
+    "type": {
+      "lock": { "locked": "Vergrendeld", "unlocked": "Ontgrendeld", "do_lock": "Vergrendelen", "do_unlock": "Ontgrendelen" },
+      "gate": { "locked": "Gesloten", "unlocked": "Open", "do_lock": "Sluiten", "do_unlock": "Openen" }
+    },
+    "state": {
+      "locking": "Vergrendelen…",
+      "unlocking": "Ontgrendelen…",
+      "open": "Open",
+      "opening": "Openen…",
+      "jammed": "Vastgelopen"
+    },
     "door_open": "Deur open",
     "door_closed": "Deur gesloten",
     "door_sensor": "Deursensor"
