@@ -115,7 +115,6 @@ function switchType(type: string) {
 
 function save() {
   const payload = JSON.parse(JSON.stringify(toRaw(draft.value)))
-  console.log('[dialog save] payload:', JSON.stringify(payload))
   emit('save', payload)
   emit('update:modelValue', false)
 }

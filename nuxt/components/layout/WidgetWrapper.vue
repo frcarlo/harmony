@@ -1,6 +1,10 @@
 <template>
   <v-card height="100%" class="overflow-hidden position-relative widget-card" :style="cardStyle"
-    :class="{ 'ring-selected': isSelected, 'widget-glass': glass }">
+    :class="{
+      'ring-selected': isSelected,
+      'widget-glass': glass && !appearance.bg_color && !hasActiveBackground,
+      'widget-glass-blur': glass && (!!appearance.bg_color || hasActiveBackground),
+    }">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
       <v-icon icon="mdi-drag-horizontal" size="16" color="medium-emphasis" />
@@ -70,16 +74,41 @@ const isActive = computed(() => {
 
 const appearance = computed(() => props.widget.appearance ?? {})
 
+const hasActiveBackground = computed(() =>
+  isActive.value && (appearance.value.active_color != null || props.widget.type === 'room_card'),
+)
+
+function toSemiTransparent(color: string, alpha = 0.55): string {
+  if (color.startsWith('#')) {
+    const hex = color.replace('#', '')
+    const full = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex
+    const r = parseInt(full.slice(0, 2), 16)
+    const g = parseInt(full.slice(2, 4), 16)
+    const b = parseInt(full.slice(4, 6), 16)
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  }
+  return `color-mix(in srgb, ${color} ${Math.round(alpha * 100)}%, transparent)`
+}
+
 const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
-  if (a.bg_color) style.backgroundColor = a.bg_color
-  else if (isActive.value && a.active_color) style.backgroundColor = a.active_color + '28'
+  if (a.bg_color === 'transparent') style.backgroundColor = 'transparent'
+  else if (a.bg_color) style.backgroundColor = glass.value ? toSemiTransparent(a.bg_color) : a.bg_color
+  else if (isActive.value) {
+    const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
+    if (activeColor) style.backgroundColor = glass.value ? toSemiTransparent(activeColor, 0.22) : activeColor + '28'
+  }
   if (a.text_color) style.color = a.text_color
-  const customColor = (isActive.value && a.active_color) ? a.active_color : a.border_color
-  style.borderColor = customColor ?? 'rgb(var(--v-theme-primary))'
-  style.borderWidth = `${a.border_width ?? 2}px`
-  style.borderStyle = 'solid'
+  const bw = a.border_width ?? 0
+  if (bw > 0) {
+    const customColor = (isActive.value && a.active_color) ? a.active_color : a.border_color
+    style.borderColor = customColor ?? 'rgb(var(--v-theme-primary))'
+    style.borderWidth = `${bw}px`
+    style.borderStyle = 'solid'
+  } else {
+    style.border = 'none'
+  }
   if (isSelected.value) style.outline = '2px solid rgb(var(--v-theme-primary))'
   return style
 })

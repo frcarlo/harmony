@@ -255,7 +255,6 @@
 import type { WidgetType, WidgetAppearance } from '~/types/dashboard'
 
 const entityStore = useEntityStore()
-
 const { t } = useI18n()
 defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
@@ -336,11 +335,9 @@ function openEntryDialog(idx: number) {
 }
 
 function saveEntryDialog(updated: Record<string, unknown>) {
-  console.log('[panel save] updated:', JSON.stringify(updated))
   const list = [...statusBarEntries.value]
   if (editingEntryIdx.value !== null) list[editingEntryIdx.value] = updated
   cfg.value.entries = list
-  console.log('[panel save] entries after:', JSON.stringify(cfg.value.entries))
 }
 
 function entryGroupSummary(entry: Record<string, unknown>) {

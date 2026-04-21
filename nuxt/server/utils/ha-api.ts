@@ -71,6 +71,6 @@ export async function getCameraSnapshot(entityId: string): Promise<Response> {
 }
 
 export async function getHAImageProxy(path: string): Promise<Response> {
-  const url = `${haUrl()}${path}`
+  const url = path.startsWith('http') ? path : `${haUrl()}${path}`
   return fetch(url, { headers: haHeaders(), cache: 'no-store' })
 }

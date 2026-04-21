@@ -10,6 +10,7 @@ export const useEntityStore = defineStore('entity', {
     labels: [] as HALabel[],
     entityAreaMap: {} as Record<string, string>,   // entity_id → area_id
     entityLabelsMap: {} as Record<string, string[]>, // entity_id → label_ids
+    entityPlatformMap: {} as Record<string, string>,  // entity_id → platform/integration
   }),
 
   actions: {
@@ -49,6 +50,10 @@ export const useEntityStore = defineStore('entity', {
 
     setEntityLabelsMap(map: Record<string, string[]>) {
       this.entityLabelsMap = map
+    },
+
+    setEntityPlatformMap(map: Record<string, string>) {
+      this.entityPlatformMap = map
     },
   },
 
