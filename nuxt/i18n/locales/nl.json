@@ -23,7 +23,8 @@
     "last_updated": "Laatst bijgewerkt",
     "name": "Naam",
     "all": "Alles",
-    "dashboards": "Dashboard's"
+    "dashboards": "Dashboard's",
+    "undo": "Ongedaan maken"
   },
   "dashboard": {
     "title": "Mijn dashboards",
@@ -147,7 +148,8 @@
     "calendar_v2": {
       "label": "Kalender (Maand/Week/Dag)",
       "description": "Interactieve kalenderweergave met meerdere kalenders"
-    }
+    },
+    "removed": "Widget verwijderd"
   },
   "calendar_v2": {
     "day": "Dag",
@@ -252,7 +254,15 @@
     "show_labels": "Labels tonen",
     "compact_mode": "Compacte modus",
     "open_color": "Kleur (open)",
-    "closed_color": "Kleur (gesloten)"
+    "closed_color": "Kleur (gesloten)",
+    "horizontal": "Horizontaal",
+    "vertical": "Verticaal",
+    "nav_start": "Nav links",
+    "nav_end": "Nav rechts",
+    "entry_type_nav": "Navigatie",
+    "target_dashboard": "Doel-dashboard",
+    "icon_color": "Icofonkleur",
+    "add_nav": "Navigatie toevoegen"
   },
   "entity_picker": {
     "placeholder": "Entiteit zoeken...",

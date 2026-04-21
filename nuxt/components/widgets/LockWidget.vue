@@ -9,41 +9,39 @@
         <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
         <div class="d-flex align-center ga-1">
           <div class="text-caption" :class="stateLabelColor">{{ stateLabel }}</div>
-          <v-btn v-if="doorSensor"
-            :icon="isDoorOpen ? sensorOpenIcon : sensorClosedIcon"
-            :color="isDoorOpen ? 'warning' : 'success'" :variant="isDoorOpen ? 'tonal' : 'text'"
-            size="x-small" rounded="circle" density="comfortable"
-            :title="isDoorOpen ? t('lock.door_open') : t('lock.door_closed')"
+          <v-btn v-if="doorSensor" :icon="isDoorOpen ? sensorOpenIcon : sensorClosedIcon"
+            :color="isDoorOpen ? 'warning' : 'success'" :variant="isDoorOpen ? 'tonal' : 'text'" size="x-small"
+            rounded="circle" density="comfortable" :title="isDoorOpen ? t('lock.door_open') : t('lock.door_closed')"
             @click.stop="sensorDialogOpen = true" />
         </div>
         <div class="text-caption text-disabled">{{ lastChanged }}</div>
       </div>
-       <v-btn v-if="showDoorButton && !confirmingDoor" icon="mdi-door-open" variant="tonal" size="small"
-          :disabled="isUnavailable" :title="t('door.open')" @click="confirmingDoor = true" />
+      <v-btn v-if="showDoorButton && !confirmingDoor" icon="mdi-door-open" variant="tonal" size="small"
+        :disabled="isUnavailable" :title="t('door.open')" @click="confirmingDoor = true" />
     </div>
 
     <!-- Bottom: action buttons -->
     <div class="d-flex ga-2">
-      
+
       <template v-if="!confirming && !confirmingDoor">
-        <v-btn :prepend-icon="toggleIcon" :text="toggleLabel" variant="tonal"
-          :color="isLocked ? undefined : 'warning'" size="small" class="flex-grow-1 text-none"
-          :disabled="isUnavailable || isTransitioning || isJammed"
-          @click="handleToggle" />
-      
+
+        <v-btn :prepend-icon="toggleIcon" :text="toggleLabel" variant="tonal" :color="isLocked ? 'primary' : 'warning'"
+          rounded="lg" size="small" class="flex-grow-1 text-none"
+          :disabled="isUnavailable || isTransitioning || isJammed" @click="handleToggle" />
+
       </template>
       <template v-else-if="confirming">
         <v-btn :text="t('common.cancel')" variant="tonal" size="small" class="flex-grow-1 text-none"
           @click="confirming = false" />
-        <v-btn prepend-icon="mdi-check" :text="t('common.confirm')" variant="tonal"
-          color="warning" size="small" class="flex-grow-1 text-none" @click="doAction" />
-        
+        <v-btn prepend-icon="mdi-check" :text="t('common.confirm')" variant="tonal" color="warning" size="small"
+          class="flex-grow-1 text-none" @click="doAction" />
+
       </template>
       <template v-else-if="confirmingDoor">
         <v-btn :text="t('common.cancel')" variant="tonal" size="small" class="flex-grow-1 text-none"
           @click="confirmingDoor = false" />
-        <v-btn prepend-icon="mdi-door-open" :text="t('door.open')" variant="tonal"
-          color="warning" size="small" class="flex-grow-1 text-none" @click="openDoorAction" />
+        <v-btn prepend-icon="mdi-door-open" :text="t('door.open')" variant="tonal" color="warning" size="small"
+          class="flex-grow-1 text-none" @click="openDoorAction" />
       </template>
     </div>
   </div>
@@ -214,8 +212,11 @@ watch(lockState, (s) => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .spin {
   animation: spin 1.2s linear infinite;
 }
