@@ -39,7 +39,7 @@ const { t } = useI18n()
 const { glass } = useGlassEffect()
 
 const theme = useTheme()
-const currentTheme = computed(() => theme.global.name.value)
+const currentTheme = computed(() => theme.name.value)
 
 const THEMES = [
   { id: 'dark',        name: 'Dark',             dark: true,  bg: '#0f172a', primary: '#6366f1' },
@@ -66,7 +66,7 @@ const THEMES = [
 ]
 
 function setTheme(id: string) {
-  theme.global.name.value = id
+  theme.change(id)
   localStorage.setItem('ha-theme', id)
 }
 </script>

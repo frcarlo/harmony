@@ -21,14 +21,15 @@
       :placeholder="placeholder ?? t('entity_picker.placeholder')"
       clearable
       :no-data-text="t('entity_picker.no_results')"
-      @update:model-value="$emit('update:modelValue', $event ?? '')"
+      @update:model-value="$emit('update:modelValue', $event ?? undefined)"
     >
       <template #item="{ item, props: itemProps }">
         <v-list-item v-bind="itemProps" :subtitle="item.raw.entity_id">
           <template #append>
-            <v-chip size="x-small" label color="secondary" class="ml-1 text-capitalize">
-              {{ item.raw.domain }}
-            </v-chip>
+            <div class="d-flex flex-column align-end ga-1">
+              <v-chip size="x-small" label color="secondary" class="text-capitalize">{{ item.raw.domain }}</v-chip>
+              <v-chip v-if="item.raw.platform" size="x-small" label color="primary" class="text-capitalize">{{ item.raw.platform }}</v-chip>
+            </div>
           </template>
         </v-list-item>
       </template>
@@ -38,8 +39,8 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-const props = defineProps<{ modelValue: string; domain?: string; placeholder?: string }>()
-defineEmits<{ 'update:modelValue': [v: string] }>()
+const props = defineProps<{ modelValue?: string; domain?: string; placeholder?: string; platform?: string }>()
+defineEmits<{ 'update:modelValue': [v: string | undefined] }>()
 
 const entityStore = useEntityStore()
 const selectedArea = ref<string | null>(null)
@@ -51,6 +52,7 @@ const areaItems = computed(() => [
 const options = computed(() => {
   const all = Object.values(entityStore.entities)
   let filtered = props.domain ? all.filter((e) => e.entity_id.startsWith(props.domain + '.')) : all
+  if (props.platform) filtered = filtered.filter((e) => entityStore.entityPlatformMap[e.entity_id] === props.platform)
   if (selectedArea.value) {
     filtered = filtered.filter((e) => entityStore.entityAreaMap[e.entity_id] === selectedArea.value)
   }
@@ -58,6 +60,7 @@ const options = computed(() => {
     entity_id: e.entity_id,
     label: (e.attributes?.friendly_name as string) ?? e.entity_id,
     domain: e.entity_id.split('.')[0],
+    platform: entityStore.entityPlatformMap[e.entity_id] ?? '',
   }))
 })
 </script>

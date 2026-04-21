@@ -9,11 +9,6 @@
         <v-btn icon="mdi-close" size="x-small" variant="text" @click="$emit('close')" />
       </v-card-title>
 
-      <!-- MA auth warning -->
-      <v-alert v-if="maAuthRequired" type="warning" density="compact" variant="tonal" class="mx-2 mb-1 text-caption">
-        Music Assistant: Authentifizierung fehlgeschlagen (Token prüfen)
-      </v-alert>
-
       <!-- Tabs: Browse / Search (only if MA available) -->
       <v-tabs v-if="maAvailable" v-model="activeTab" density="compact" class="px-2">
         <v-tab value="browse" prepend-icon="mdi-folder-music-outline" size="small">{{ t('media.library') }}</v-tab>
@@ -120,6 +115,7 @@ const props = defineProps<{ open: boolean; entityId: string }>()
 const emit = defineEmits<{ close: [] }>()
 
 const client = useHAClient()
+const entityStore = useEntityStore()
 const { checkStatus, search, maImageUrl, isAvailable } = useMAClient()
 
 // ── Browse ──────────────────────────────────────────
@@ -136,9 +132,7 @@ async function browse(contentType?: string, contentId?: string) {
   try {
     const result = await client.browseMedia(props.entityId, contentType, contentId)
     const all = result.children ?? []
-    children.value = stack.value.length === 0
-      ? all.filter(i => /^radio$|radio.?browser|frcarlo/i.test(i.title))
-      : all
+    children.value = all
     if (children.value.length === 0) error.value = t('media.no_content')
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : t('media.load_error')
@@ -173,7 +167,6 @@ async function play(item: BrowseMediaNode) {
 // ── Search (MA) ──────────────────────────────────────
 const activeTab = ref<'browse' | 'search'>('browse')
 const maAvailable = ref(false)
-const maAuthRequired = ref(false)
 const searchQuery = ref('')
 const searchLoading = ref(false)
 const searchError = ref<string | null>(null)
@@ -221,13 +214,30 @@ async function doSearch() {
   }
 }
 
+function resolveMaEntityId(): string {
+  const nativeName = entityStore.entities[props.entityId]?.attributes?.friendly_name as string | undefined
+  if (!nativeName) return props.entityId
+  const match = Object.entries(entityStore.entities).find(([id, e]) =>
+    id !== props.entityId &&
+    id.startsWith('media_player.') &&
+    entityStore.entityPlatformMap[id] === 'music_assistant' &&
+    e.attributes?.friendly_name === nativeName,
+  )
+  return match ? match[0] : props.entityId
+}
+
 async function playMA(item: MAItem) {
-  await client.callService({
-    domain: 'media_player', service: 'play_media',
-    target: { entity_id: props.entityId },
-    service_data: { media_content_id: item.uri, media_content_type: item.media_type },
-  })
-  emit('close')
+  try {
+    const targetEntity = resolveMaEntityId()
+    await client.callService({
+      domain: 'music_assistant', service: 'play_media',
+      target: { entity_id: targetEntity },
+      service_data: { media_id: item.uri, media_type: item.media_type, enqueue: 'replace' },
+    })
+    emit('close')
+  } catch (e: unknown) {
+    searchError.value = e instanceof Error ? e.message : t('media.load_error')
+  }
 }
 
 function itemSubtitle(item: MAItem): string {
@@ -265,9 +275,8 @@ watch(() => props.open, async (v) => {
     searchDone.value = false
     searchQuery.value = ''
     await browse()
-    const status = await checkStatus()
-    maAvailable.value = status.available
-    maAuthRequired.value = status.auth_required ?? false
+    const isMAEntity = entityStore.entityPlatformMap[props.entityId] === 'music_assistant'
+    maAvailable.value = isMAEntity && (await checkStatus()).available
   }
 })
 </script>

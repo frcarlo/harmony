@@ -2,6 +2,7 @@
   "common": {
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "confirm": "Confirmer",
     "close": "Fermer",
     "delete": "Supprimer",
     "edit": "Modifier",

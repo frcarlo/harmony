@@ -1,4 +1,4 @@
-import type { HAState, HAWSMessage, HAServiceCall, BrowseMediaNode, HAArea, HAEntityRegistryEntry, HADeviceRegistryEntry } from '~/types/ha'
+import type { HAState, HAWSMessage, HAServiceCall, BrowseMediaNode, HAArea, HAEntityRegistryEntry, HADeviceRegistryEntry, HALabel } from '~/types/ha'
 
 type StateCallback = (state: HAState) => void
 type VoidCallback = () => void
@@ -154,6 +154,10 @@ class HAWebSocketClient {
     return this._call({ type: 'config/device_registry/list' }) as Promise<HADeviceRegistryEntry[]>
   }
 
+  async getLabelRegistry(): Promise<HALabel[]> {
+    return this._call({ type: 'config/label_registry/list' }) as Promise<HALabel[]>
+  }
+
   async callService(call: HAServiceCall): Promise<void> {
     await this._call({
       type: 'call_service',
@@ -162,6 +166,22 @@ class HAWebSocketClient {
       service_data: call.service_data,
       target: call.target,
     })
+  }
+
+  async callServiceWithResponse<T = unknown>(call: HAServiceCall): Promise<T> {
+    const result = await this._call({
+      type: 'call_service',
+      domain: call.domain,
+      service: call.service,
+      service_data: call.service_data,
+      target: call.target,
+      return_response: true,
+    }) as { response?: T } | T
+    // HA wraps service response in { response: ..., context: ... }
+    if (result && typeof result === 'object' && 'response' in result) {
+      return (result as { response: T }).response
+    }
+    return result as T
   }
 
   async getCameraStreamUrl(entityId: string): Promise<string> {

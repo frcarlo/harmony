@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue" max-width="360" @update:model-value="emit('update:modelValue', $event)">
-    <v-card v-if="entity" rounded="lg" :class="{ 'widget-glass': glass }">
+    <v-card v-if="entity" rounded="lg" :class="{ 'dialog-glass': glass }">
       <!-- Header -->
       <div class="d-flex align-center px-4 pt-4 pb-3">
         <v-icon :icon="stateIcon" :color="stateColor" class="mr-2" />

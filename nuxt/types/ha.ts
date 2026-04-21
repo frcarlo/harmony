@@ -77,6 +77,7 @@ export interface HAEntityRegistryEntry {
   device_id?: string | null
   disabled_by?: string | null
   labels?: string[]
+  platform?: string
 }
 
 export interface HALabel {

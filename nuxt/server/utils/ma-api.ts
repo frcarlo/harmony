@@ -76,12 +76,17 @@ export async function maStatus(): Promise<{ available: boolean; auth_required: b
 }
 
 export async function maSearch(query: string, limit = 25): Promise<MASearchResult> {
-  const result = await maCall('music/search', {
+  const raw = await maCall('music/search', {
     search_query: query,
     media_types: ['track', 'album', 'artist', 'playlist', 'radio'],
     limit,
     library_only: false,
-  }) as Record<string, MAItem[]>
+  })
+
+  // MA may return { tracks: [...], albums: [...] } directly or wrapped
+  const result = (raw && typeof raw === 'object' && !Array.isArray(raw))
+    ? raw as Record<string, MAItem[]>
+    : {}
 
   return {
     tracks: result.tracks ?? [],

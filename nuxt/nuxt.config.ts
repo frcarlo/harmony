@@ -103,6 +103,8 @@ export default defineNuxtConfig({
       clientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET ?? process.env.KEYCLOAK_CLIENT_SECRET ?? '',
       issuer: process.env.NUXT_KEYCLOAK_ISSUER ?? process.env.KEYCLOAK_ISSUER ?? '',
     },
+    maUrl: process.env.NUXT_MA_URL ?? '',
+    maToken: process.env.NUXT_MA_TOKEN ?? '',
     public: {
       keycloakEnabled: false,
       appVersion: process.env.npm_package_version ?? '1.0.0',

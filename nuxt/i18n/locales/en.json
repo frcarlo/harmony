@@ -2,6 +2,7 @@
   "common": {
     "save": "Save",
     "cancel": "Cancel",
+    "confirm": "Confirm",
     "close": "Close",
     "delete": "Delete",
     "edit": "Edit",
@@ -200,6 +201,7 @@
     "text_placeholder": "Heading...",
     "font_size": "Font size",
     "show_album_art": "Show album art",
+    "ma_player_id": "Music Assistant player (optional)",
     "days": "Show days",
     "show_time": "Show time",
     "room_name": "Room name",
@@ -276,6 +278,7 @@
     "no_content": "No content found",
     "no_results": "No results found.",
     "load_error": "Error loading content",
+    "no_player_configured": "No Music Assistant player configured. Please set it in the widget editor.",
     "tracks": "Tracks",
     "albums": "Albums",
     "artists": "Artists",

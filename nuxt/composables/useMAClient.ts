@@ -1,27 +1,39 @@
 import type { MASearchResult, MAItem } from '~/server/utils/ma-api'
 
-interface MAStatus {
-  available: boolean
-  auth_required?: boolean
-  url: string
-  configured: boolean
-}
+interface MAStatus { available: boolean; url: string; configured: boolean }
 
-const _status = ref<MAStatus | null>(null)
-const _statusLoading = ref(false)
+export interface MAPlayer { player_id: string; display_name: string; available: boolean }
+
+const _available = ref<boolean | null>(null)
+const _maUrl = ref('')
 
 export function useMAClient() {
   async function checkStatus(force = false): Promise<MAStatus> {
-    if (_status.value !== null && !force) return _status.value
-    _statusLoading.value = true
+    if (_available.value !== null && !force) return { available: _available.value, url: _maUrl.value, configured: true }
     try {
-      _status.value = await $fetch<MAStatus>('/api/ma/status')
+      const status = await $fetch<{ available: boolean; url: string }>('/api/ma/status')
+      _available.value = status.available
+      _maUrl.value = status.url ?? ''
     } catch {
-      _status.value = { available: false, url: '', configured: false }
-    } finally {
-      _statusLoading.value = false
+      _available.value = false
     }
-    return _status.value!
+    return { available: _available.value!, url: _maUrl.value, configured: true }
+  }
+
+  async function getPlayers(): Promise<MAPlayer[]> {
+    try {
+      const raw = await $fetch<unknown>('/api/ma/players')
+      return Array.isArray(raw) ? raw as MAPlayer[] : []
+    } catch {
+      return []
+    }
+  }
+
+  async function playViaMA(playerId: string, uri: string, mediaType: string): Promise<void> {
+    await $fetch('/api/ma/play', {
+      method: 'POST',
+      body: { player_id: playerId, uri, media_type: mediaType },
+    })
   }
 
   async function search(query: string): Promise<MASearchResult> {
@@ -29,17 +41,15 @@ export function useMAClient() {
   }
 
   function maImageUrl(item: MAItem): string | undefined {
-    if (!item.image?.path) return undefined
-    const { url } = _status.value ?? {}
-    if (!url) return undefined
-    const path = item.image.path
+    const path = item.image?.path
+    if (!path) return undefined
     if (path.startsWith('http')) return path
-    return `${url}${path}`
+    return _maUrl.value ? `${_maUrl.value}${path}` : undefined
   }
 
-  const isAvailable = computed(() => _status.value?.available ?? false)
+  const isAvailable = computed(() => _available.value ?? false)
 
-  return { checkStatus, search, maImageUrl, isAvailable }
+  return { checkStatus, search, getPlayers, playViaMA, maImageUrl, isAvailable }
 }
 
 export type { MASearchResult, MAItem }

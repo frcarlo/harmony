@@ -43,6 +43,7 @@ export default defineNuxtPlugin(() => {
       const deviceLabelsMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.labels ?? []]))
       const entityAreaMap: Record<string, string> = {}
       const entityLabelsMap: Record<string, string[]> = {}
+      const entityPlatformMap: Record<string, string> = {}
       for (const entry of entityRegistry) {
         const areaId = entry.area_id ?? (entry.device_id ? deviceAreaMap[entry.device_id] : null)
         if (areaId) entityAreaMap[entry.entity_id] = areaId
@@ -50,10 +51,11 @@ export default defineNuxtPlugin(() => {
         const deviceLabels = entry.device_id ? (deviceLabelsMap[entry.device_id] ?? []) : []
         const combined = [...new Set([...entityLabels, ...deviceLabels])]
         if (combined.length) entityLabelsMap[entry.entity_id] = combined
+        if (entry.platform) entityPlatformMap[entry.entity_id] = entry.platform
       }
       entityStore.setEntityAreaMap(entityAreaMap)
       entityStore.setEntityLabelsMap(entityLabelsMap)
-      console.log('[HA] init done — states:', states.length, 'labels:', labelRegistry.length, 'entities with labels:', Object.keys(entityLabelsMap).length)
+      entityStore.setEntityPlatformMap(entityPlatformMap)
     } catch (e) {
       console.error('[HA] onConnect init failed:', e)
     }

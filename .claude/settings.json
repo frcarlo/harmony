@@ -13,7 +13,30 @@
       "Bash(chmod +x /data/docker-configs/ha-dashboard/release.sh)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(python3 -c \"import json; d=json.load\\(open\\('/data/docker-configs/ha-dashboard/nuxt/package.json'\\)\\); print\\(list\\(d.keys\\(\\)\\)\\)\")"
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/data/docker-configs/ha-dashboard/nuxt/package.json'\\)\\); print\\(list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(grep -r \"HA_TOKEN\\\\|SESSION_PASSWORD\\\\|CLIENT_SECRET\\\\|password\\\\s*=\\\\s*['\\\\\"][^$]\" /data/docker-configs/ha-dashboard/nuxt/server /data/docker-configs/ha-dashboard/nuxt/nuxt.config.ts)",
+      "Bash(python3 -c \"import sys,json; n=json.load\\(sys.stdin\\); [print\\(k\\) for k in n.keys\\(\\)]\")",
+      "Bash(python3 -c \"import sys,json; [print\\(k,'=',v\\) for k,v in json.load\\(sys.stdin\\).items\\(\\) if 'traefik' in k.lower\\(\\)]\")",
+      "Bash(./release.sh patch *)",
+      "Bash(gh run *)",
+      "Bash(./deploy.sh)",
+      "Bash(grep -rh '\\(?:\\\\$t|t\\)\\\\\\(['\\\\''\"]\\\\\\([^'\\\\''\"]*\\\\\\)['\\\\''\"]' /data/docker-configs/ha-dashboard/nuxt '--include=*.vue' '--include=*.ts' '--include=*.js' ! -path '*/node_modules/*' ! -path '*/.nuxt/*' ! -path '*/dist/*')",
+      "Bash(grep -rho \"t\\('[^']*'\" /data/docker-configs/ha-dashboard/nuxt --include=\"*.vue\" --include=\"*.ts\" --include=\"*.js\" ! -path \"*/node_modules/*\" ! -path \"*/.nuxt/*\" ! -path \"*/dist/*\")",
+      "Bash(grep -rE \"\\\\bt\\\\\\(\" /data/docker-configs/ha-dashboard/nuxt --include=\"*.vue\" ! -path \"*/node_modules/*\" ! -path \"*/.nuxt/*\" ! -path \"*/dist/*\")",
+      "Bash(grep -v \"^save$\")",
+      "Bash(grep -v \"^close$\")",
+      "Bash(grep -v \"^created$\")",
+      "Bash(grep -v \"^deleted$\")",
+      "Bash(grep -v \"^T$\")",
+      "Bash(grep -v \"^a$\")",
+      "Bash(grep -v \"^toggle-edit$\")",
+      "Bash(python3)",
+      "WebFetch(domain:www.music-assistant.io)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git rm *)",
+      "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/de.json)",
+      "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/en.json)"
     ]
   }
 }
