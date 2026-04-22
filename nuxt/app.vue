@@ -11,13 +11,16 @@
 
     <NotificationPopup />
     <NotificationRulesDialog :model-value="notifDialogOpen" @update:model-value="closeNotifDialog" />
-    <Toaster rich-colors position="bottom-right" />
+    <Toaster rich-colors position="bottom-right" :theme="isDark ? 'dark' : 'light'" />
   </v-app>
 </template>
 
 <script setup lang="ts">
 import { Toaster } from 'vue-sonner'
+import { useTheme } from 'vuetify'
 const { glass } = useGlassEffect()
+const theme = useTheme()
+const isDark = computed(() => theme.current.value.dark)
 const { loggedIn } = useUserSession()
 const { loadRules, startWatcher } = useNotificationRules()
 useServerUpdates()
