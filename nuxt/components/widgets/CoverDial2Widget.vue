@@ -1,13 +1,14 @@
 <template>
   <!-- Compact: alles in einer Zeile -->
-  <div v-if="compact" class="h-100 d-flex flex-row align-center pa-3 ga-3"
-    style="cursor:pointer" @click="dialogOpen = true">
+  <div v-if="compact" class="h-100 d-flex flex-row align-center pa-3 ga-3" style="cursor:pointer"
+    @click="dialogOpen = true">
+
     <div class="covd2-icon-wrapper flex-shrink-0">
       <v-icon :icon="coverIcon" size="36" :color="iconColor" :style="iconStyle" />
       <svg class="covd2-arc" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" />
-        <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3"
-          stroke-linecap="round" :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
+        <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3" stroke-linecap="round"
+          :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
       </svg>
     </div>
     <div class="flex-grow-1 overflow-hidden">
@@ -17,25 +18,24 @@
       </div>
     </div>
     <div class="d-flex ga-1 flex-shrink-0" @click.stop>
-      <v-btn icon="mdi-chevron-up" variant="tonal" size="small"
-        :disabled="isUnavailable || isFullyOpen" @click="callCover('open_cover')" />
-      <v-btn icon="mdi-stop" variant="tonal" size="small"
-        :disabled="isUnavailable" @click="callCover('stop_cover')" />
-      <v-btn icon="mdi-chevron-down" variant="tonal" size="small"
-        :disabled="isUnavailable || isFullyClosed" @click="callCover('close_cover')" />
+      <v-btn icon="mdi-chevron-up" variant="tonal" size="small" :disabled="isUnavailable || isFullyOpen"
+        @click="callCover('open_cover')" />
+      <v-btn icon="mdi-stop" variant="tonal" size="small" :disabled="isUnavailable" @click="callCover('stop_cover')" />
+      <v-btn icon="mdi-chevron-down" variant="tonal" size="small" :disabled="isUnavailable || isFullyClosed"
+        @click="callCover('close_cover')" />
     </div>
   </div>
 
   <!-- Normal: Icon+Info oben, Buttons unten -->
-  <div v-else class="h-100 d-flex flex-column pa-3 ga-3"
-    style="cursor:pointer" @click="dialogOpen = true">
+  <div v-else class="h-100 d-flex flex-column pa-2 ga-3" style="cursor:pointer" @click="dialogOpen = true">
+
     <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
       <div class="covd2-icon-wrapper flex-shrink-0">
         <v-icon :icon="coverIcon" size="36" :color="iconColor" :style="iconStyle" />
         <svg class="covd2-arc" viewBox="0 0 44 44">
           <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3" />
-          <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3"
-            stroke-linecap="round" :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
+          <circle cx="22" cy="22" r="19" fill="none" :stroke="arcColor" stroke-width="3" stroke-linecap="round"
+            :stroke-dasharray="`${arcDash} 120`" transform="rotate(-90 22 22)" />
         </svg>
       </div>
       <div class="overflow-hidden">
@@ -46,16 +46,15 @@
       </div>
     </div>
     <div class="d-flex justify-center ga-1" @click.stop>
-      <v-btn icon="mdi-chevron-up" variant="tonal" size="small"
-        :disabled="isUnavailable || isFullyOpen" @click="callCover('open_cover')" />
-      <v-btn icon="mdi-stop" variant="tonal" size="small"
-        :disabled="isUnavailable" @click="callCover('stop_cover')" />
-      <v-btn icon="mdi-chevron-down" variant="tonal" size="small"
-        :disabled="isUnavailable || isFullyClosed" @click="callCover('close_cover')" />
+      <v-btn icon="mdi-chevron-up" variant="tonal" size="small" :disabled="isUnavailable || isFullyOpen"
+        @click="callCover('open_cover')" />
+      <v-btn icon="mdi-stop" variant="tonal" size="small" :disabled="isUnavailable" @click="callCover('stop_cover')" />
+      <v-btn icon="mdi-chevron-down" variant="tonal" size="small" :disabled="isUnavailable || isFullyClosed"
+        @click="callCover('close_cover')" />
     </div>
   </div>
 
-  <CoverDetailDialog v-model="dialogOpen" :entity-id="props.config.entity_id" />
+  <CoverDetailDialog v-if="props.config.entity_id" v-model="dialogOpen" :entity-id="props.config.entity_id" />
 </template>
 
 <script setup lang="ts">
@@ -145,11 +144,15 @@ async function callCover(service: string) {
   align-items: center;
   justify-content: center;
 }
+
 .covd2-arc {
   position: absolute;
   inset: 0;
   width: 44px;
   height: 44px;
 }
-.gap-3 { gap: 12px; }
+
+.gap-3 {
+  gap: 12px;
+}
 </style>

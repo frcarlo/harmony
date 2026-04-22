@@ -21,6 +21,8 @@
     "unlock": "Sblocca",
     "status": "Stato",
     "last_updated": "Ultimo aggiornamento",
+    "target": "Obiettivo",
+    "current": "Attuale",
     "name": "Nome",
     "all": "Tutti",
     "dashboards": "Dashboard",
@@ -45,10 +47,16 @@
     "created": "Dashboard \"{name}\" creato",
     "create_error": "Impossibile creare il dashboard"
   },
+  "updates": {
+    "server_redeployed": "Server aggiornato — ricarica per applicare le modifiche",
+    "dashboard_updated": "Questa dashboard è stata modificata da un altro utente",
+    "reload": "Ricarica"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Salva",
     "glass_effect": "Effetto vetro",
+    "widget_borders": "Bordi widget",
     "theme": "Scegli tema",
     "background": "Sfondo",
     "bg_none": "Nessuno sfondo",
@@ -259,6 +267,7 @@
     "entry_type_nav": "Navigazione",
     "target_dashboard": "Dashboard destinazione",
     "icon_color": "Colore icona",
+    "inactive_icon": "Icona inattiva",
     "add_nav": "Aggiungi navigazione"
   },
   "entity_picker": {

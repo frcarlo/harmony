@@ -29,15 +29,7 @@
         <!-- Single entity -->
         <template v-else-if="draft.entry_type !== 'group'">
           <EntityPicker v-model="draft.entity_id" />
-          <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-circle" />
-          <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
-            <v-btn value="sm" size="small">S</v-btn>
-            <v-btn value="md" size="small">M</v-btn>
-            <v-btn value="lg" size="small">L</v-btn>
-          </v-btn-toggle>
           <v-text-field v-model="draft.label" :label="t('config.display_name')" density="compact" hide-details clearable />
-          <v-text-field v-model="draft.active_state" :label="t('config.active_state')"
-            :placeholder="t('config.active_state_hint')" density="compact" hide-details clearable />
           <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />
         </template>
@@ -120,7 +112,7 @@ function switchType(type: string) {
   } else if (type === 'nav') {
     draft.value = { entry_type: 'nav', icon: draft.value.icon ?? 'mdi-arrow-right-circle-outline', label: draft.value.label ?? '', dashboard_id: '' }
   } else {
-    draft.value = { entity_id: '', icon: draft.value.icon ?? 'mdi-circle', active_state: 'on', label: draft.value.label }
+    draft.value = { entity_id: '', label: draft.value.label }
   }
 }
 

@@ -22,6 +22,8 @@
     "unlock": "Entsperren",
     "status": "Status",
     "last_updated": "Zuletzt aktualisiert",
+    "target": "Ziel",
+    "current": "Aktuell",
     "name": "Name",
     "all": "Alle",
     "dashboards": "Dashboards",
@@ -55,10 +57,16 @@
     "import_error": "Import fehlgeschlagen – ungültige Datei?",
     "import_exists": "Dashboard \"{name}\" existiert bereits – wird als Kopie importiert"
   },
+  "updates": {
+    "server_redeployed": "Server wurde aktualisiert — Seite neu laden um Änderungen zu übernehmen",
+    "dashboard_updated": "Dieses Dashboard wurde von einem anderen Benutzer geändert",
+    "reload": "Neu laden"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Speichern",
     "glass_effect": "Glaseffekt",
+    "widget_borders": "Widget-Rahmen",
     "theme": "Theme wählen",
     "background": "Hintergrund",
     "bg_none": "Kein Hintergrund",
@@ -311,6 +319,7 @@
     "entry_type_nav": "Navigation",
     "target_dashboard": "Ziel-Dashboard",
     "icon_color": "Icon-Farbe",
+    "inactive_icon": "Inaktives Icon",
     "add_nav": "Navigation hinzufügen"
   },
   "entity_picker": {

@@ -1,6 +1,6 @@
 # HArmony
 
-[![Version](https://img.shields.io/badge/version-v3.1.7-blue)](https://github.com/frcarlo/harmony/releases)
+[![Version](https://img.shields.io/badge/version-v3.2.0-blue)](https://github.com/frcarlo/harmony/releases)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Ffrcarlo%2Fharmony-2496ED?logo=docker&logoColor=white)](https://github.com/frcarlo/harmony/pkgs/container/harmony)
 
 **HArmony** is a self-hosted, customizable dashboard builder for [Home Assistant](https://www.home-assistant.io/). Build pixel-perfect smart home dashboards with a drag-and-drop editor, real-time entity state sync, multi-user access control, and a polished Material Design UI.
@@ -20,7 +20,9 @@
 - **Notification rules** — Trigger alerts or camera snapshots based on entity state changes, with cooldown and history log
 - **Audit log** — Track all administrative actions
 - **21 themes** — Dark, Light, Dracula, Nord, Catppuccin, Aura Dark, Anthropic, Matrix, and many more
-- **Glass effect** — Animated backdrop blur UI (toggleable); supports custom background colors with semi-transparent blending and transparent mode
+- **Glass effect** — Animated backdrop blur UI (toggleable, theme-aware); supports custom background colors with semi-transparent blending and transparent mode
+- **Widget borders toggle** — Global on/off switch for widget borders in the toolbar; when off, the subtle inset ring remains as visual separation
+- **Live update notifications** — SSE-based push: toast with reload button when server is redeployed or a dashboard is changed by another user
 - **Music Assistant integration** — Search tracks, albums, artists, playlists, and radio stations directly from the media player widget; auto-detected when MA runs as a HA add-on
 - **PWA** — Installable as a native app on mobile and desktop
 - **Internationalization** — German, English, Spanish, French, Italian, Dutch
@@ -55,8 +57,8 @@
 | `chart` | Historical state graph (1h – 30d) |
 | `camera` | Live snapshot with auto-refresh |
 | `thermostat` | Temperature display and HVAC control |
-| `media_player` | Playback controls with album art |
-| `cover` | Blind/shutter with open/stop/close buttons; configurable button position and size |
+| `media_player` | Playback controls with album art; banner mode with blurred album art background when height ≥ 180px |
+| `cover` | Blind/shutter with open/stop/close; responsive compact layout for small widgets; configurable button position and size |
 | `cover_dial` | Cover with circular position dial and directional controls |
 | `cover_dial2` | Compact cover card: large icon with arc position indicator, open/closed colors, compact mode |
 | `lock` | Lock/unlock with optional confirmation and optional door sensor button |
@@ -68,7 +70,7 @@
 | `calendar_v2` | Full calendar view (day/week/month) with event detail, multi-calendar color coding |
 | `person` | Presence status and location |
 | `energy` | Grid import/export, solar, battery flow |
-| `status_bar` | Compact row of entity badges — single entities or dynamic groups filtered by domain, name, area, or label; tap badge to toggle or inspect |
+| `status_bar` | Compact row of entity badges — single entities, dynamic groups, or navigation links; auto-switching domain icons; nav group pinned to start or end; tap to open detail or navigate |
 
 ---
 
@@ -187,6 +189,7 @@ npm run dev            # http://localhost:3000
 | `GET /api/camera/[entityId]` | Camera snapshot proxy |
 | `GET /api/ma/status` | Music Assistant reachability and auth check |
 | `GET /api/ma/search?q=` | Proxy search to Music Assistant (tracks, albums, artists, playlists, radio) |
+| `GET /api/sse/updates` | Server-Sent Events stream for live server/dashboard update notifications |
 
 ---
 
@@ -209,14 +212,14 @@ SQLite database stored at `DATA_DIR/harmony.db` with the following tables:
 ```
 nuxt/
 ├── components/        # UI components (widgets, layout, editor, notifications)
-├── composables/       # Vue hooks (useHAClient, useNotificationRules, ...)
+├── composables/       # Vue hooks (useHAClient, useNotificationRules, useServerUpdates, ...)
 ├── pages/             # Routes: dashboard, edit, login, setup, admin/*
 ├── plugins/           # vuetify.ts, ha-websocket.client.ts
 ├── server/
 │   ├── api/           # 33+ REST endpoints
 │   ├── middleware/    # API auth guard
 │   ├── routes/        # WebSocket proxy (ha-ws)
-│   └── utils/         # db.ts (SQLite), ha-api.ts, ma-api.ts
+│   └── utils/         # db.ts (SQLite), ha-api.ts, ma-api.ts, serverBus.ts
 ├── stores/            # Pinia: dashboard.ts, entity.ts
 ├── types/             # dashboard.ts, ha.ts
 └── i18n/locales/      # de, en, es, fr, it, nl
