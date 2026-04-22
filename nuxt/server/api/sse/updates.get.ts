@@ -1,4 +1,7 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
+  const session = await getUserSession(event)
+  const userId = session?.user?.id ?? null
+
   const res = event.node.res
 
   res.setHeader('Content-Type', 'text/event-stream')
@@ -10,7 +13,7 @@ export default defineEventHandler((event) => {
     res.write(`data: ${JSON.stringify(data)}\n\n`)
   }
 
-  serverBus.addClient(send)
+  serverBus.addClient(send, userId)
   send({ type: 'init', startupId: SERVER_STARTUP_ID })
 
   const keepAlive = setInterval(() => res.write(': ping\n\n'), 25000)
