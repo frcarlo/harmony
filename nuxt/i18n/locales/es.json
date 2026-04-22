@@ -21,6 +21,8 @@
     "unlock": "Desbloquear",
     "status": "Estado",
     "last_updated": "Última actualización",
+    "target": "Objetivo",
+    "current": "Actual",
     "name": "Nombre",
     "all": "Todos",
     "dashboards": "Paneles",
@@ -45,10 +47,16 @@
     "created": "Panel \"{name}\" creado",
     "create_error": "No se pudo crear el panel"
   },
+  "updates": {
+    "server_redeployed": "Servidor actualizado — recarga para aplicar los cambios",
+    "dashboard_updated": "Este panel fue modificado por otro usuario",
+    "reload": "Recargar"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Guardar",
     "glass_effect": "Efecto cristal",
+    "widget_borders": "Bordes de widgets",
     "theme": "Elegir tema",
     "background": "Fondo",
     "bg_none": "Sin fondo",
@@ -262,6 +270,7 @@
     "entry_type_nav": "Navegación",
     "target_dashboard": "Dashboard destino",
     "icon_color": "Color del icono",
+    "inactive_icon": "Icono inactivo",
     "add_nav": "Agregar navegación"
   },
   "entity_picker": {

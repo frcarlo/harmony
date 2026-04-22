@@ -7,6 +7,8 @@
   <div class="d-none d-sm-inline-flex align-center ga-0">
     <v-btn :icon="glass ? 'mdi-blur' : 'mdi-blur-off'" size="small" variant="text"
       :color="glass ? 'primary' : undefined" :title="t('toolbar.glass_effect')" @click="toggleGlass" />
+    <v-btn :icon="borders ? 'mdi-border-all' : 'mdi-border-none'" size="small" variant="text"
+      :color="borders ? 'primary' : undefined" :title="t('toolbar.widget_borders')" @click="toggleBorders" />
 
     <v-menu>
       <template #activator="{ props: mp }">
@@ -44,6 +46,9 @@
         <v-list-item class="d-sm-none" :prepend-icon="glass ? 'mdi-blur' : 'mdi-blur-off'"
           :title="t('toolbar.glass_effect')" :active="glass" :color="glass ? 'primary' : undefined"
           rounded="lg" @click="toggleGlass" />
+        <v-list-item class="d-sm-none" :prepend-icon="borders ? 'mdi-border-all' : 'mdi-border-none'"
+          :title="t('toolbar.widget_borders')" :active="borders" :color="borders ? 'primary' : undefined"
+          rounded="lg" @click="toggleBorders" />
         <v-list-item class="d-sm-none" prepend-icon="mdi-translate" :title="locale.toUpperCase()"
           rounded="lg">
           <template #append>
@@ -84,6 +89,7 @@
 const { t, locale, setLocale, locales } = useI18n()
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
+const { borders, toggle: toggleBorders } = useWidgetBorders()
 const availableLocales = computed(() => (locales.value as { code: string; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
 

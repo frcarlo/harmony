@@ -21,6 +21,8 @@
     "unlock": "Déverrouiller",
     "status": "Statut",
     "last_updated": "Dernière mise à jour",
+    "target": "Cible",
+    "current": "Actuel",
     "name": "Nom",
     "all": "Tous",
     "dashboards": "Tableaux",
@@ -45,10 +47,16 @@
     "created": "Tableau de bord \"{name}\" créé",
     "create_error": "Impossible de créer le tableau de bord"
   },
+  "updates": {
+    "server_redeployed": "Serveur mis à jour — rechargez pour appliquer les modifications",
+    "dashboard_updated": "Ce tableau de bord a été modifié par un autre utilisateur",
+    "reload": "Recharger"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Enregistrer",
     "glass_effect": "Effet verre",
+    "widget_borders": "Bordures des widgets",
     "theme": "Choisir le thème",
     "background": "Arrière-plan",
     "bg_none": "Pas de fond",
@@ -262,6 +270,7 @@
     "entry_type_nav": "Navigation",
     "target_dashboard": "Dashboard cible",
     "icon_color": "Couleur de l'icône",
+    "inactive_icon": "Icône inactive",
     "add_nav": "Ajouter navigation"
   },
   "entity_picker": {

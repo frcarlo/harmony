@@ -173,6 +173,7 @@ export interface StatusBarEntry {
   entry_type?: 'single'
   entity_id: string
   icon: string
+  inactive_icon?: string
   label?: string
   active_state?: string
   active_color?: string

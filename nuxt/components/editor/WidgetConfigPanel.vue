@@ -46,6 +46,7 @@
 
       <!-- Cover / Cover Dial -->
       <template v-if="widget.type === 'cover' || widget.type === 'cover_dial'">
+        <v-text-field v-model="cfg.name" :label="t('config.display_name')" density="compact" hide-details clearable />
         <div>
           <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_position') }}</p>
           <v-btn-toggle v-model="cfg.buttons_position" mandatory density="compact" color="primary" class="w-100">

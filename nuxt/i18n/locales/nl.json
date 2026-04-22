@@ -21,6 +21,8 @@
     "unlock": "Ontgrendelen",
     "status": "Status",
     "last_updated": "Laatst bijgewerkt",
+    "target": "Doel",
+    "current": "Huidig",
     "name": "Naam",
     "all": "Alles",
     "dashboards": "Dashboard's",
@@ -45,10 +47,16 @@
     "created": "Dashboard \"{name}\" aangemaakt",
     "create_error": "Dashboard kon niet worden aangemaakt"
   },
+  "updates": {
+    "server_redeployed": "Server bijgewerkt — herlaad om wijzigingen toe te passen",
+    "dashboard_updated": "Dit dashboard is gewijzigd door een andere gebruiker",
+    "reload": "Herladen"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Opslaan",
     "glass_effect": "Glaseffect",
+    "widget_borders": "Widget-randen",
     "theme": "Thema kiezen",
     "background": "Achtergrond",
     "bg_none": "Geen achtergrond",
@@ -262,6 +270,7 @@
     "entry_type_nav": "Navigatie",
     "target_dashboard": "Doel-dashboard",
     "icon_color": "Icofonkleur",
+    "inactive_icon": "Inactief icoon",
     "add_nav": "Navigatie toevoegen"
   },
   "entity_picker": {

@@ -1,10 +1,9 @@
 <template>
-  <v-card height="100%" class="overflow-hidden position-relative widget-card" :style="cardStyle"
-    :class="{
-      'ring-selected': isSelected,
-      'widget-glass': glass && !appearance.bg_color && !hasActiveBackground,
-      'widget-glass-blur': glass && (!!appearance.bg_color || hasActiveBackground),
-    }">
+  <v-card height="100%" rounded="xl" class="overflow-hidden position-relative widget-card" :style="cardStyle" :class="{
+    'ring-selected': isSelected,
+    'widget-glass': glass && !appearance.bg_color && !hasActiveBackground,
+    'widget-glass-blur': glass && (!!appearance.bg_color || hasActiveBackground),
+  }">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
       <v-icon icon="mdi-drag-horizontal" size="16" color="medium-emphasis" />
@@ -15,8 +14,8 @@
       <v-btn icon="mdi-cog" size="x-small" variant="tonal" density="comfortable"
         :color="isSelected ? 'primary' : undefined" :title="t('widget.configure')"
         @click="dashboardStore.setSelectedWidget(isSelected ? null : widget.id)" />
-      <v-btn icon="mdi-content-copy" size="x-small" variant="tonal" density="comfortable"
-        :title="t('widget.clone')" @click="dashboardStore.cloneWidget(widget.id)" />
+      <v-btn icon="mdi-content-copy" size="x-small" variant="tonal" density="comfortable" :title="t('widget.clone')"
+        @click="dashboardStore.cloneWidget(widget.id)" />
       <v-btn icon="mdi-close" size="x-small" variant="tonal" density="comfortable" color="error"
         :title="t('widget.remove')" @click="removeWithUndo" />
     </div>
@@ -52,6 +51,7 @@
 
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
+import { useTheme } from 'vuetify'
 import type { Widget } from '~/types/dashboard'
 
 const { t } = useI18n()
@@ -60,6 +60,9 @@ const props = defineProps<{ widget: Widget; editMode: boolean }>()
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
 const { glass } = useGlassEffect()
+const { borders } = useWidgetBorders()
+const theme = useTheme()
+const isDark = computed(() => theme.current.value.dark)
 
 const isSelected = computed(() => dashboardStore.selectedWidgetId === props.widget.id)
 
@@ -114,15 +117,18 @@ const cardStyle = computed(() => {
     if (activeColor) style.backgroundColor = glass.value ? toSemiTransparent(activeColor, 0.22) : activeColor + '28'
   }
   if (a.text_color) style.color = a.text_color
-  const bw = a.border_width ?? 0
+  const bw = (borders.value && (a.border_width ?? 0) > 0) ? (a.border_width ?? 0) : 0
   if (bw > 0) {
     const customColor = (isActive.value && a.active_color) ? a.active_color : a.border_color
-    style.borderColor = customColor ?? 'rgb(var(--v-theme-primary))'
+    const rawColor = customColor ?? 'rgb(var(--v-theme-primary))'
+    style.borderColor = toSemiTransparent(rawColor, 0.45)
     style.borderWidth = `${bw}px`
     style.borderStyle = 'solid'
   } else {
     style.border = 'none'
   }
+  const ring = isDark.value ? '0 0 0 1px rgba(255,255,255,0.12)' : '0 0 0 1px rgba(0,0,0,0.08)'
+  style.boxShadow = (glass.value && isDark.value) ? `0 8px 32px rgba(0,0,0,0.35), ${ring}` : ring
   if (isSelected.value) style.outline = '2px solid rgb(var(--v-theme-primary))'
   return style
 })
@@ -133,4 +139,5 @@ const cardStyle = computed(() => {
   outline: 2px solid rgb(var(--v-theme-primary));
   outline-offset: 0;
 }
+
 </style>

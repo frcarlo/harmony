@@ -399,7 +399,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       VTextField: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
       VSelect: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
       VAutocomplete: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
-      VSwitch: { density: 'compact', hideDetails: true, color: 'primary' },
+      VSwitch: { density: 'compact', hideDetails: true, color: 'primary', baseColor: 'primary' },
       VCheckbox: { density: 'compact', hideDetails: true, color: 'primary' },
       VSlider: { color: 'primary', hideDetails: true },
       VTooltip: { contentClass: 'tooltip-readable' },

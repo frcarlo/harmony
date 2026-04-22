@@ -21,7 +21,7 @@
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
               <v-icon
-                :icon="badge.entry.icon || 'mdi-circle'"
+                :icon="badge.type === 'single' ? resolveIcon(badge) : (badge.entry.icon || 'mdi-circle')"
                 :color="badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
                 :size="iconSize(badge.entry)"
               />
@@ -54,7 +54,10 @@
   </div>
 
   <!-- Single entity detail -->
-  <EntityDetailDialog v-if="singleDialogOpen && singleEntityId" v-model="singleDialogOpen" :entity-id="singleEntityId" />
+  <EntityDetailDialog v-if="singleDialogOpen && singleEntityId && !isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
+
+  <!-- Media player detail -->
+  <MediaPlayerDetailDialog v-if="singleDialogOpen && singleEntityId && isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
 
   <!-- Group detail -->
   <StatusBarGroupDetail
@@ -103,7 +106,8 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge)[] => {
     const e = entry as StatusBarEntry
     const entity = entityStore.entities[e.entity_id]
     const state = entity?.state ?? 'unknown'
-    const activeState = e.active_state ?? 'on'
+    const domain = e.entity_id.split('.')[0]
+    const activeState = AUTO_DOMAINS.has(domain) ? defaultActiveState(e.entity_id) : (e.active_state || defaultActiveState(e.entity_id))
     return {
       type: 'single' as const,
       entry: e,
@@ -119,6 +123,7 @@ const navBadges = computed(() => resolvedBadges.value.filter(b => b.type === 'na
 
 const singleDialogOpen = ref(false)
 const singleEntityId = ref<string | null>(null)
+const isMediaPlayer = computed(() => singleEntityId.value?.startsWith('media_player.') ?? false)
 const groupDetailOpen = ref(false)
 const groupEntry = ref<StatusBarGroupEntry | null>(null)
 
@@ -132,6 +137,48 @@ function handleClick(badge: SingleBadge | GroupBadge | NavBadge) {
     singleEntityId.value = badge.entry.entity_id
     singleDialogOpen.value = true
   }
+}
+
+function autoIcon(entityId: string, active: boolean): string {
+  const domain = entityId.split('.')[0]
+  const entity = entityStore.entities[entityId]
+  const deviceClass = entity?.attributes?.device_class as string | undefined
+  if (domain === 'media_player') return active ? 'mdi-play-circle' : 'mdi-pause-circle-outline'
+  if (domain === 'light') return active ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
+  if (domain === 'switch') return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
+  if (domain === 'lock') return active ? 'mdi-lock' : 'mdi-lock-open-outline'
+  if (domain === 'cover') return active ? 'mdi-window-shutter-open' : 'mdi-window-shutter'
+  if (domain === 'binary_sensor') {
+    if (deviceClass === 'motion') return active ? 'mdi-motion-sensor' : 'mdi-motion-sensor-off'
+    if (deviceClass === 'door') return active ? 'mdi-door-open' : 'mdi-door-closed'
+    if (deviceClass === 'window') return active ? 'mdi-window-open' : 'mdi-window-closed'
+    if (deviceClass === 'presence') return active ? 'mdi-home-account' : 'mdi-home-outline'
+    if (deviceClass === 'smoke') return active ? 'mdi-smoke-detector-alert' : 'mdi-smoke-detector-outline'
+    return active ? 'mdi-circle' : 'mdi-circle-outline'
+  }
+  if (domain === 'person') return active ? 'mdi-account' : 'mdi-account-outline'
+  if (domain === 'climate') return active ? 'mdi-thermometer' : 'mdi-thermometer-off'
+  if (domain === 'fan') return active ? 'mdi-fan' : 'mdi-fan-off'
+  if (domain === 'alarm_control_panel') return active ? 'mdi-shield-alert' : 'mdi-shield-home-outline'
+  return active ? 'mdi-circle' : 'mdi-circle-outline'
+}
+
+const AUTO_DOMAINS = new Set(['media_player', 'light', 'switch', 'lock', 'cover', 'binary_sensor', 'fan', 'climate', 'alarm_control_panel', 'person'])
+
+function resolveIcon(badge: SingleBadge): string {
+  const entry = badge.entry
+  const domain = entry.entity_id.split('.')[0]
+  if (AUTO_DOMAINS.has(domain)) return autoIcon(entry.entity_id, badge.active)
+  if (entry.icon) return badge.active ? entry.icon : ((entry as any).inactive_icon || entry.icon)
+  return autoIcon(entry.entity_id, badge.active)
+}
+
+function defaultActiveState(entityId: string): string {
+  const domain = entityId.split('.')[0]
+  if (domain === 'lock') return 'locked'
+  if (domain === 'cover') return 'open'
+  if (domain === 'media_player') return 'playing'
+  return 'on'
 }
 
 function iconSize(entry: { icon_size?: string }) {

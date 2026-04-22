@@ -9,5 +9,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   saveDashboard({ ...existing, ...body, id })
   addAuditLog({ user_id: user.id, username: user.username, action: 'dashboard.save', target: existing.name })
+  serverBus.broadcast({ type: 'dashboard.updated', id })
   return getDashboard(id)
 })

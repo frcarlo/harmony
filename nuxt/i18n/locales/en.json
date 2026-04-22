@@ -22,6 +22,8 @@
     "unlock": "Unlock",
     "status": "Status",
     "last_updated": "Last updated",
+    "target": "Target",
+    "current": "Current",
     "name": "Name",
     "all": "All",
     "dashboards": "Dashboards",
@@ -55,10 +57,16 @@
     "import_error": "Import failed – invalid file?",
     "import_exists": "Dashboard \"{name}\" already exists – importing as copy"
   },
+  "updates": {
+    "server_redeployed": "Server was updated — reload to apply changes",
+    "dashboard_updated": "This dashboard was updated by another user",
+    "reload": "Reload"
+  },
   "toolbar": {
     "add_widget": "Widget",
     "save": "Save",
     "glass_effect": "Glass Effect",
+    "widget_borders": "Widget Borders",
     "theme": "Choose theme",
     "background": "Background",
     "bg_none": "No background",
@@ -311,6 +319,7 @@
     "entry_type_nav": "Navigation",
     "target_dashboard": "Target dashboard",
     "icon_color": "Icon color",
+    "inactive_icon": "Inactive icon",
     "add_nav": "Add navigation"
   },
   "entity_picker": {

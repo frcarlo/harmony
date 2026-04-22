@@ -20,6 +20,7 @@ import { Toaster } from 'vue-sonner'
 const { glass } = useGlassEffect()
 const { loggedIn } = useUserSession()
 const { loadRules, startWatcher } = useNotificationRules()
+useServerUpdates()
 const { open: notifDialogOpen, closeDialog: closeNotifDialog } = useNotificationRulesDialog()
 
 onMounted(async () => {
