@@ -278,5 +278,5 @@ watch(() => props.open, async (v) => {
     const isMAEntity = entityStore.entityPlatformMap[props.entityId] === 'music_assistant'
     maAvailable.value = isMAEntity && (await checkStatus()).available
   }
-})
+}, { immediate: true })
 </script>

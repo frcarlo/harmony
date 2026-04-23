@@ -17,8 +17,10 @@
   position: absolute;
   top: 6px;
   right: 6px;
+  left: auto;
   z-index: 20;
   display: flex;
+  justify-content: flex-end;
   gap: 4px;
   opacity: 0;
   transition: opacity 0.15s;
@@ -52,19 +54,47 @@
 }
 
 /* Glass effect */
+.widget-card.v-card {
+  isolation: isolate;
+}
+
 .widget-glass.v-card {
-  backdrop-filter: blur(20px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  background-color: rgba(var(--v-theme-surface), 0.38) !important;
+  background-image: none !important;
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 .v-theme--dark .widget-glass.v-card {
-  background: rgb(var(--v-theme-surface) / 0.35) !important;
+  background-color: rgba(var(--v-theme-surface), 0.38) !important;
 }
 
 /* Glass blur only — background stays as inline style (custom bg_color set) */
 .widget-glass-blur.v-card {
-  backdrop-filter: blur(20px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  background-image: none !important;
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.widget-glass.v-card::before,
+.widget-glass-blur.v-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 26%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 44%);
 }
 
 .dialog-glass.v-card {
