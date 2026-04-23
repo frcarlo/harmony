@@ -83,7 +83,7 @@ async function handleImport(event: Event) {
 
     const created = await $fetch<{ id: string }>('/api/dashboards', {
       method: 'POST',
-      body: { name: importName, icon: data.icon },
+      body: { name: importName, icon: data.icon, theme_override: data.theme_override },
     })
     const widgets = Array.isArray(data.widgets)
       ? data.widgets.map((w: Record<string, unknown>) => ({ ...w, id: crypto.randomUUID() }))

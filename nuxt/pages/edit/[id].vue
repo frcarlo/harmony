@@ -5,6 +5,7 @@
       :dashboard-id="dashboard.id"
       :dashboard-icon="dashboard.icon"
       :dashboard-background="dashboard.background"
+      :dashboard-theme-override="dashboard.theme_override"
       :dashboard-grid-config="dashboard.grid_config"
       :edit-mode="editMode"
       :saving="saving"
@@ -14,6 +15,7 @@
       @rename="dashboardStore.updateDashboardName($event)"
       @reicon="dashboardStore.updateDashboardIcon($event)"
       @rebackground="dashboardStore.updateDashboardBackground($event)"
+      @retheme="dashboardStore.updateDashboardTheme($event)"
       @regrid="dashboardStore.updateGridConfig($event)"
     />
     <v-main>
@@ -29,23 +31,34 @@
 
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
+import { useTheme } from 'vuetify'
 import type { Dashboard } from '~/types/dashboard'
 
 const route = useRoute()
 const router = useRouter()
 const dashboardStore = useDashboardStore()
+const theme = useTheme()
 const dashboard = computed(() => dashboardStore.dashboard)
 const editMode = computed(() => dashboardStore.editMode)
 const selectedWidgetId = computed(() => dashboardStore.selectedWidgetId)
 
 const pickerOpen = ref(false)
 const saving = ref(false)
+const globalTheme = computed(() => import.meta.client ? (localStorage.getItem('ha-theme') ?? 'dark') : 'dark')
 
 const bgStyle = computed(() => {
   const bg = dashboard.value?.background
-  if (!bg) return {}
-  if (bg.startsWith('http') || bg.startsWith('/')) return { backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-  return { background: bg }
+  const base = { backgroundColor: 'rgb(var(--v-theme-background))' }
+  if (!bg) return base
+  if (bg.startsWith('http') || bg.startsWith('/')) {
+    return {
+      ...base,
+      backgroundImage: `url(${bg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }
+  }
+  return { ...base, background: bg }
 })
 
 onMounted(async () => {
@@ -55,11 +68,30 @@ onMounted(async () => {
   dashboardStore.setEditMode(true)
 })
 
+watch(() => dashboard.value?.theme_override, (override) => {
+  theme.change(override || globalTheme.value)
+}, { immediate: true })
+
+onBeforeRouteLeave((to) => {
+  if (typeof to.path === 'string' && (to.path.startsWith('/dashboard/') || to.path.startsWith('/edit/'))) {
+    return
+  }
+  theme.change(globalTheme.value)
+})
+
 async function handleSave() {
   if (!dashboard.value) return
   saving.value = true
   try {
-    await $fetch(`/api/dashboards/${dashboard.value.id}`, { method: 'PUT', body: dashboard.value })
+    await $fetch(`/api/dashboards/${dashboard.value.id}`, {
+      method: 'PUT',
+      body: {
+        ...dashboard.value,
+        icon: dashboard.value.icon ?? null,
+        background: dashboard.value.background ?? null,
+        theme_override: dashboard.value.theme_override ?? null,
+      },
+    })
     toast.success('Dashboard gespeichert')
   } catch {
     toast.error('Speichern fehlgeschlagen')

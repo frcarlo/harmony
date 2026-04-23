@@ -242,6 +242,7 @@ export interface WidgetAppearance {
   border_width?: number    // Rahmenstärke in px (0–8)
   text_color?: string      // Textfarbe Override
   min_width?: number       // Minimale Breite in px
+  disable_glass?: boolean  // Disable glass effect for this widget even when enabled globally
 }
 
 export interface Widget {
@@ -265,6 +266,7 @@ export interface Dashboard {
   name: string
   icon?: string
   background?: string
+  theme_override?: string
   grid_config?: GridConfig
   widgets: Widget[]
   created_at: string

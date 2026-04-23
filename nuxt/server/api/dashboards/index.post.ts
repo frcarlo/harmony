@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!body?.name || typeof body.name !== 'string') {
     throw createError({ statusCode: 400, message: 'name required' })
   }
-  const dashboard = createDashboard({ name: body.name, icon: body.icon })
+  const dashboard = createDashboard({ name: body.name, icon: body.icon, theme_override: body.theme_override })
   addAuditLog({ user_id: user.id, username: user.username, action: 'dashboard.create', target: dashboard.name })
   return dashboard
 })

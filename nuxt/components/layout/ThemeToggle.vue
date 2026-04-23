@@ -1,15 +1,34 @@
 <template>
   <v-menu :close-on-content-click="false" offset="8">
     <template #activator="{ props: menuProps }">
-      <v-btn v-bind="menuProps" icon="mdi-palette" size="small" variant="text" :title="t('toolbar.theme')" />
+      <v-btn
+        v-bind="menuProps"
+        :icon="props.buttonIcon || 'mdi-palette'"
+        size="small"
+        variant="text"
+        :title="props.buttonTitle || t('toolbar.theme')"
+      />
     </template>
 
     <v-card width="232" rounded="lg" :class="{ 'theme-card-glass': glass }">
       <div class="px-3 pt-3 pb-1 text-caption text-medium-emphasis font-weight-medium">
         {{ t('toolbar.theme') }}
       </div>
+      <div v-if="props.allowDefault" class="px-2 pt-1">
+        <v-btn
+          block
+          variant="text"
+          size="small"
+          class="justify-start"
+          :color="currentTheme === null ? 'primary' : undefined"
+          prepend-icon="mdi-monitor-dashboard"
+          @click="setTheme(null)"
+        >
+          {{ t('toolbar.theme_dashboard_default') }}
+        </v-btn>
+      </div>
       <div class="theme-grid pa-2">
-        <v-tooltip v-for="th in THEMES" :key="th.id" :text="th.name" location="top" :open-delay="300">
+        <v-tooltip v-for="th in themes" :key="th.id" :text="th.name" location="top" :open-delay="300">
           <template #activator="{ props: tp }">
             <button
               v-bind="tp"
@@ -37,35 +56,27 @@ import { useTheme } from 'vuetify'
 
 const { t } = useI18n()
 const { glass } = useGlassEffect()
+const props = defineProps<{
+  modelValue?: string | null
+  allowDefault?: boolean
+  buttonIcon?: string
+  buttonTitle?: string
+}>()
+const emit = defineEmits<{
+  'update:modelValue': [value: string | null]
+}>()
 
 const theme = useTheme()
-const currentTheme = computed(() => theme.name.value)
+const { themes } = useDashboardThemes()
+const isControlled = computed(() => props.allowDefault || props.modelValue !== undefined)
+const currentTheme = computed(() => isControlled.value ? (props.modelValue ?? null) : theme.name.value)
 
-const THEMES = [
-  { id: 'dark',        name: 'Dark',             dark: true,  bg: '#0f172a', primary: '#6366f1' },
-  { id: 'light',       name: 'Light',            dark: false, bg: '#f8fafc', primary: '#4f46e5' },
-  { id: 'dracula',     name: 'Dracula',          dark: true,  bg: '#282a36', primary: '#bd93f9' },
-  { id: 'nord',        name: 'Nord',             dark: true,  bg: '#2e3440', primary: '#88c0d0' },
-  { id: 'catppuccin',  name: 'Catppuccin',       dark: true,  bg: '#1e1e2e', primary: '#cba6f7' },
-  { id: 'lumon',       name: 'Lumon',            dark: true,  bg: '#0d1b2a', primary: '#4d9de0' },
-  { id: 'retro82',     name: "Retro '82",        dark: true,  bg: '#1a0e02', primary: '#ff8c00' },
-  { id: 'miasma',      name: 'Miasma',           dark: true,  bg: '#222222', primary: '#7d9a8a' },
-  { id: 'neongreen',   name: 'Neon Green',       dark: true,  bg: '#090909', primary: '#39ff14' },
-  { id: 'jarvis',      name: 'Jarvis 3D',        dark: true,  bg: '#0a0c12', primary: '#e63946' },
-  { id: 'anime',       name: 'Anime Pack',       dark: true,  bg: '#0d0d14', primary: '#e91e8c' },
-  { id: 'gruvboxmat',  name: 'Gruvbox Material', dark: true,  bg: '#1d2021', primary: '#a9b665' },
-  { id: 'aethernight', name: 'Aether Night',     dark: true,  bg: '#0e0e10', primary: '#7c83e5' },
-  { id: 'auradark',    name: 'Aura Dark',        dark: true,  bg: '#15141b', primary: '#a277ff' },
-  { id: 'anthropic',   name: 'Anthropic',        dark: true,  bg: '#19191c', primary: '#e8612c' },
-  { id: 'claudedark',  name: 'Claude Dark',      dark: true,  bg: '#1a1a1a', primary: '#c96a2f' },
-  { id: 'liquidray',   name: 'Liquid Ray',       dark: true,  bg: '#1a1d1e', primary: '#c0c0c0' },
-  { id: 'matrix',      name: 'Tema Matrix',      dark: true,  bg: '#0d1117', primary: '#00d26a' },
-  { id: 'roblox',      name: 'Roblox Studio',    dark: true,  bg: '#1a1a1a', primary: '#0066bf' },
-  { id: 'zoro',        name: 'Zoro',             dark: true,  bg: '#0a120a', primary: '#4caf50' },
-  { id: 'polarblack',  name: 'Polar Black',      dark: true,  bg: '#1b1e21', primary: '#e0e0e0' },
-]
-
-function setTheme(id: string) {
+function setTheme(id: string | null) {
+  if (isControlled.value) {
+    emit('update:modelValue', id)
+    return
+  }
+  if (!id) return
   theme.change(id)
   localStorage.setItem('ha-theme', id)
 }

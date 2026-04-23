@@ -23,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTheme } from 'vuetify'
 import type { Dashboard } from '~/types/dashboard'
 
 const { t } = useI18n()
@@ -32,19 +33,40 @@ const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
+const theme = useTheme()
 const dashboard = computed(() => dashboardStore.dashboard)
 const connected = computed(() => entityStore.connected)
+const globalTheme = computed(() => import.meta.client ? (localStorage.getItem('ha-theme') ?? 'dark') : 'dark')
 
 const bgStyle = computed(() => {
   const bg = dashboard.value?.background
-  if (!bg) return {}
-  if (bg.startsWith('http') || bg.startsWith('/')) return { backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-  return { background: bg }
+  const base = { backgroundColor: 'rgb(var(--v-theme-background))' }
+  if (!bg) return base
+  if (bg.startsWith('http') || bg.startsWith('/')) {
+    return {
+      ...base,
+      backgroundImage: `url(${bg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }
+  }
+  return { ...base, background: bg }
 })
 
 onMounted(async () => {
   const data = await $fetch<Dashboard>(`/api/dashboards/${route.params.id}`)
   if (!data) throw createError({ statusCode: 404 })
   dashboardStore.setDashboard(data)
+})
+
+watch(() => dashboard.value?.theme_override, (override) => {
+  theme.change(override || globalTheme.value)
+}, { immediate: true })
+
+onBeforeRouteLeave((to) => {
+  if (typeof to.path === 'string' && (to.path.startsWith('/dashboard/') || to.path.startsWith('/edit/'))) {
+    return
+  }
+  theme.change(globalTheme.value)
 })
 </script>

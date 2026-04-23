@@ -106,7 +106,10 @@
         <div>
           <p class="text-caption text-medium-emphasis mb-1">{{ t('config.forecast_rows', { n: cfg.forecast_rows ?? 3 })
             }}</p>
-          <v-slider v-model="cfg.forecast_rows" min="0" max="5" step="1" thumb-label />
+          <v-slider v-model="cfg.forecast_rows" min="0" max="7" step="1" thumb-label />
+          <p v-if="availableForecastDays !== null" class="text-caption text-medium-emphasis mt-1">
+            {{ t('config.forecast_available_days', { n: availableForecastDays }) }}
+          </p>
         </div>
       </template>
 
@@ -283,6 +286,13 @@
       <UiColorPicker v-model="appearance.border_color" :label="t('config.border_color')" clearable />
       <UiColorPicker v-model="appearance.active_color" :label="t('config.active_color')" clearable />
       <UiColorPicker v-model="appearance.text_color" :label="t('config.text_color')" clearable />
+      <v-checkbox
+        v-model="appearance.disable_glass"
+        :label="t('config.disable_glass')"
+        :hint="t('config.disable_glass_hint')"
+        density="compact"
+        hide-details="auto"
+      />
 
       <div>
         <p class="text-caption text-medium-emphasis mb-1">{{ t('config.border_width', {
@@ -359,6 +369,21 @@ const dayItems = computed(() => [
   { title: t('config.days_1'), value: 1 }, { title: t('config.days_3'), value: 3 },
   { title: t('config.days_7'), value: 7 }, { title: t('config.days_14'), value: 14 },
 ])
+
+const availableForecastDays = ref<number | null>(null)
+
+watch(() => [widget.value?.type, cfg.value.entity_id] as const, async ([type, entityId]) => {
+  if (type !== 'weather' || typeof entityId !== 'string' || !entityId) {
+    availableForecastDays.value = null
+    return
+  }
+  try {
+    const data = await $fetch<Array<unknown>>(`/api/ha/weather-forecast?entityId=${encodeURIComponent(entityId)}`)
+    availableForecastDays.value = Array.isArray(data) ? data.length : 0
+  } catch {
+    availableForecastDays.value = null
+  }
+}, { immediate: true })
 
 const roomStatusEntities = computed(() => (cfg.value.status_entities as Array<Record<string, unknown>>) ?? [])
 

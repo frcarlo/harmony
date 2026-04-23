@@ -73,6 +73,14 @@
   background-color: rgba(var(--v-theme-surface), 0.38) !important;
 }
 
+.v-theme--light .widget-glass.v-card {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  box-shadow:
+    0 10px 28px rgba(148, 163, 184, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
 /* Glass blur only — background stays as inline style (custom bg_color set) */
 .widget-glass-blur.v-card {
   backdrop-filter: blur(24px) saturate(180%) !important;
@@ -82,6 +90,13 @@
     0 10px 36px rgba(0, 0, 0, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.v-theme--light .widget-glass-blur.v-card {
+  box-shadow:
+    0 10px 28px rgba(148, 163, 184, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.64),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 
 .widget-glass.v-card::before,
@@ -95,6 +110,35 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 26%, rgba(255, 255, 255, 0) 60%),
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 44%);
+}
+
+.v-theme--light .widget-glass.v-card::before,
+.v-theme--light .widget-glass-blur.v-card::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.10) 22%, rgba(255, 255, 255, 0) 56%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 40%);
+}
+
+.v-theme--mistlight .widget-glass.v-card {
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  box-shadow:
+    0 8px 22px rgba(148, 163, 184, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.v-theme--mistlight .widget-glass-blur.v-card {
+  box-shadow:
+    0 8px 22px rgba(148, 163, 184, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--mistlight .widget-glass.v-card::before,
+.v-theme--mistlight .widget-glass-blur.v-card::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 20%, rgba(255, 255, 255, 0) 52%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 38%);
 }
 
 .dialog-glass.v-card {

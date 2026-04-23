@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import type { Dashboard, Widget, GridConfig } from '~/types/dashboard'
 
+function normalizeOptionalString(value: string | undefined): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : undefined
+}
+
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     dashboard: null as Dashboard | null,
@@ -55,12 +60,17 @@ export const useDashboardStore = defineStore('dashboard', {
 
     updateDashboardIcon(icon: string) {
       if (!this.dashboard) return
-      this.dashboard.icon = icon || undefined
+      this.dashboard.icon = normalizeOptionalString(icon)
     },
 
     updateDashboardBackground(background: string | undefined) {
       if (!this.dashboard) return
-      this.dashboard.background = background || undefined
+      this.dashboard.background = normalizeOptionalString(background)
+    },
+
+    updateDashboardTheme(theme: string | null | undefined) {
+      if (!this.dashboard) return
+      this.dashboard.theme_override = normalizeOptionalString(theme ?? undefined)
     },
 
     updateGridConfig(config: GridConfig) {

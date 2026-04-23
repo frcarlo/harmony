@@ -16,6 +16,12 @@ export interface DbUser {
 
 let _db: DatabaseSync | null = null
 
+function normalizeOptionalString(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 function getDb(): DatabaseSync {
   if (_db) return _db
 
@@ -56,6 +62,7 @@ function getDb(): DatabaseSync {
       name TEXT NOT NULL,
       icon TEXT,
       background TEXT,
+      theme_override TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -108,6 +115,9 @@ function getDb(): DatabaseSync {
   }
   if (!dashCols.some((c) => c.name === 'grid_config')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN grid_config TEXT')
+  }
+  if (!dashCols.some((c) => c.name === 'theme_override')) {
+    _db.exec('ALTER TABLE dashboards ADD COLUMN theme_override TEXT')
   }
 
   return _db
@@ -195,8 +205,9 @@ export function getDashboard(id: string): Dashboard | null {
   return {
     id: row.id,
     name: row.name,
-    icon: row.icon ?? undefined,
-    background: row.background ?? undefined,
+    icon: normalizeOptionalString(row.icon) ?? undefined,
+    background: normalizeOptionalString(row.background) ?? undefined,
+    theme_override: normalizeOptionalString(row.theme_override) ?? undefined,
     grid_config: row.grid_config ? JSON.parse(row.grid_config) : undefined,
     widgets,
     created_at: row.created_at,
@@ -204,17 +215,25 @@ export function getDashboard(id: string): Dashboard | null {
   }
 }
 
-export function createDashboard(data: { name: string; icon?: string }): Dashboard {
+export function createDashboard(data: { name: string; icon?: string; theme_override?: string }): Dashboard {
   const db = getDb()
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
 
   db.prepare(`
-    INSERT INTO dashboards (id, name, icon, background, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(id, data.name, data.icon ?? null, null, now, now)
+    INSERT INTO dashboards (id, name, icon, background, theme_override, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(id, data.name, normalizeOptionalString(data.icon), null, normalizeOptionalString(data.theme_override), now, now)
 
-  return { id, name: data.name, icon: data.icon, widgets: [], created_at: now, updated_at: now }
+  return {
+    id,
+    name: data.name,
+    icon: normalizeOptionalString(data.icon) ?? undefined,
+    theme_override: normalizeOptionalString(data.theme_override) ?? undefined,
+    widgets: [],
+    created_at: now,
+    updated_at: now,
+  }
 }
 
 export function saveDashboard(dashboard: Dashboard): void {
@@ -225,8 +244,16 @@ export function saveDashboard(dashboard: Dashboard): void {
   try {
     const gridConfigJson = dashboard.grid_config && Object.keys(dashboard.grid_config).length > 0
       ? JSON.stringify(dashboard.grid_config) : null
-    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, grid_config=?, updated_at=? WHERE id=?`)
-      .run(dashboard.name, dashboard.icon ?? null, dashboard.background ?? null, gridConfigJson, now, dashboard.id)
+    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, theme_override=?, grid_config=?, updated_at=? WHERE id=?`)
+      .run(
+        dashboard.name,
+        normalizeOptionalString(dashboard.icon),
+        normalizeOptionalString(dashboard.background),
+        normalizeOptionalString(dashboard.theme_override),
+        gridConfigJson,
+        now,
+        dashboard.id,
+      )
 
     db.prepare('DELETE FROM widgets WHERE dashboard_id = ?').run(dashboard.id)
 

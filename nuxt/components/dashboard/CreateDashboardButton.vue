@@ -23,6 +23,31 @@
           <v-text-field v-model="icon" density="compact" variant="outlined" hide-details
             placeholder="mdi-home" :prepend-inner-icon="icon || 'mdi-view-dashboard-outline'" />
         </div>
+        <div>
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="text-caption text-medium-emphasis">{{ t('dashboard.theme') }}</div>
+            <v-chip size="small" variant="outlined" rounded="pill">
+              {{ selectedThemeLabel }}
+            </v-chip>
+          </div>
+          <div class="theme-preview mb-3" :style="themePreviewStyle">
+            <div class="theme-preview__header">
+              <span class="theme-preview__dot" />
+              <span>{{ name.trim() || t('dashboard.new') }}</span>
+            </div>
+            <div class="theme-preview__tiles">
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+          <ThemeToggle
+            v-model="themeOverride"
+            allow-default
+            button-icon="mdi-palette-outline"
+            :button-title="t('dashboard.theme')"
+          />
+        </div>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -41,6 +66,7 @@ import type { Dashboard } from '~/types/dashboard'
 const { t } = useI18n()
 const emit = defineEmits<{ created: [] }>()
 const router = useRouter()
+const { getThemeOption } = useDashboardThemes()
 
 const PRESET_ICONS = [
   'mdi-view-dashboard-outline', 'mdi-home-outline', 'mdi-sofa-outline',
@@ -52,9 +78,24 @@ const PRESET_ICONS = [
 const dialog = ref(false)
 const name = ref('')
 const icon = ref('')
+const themeOverride = ref<string | null>(null)
 const loading = ref(false)
 
-watch(dialog, (v) => { if (!v) { name.value = ''; icon.value = '' } })
+const selectedTheme = computed(() => getThemeOption(themeOverride.value))
+const selectedThemeLabel = computed(() => selectedTheme.value?.name ?? t('dashboard.theme_global'))
+const themePreviewStyle = computed(() => ({
+  '--preview-bg': selectedTheme.value?.bg ?? 'rgb(var(--v-theme-surface))',
+  '--preview-primary': selectedTheme.value?.primary ?? 'rgb(var(--v-theme-primary))',
+  '--preview-text': selectedTheme.value?.dark ? '#f8fafc' : '#111827',
+}))
+
+watch(dialog, (v) => {
+  if (!v) {
+    name.value = ''
+    icon.value = ''
+    themeOverride.value = null
+  }
+})
 
 async function handleCreate() {
   if (!name.value.trim()) return
@@ -62,7 +103,11 @@ async function handleCreate() {
   try {
     const dashboard = await $fetch<Dashboard>('/api/dashboards', {
       method: 'POST',
-      body: { name: name.value.trim(), icon: icon.value || undefined },
+      body: {
+        name: name.value.trim(),
+        icon: icon.value || undefined,
+        theme_override: themeOverride.value || undefined,
+      },
     })
     toast.success(t('dashboard.created', { name: dashboard.name }))
     dialog.value = false
@@ -75,3 +120,48 @@ async function handleCreate() {
   }
 }
 </script>
+
+<style scoped>
+.theme-preview {
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--preview-text);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--preview-bg) 88%, white 12%), var(--preview-bg));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.theme-preview__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.theme-preview__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--preview-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--preview-primary) 18%, transparent);
+}
+
+.theme-preview__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.theme-preview__tiles span {
+  display: block;
+  height: 44px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+    color-mix(in srgb, var(--preview-bg) 78%, var(--preview-primary) 22%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+</style>

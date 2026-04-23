@@ -49,6 +49,24 @@ export default defineNuxtPlugin((nuxtApp) => {
             info: '#2563eb',
           },
         },
+        mistlight: {
+          dark: false,
+          colors: {
+            background: '#c9d1d8',
+            surface: '#dde3e9',
+            'surface-variant': '#b7c0c9',
+            'surface-bright': '#e8edf1',
+            primary: '#47515d',
+            'primary-darken-1': '#2f3944',
+            secondary: '#6b7280',
+            error: '#dc2626',
+            success: '#16a34a',
+            warning: '#d97706',
+            info: '#475569',
+            'on-background': '#151c24',
+            'on-surface': '#151c24',
+          },
+        },
         dracula: {
           dark: true,
           colors: {
