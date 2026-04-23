@@ -155,16 +155,10 @@
   /* 1. Eine sehr dunkle Basisfarbe (fast Schwarz/Dunkelgrau) */
   background-color: #0d0d12;
 
-  /* 2. Die magischen "Blasen" (Radial Gradients) */
+  /* 2. Ein klarer zentraler Primary-Glow + ein sehr sanfter neutraler Gegenspieler */
   background-image:
-    /* Ein gold-orangefarbener Fleck (oben links, wie im Bild) */
-    radial-gradient(at 15% 10%, hsla(38, 70%, 25%, 0.3) 0px, transparent 40%),
-
-    /* Ein sehr subtiler blauer Fleck (unten rechts, wie im Bild) */
-    radial-gradient(at 85% 90%, hsla(190, 70%, 20%, 0.25) 0px, transparent 40%),
-
-    /* Ein zentraler, weicher grauer Schimmer */
-    radial-gradient(at 50% 50%, hsla(0, 0%, 50%, 0.05) 0px, transparent 60%);
+    radial-gradient(at 52% 48%, hsla(138, 55%, 18%, 0.18) 0px, transparent 36%),
+    radial-gradient(at 16% 10%, hsla(0, 0%, 100%, 0.05) 0px, transparent 42%);
 
   /* Stell sicher, dass der Hintergrund den ganzen Bildschirm füllt */
   background-attachment: fixed;
