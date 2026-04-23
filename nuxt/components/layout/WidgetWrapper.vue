@@ -1,5 +1,5 @@
 <template>
-  <v-card height="100%" rounded="xl" class="overflow-hidden position-relative widget-card" :style="cardStyle" :class="{
+  <v-card height="100%" rounded="xl" class="overflow-hidden widget-card" style="position: relative;" :style="cardStyle" :class="{
     'ring-selected': isSelected,
     'widget-glass': glass && !appearance.bg_color && !hasActiveBackground,
     'widget-glass-blur': glass && (!!appearance.bg_color || hasActiveBackground),
@@ -110,11 +110,13 @@ function toSemiTransparent(color: string, alpha = 0.55): string {
 const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
-  if (a.bg_color === 'transparent') style.backgroundColor = 'transparent'
+  if (a.bg_color === 'transparent') style.backgroundColor = glass.value ? 'rgba(var(--v-theme-surface), 0.24)' : 'transparent'
   else if (a.bg_color) style.backgroundColor = glass.value ? toSemiTransparent(a.bg_color) : a.bg_color
   else if (isActive.value) {
     const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
     if (activeColor) style.backgroundColor = glass.value ? toSemiTransparent(activeColor, 0.22) : activeColor + '28'
+  } else if (glass.value) {
+    style.backgroundColor = 'rgba(var(--v-theme-surface), 0.38)'
   }
   if (a.text_color) style.color = a.text_color
   const bw = (borders.value && (a.border_width ?? 0) > 0) ? (a.border_width ?? 0) : 0

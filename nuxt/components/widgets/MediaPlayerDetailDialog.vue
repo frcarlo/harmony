@@ -50,7 +50,7 @@
     </v-card>
   </v-bottom-sheet>
 
-  <MediaBrowserSheet v-if="browserOpen" :open="browserOpen" :entity-id="props.entityId" @close="browserOpen = false" />
+  <MediaBrowserSheet :open="browserOpen" :entity-id="props.entityId" @close="browserOpen = false" />
 </template>
 
 <script setup lang="ts">
