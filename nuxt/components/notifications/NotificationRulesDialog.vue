@@ -25,7 +25,7 @@
         {{ t('notifications.empty') }}
       </div>
       <div v-else class="d-flex flex-column ga-2">
-        <v-card v-for="rule in rules" :key="rule.id" variant="outlined" rounded="lg" class="pa-3">
+        <v-card v-for="rule in rules" :key="rule.id" rounded="lg" class="pa-3 notification-card">
           <div class="d-flex align-center ga-2" style="min-width:0">
             <v-icon :icon="rule.action_type === 'camera' ? 'mdi-camera-outline' : 'mdi-bell-outline'"
               color="medium-emphasis" size="18" class="flex-shrink-0" />
@@ -51,7 +51,7 @@
         {{ t('notifications.log_empty') }}
       </div>
       <div v-else class="d-flex flex-column ga-2">
-        <v-card v-for="entry in log" :key="entry.id" variant="outlined" rounded="lg" class="pa-3">
+        <v-card v-for="entry in log" :key="entry.id" rounded="lg" class="pa-3 notification-card">
           <div class="d-flex align-start ga-2">
             <v-icon icon="mdi-bell-ring-outline" color="primary" size="16" class="mt-1 flex-shrink-0" />
             <div style="min-width:0; flex:1 1 0">
@@ -88,19 +88,25 @@ const localEnabled = reactive<Record<string, boolean>>({})
 const loadingLog = ref(false)
 const log = ref<Array<{ id: string; rule_name: string; entity_id: string; entity_state: string; triggered_at: string }>>([])
 
+async function loadLog() {
+  loadingLog.value = true
+  try {
+    log.value = await $fetch('/api/notification-log')
+  } finally {
+    loadingLog.value = false
+  }
+}
+
 watch(() => props.modelValue, async (v) => {
   if (v) {
     await loadRules()
     rules.value.forEach((r) => { localEnabled[r.id] = isEnabledLocally(r.id) })
+    if (activeTab.value === 'log') await loadLog()
   }
 })
 
 watch(activeTab, async (v) => {
-  if (v === 'log') {
-    loadingLog.value = true
-    log.value = await $fetch('/api/notification-log')
-    loadingLog.value = false
-  }
+  if (v === 'log' && props.modelValue) await loadLog()
 })
 
 async function handleClearLog() {
@@ -112,3 +118,11 @@ function formatLogDate(iso: string) {
   return dayjs(iso).locale(locale.value).fromNow()
 }
 </script>
+
+<style scoped>
+.notification-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+</style>

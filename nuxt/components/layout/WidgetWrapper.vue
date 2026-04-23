@@ -1,8 +1,8 @@
 <template>
   <v-card height="100%" rounded="xl" class="overflow-hidden widget-card" style="position: relative;" :style="cardStyle" :class="{
     'ring-selected': isSelected,
-    'widget-glass': glass && !appearance.bg_color && !hasActiveBackground,
-    'widget-glass-blur': glass && (!!appearance.bg_color || hasActiveBackground),
+    'widget-glass': glassEnabled && !appearance.bg_color && !hasActiveBackground,
+    'widget-glass-blur': glassEnabled && (!!appearance.bg_color || hasActiveBackground),
   }">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
@@ -90,6 +90,7 @@ const isActive = computed(() => {
 })
 
 const appearance = computed(() => props.widget.appearance ?? {})
+const glassEnabled = computed(() => glass.value && appearance.value.disable_glass !== true)
 
 const hasActiveBackground = computed(() =>
   isActive.value && (appearance.value.active_color != null || props.widget.type === 'room_card'),
@@ -115,18 +116,19 @@ function toSemiTransparent(color: string, alpha = 0.55): string {
 const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
+  const isPlainTransparentCard = a.bg_color === 'transparent' && !glassEnabled.value
   const transparentGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.18)' : 'rgba(var(--v-theme-surface), 0.24)'
   const neutralGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.32)' : 'rgba(var(--v-theme-surface), 0.38)'
 
-  if (a.bg_color === 'transparent') style.backgroundColor = glass.value ? transparentGlassBg : 'transparent'
-  else if (a.bg_color) style.backgroundColor = glass.value ? toSemiTransparent(a.bg_color) : a.bg_color
+  if (a.bg_color === 'transparent') style.backgroundColor = glassEnabled.value ? transparentGlassBg : 'transparent'
+  else if (a.bg_color) style.backgroundColor = glassEnabled.value ? toSemiTransparent(a.bg_color) : a.bg_color
   else if (isActive.value) {
     const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
     if (activeColor) {
       const activeAlpha = isCompactWidget.value ? 0.16 : 0.22
-      style.backgroundColor = glass.value ? toSemiTransparent(activeColor, activeAlpha) : activeColor + '28'
+      style.backgroundColor = glassEnabled.value ? toSemiTransparent(activeColor, activeAlpha) : activeColor + '28'
     }
-  } else if (glass.value) {
+  } else if (glassEnabled.value) {
     style.backgroundColor = neutralGlassBg
   }
   if (a.text_color) style.color = a.text_color
@@ -140,8 +142,12 @@ const cardStyle = computed(() => {
   } else {
     style.border = 'none'
   }
-  const ring = isDark.value ? '0 0 0 1px rgba(255,255,255,0.12)' : '0 0 0 1px rgba(0,0,0,0.08)'
-  style.boxShadow = (glass.value && isDark.value) ? `0 8px 32px rgba(0,0,0,0.35), ${ring}` : ring
+  const ring = isDark.value
+    ? '0 0 0 1px rgba(255,255,255,0.12)'
+    : glassEnabled.value ? '0 0 0 1px rgba(255,255,255,0.32)' : '0 0 0 1px rgba(0,0,0,0.08)'
+  style.boxShadow = isPlainTransparentCard
+    ? 'none'
+    : (glassEnabled.value && isDark.value) ? `0 8px 32px rgba(0,0,0,0.35), ${ring}` : ring
   if (isSelected.value) style.outline = '2px solid rgb(var(--v-theme-primary))'
   return style
 })

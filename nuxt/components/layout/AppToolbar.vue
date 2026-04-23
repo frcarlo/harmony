@@ -38,6 +38,15 @@
       <ToolbarActions :edit-mode="editMode" :can-edit="!hideEdit" @toggle-edit="$emit('toggle-edit')" />
       <v-divider vertical class="mx-2 my-2" />
 
+      <ThemeToggle
+        v-if="editMode"
+        class="mr-1"
+        button-icon="mdi-monitor-dashboard"
+        :model-value="dashboardThemeOverride ?? null"
+        allow-default
+        @update:model-value="$emit('retheme', $event)"
+      />
+
 
       <!-- Background picker -->
       <v-menu v-if="editMode" v-model="bgMenuOpen" :close-on-content-click="false" offset="8">
@@ -54,8 +63,9 @@
               <v-btn size="32" rounded="sm" variant="outlined" icon="mdi-close-circle-outline"
                 :title="t('toolbar.bg_none')" @click="pickBg(undefined)" />
             </div>
-            <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details
-              :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg" />
+            <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details clearable
+              :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg"
+              @click:clear="pickBg(undefined)" />
           </v-card-text>
         </v-card>
       </v-menu>
@@ -110,6 +120,7 @@ const props = defineProps<{
   dashboardId: string
   dashboardIcon?: string
   dashboardBackground?: string
+  dashboardThemeOverride?: string
   dashboardGridConfig?: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }
   editMode?: boolean
   saving?: boolean
@@ -123,6 +134,7 @@ const emit = defineEmits<{
   'rename': [name: string]
   'reicon': [icon: string]
   'rebackground': [bg: string | undefined]
+  'retheme': [theme: string | null]
   'regrid': [cfg: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }]
 }>()
 
@@ -183,7 +195,10 @@ function pickBg(val: string | undefined) {
   bgMenuOpen.value = false
 }
 
-function commitBg(val: string) { emit('rebackground', val || undefined) }
+function commitBg(val: string) {
+  const trimmed = val.trim()
+  emit('rebackground', trimmed || undefined)
+}
 
 function emitGrid() { emit('regrid', { ...localGrid.value }) }
 

@@ -1,6 +1,7 @@
 <template>
   <v-card :to="`/dashboard/${dashboard.id}`" hover :class="{ 'widget-glass': glass }"
-    class="border-md border-primary rounded-lg dashboard-card">
+    class="border-md border-primary rounded-lg dashboard-card" :style="cardPreviewStyle">
+    <div v-if="themeMeta" class="dashboard-theme-bar" />
     <v-card-item>
       <template v-if="isAdmin && editMode" #prepend>
         <v-icon class="drag-handle card-drag-handle" icon="mdi-drag-vertical" color="medium-emphasis" size="18" @click.prevent />
@@ -9,7 +10,13 @@
         <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" color="medium-emphasis" size="18" />
         {{ dashboard.name }}
       </v-card-title>
-      <v-card-subtitle>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</v-card-subtitle>
+      <v-card-subtitle class="d-flex align-center ga-2 flex-wrap">
+        <span>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
+        <v-chip v-if="themeMeta" size="x-small" rounded="pill" variant="outlined" class="dashboard-theme-chip">
+          <span class="dashboard-theme-chip__swatch" />
+          {{ themeMeta.name }}
+        </v-chip>
+      </v-card-subtitle>
       <template v-if="isAdmin && editMode" #append>
         <div class="card-actions d-flex ga-1">
           <v-btn icon="mdi-pencil-outline" size="x-small" variant="plain" :to="`/edit/${dashboard.id}`"
@@ -57,6 +64,7 @@ dayjs.extend(relativeTime)
 
 const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
+const { getThemeOption } = useDashboardThemes()
 const props = defineProps<{ dashboard: DashboardListItem; isAdmin?: boolean; editMode?: boolean }>()
 const emit = defineEmits<{ deleted: [] }>()
 
@@ -65,6 +73,14 @@ const confirmOpen = ref(false)
 const deleting = ref(false)
 const exporting = ref(false)
 const cloning = ref(false)
+const themeMeta = computed(() => getThemeOption(props.dashboard.theme_override))
+const cardPreviewStyle = computed(() => {
+  if (!themeMeta.value) return {}
+  return {
+    '--dashboard-theme-bg': themeMeta.value.bg,
+    '--dashboard-theme-primary': themeMeta.value.primary,
+  }
+})
 
 function formatDate(iso: string) {
   void now.value
@@ -78,7 +94,7 @@ async function handleClone() {
     const cloneName = `${full.name} (Kopie)`
     const created = await $fetch<{ id: string }>('/api/dashboards', {
       method: 'POST',
-      body: { name: cloneName, icon: full.icon },
+      body: { name: cloneName, icon: full.icon, theme_override: full.theme_override },
     })
     const widgets = Array.isArray(full.widgets)
       ? (full.widgets as Record<string, unknown>[]).map(w => ({ ...w, id: crypto.randomUUID() }))
@@ -135,5 +151,28 @@ async function handleDelete() {
 }
 .drag-handle:active {
   cursor: grabbing;
+}
+
+.dashboard-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-theme-bar {
+  height: 5px;
+  background: linear-gradient(90deg, var(--dashboard-theme-primary), var(--dashboard-theme-bg));
+}
+
+.dashboard-theme-chip {
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-theme-chip__swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--dashboard-theme-primary);
+  display: inline-block;
+  margin-right: 6px;
 }
 </style>
