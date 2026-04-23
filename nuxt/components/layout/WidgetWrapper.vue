@@ -95,6 +95,11 @@ const hasActiveBackground = computed(() =>
   isActive.value && (appearance.value.active_color != null || props.widget.type === 'room_card'),
 )
 
+const isCompactWidget = computed(() => {
+  const { w, h } = props.widget.layout
+  return w <= 4 || h <= 2
+})
+
 function toSemiTransparent(color: string, alpha = 0.55): string {
   if (color.startsWith('#')) {
     const hex = color.replace('#', '')
@@ -110,13 +115,19 @@ function toSemiTransparent(color: string, alpha = 0.55): string {
 const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
-  if (a.bg_color === 'transparent') style.backgroundColor = glass.value ? 'rgba(var(--v-theme-surface), 0.24)' : 'transparent'
+  const transparentGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.18)' : 'rgba(var(--v-theme-surface), 0.24)'
+  const neutralGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.32)' : 'rgba(var(--v-theme-surface), 0.38)'
+
+  if (a.bg_color === 'transparent') style.backgroundColor = glass.value ? transparentGlassBg : 'transparent'
   else if (a.bg_color) style.backgroundColor = glass.value ? toSemiTransparent(a.bg_color) : a.bg_color
   else if (isActive.value) {
     const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
-    if (activeColor) style.backgroundColor = glass.value ? toSemiTransparent(activeColor, 0.22) : activeColor + '28'
+    if (activeColor) {
+      const activeAlpha = isCompactWidget.value ? 0.16 : 0.22
+      style.backgroundColor = glass.value ? toSemiTransparent(activeColor, activeAlpha) : activeColor + '28'
+    }
   } else if (glass.value) {
-    style.backgroundColor = 'rgba(var(--v-theme-surface), 0.38)'
+    style.backgroundColor = neutralGlassBg
   }
   if (a.text_color) style.color = a.text_color
   const bw = (borders.value && (a.border_width ?? 0) > 0) ? (a.border_width ?? 0) : 0

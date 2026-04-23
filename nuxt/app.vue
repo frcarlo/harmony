@@ -3,7 +3,6 @@
     <div v-if="glass" class="glass-blobs" aria-hidden="true">
       <div class="blob blob-1" />
       <div class="blob blob-2" />
-      <div class="blob blob-3" />
     </div>
 
 
@@ -53,32 +52,26 @@ onMounted(async () => {
   border-radius: 50%;
   filter: blur(100px);
   /* Höherer Blur für weichere Übergänge */
-  opacity: 0.3;
+  opacity: 0.2;
 }
 
 .blob-1 {
-  width: min(60vw, 700px);
-  height: min(60vw, 700px);
-  top: -15vh;
-  left: -10vw;
+  width: min(46vw, 560px);
+  height: min(46vw, 560px);
+  top: 28%;
+  left: 42%;
+  transform: translate(-50%, -50%);
   background: rgb(var(--v-theme-primary));
+  opacity: 0.14;
 }
 
 .blob-2 {
-  width: min(50vw, 600px);
-  height: min(50vw, 600px);
-  bottom: -10vh;
-  right: -5vw;
-  background: rgb(var(--v-theme-secondary));
-}
-
-.blob-3 {
-  width: min(40vw, 500px);
-  height: min(40vh, 400px);
-  top: 30%;
-  left: 40%;
-  background: rgb(var(--v-theme-success));
-  opacity: 0.15;
+  width: min(42vw, 520px);
+  height: min(42vw, 520px);
+  top: -10vh;
+  left: -8vw;
+  background: rgba(255, 255, 255, 0.9);
+  opacity: 0.06;
 }
 
 @keyframes auroraPulse {
