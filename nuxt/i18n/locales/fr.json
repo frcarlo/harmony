@@ -26,7 +26,8 @@
     "name": "Nom",
     "all": "Tous",
     "dashboards": "Tableaux",
-    "undo": "Annuler"
+    "undo": "Annuler",
+    "connecting": "Connexion à Home Assistant…"
   },
   "dashboard": {
     "title": "Mes tableaux de bord",
@@ -60,7 +61,16 @@
     "global_default_error": "Impossible de mettre à jour le tableau de bord par défaut global",
     "my_default_set": "Mon tableau de bord par défaut a été mis à jour",
     "my_default_cleared": "Mon tableau de bord par défaut a été supprimé",
-    "my_default_error": "Impossible de mettre à jour mon tableau de bord par défaut"
+    "my_default_error": "Impossible de mettre à jour mon tableau de bord par défaut",
+    "clone": "Dupliquer le tableau de bord",
+    "clone_error": "Erreur de duplication",
+    "cloned": "\"{name}\" créé",
+    "export": "Exporter le tableau de bord",
+    "export_error": "Erreur d'exportation",
+    "import": "Importer un tableau de bord",
+    "import_error": "Erreur d'importation – fichier invalide ?",
+    "import_exists": "Le tableau de bord \"{name}\" existe déjà – importé comme copie",
+    "imported": "Tableau de bord \"{name}\" importé"
   },
   "updates": {
     "server_redeployed": "Serveur mis à jour — rechargez pour appliquer les modifications",
@@ -82,7 +92,20 @@
     "reset_local_settings": "Réinitialiser les réglages locaux",
     "reset_local_settings_hint": "Seulement pour ce navigateur et cet utilisateur",
     "local_settings_reset_done": "Les réglages locaux du navigateur ont été réinitialisés",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "edit_mode_off": "Arrêter l'édition",
+    "edit_mode_on": "Activer l'édition",
+    "grid_breakpoints": "Points de rupture responsive",
+    "grid_cell_height": "Hauteur de ligne : {n}px",
+    "grid_columns": "Colonnes : {n}",
+    "grid_margin": "Espacement : {n}px",
+    "grid_preview": "Largeur d'aperçu",
+    "grid_preview_full": "Pleine largeur",
+    "grid_preview_laptop": "Portable (1280px)",
+    "grid_preview_mobile": "Mobile (375px)",
+    "grid_preview_tablet": "Tablette paysage (1024px)",
+    "grid_preview_tablet_portrait": "Tablette portrait (768px)",
+    "grid_settings": "Paramètres de grille"
   },
   "connection": {
     "connected": "Connecté",
@@ -176,7 +199,11 @@
       "label": "Calendrier (Mois/Semaine/Jour)",
       "description": "Vue calendrier interactive avec plusieurs calendriers"
     },
-    "removed": "Widget supprimé"
+    "removed": "Widget supprimé",
+    "appliance": {
+      "description": "Carte de statut lave-vaisselle, lave-linge ou sèche-linge",
+      "label": "Électroménager"
+    }
   },
   "calendar_v2": {
     "day": "Jour",
@@ -217,7 +244,11 @@
     },
     "door_open": "Porte ouverte",
     "door_closed": "Porte fermée",
-    "door_sensor": "Capteur de porte"
+    "door_sensor": "Capteur de porte",
+    "type_label": {
+      "gate": "Portail / Garage",
+      "lock": "Serrure"
+    }
   },
   "config": {
     "entity": "Entité",
@@ -296,7 +327,36 @@
     "target_dashboard": "Dashboard cible",
     "icon_color": "Couleur de l'icône",
     "inactive_icon": "Icône inactive",
-    "add_nav": "Ajouter navigation"
+    "add_nav": "Ajouter navigation",
+    "add_group": "Ajouter un groupe",
+    "bg_transparent": "Transparent",
+    "buttons_position": "Position des boutons",
+    "buttons_size": "Taille des boutons",
+    "countdown_entity": "Entité compte à rebours",
+    "end_time_entity": "Entité heure de fin",
+    "entry_type_group": "Groupe",
+    "entry_type_single": "Unique",
+    "exclude_groups": "Exclure les groupes HA",
+    "filter_areas": "Zones",
+    "filter_domains": "Domaines",
+    "filter_labels": "Étiquettes",
+    "filter_name_contains": "L'ID d'entité contient",
+    "filter_name_starts_with": "L'ID d'entité commence par",
+    "group_filter": "Filtre",
+    "locked_icon": "Icône verrouillé",
+    "ma_player_id": "Lecteur Music Assistant (optionnel)",
+    "pos_bottom": "Bas",
+    "pos_left": "Gauche",
+    "pos_right": "Droite",
+    "pos_top": "Haut",
+    "power_entity": "Entité alimentation/statut",
+    "program_entity": "Entité programme",
+    "progress_entity": "Entité progression",
+    "running_state": "Valeur état en cours",
+    "show_badge": "Afficher le badge de comptage",
+    "show_door_button": "Afficher le bouton de porte",
+    "status_entity": "Entité statut",
+    "unlocked_icon": "Icône déverrouillé"
   },
   "entity_picker": {
     "placeholder": "Rechercher une entité...",
@@ -314,7 +374,16 @@
   "media": {
     "library": "Médiathèque",
     "no_content": "Aucun contenu trouvé",
-    "load_error": "Erreur de chargement"
+    "load_error": "Erreur de chargement",
+    "albums": "Albums",
+    "artists": "Artistes",
+    "no_player_configured": "Aucun lecteur Music Assistant configuré. Veuillez le définir dans l'éditeur de widgets.",
+    "no_results": "Aucun résultat trouvé.",
+    "playlists": "Playlists",
+    "radio": "Radio",
+    "search": "Rechercher",
+    "search_placeholder": "Rechercher des pistes, albums, artistes…",
+    "tracks": "Pistes"
   },
   "thermostat": {
     "mode_heat": "Chauffage",
@@ -465,5 +534,28 @@
     "audit_user_default_dashboard_change": "a changé le tableau de bord par défaut :",
     "audit_user_self_default_dashboard_change": "a changé son propre tableau de bord par défaut :",
     "error_default": "Erreur"
+  },
+  "appliance": {
+    "finished": "Programme terminé",
+    "no_estimate": "Pas d'estimation",
+    "ready": "Prêt à démarrer",
+    "remaining": "Restant",
+    "status": {
+      "aborting": "Arrêt en cours",
+      "actionrequired": "Action requise",
+      "delayedstart": "Programmé",
+      "error": "Erreur",
+      "finished": "Terminé",
+      "idle": "Prêt",
+      "inactive": "Inactif",
+      "pause": "En pause",
+      "ready": "Prêt",
+      "run": "En cours",
+      "unavailable": "Indisponible"
+    }
+  },
+  "group": {
+    "empty": "Aucune entité correspondante trouvée.",
+    "title": "Groupe"
   }
 }

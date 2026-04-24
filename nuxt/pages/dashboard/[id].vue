@@ -75,6 +75,10 @@ const bgStyle = computed(() => {
   return { ...base, background: bg }
 })
 
+onBeforeMount(() => {
+  dashboardStore.clearDashboard()
+})
+
 onMounted(async () => {
   const data = await $fetch<Dashboard>(`/api/dashboards/${route.params.id}`)
   if (!data) throw createError({ statusCode: 404 })

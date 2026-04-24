@@ -1,13 +1,21 @@
 <template>
-  <v-card :to="`/dashboard/${dashboard.id}`" hover :class="{ 'widget-glass': glass }"
-    class="border-md border-primary rounded-lg dashboard-card" :style="cardPreviewStyle">
-    <div v-if="themeMeta" class="dashboard-theme-bar" />
-    <v-card-item>
-      <template v-if="isAdmin && editMode" #prepend>
-        <v-icon class="drag-handle card-drag-handle" icon="mdi-drag-vertical" color="medium-emphasis" size="18" @click.prevent />
-      </template>
-      <v-card-title class="text-body-1 d-flex align-center ga-2">
-        <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" color="medium-emphasis" size="18" />
+  <v-card :to="`/dashboard/${dashboard.id}`" :class="{ 'widget-glass': glass }"
+    class="rounded-xl dashboard-card" :style="cardPreviewStyle">
+
+    <!-- Header preview with dashboard background -->
+    <div class="dashboard-card__header" :style="headerStyle">
+      <div class="dashboard-card__header-overlay" />
+      <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'"
+        class="dashboard-card__header-icon" />
+      <v-icon v-if="isAdmin && editMode"
+        class="drag-handle dashboard-card__drag"
+        icon="mdi-drag-vertical" size="18"
+        @click.prevent />
+    </div>
+
+    <!-- Card body -->
+    <v-card-item class="pt-3 pb-1">
+      <v-card-title class="text-body-1 font-weight-bold d-flex align-center ga-2 flex-wrap">
         {{ dashboard.name }}
         <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="tonal">
           {{ currentDefaultLabel }}
@@ -16,34 +24,32 @@
           {{ t('dashboard.global_default_badge') }}
         </v-chip>
       </v-card-title>
-      <v-card-subtitle class="d-flex align-center ga-2 flex-wrap">
+      <v-card-subtitle class="d-flex align-center ga-2 flex-wrap mt-1">
         <span>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
         <v-chip v-if="themeMeta" size="x-small" rounded="pill" variant="outlined" class="dashboard-theme-chip">
           <span class="dashboard-theme-chip__swatch" />
           {{ themeMeta.name }}
         </v-chip>
       </v-card-subtitle>
-      <template v-if="isAdmin && editMode" #append>
-        <div class="card-actions d-flex ga-1">
-          <v-btn icon="mdi-pencil-outline" size="x-small" variant="plain" :to="`/edit/${dashboard.id}`"
-            @click.stop />
-          <v-btn icon="mdi-content-copy" size="x-small" variant="plain" :loading="cloning"
-            :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
-          <v-btn icon="mdi-export-variant" size="x-small" variant="plain" :loading="exporting"
-            :title="t('dashboard.export')" @click.stop.prevent="handleExport" />
-          <v-btn
-            :icon="dashboard.is_default ? 'mdi-star' : 'mdi-star-outline'"
-            size="x-small"
-            variant="plain"
-            color="warning"
-            :title="t('dashboard.set_global_default')"
-            @click.stop.prevent="handleSetGlobalDefault"
-          />
-          <v-btn icon="mdi-trash-can-outline" size="x-small" variant="plain" color="error"
-            @click.stop.prevent="confirmOpen = true" />
-        </div>
-      </template>
     </v-card-item>
+
+    <!-- Edit actions -->
+    <div v-if="isAdmin && editMode" class="d-flex justify-end ga-1 px-2 pb-2">
+      <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" :to="`/edit/${dashboard.id}`"
+        @click.stop />
+      <v-btn icon="mdi-content-copy" size="x-small" variant="text" :loading="cloning"
+        :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
+      <v-btn icon="mdi-export-variant" size="x-small" variant="text" :loading="exporting"
+        :title="t('dashboard.export')" @click.stop.prevent="handleExport" />
+      <v-btn
+        :icon="dashboard.is_default ? 'mdi-star' : 'mdi-star-outline'"
+        size="x-small" variant="text" color="warning"
+        :title="t('dashboard.set_global_default')"
+        @click.stop.prevent="handleSetGlobalDefault"
+      />
+      <v-btn icon="mdi-trash-can-outline" size="x-small" variant="text" color="error"
+        @click.stop.prevent="confirmOpen = true" />
+    </div>
   </v-card>
 
   <v-dialog v-model="confirmOpen" max-width="340">
@@ -93,12 +99,25 @@ const deleting = ref(false)
 const exporting = ref(false)
 const cloning = ref(false)
 const themeMeta = computed(() => getThemeOption(props.dashboard.theme_override))
+
 const cardPreviewStyle = computed(() => {
   if (!themeMeta.value) return {}
   return {
     '--dashboard-theme-bg': themeMeta.value.bg,
     '--dashboard-theme-primary': themeMeta.value.primary,
   }
+})
+
+const headerStyle = computed(() => {
+  const bg = props.dashboard.background
+  if (bg?.startsWith('http') || bg?.startsWith('/')) {
+    return { backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  }
+  if (bg) return { background: bg }
+  if (themeMeta.value) {
+    return { background: `linear-gradient(135deg, ${themeMeta.value.bg} 0%, color-mix(in srgb, ${themeMeta.value.primary} 40%, ${themeMeta.value.bg}) 100%)` }
+  }
+  return { background: 'linear-gradient(135deg, rgba(var(--v-theme-primary), 0.18) 0%, rgba(var(--v-theme-surface-variant), 0.6) 100%)' }
 })
 
 function formatDate(iso: string) {
@@ -123,7 +142,7 @@ async function handleClone() {
       body: { ...full, id: created.id, name: cloneName, widgets },
     })
     toast.success(t('dashboard.cloned', { name: cloneName }))
-    emit('deleted') // reused to trigger list reload
+    emit('deleted')
   } catch {
     toast.error(t('dashboard.clone_error'))
   } finally {
@@ -188,11 +207,44 @@ async function handleDelete() {
 .dashboard-card {
   position: relative;
   overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.dashboard-theme-bar {
-  height: 5px;
-  background: linear-gradient(90deg, var(--dashboard-theme-primary), var(--dashboard-theme-bg));
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22) !important;
+}
+
+.dashboard-card__header {
+  position: relative;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.dashboard-card__header-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.28) 100%);
+}
+
+.dashboard-card__header-icon {
+  font-size: 36px;
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.92) !important;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+}
+
+.dashboard-card__drag {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: rgba(255,255,255,0.7) !important;
 }
 
 .dashboard-theme-chip {

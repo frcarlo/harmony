@@ -26,7 +26,8 @@
     "name": "Nombre",
     "all": "Todos",
     "dashboards": "Paneles",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "connecting": "Conectando a Home Assistant…"
   },
   "dashboard": {
     "title": "Mis paneles",
@@ -60,7 +61,16 @@
     "global_default_error": "No se pudo actualizar el dashboard predeterminado global",
     "my_default_set": "Mi dashboard predeterminado se actualizó",
     "my_default_cleared": "Mi dashboard predeterminado se eliminó",
-    "my_default_error": "No se pudo actualizar mi dashboard predeterminado"
+    "my_default_error": "No se pudo actualizar mi dashboard predeterminado",
+    "clone": "Duplicar panel",
+    "clone_error": "Error al duplicar",
+    "cloned": "\"{name}\" creado",
+    "export": "Exportar panel",
+    "export_error": "Error al exportar",
+    "import": "Importar panel",
+    "import_error": "Error al importar – ¿archivo inválido?",
+    "import_exists": "El panel \"{name}\" ya existe – importando como copia",
+    "imported": "Panel \"{name}\" importado"
   },
   "updates": {
     "server_redeployed": "Servidor actualizado — recarga para aplicar los cambios",
@@ -82,7 +92,20 @@
     "reset_local_settings": "Restablecer ajustes locales",
     "reset_local_settings_hint": "Solo para este navegador y este usuario",
     "local_settings_reset_done": "Se restablecieron los ajustes locales del navegador",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "edit_mode_off": "Detener edición",
+    "edit_mode_on": "Activar edición",
+    "grid_breakpoints": "Puntos de quiebre responsive",
+    "grid_cell_height": "Altura de fila: {n}px",
+    "grid_columns": "Columnas: {n}",
+    "grid_margin": "Espacio: {n}px",
+    "grid_preview": "Ancho de vista previa",
+    "grid_preview_full": "Ancho completo",
+    "grid_preview_laptop": "Portátil (1280px)",
+    "grid_preview_mobile": "Móvil (375px)",
+    "grid_preview_tablet": "Tablet apaisada (1024px)",
+    "grid_preview_tablet_portrait": "Tablet vertical (768px)",
+    "grid_settings": "Ajustes de cuadrícula"
   },
   "connection": {
     "connected": "Conectado",
@@ -176,7 +199,11 @@
       "label": "Calendario (Mes/Semana/Día)",
       "description": "Vista de calendario interactiva con múltiples calendarios"
     },
-    "removed": "Widget eliminado"
+    "removed": "Widget eliminado",
+    "appliance": {
+      "description": "Tarjeta de estado de lavavajillas, lavadora o secadora",
+      "label": "Electrodoméstico"
+    }
   },
   "calendar_v2": {
     "day": "Día",
@@ -217,7 +244,11 @@
     },
     "door_open": "Puerta abierta",
     "door_closed": "Puerta cerrada",
-    "door_sensor": "Sensor de puerta"
+    "door_sensor": "Sensor de puerta",
+    "type_label": {
+      "gate": "Puerta / Garaje",
+      "lock": "Cerradura"
+    }
   },
   "config": {
     "entity": "Entidad",
@@ -296,7 +327,36 @@
     "target_dashboard": "Dashboard destino",
     "icon_color": "Color del icono",
     "inactive_icon": "Icono inactivo",
-    "add_nav": "Agregar navegación"
+    "add_nav": "Agregar navegación",
+    "add_group": "Agregar grupo",
+    "bg_transparent": "Transparente",
+    "buttons_position": "Posición de botones",
+    "buttons_size": "Tamaño de botones",
+    "countdown_entity": "Entidad de cuenta regresiva",
+    "end_time_entity": "Entidad de hora de fin",
+    "entry_type_group": "Grupo",
+    "entry_type_single": "Individual",
+    "exclude_groups": "Excluir grupos de HA",
+    "filter_areas": "Áreas",
+    "filter_domains": "Dominios",
+    "filter_labels": "Etiquetas",
+    "filter_name_contains": "El ID de entidad contiene",
+    "filter_name_starts_with": "El ID de entidad comienza con",
+    "group_filter": "Filtro",
+    "locked_icon": "Icono bloqueado",
+    "ma_player_id": "Reproductor Music Assistant (opcional)",
+    "pos_bottom": "Abajo",
+    "pos_left": "Izquierda",
+    "pos_right": "Derecha",
+    "pos_top": "Arriba",
+    "power_entity": "Entidad de alimentación/estado",
+    "program_entity": "Entidad de programa",
+    "progress_entity": "Entidad de progreso",
+    "running_state": "Valor de estado en ejecución",
+    "show_badge": "Mostrar insignia de conteo",
+    "show_door_button": "Mostrar botón de puerta",
+    "status_entity": "Entidad de estado",
+    "unlocked_icon": "Icono desbloqueado"
   },
   "entity_picker": {
     "placeholder": "Buscar entidad...",
@@ -314,7 +374,16 @@
   "media": {
     "library": "Biblioteca multimedia",
     "no_content": "Sin contenido",
-    "load_error": "Error al cargar"
+    "load_error": "Error al cargar",
+    "albums": "Álbumes",
+    "artists": "Artistas",
+    "no_player_configured": "No hay reproductor de Music Assistant configurado. Por favor, configúralo en el editor de widgets.",
+    "no_results": "No se encontraron resultados.",
+    "playlists": "Listas de reproducción",
+    "radio": "Radio",
+    "search": "Buscar",
+    "search_placeholder": "Buscar pistas, álbumes, artistas…",
+    "tracks": "Pistas"
   },
   "thermostat": {
     "mode_heat": "Calefacción",
@@ -465,5 +534,28 @@
     "audit_user_default_dashboard_change": "cambió el dashboard predeterminado:",
     "audit_user_self_default_dashboard_change": "cambió su propio dashboard predeterminado:",
     "error_default": "Error"
+  },
+  "appliance": {
+    "finished": "Programa finalizado",
+    "no_estimate": "Sin estimación",
+    "ready": "Listo para iniciar",
+    "remaining": "Restante",
+    "status": {
+      "aborting": "Deteniendo",
+      "actionrequired": "Acción requerida",
+      "delayedstart": "Programado",
+      "error": "Error",
+      "finished": "Finalizado",
+      "idle": "Listo",
+      "inactive": "Inactivo",
+      "pause": "Pausado",
+      "ready": "Listo",
+      "run": "En funcionamiento",
+      "unavailable": "No disponible"
+    }
+  },
+  "group": {
+    "empty": "No se encontraron entidades coincidentes.",
+    "title": "Grupo"
   }
 }

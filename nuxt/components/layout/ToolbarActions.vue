@@ -114,6 +114,7 @@ const storage = useUserPreferenceStorage()
 
 function changeLocale(code: LocaleCode) {
   setLocale(code)
+  storage.write('ha-locale', code)
 }
 
 function resetLocalSettings() {

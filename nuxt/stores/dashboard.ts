@@ -18,6 +18,10 @@ export const useDashboardStore = defineStore('dashboard', {
       this.dashboard = dashboard
     },
 
+    clearDashboard() {
+      this.dashboard = null
+    },
+
     setEditMode(editMode: boolean) {
       this.editMode = editMode
       if (!editMode) this.selectedWidgetId = null

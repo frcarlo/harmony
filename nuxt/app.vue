@@ -6,7 +6,7 @@
     </div>
 
 
-    <NuxtPage />
+    <NuxtPage :transition="{ name: 'page-fade', mode: 'out-in' }" />
 
     <NotificationPopup />
     <NotificationRulesDialog :model-value="notifDialogOpen" @update:model-value="closeNotifDialog" />
@@ -22,12 +22,15 @@ const theme = useTheme()
 const isDark = computed(() => theme.current.value.dark)
 const { loggedIn, user } = useUserSession()
 const storage = useUserPreferenceStorage()
+const { setLocale } = useI18n()
 const { loadRules, startWatcher } = useNotificationRules()
 useServerUpdates()
 const { open: notifDialogOpen, closeDialog: closeNotifDialog } = useNotificationRulesDialog()
 
 watch(() => user.value?.id ?? null, () => {
   theme.change(storage.read('ha-theme', 'dark') ?? 'dark')
+  const savedLocale = storage.read('ha-locale', null)
+  if (savedLocale) setLocale(savedLocale as any)
 }, { immediate: true })
 
 onMounted(async () => {
@@ -106,6 +109,16 @@ onMounted(async () => {
 
   background-attachment: fixed;
   min-height: 100vh;
+}
+
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
 }
 
 /* ... blob-2 und blob-3 analog ... */
