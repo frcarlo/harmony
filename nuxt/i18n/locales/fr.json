@@ -47,7 +47,20 @@
     "deleted": "Tableau de bord \"{name}\" supprimé",
     "delete_error": "Échec de la suppression",
     "created": "Tableau de bord \"{name}\" créé",
-    "create_error": "Impossible de créer le tableau de bord"
+    "create_error": "Impossible de créer le tableau de bord",
+    "set_global_default": "Définir comme tableau de bord par défaut global",
+    "set_my_default": "Définir comme mon tableau de bord par défaut",
+    "unset_my_default": "Retirer mon tableau de bord par défaut",
+    "global_default_badge": "Global",
+    "my_default_badge": "Mon défaut",
+    "user_default_badge": "Défaut utilisateur",
+    "default_badge": "Par défaut",
+    "global_default_set": "Tableau de bord par défaut global mis à jour",
+    "global_default_cleared": "Tableau de bord par défaut global supprimé",
+    "global_default_error": "Impossible de mettre à jour le tableau de bord par défaut global",
+    "my_default_set": "Mon tableau de bord par défaut a été mis à jour",
+    "my_default_cleared": "Mon tableau de bord par défaut a été supprimé",
+    "my_default_error": "Impossible de mettre à jour mon tableau de bord par défaut"
   },
   "updates": {
     "server_redeployed": "Serveur mis à jour — rechargez pour appliquer les modifications",
@@ -66,6 +79,9 @@
     "bg_placeholder": "Couleur CSS ou URL...",
     "signed_in": "Connecté",
     "user_mgmt": "Gestion des utilisateurs",
+    "reset_local_settings": "Réinitialiser les réglages locaux",
+    "reset_local_settings_hint": "Seulement pour ce navigateur et cet utilisateur",
+    "local_settings_reset_done": "Les réglages locaux du navigateur ont été réinitialisés",
     "logout": "Se déconnecter"
   },
   "connection": {
@@ -239,6 +255,9 @@
     "active_state": "État actif (optionnel)",
     "active_state_hint": "Ex. locked, open, playing",
     "appearance": "Apparence",
+    "section_general": "Général",
+    "section_content": "Contenu",
+    "section_appearance": "Apparence et mise en page",
     "bg_color": "Couleur de fond",
     "border_color": "Couleur de bordure",
     "active_color": "Couleur active",
@@ -428,6 +447,8 @@
     "local_account": "Compte local",
     "access_title": "Accès tableau de bord pour {name}",
     "access_hint": "Rien sélectionné = tous les tableaux visibles.",
+    "default_dashboard_label": "Tableau de bord par défaut",
+    "default_dashboard_hint": "Utilisé en premier pour cet utilisateur lorsqu'il est disponible.",
     "promote": "Promouvoir en admin",
     "demote": "Rétrograder en utilisateur",
     "delete_title": "Supprimer l'utilisateur ?",
@@ -437,9 +458,12 @@
     "audit_dashboard_create": "a créé le tableau de bord :",
     "audit_dashboard_save": "a enregistré le tableau de bord :",
     "audit_dashboard_delete": "a supprimé le tableau de bord :",
+    "audit_dashboard_default_change": "a changé le tableau de bord par défaut global :",
     "audit_user_create": "a créé l'utilisateur :",
     "audit_user_delete": "a supprimé l'utilisateur :",
     "audit_user_role_change": "a modifié le rôle :",
+    "audit_user_default_dashboard_change": "a changé le tableau de bord par défaut :",
+    "audit_user_self_default_dashboard_change": "a changé son propre tableau de bord par défaut :",
     "error_default": "Erreur"
   }
 }

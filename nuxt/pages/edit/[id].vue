@@ -9,6 +9,7 @@
       :dashboard-grid-config="dashboard.grid_config"
       :edit-mode="editMode"
       :saving="saving"
+      @back="router.push(`/dashboard/${route.params.id}`)"
       @toggle-edit="handleToggleEdit"
       @add-widget="pickerOpen = true"
       @save="handleSave"
@@ -38,13 +39,14 @@ const route = useRoute()
 const router = useRouter()
 const dashboardStore = useDashboardStore()
 const theme = useTheme()
+const storage = useUserPreferenceStorage()
 const dashboard = computed(() => dashboardStore.dashboard)
 const editMode = computed(() => dashboardStore.editMode)
 const selectedWidgetId = computed(() => dashboardStore.selectedWidgetId)
 
 const pickerOpen = ref(false)
 const saving = ref(false)
-const globalTheme = computed(() => import.meta.client ? (localStorage.getItem('ha-theme') ?? 'dark') : 'dark')
+const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 
 const bgStyle = computed(() => {
   const bg = dashboard.value?.background

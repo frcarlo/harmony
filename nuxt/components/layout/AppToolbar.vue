@@ -1,7 +1,7 @@
 <template>
   <v-app-bar density="compact" color="transparent" border="b" elevation="0">
 
-    <v-btn icon="mdi-chevron-left" size="small" to="/dashboard" />
+    <v-btn icon="mdi-chevron-left" size="small" @click="$emit('back')" />
     <v-divider vertical class="mx-2 my-2" />
 
     <!-- Dashboard icon (click to change in edit mode) -->
@@ -37,6 +37,17 @@
     <template #append>
       <ToolbarActions :edit-mode="editMode" :can-edit="!hideEdit" @toggle-edit="$emit('toggle-edit')" />
       <v-divider vertical class="mx-2 my-2" />
+
+      <v-btn
+        v-if="!editMode && dashboardId"
+        :icon="isMyDefaultDashboard ? 'mdi-star' : 'mdi-star-outline'"
+        size="small"
+        variant="text"
+        color="warning"
+        :title="isMyDefaultDashboard ? t('dashboard.unset_my_default') : t('dashboard.set_my_default')"
+        class="mr-1"
+        @click="$emit('toggle-my-default')"
+      />
 
       <ThemeToggle
         v-if="editMode"
@@ -121,6 +132,7 @@ const props = defineProps<{
   dashboardIcon?: string
   dashboardBackground?: string
   dashboardThemeOverride?: string
+  isMyDefaultDashboard?: boolean
   dashboardGridConfig?: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }
   editMode?: boolean
   saving?: boolean
@@ -128,7 +140,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  'back': []
   'toggle-edit': []
+  'toggle-my-default': []
   'add-widget': []
   'save': []
   'rename': [name: string]

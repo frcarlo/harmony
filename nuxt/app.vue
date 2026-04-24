@@ -20,10 +20,15 @@ import { useTheme } from 'vuetify'
 const { glass } = useGlassEffect()
 const theme = useTheme()
 const isDark = computed(() => theme.current.value.dark)
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
+const storage = useUserPreferenceStorage()
 const { loadRules, startWatcher } = useNotificationRules()
 useServerUpdates()
 const { open: notifDialogOpen, closeDialog: closeNotifDialog } = useNotificationRulesDialog()
+
+watch(() => user.value?.id ?? null, () => {
+  theme.change(storage.read('ha-theme', 'dark') ?? 'dark')
+}, { immediate: true })
 
 onMounted(async () => {
   if (!loggedIn.value) return

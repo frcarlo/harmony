@@ -1,11 +1,16 @@
 export const useGlassEffect = () => {
+  const storage = useUserPreferenceStorage()
   const glass = useState('glass', () =>
-    import.meta.client ? localStorage.getItem('ha-glass') === 'true' : false
+    storage.read('ha-glass') === 'true'
   )
+
+  watch(() => storage.currentUserId.value, () => {
+    glass.value = storage.read('ha-glass') === 'true'
+  }, { immediate: true })
 
   function toggle() {
     glass.value = !glass.value
-    if (import.meta.client) localStorage.setItem('ha-glass', String(glass.value))
+    storage.write('ha-glass', String(glass.value))
   }
 
   return { glass, toggle }

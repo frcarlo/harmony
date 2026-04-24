@@ -68,8 +68,14 @@ const emit = defineEmits<{
 
 const theme = useTheme()
 const { themes } = useDashboardThemes()
+const storage = useUserPreferenceStorage()
 const isControlled = computed(() => props.allowDefault || props.modelValue !== undefined)
 const currentTheme = computed(() => isControlled.value ? (props.modelValue ?? null) : theme.name.value)
+
+watch(() => storage.currentUserId.value, () => {
+  if (isControlled.value) return
+  theme.change(storage.read('ha-theme', 'dark') ?? 'dark')
+}, { immediate: true })
 
 function setTheme(id: string | null) {
   if (isControlled.value) {
@@ -78,7 +84,7 @@ function setTheme(id: string | null) {
   }
   if (!id) return
   theme.change(id)
-  localStorage.setItem('ha-theme', id)
+  storage.write('ha-theme', id)
 }
 </script>
 

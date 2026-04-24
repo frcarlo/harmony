@@ -16,15 +16,15 @@ let dismissTimer: ReturnType<typeof setTimeout> | null = null
 
 export function useNotificationRules() {
   const entityStore = useEntityStore()
+  const storage = useUserPreferenceStorage()
 
   function isEnabledLocally(id: string): boolean {
-    if (import.meta.server) return false
-    const val = localStorage.getItem(`notif_enabled_${id}`)
+    const val = storage.readNotification(id)
     return val === 'true'
   }
 
   function setEnabledLocally(id: string, enabled: boolean) {
-    localStorage.setItem(`notif_enabled_${id}`, String(enabled))
+    storage.writeNotification(id, enabled)
   }
 
   async function loadRules() {
@@ -50,7 +50,7 @@ export function useNotificationRules() {
   async function deleteRule(id: string) {
     await $fetch(`/api/notification-rules/${id}`, { method: 'DELETE' })
     rules.value = rules.value.filter((r) => r.id !== id)
-    localStorage.removeItem(`notif_enabled_${id}`)
+    storage.removeNotification(id)
   }
 
   function dismiss() {

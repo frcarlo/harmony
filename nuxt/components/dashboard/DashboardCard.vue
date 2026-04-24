@@ -9,6 +9,12 @@
       <v-card-title class="text-body-1 d-flex align-center ga-2">
         <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" color="medium-emphasis" size="18" />
         {{ dashboard.name }}
+        <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="tonal">
+          {{ currentDefaultLabel }}
+        </v-chip>
+        <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="outlined">
+          {{ t('dashboard.global_default_badge') }}
+        </v-chip>
       </v-card-title>
       <v-card-subtitle class="d-flex align-center ga-2 flex-wrap">
         <span>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
@@ -25,6 +31,14 @@
             :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
           <v-btn icon="mdi-export-variant" size="x-small" variant="plain" :loading="exporting"
             :title="t('dashboard.export')" @click.stop.prevent="handleExport" />
+          <v-btn
+            :icon="dashboard.is_default ? 'mdi-star' : 'mdi-star-outline'"
+            size="x-small"
+            variant="plain"
+            color="warning"
+            :title="t('dashboard.set_global_default')"
+            @click.stop.prevent="handleSetGlobalDefault"
+          />
           <v-btn icon="mdi-trash-can-outline" size="x-small" variant="plain" color="error"
             @click.stop.prevent="confirmOpen = true" />
         </div>
@@ -65,7 +79,12 @@ dayjs.extend(relativeTime)
 const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
 const { getThemeOption } = useDashboardThemes()
-const props = defineProps<{ dashboard: DashboardListItem; isAdmin?: boolean; editMode?: boolean }>()
+const props = defineProps<{
+  dashboard: DashboardListItem
+  isAdmin?: boolean
+  editMode?: boolean
+  currentDefaultLabel?: string | null
+}>()
 const emit = defineEmits<{ deleted: [] }>()
 
 const now = useNow({ interval: 60_000 })
@@ -130,10 +149,23 @@ async function handleExport() {
   }
 }
 
+async function handleSetGlobalDefault() {
+  try {
+    await $fetch('/api/dashboards/default', {
+      method: 'PUT',
+      body: { dashboardId: props.dashboard.is_default ? null : props.dashboard.id },
+    })
+    toast.success(props.dashboard.is_default ? t('dashboard.global_default_cleared') : t('dashboard.global_default_set'))
+    emit('deleted')
+  } catch {
+    toast.error(t('dashboard.global_default_error'))
+  }
+}
+
 async function handleDelete() {
   deleting.value = true
   try {
-    await $fetch(`/api/dashboards/${props.dashboard.id}`, { method: 'DELETE' })
+    await $fetch(`/api/dashboards/${props.dashboard.id}`, { method: 'DELETE' as any })
     toast.success(t('dashboard.deleted', { name: props.dashboard.name }))
     confirmOpen.value = false
     emit('deleted')

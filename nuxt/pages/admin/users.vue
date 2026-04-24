@@ -84,17 +84,33 @@
                 <div v-if="loadingAccess" class="py-4 text-center">
                   <v-progress-circular indeterminate size="24" />
                 </div>
-                <div v-else class="d-flex flex-wrap ga-2 mb-3">
-                  <v-chip
-                    v-for="db in allDashboards" :key="db.id"
-                    :color="selectedDashboardIds.includes(db.id) ? 'primary' : undefined"
-                    :variant="selectedDashboardIds.includes(db.id) ? 'flat' : 'outlined'"
-                    :prepend-icon="db.icon || 'mdi-view-dashboard-outline'"
-                    style="cursor: pointer"
-                    @click="toggleDashboardAccess(db.id)"
-                  >
-                    {{ db.name }}
-                  </v-chip>
+                <div v-else class="mb-3">
+                  <div class="d-flex flex-column mb-2">
+                    <span class="text-caption text-medium-emphasis">{{ t('users.default_dashboard_label') }}</span>
+                    <span class="text-caption text-disabled">{{ t('users.default_dashboard_hint') }}</span>
+                  </div>
+                  <v-select
+                    v-model="selectedDefaultDashboardId"
+                    :items="allDashboards.map(db => ({ title: db.name, value: db.id }))"
+                    clearable
+                    hide-details
+                    density="comfortable"
+                    variant="outlined"
+                    menu-icon="mdi-chevron-down"
+                    class="mb-3 default-dashboard-select"
+                  />
+                  <div class="d-flex flex-wrap ga-2">
+                    <v-chip
+                      v-for="db in allDashboards" :key="db.id"
+                      :color="selectedDashboardIds.includes(db.id) ? 'primary' : undefined"
+                      :variant="selectedDashboardIds.includes(db.id) ? 'flat' : 'outlined'"
+                      :prepend-icon="db.icon || 'mdi-view-dashboard-outline'"
+                      style="cursor: pointer"
+                      @click="toggleDashboardAccess(db.id)"
+                    >
+                      {{ db.name }}
+                    </v-chip>
+                  </div>
                 </div>
                 <div class="d-flex ga-2">
                   <v-btn color="primary" variant="flat" size="small" :loading="savingAccess" @click="saveAccess">
@@ -230,7 +246,15 @@ onMounted(() => {
   if (currentUser.value?.role !== 'admin') router.replace('/dashboard')
 })
 
-interface UserRow { id: string; username: string; email: string | null; role: 'admin' | 'user'; provider: string | null }
+interface UserRow {
+  id: string
+  username: string
+  email: string | null
+  role: 'admin' | 'user'
+  provider: string | null
+  default_dashboard_id?: string | null
+  user_default_dashboard_id?: string | null
+}
 interface DashboardRow { id: string; name: string; icon?: string }
 interface AuditEntry { id: string; username: string; action: string; target?: string; detail?: string; created_at: string }
 
@@ -249,6 +273,7 @@ const deleting = ref(false)
 const accessUser = ref<UserRow | null>(null)
 const allDashboards = ref<DashboardRow[]>([])
 const selectedDashboardIds = ref<string[]>([])
+const selectedDefaultDashboardId = ref<string | null>(null)
 const loadingAccess = ref(false)
 const savingAccess = ref(false)
 
@@ -333,6 +358,7 @@ async function openAccess(u: UserRow) {
     ])
     allDashboards.value = dbs
     selectedDashboardIds.value = access.dashboardIds ?? []
+    selectedDefaultDashboardId.value = u.default_dashboard_id ?? null
   } finally {
     loadingAccess.value = false
   }
@@ -348,10 +374,19 @@ async function saveAccess() {
   if (!accessUser.value) return
   savingAccess.value = true
   try {
+    const dashboardIds = [...selectedDashboardIds.value]
+    if (selectedDefaultDashboardId.value && dashboardIds.length > 0 && !dashboardIds.includes(selectedDefaultDashboardId.value)) {
+      dashboardIds.push(selectedDefaultDashboardId.value)
+    }
     await $fetch(`/api/users/${accessUser.value.id}/dashboards`, {
       method: 'PUT',
-      body: { dashboardIds: selectedDashboardIds.value },
+      body: { dashboardIds },
     })
+    await $fetch(`/api/users/${accessUser.value.id}`, {
+      method: 'PATCH',
+      body: { default_dashboard_id: selectedDefaultDashboardId.value ?? null },
+    })
+    accessUser.value.default_dashboard_id = selectedDefaultDashboardId.value ?? null
     accessUser.value = null
   } finally {
     savingAccess.value = false
@@ -365,9 +400,12 @@ function auditLabel(action: string) {
     'dashboard.create': t('users.audit_dashboard_create'),
     'dashboard.save': t('users.audit_dashboard_save'),
     'dashboard.delete': t('users.audit_dashboard_delete'),
+    'dashboard.default_change': t('users.audit_dashboard_default_change'),
     'user.create': t('users.audit_user_create'),
     'user.delete': t('users.audit_user_delete'),
     'user.role_change': t('users.audit_user_role_change'),
+    'user.default_dashboard_change': t('users.audit_user_default_dashboard_change'),
+    'user.self_default_dashboard_change': t('users.audit_user_self_default_dashboard_change'),
   }
   return map[action] ?? action
 }
@@ -385,3 +423,20 @@ function auditColor(action: string) {
   return 'primary'
 }
 </script>
+
+<style scoped>
+.default-dashboard-select {
+  max-width: 420px;
+}
+
+.default-dashboard-select :deep(.v-field) {
+  border-radius: 12px;
+}
+
+.default-dashboard-select :deep(.v-field__input) {
+  min-height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 0.95rem;
+}
+</style>
