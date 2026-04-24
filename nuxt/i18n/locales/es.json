@@ -47,7 +47,20 @@
     "deleted": "Panel \"{name}\" eliminado",
     "delete_error": "Error al eliminar",
     "created": "Panel \"{name}\" creado",
-    "create_error": "No se pudo crear el panel"
+    "create_error": "No se pudo crear el panel",
+    "set_global_default": "Establecer como dashboard predeterminado global",
+    "set_my_default": "Establecer como mi dashboard predeterminado",
+    "unset_my_default": "Quitar mi dashboard predeterminado",
+    "global_default_badge": "Global",
+    "my_default_badge": "Mi predeterminado",
+    "user_default_badge": "Predeterminado de usuario",
+    "default_badge": "Predeterminado",
+    "global_default_set": "Dashboard predeterminado global actualizado",
+    "global_default_cleared": "Dashboard predeterminado global eliminado",
+    "global_default_error": "No se pudo actualizar el dashboard predeterminado global",
+    "my_default_set": "Mi dashboard predeterminado se actualizó",
+    "my_default_cleared": "Mi dashboard predeterminado se eliminó",
+    "my_default_error": "No se pudo actualizar mi dashboard predeterminado"
   },
   "updates": {
     "server_redeployed": "Servidor actualizado — recarga para aplicar los cambios",
@@ -66,6 +79,9 @@
     "bg_placeholder": "Color CSS o URL...",
     "signed_in": "Conectado",
     "user_mgmt": "Gestión de usuarios",
+    "reset_local_settings": "Restablecer ajustes locales",
+    "reset_local_settings_hint": "Solo para este navegador y este usuario",
+    "local_settings_reset_done": "Se restablecieron los ajustes locales del navegador",
     "logout": "Cerrar sesión"
   },
   "connection": {
@@ -239,6 +255,9 @@
     "active_state": "Estado activo (opcional)",
     "active_state_hint": "Ej. locked, open, playing",
     "appearance": "Apariencia",
+    "section_general": "General",
+    "section_content": "Contenido",
+    "section_appearance": "Apariencia y diseño",
     "bg_color": "Color de fondo",
     "border_color": "Color de borde",
     "active_color": "Color activo",
@@ -428,6 +447,8 @@
     "local_account": "Cuenta local",
     "access_title": "Acceso al dashboard para {name}",
     "access_hint": "Sin selección = todos los dashboards visibles.",
+    "default_dashboard_label": "Dashboard predeterminado",
+    "default_dashboard_hint": "Se usa primero para este usuario cuando está disponible.",
     "promote": "Promover a admin",
     "demote": "Degradar a usuario",
     "delete_title": "¿Eliminar usuario?",
@@ -437,9 +458,12 @@
     "audit_dashboard_create": "creó el dashboard:",
     "audit_dashboard_save": "guardó el dashboard:",
     "audit_dashboard_delete": "eliminó el dashboard:",
+    "audit_dashboard_default_change": "cambió el dashboard predeterminado global:",
     "audit_user_create": "creó el usuario:",
     "audit_user_delete": "eliminó el usuario:",
     "audit_user_role_change": "cambió el rol:",
+    "audit_user_default_dashboard_change": "cambió el dashboard predeterminado:",
+    "audit_user_self_default_dashboard_change": "cambió su propio dashboard predeterminado:",
     "error_default": "Error"
   }
 }

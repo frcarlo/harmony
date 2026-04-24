@@ -12,7 +12,7 @@
 - **Drag-and-drop editor** — Build and rearrange dashboards with GridStack
 - **20+ widget types** — Sensors, lights, switches, cameras, media players, covers, thermostats, weather, charts, clocks, calendars, person presence, energy flow, status bar, and more
 - **Real-time sync** — WebSocket connection to Home Assistant for live state updates
-- **Multi-user** — Role-based access control (admin / user), per-user dashboard visibility
+- **Multi-user** — Role-based access control (admin / user), per-user dashboard visibility, per-user start dashboard, and admin-assigned defaults
 - **Per-dashboard grid config** — Columns, cell height, margin, and responsive breakpoints configurable per dashboard
 - **Device preview** — Preview dashboards at mobile (375px), tablet portrait (768px), tablet landscape (1024px), or laptop (1280px) widths while editing
 - **Widget appearance** — Per-widget background, border, active color, and text color customization
@@ -21,6 +21,7 @@
 - **Audit log** — Track all administrative actions
 - **21 themes** — Dark, Light, Dracula, Nord, Catppuccin, Aura Dark, Anthropic, Matrix, and many more
 - **Glass effect** — Animated backdrop blur UI (toggleable, theme-aware); supports custom background colors with semi-transparent blending and transparent mode
+- **Per-user local preferences** — Theme, glass effect, widget border toggle, and notification enablement are stored per user in the browser
 - **Widget borders toggle** — Global on/off switch for widget borders in the toolbar; when off, the subtle inset ring remains as visual separation
 - **Live update notifications** — SSE-based push: toast with reload button when server is redeployed or a dashboard is changed by another user
 - **Music Assistant integration** — Search tracks, albums, artists, playlists, and radio stations directly from the media player widget; auto-detected when MA runs as a HA add-on
@@ -162,6 +163,7 @@ npm run dev            # http://localhost:3000
 | View assigned dashboards | ✅ | ✅ |
 | Enable/disable notification rules | ✅ | ✅ |
 | View notification log | ✅ | ✅ |
+| Choose own default dashboard | ✅ | ✅ |
 | Edit & create dashboards | ✅ | ❌ |
 | Manage users | ✅ | ❌ |
 | Configure notification rules | ✅ | ❌ |
@@ -175,12 +177,16 @@ npm run dev            # http://localhost:3000
 | Endpoint | Description |
 |---|---|
 | `GET /api/dashboards` | List accessible dashboards |
+| `GET /api/dashboards/default` | Resolve effective default dashboard for current user |
+| `PUT /api/dashboards/default` | Set global default dashboard (admin) |
 | `POST /api/dashboards` | Create dashboard |
 | `PUT /api/dashboards/[id]` | Save dashboard & widgets |
 | `DELETE /api/dashboards/[id]` | Delete dashboard |
 | `GET /api/notification-rules` | List notification rules |
 | `GET /api/notification-log` | Notification history |
 | `GET /api/users` | List users (admin) |
+| `GET /api/users/me/default-dashboard` | Get personal default dashboard |
+| `PUT /api/users/me/default-dashboard` | Set or clear personal default dashboard |
 | `GET /api/audit-log` | Audit trail (admin) |
 | `POST /api/auth/login` | Local login |
 | `POST /api/auth/logout` | Logout |
@@ -195,10 +201,10 @@ npm run dev            # http://localhost:3000
 
 ## Database
 
-SQLite database stored at `DATA_DIR/harmony.db` with the following tables:
+SQLite database stored at `DATA_DIR/dashboards.db` with the following tables:
 
-- `users` — Accounts, roles, OAuth provider info
-- `dashboards` — Dashboard metadata and sort order
+- `users` — Accounts, roles, OAuth provider info, admin-set and self-set default dashboard IDs
+- `dashboards` — Dashboard metadata, sort order, global default flag, theme override, and grid config
 - `widgets` — Widget layout, config, and appearance (JSON)
 - `notification_rules` — Trigger/action definitions with cooldown
 - `notification_log` — Last 200 triggered notifications

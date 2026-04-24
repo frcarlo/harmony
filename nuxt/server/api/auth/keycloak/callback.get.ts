@@ -1,4 +1,4 @@
-import { getUserByProviderId, createUser, updateUserRole } from '~/server/utils/db'
+import { getUserByProviderId, createUser, updateUserRole, resolveDefaultDashboardForUser } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
@@ -63,5 +63,6 @@ export default defineEventHandler(async (event) => {
   }
 
   await setUserSession(event, { user: { id: dbUser.id, username: dbUser.username, role: dbUser.role } })
-  return sendRedirect(event, '/dashboard')
+  const defaultDashboard = resolveDefaultDashboardForUser(dbUser.id, dbUser.role)
+  return sendRedirect(event, defaultDashboard ? `/dashboard/${defaultDashboard.id}` : '/dashboard')
 })

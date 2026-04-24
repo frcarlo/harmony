@@ -18,7 +18,7 @@
         <v-list density="compact" nav>
           <v-list-item v-for="loc in availableLocales" :key="loc.code" :title="loc.name"
             :active="locale === loc.code" :color="locale === loc.code ? 'primary' : undefined"
-            rounded="lg" @click="setLocale(loc.code)" />
+            rounded="lg" @click="changeLocale(loc.code)" />
         </v-list>
       </v-card>
     </v-menu>
@@ -56,7 +56,7 @@
               <v-chip v-for="loc in availableLocales" :key="loc.code" size="x-small"
                 :color="locale === loc.code ? 'primary' : undefined"
                 :variant="locale === loc.code ? 'flat' : 'outlined'"
-                @click.stop="setLocale(loc.code)">
+                @click.stop="changeLocale(loc.code)">
                 {{ loc.code.toUpperCase() }}
               </v-chip>
             </div>
@@ -75,6 +75,13 @@
 
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
           :title="t('toolbar.user_mgmt')" rounded="lg" to="/admin/users" />
+        <v-list-item
+          prepend-icon="mdi-broom"
+          :title="t('toolbar.reset_local_settings')"
+          :subtitle="t('toolbar.reset_local_settings_hint')"
+          rounded="lg"
+          @click="resetLocalSettings"
+        />
         <v-list-item prepend-icon="mdi-logout" :title="t('toolbar.logout')" rounded="lg" @click="logout" />
         <v-divider class="my-1" />
         <v-list-item prepend-icon="mdi-github" title="GitHub" :subtitle="`v${config.public.appVersion}`"
@@ -86,17 +93,42 @@
 </template>
 
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
+import { useTheme } from 'vuetify'
+
 const { t, locale, setLocale, locales } = useI18n()
+type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
-const availableLocales = computed(() => (locales.value as { code: string; name: string }[]))
+const availableLocales = computed(() => (locales.value as { code: LocaleCode; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
+const theme = useTheme()
+const dashboardStore = useDashboardStore()
 
 const props = defineProps<{ editMode?: boolean; canEdit?: boolean }>()
 const emit = defineEmits<{ 'toggle-edit': [] }>()
 
 const { user, clear } = useUserSession()
+const storage = useUserPreferenceStorage()
+
+function changeLocale(code: LocaleCode) {
+  setLocale(code)
+}
+
+function resetLocalSettings() {
+  if (!import.meta.client) return
+
+  storage.clearCurrentUserSettings()
+
+  glass.value = false
+  borders.value = true
+
+  const effectiveTheme = dashboardStore.dashboard?.theme_override ?? storage.read('ha-theme', 'dark') ?? 'dark'
+  theme.change(effectiveTheme)
+
+  toast.success(t('toolbar.local_settings_reset_done'))
+}
 
 async function logout() {
   try {

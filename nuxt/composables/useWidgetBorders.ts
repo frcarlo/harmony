@@ -1,11 +1,16 @@
 export const useWidgetBorders = () => {
+  const storage = useUserPreferenceStorage()
   const borders = useState('widget-borders', () =>
-    import.meta.client ? localStorage.getItem('ha-widget-borders') !== 'false' : true
+    storage.read('ha-widget-borders') !== 'false'
   )
+
+  watch(() => storage.currentUserId.value, () => {
+    borders.value = storage.read('ha-widget-borders') !== 'false'
+  }, { immediate: true })
 
   function toggle() {
     borders.value = !borders.value
-    if (import.meta.client) localStorage.setItem('ha-widget-borders', String(borders.value))
+    storage.write('ha-widget-borders', String(borders.value))
   }
 
   return { borders, toggle }

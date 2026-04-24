@@ -47,7 +47,20 @@
     "deleted": "Dashboard \"{name}\" verwijderd",
     "delete_error": "Verwijderen mislukt",
     "created": "Dashboard \"{name}\" aangemaakt",
-    "create_error": "Dashboard kon niet worden aangemaakt"
+    "create_error": "Dashboard kon niet worden aangemaakt",
+    "set_global_default": "Als globaal standaarddashboard instellen",
+    "set_my_default": "Instellen als mijn standaarddashboard",
+    "unset_my_default": "Mijn standaarddashboard verwijderen",
+    "global_default_badge": "Globaal",
+    "my_default_badge": "Mijn standaard",
+    "user_default_badge": "Gebruikersstandaard",
+    "default_badge": "Standaard",
+    "global_default_set": "Globaal standaarddashboard bijgewerkt",
+    "global_default_cleared": "Globaal standaarddashboard verwijderd",
+    "global_default_error": "Globaal standaarddashboard kon niet worden bijgewerkt",
+    "my_default_set": "Mijn standaarddashboard is bijgewerkt",
+    "my_default_cleared": "Mijn standaarddashboard is verwijderd",
+    "my_default_error": "Mijn standaarddashboard kon niet worden bijgewerkt"
   },
   "updates": {
     "server_redeployed": "Server bijgewerkt — herlaad om wijzigingen toe te passen",
@@ -66,6 +79,9 @@
     "bg_placeholder": "CSS-kleur of URL...",
     "signed_in": "Aangemeld",
     "user_mgmt": "Gebruikersbeheer",
+    "reset_local_settings": "Lokale instellingen resetten",
+    "reset_local_settings_hint": "Alleen voor deze browser en deze gebruiker",
+    "local_settings_reset_done": "Lokale browserinstellingen zijn gereset",
     "logout": "Afmelden"
   },
   "connection": {
@@ -239,6 +255,9 @@
     "active_state": "Actieve staat (optioneel)",
     "active_state_hint": "Bijv. locked, open, playing",
     "appearance": "Uiterlijk",
+    "section_general": "Algemeen",
+    "section_content": "Inhoud",
+    "section_appearance": "Uiterlijk en layout",
     "bg_color": "Achtergrondkleur",
     "border_color": "Randkleur",
     "active_color": "Actieve kleur",
@@ -428,6 +447,8 @@
     "local_account": "Lokaal account",
     "access_title": "Dashboard-toegang voor {name}",
     "access_hint": "Niets geselecteerd = alle dashboards zichtbaar.",
+    "default_dashboard_label": "Standaarddashboard",
+    "default_dashboard_hint": "Wordt eerst gebruikt voor deze gebruiker indien beschikbaar.",
     "promote": "Promoveren tot beheerder",
     "demote": "Degraderen tot gebruiker",
     "delete_title": "Gebruiker verwijderen?",
@@ -437,9 +458,12 @@
     "audit_dashboard_create": "heeft dashboard aangemaakt:",
     "audit_dashboard_save": "heeft dashboard opgeslagen:",
     "audit_dashboard_delete": "heeft dashboard verwijderd:",
+    "audit_dashboard_default_change": "heeft globaal standaarddashboard gewijzigd:",
     "audit_user_create": "heeft gebruiker aangemaakt:",
     "audit_user_delete": "heeft gebruiker verwijderd:",
     "audit_user_role_change": "heeft rol gewijzigd:",
+    "audit_user_default_dashboard_change": "heeft standaarddashboard gewijzigd:",
+    "audit_user_self_default_dashboard_change": "heeft eigen standaarddashboard gewijzigd:",
     "error_default": "Fout"
   }
 }

@@ -18,6 +18,7 @@ export type WidgetType =
   | 'calendar_v2'
   | 'person'
   | 'energy'
+  | 'appliance'
   | 'status_bar'
 
 export interface WidgetLayout {
@@ -215,6 +216,19 @@ export interface EnergyWidgetConfig {
   name?: string
 }
 
+export interface ApplianceWidgetConfig {
+  name?: string
+  status_entity_id: string
+  progress_entity_id?: string
+  end_time_entity_id?: string
+  countdown_entity_id?: string
+  program_entity_id?: string
+  power_entity_id?: string
+  icon?: string
+  running_state?: string
+  compact?: boolean
+}
+
 export type WidgetConfig =
   | SensorWidgetConfig
   | SwitchWidgetConfig
@@ -233,6 +247,7 @@ export type WidgetConfig =
   | CalendarV2WidgetConfig
   | PersonWidgetConfig
   | EnergyWidgetConfig
+  | ApplianceWidgetConfig
   | StatusBarWidgetConfig
 
 export interface WidgetAppearance {
@@ -267,6 +282,7 @@ export interface Dashboard {
   icon?: string
   background?: string
   theme_override?: string
+  is_default?: boolean
   grid_config?: GridConfig
   widgets: Widget[]
   created_at: string
@@ -274,6 +290,13 @@ export interface Dashboard {
 }
 
 export type DashboardListItem = Omit<Dashboard, 'widgets'>
+
+export type DefaultDashboardSource = 'user' | 'admin' | 'global' | 'fallback'
+
+export interface DefaultDashboardResolution {
+  dashboardId: string | null
+  source: DefaultDashboardSource | null
+}
 
 export interface NotificationRule {
   id: string

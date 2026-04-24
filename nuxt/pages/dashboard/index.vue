@@ -20,7 +20,13 @@
         class="v-row" @end="saveOrder">
         <template #item="{ element }">
           <v-col cols="12" sm="6" lg="4" xl="3">
-            <DashboardCard :dashboard="element" :is-admin="isAdmin" :edit-mode="listEditMode" @deleted="loadDashboards" />
+            <DashboardCard
+              :dashboard="element"
+              :is-admin="isAdmin"
+              :edit-mode="listEditMode"
+              :current-default-label="element.id === resolvedDefault.dashboardId ? currentDefaultLabel : null"
+              @deleted="loadDashboards"
+            />
           </v-col>
         </template>
       </draggable>
@@ -41,19 +47,40 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 import { toast } from 'vue-sonner'
-import type { DashboardListItem } from '~/types/dashboard'
+import type { DashboardListItem, DefaultDashboardResolution } from '~/types/dashboard'
 
 const { t } = useI18n()
 const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 
 const dashboards = ref<DashboardListItem[]>([])
+const resolvedDefault = ref<DefaultDashboardResolution>({ dashboardId: null, source: null })
 const listEditMode = ref(false)
 const importing = ref(false)
 const importInput = ref<HTMLInputElement | null>(null)
 
+const currentDefaultLabel = computed(() => {
+  switch (resolvedDefault.value.source) {
+    case 'user':
+      return t('dashboard.my_default_badge')
+    case 'admin':
+      return t('dashboard.user_default_badge')
+    case 'global':
+      return t('dashboard.global_default_badge')
+    case 'fallback':
+      return t('dashboard.default_badge')
+    default:
+      return null
+  }
+})
+
 async function loadDashboards() {
-  dashboards.value = await $fetch<DashboardListItem[]>('/api/dashboards')
+  const [items, defaultInfo] = await Promise.all([
+    $fetch<DashboardListItem[]>('/api/dashboards'),
+    $fetch<DefaultDashboardResolution>('/api/dashboards/default'),
+  ])
+  dashboards.value = items
+  resolvedDefault.value = defaultInfo
 }
 
 onMounted(loadDashboards)

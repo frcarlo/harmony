@@ -83,7 +83,8 @@ async function submitLocal() {
   try {
     await $fetch('/api/auth/login', { method: 'POST', body: { username: form.username, password: form.password } })
     await refreshSession()
-    await navigateTo('/dashboard')
+    const { dashboardId } = await $fetch<{ dashboardId: string | null }>('/api/dashboards/default')
+    await navigateTo(dashboardId ? `/dashboard/${dashboardId}` : '/dashboard')
   } catch (e: any) {
     loginError.value = e?.data?.statusMessage ?? t('login.error_default')
   } finally {

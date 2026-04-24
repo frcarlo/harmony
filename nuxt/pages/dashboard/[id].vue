@@ -10,9 +10,13 @@
     <AppToolbar
       :dashboard-name="dashboard.name"
       :dashboard-id="dashboard.id"
+      :dashboard-icon="dashboard.icon"
+      :is-my-default-dashboard="dashboard.id === myDefaultDashboardId"
       :edit-mode="false"
       :hide-edit="!isAdmin"
+      @back="goBack"
       @toggle-edit="router.push(`/edit/${dashboard.id}`)"
+      @toggle-my-default="toggleMyDefaultDashboard"
     />
     <v-main>
       <div class="pa-4">
@@ -24,6 +28,7 @@
 
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
+import { toast } from 'vue-sonner'
 import type { Dashboard } from '~/types/dashboard'
 
 const { t } = useI18n()
@@ -31,12 +36,29 @@ const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
+
+const dashboardNavStack = useState<string[]>('dashboardNavStack', () => [])
+const dashboardNavGoingBack = useState('dashboardNavGoingBack', () => false)
+
+function goBack() {
+  const stack = dashboardNavStack.value
+  if (stack.length > 0) {
+    dashboardNavGoingBack.value = true
+    const target = stack[stack.length - 1]
+    dashboardNavStack.value = stack.slice(0, -1)
+    router.push(target)
+  } else {
+    router.push('/dashboard')
+  }
+}
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
 const theme = useTheme()
+const storage = useUserPreferenceStorage()
 const dashboard = computed(() => dashboardStore.dashboard)
 const connected = computed(() => entityStore.connected)
-const globalTheme = computed(() => import.meta.client ? (localStorage.getItem('ha-theme') ?? 'dark') : 'dark')
+const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
+const myDefaultDashboardId = ref<string | null>(null)
 
 const bgStyle = computed(() => {
   const bg = dashboard.value?.background
@@ -57,6 +79,8 @@ onMounted(async () => {
   const data = await $fetch<Dashboard>(`/api/dashboards/${route.params.id}`)
   if (!data) throw createError({ statusCode: 404 })
   dashboardStore.setDashboard(data)
+  const preference = await $fetch<{ dashboardId: string | null }>('/api/users/me/default-dashboard')
+  myDefaultDashboardId.value = preference.dashboardId
 })
 
 watch(() => dashboard.value?.theme_override, (override) => {
@@ -69,4 +93,19 @@ onBeforeRouteLeave((to) => {
   }
   theme.change(globalTheme.value)
 })
+
+async function toggleMyDefaultDashboard() {
+  if (!dashboard.value) return
+  const nextDashboardId = myDefaultDashboardId.value === dashboard.value.id ? null : dashboard.value.id
+  try {
+    await $fetch('/api/users/me/default-dashboard', {
+      method: 'PUT',
+      body: { dashboardId: nextDashboardId },
+    })
+    myDefaultDashboardId.value = nextDashboardId
+    toast.success(nextDashboardId ? t('dashboard.my_default_set') : t('dashboard.my_default_cleared'))
+  } catch {
+    toast.error(t('dashboard.my_default_error'))
+  }
+}
 </script>

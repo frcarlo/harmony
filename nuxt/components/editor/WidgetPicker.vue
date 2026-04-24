@@ -40,6 +40,7 @@ const widgetTypes = computed(() => [
   { type: 'calendar_v2' as WidgetType, label: t('widget.calendar_v2.label'), icon: 'mdi-calendar-month-outline', description: t('widget.calendar_v2.description'), defaultW: 8, defaultH: 8 },
   { type: 'person' as WidgetType, label: t('widget.person.label'), icon: 'mdi-account-group-outline', description: t('widget.person.description'), defaultW: 4, defaultH: 4 },
   { type: 'energy' as WidgetType, label: t('widget.energy.label'), icon: 'mdi-lightning-bolt', description: t('widget.energy.description'), defaultW: 4, defaultH: 4 },
+  { type: 'appliance' as WidgetType, label: t('widget.appliance.label'), icon: 'mdi-dishwasher', description: t('widget.appliance.description'), defaultW: 6, defaultH: 3 },
   { type: 'status_bar' as WidgetType, label: t('widget.status_bar.label'), icon: 'mdi-view-dashboard-variant', description: t('widget.status_bar.description'), defaultW: 6, defaultH: 1, minH: 1 },
 ])
 
@@ -58,6 +59,18 @@ const DEFAULT_CONFIGS: Record<WidgetType, object> = {
   calendar_v2: { calendars: [], view: 'month' },
   person: { persons: [] },
   energy: { grid_entity_id: '', solar_entity_id: '', battery_entity_id: '' },
+  appliance: {
+    name: 'Geschirrspüler',
+    status_entity_id: 'sensor.geschirrspuler_betriebszustand',
+    progress_entity_id: 'sensor.geschirrspuler_programm_fortschritt',
+    end_time_entity_id: 'sensor.geschirrspuler_programm_endzeit',
+    countdown_entity_id: '',
+    program_entity_id: 'select.geschirrspuler_aktives_programm',
+    power_entity_id: 'switch.geschirrspuler_einschalter',
+    icon: 'mdi-dishwasher',
+    running_state: 'run',
+    compact: false,
+  },
   status_bar: { entries: [], show_labels: false },
 }
 

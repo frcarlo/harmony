@@ -54,6 +54,19 @@
     "clone_error": "Duplizieren fehlgeschlagen",
     "export": "Dashboard exportieren",
     "export_error": "Export fehlgeschlagen",
+    "set_global_default": "Als globales Standard-Dashboard setzen",
+    "set_my_default": "Als mein Standard-Dashboard setzen",
+    "unset_my_default": "Mein Standard-Dashboard entfernen",
+    "global_default_badge": "Global",
+    "my_default_badge": "Mein Standard",
+    "user_default_badge": "Benutzer-Standard",
+    "default_badge": "Standard",
+    "global_default_set": "Globales Standard-Dashboard aktualisiert",
+    "global_default_cleared": "Globales Standard-Dashboard entfernt",
+    "global_default_error": "Globales Standard-Dashboard konnte nicht aktualisiert werden",
+    "my_default_set": "Mein Standard-Dashboard wurde aktualisiert",
+    "my_default_cleared": "Mein Standard-Dashboard wurde entfernt",
+    "my_default_error": "Mein Standard-Dashboard konnte nicht aktualisiert werden",
     "import": "Dashboard importieren",
     "imported": "Dashboard \"{name}\" importiert",
     "import_error": "Import fehlgeschlagen – ungültige Datei?",
@@ -87,6 +100,9 @@
     "grid_preview_mobile": "Handy (375px)",
     "signed_in": "Angemeldet",
     "user_mgmt": "Benutzerverwaltung",
+    "reset_local_settings": "Lokale Einstellungen zurücksetzen",
+    "reset_local_settings_hint": "Nur für diesen Browser und diesen Benutzer",
+    "local_settings_reset_done": "Lokale Browser-Einstellungen wurden zurückgesetzt",
     "logout": "Abmelden",
     "edit_mode_on": "Bearbeiten aktivieren",
     "edit_mode_off": "Bearbeiten beenden"
@@ -179,6 +195,10 @@
       "label": "Energie",
       "description": "Strom & Solar Überblick"
     },
+    "appliance": {
+      "label": "Haushaltsgerät",
+      "description": "Spülmaschine, Waschmaschine oder Trockner als Statuskarte"
+    },
     "status_bar": {
       "label": "Statusleiste",
       "description": "Status-Icons in einer Zeile"
@@ -252,6 +272,13 @@
     "forecast_rows": "Forecast-Zeilen: {n}",
     "format_24h": "24h Format",
     "show_date": "Datum anzeigen",
+    "status_entity": "Status-Entity",
+    "progress_entity": "Fortschritt-Entity",
+    "end_time_entity": "Endzeit-Entity",
+    "countdown_entity": "Countdown-Entity",
+    "program_entity": "Programm-Entity",
+    "power_entity": "Power/Status-Entity",
+    "running_state": "Statuswert für laufend",
     "text": "Text",
     "text_placeholder": "Überschrift...",
     "font_size": "Schriftgröße",
@@ -270,6 +297,9 @@
     "active_state": "Aktiver State (optional)",
     "active_state_hint": "z.B. locked, open, playing",
     "appearance": "Aussehen",
+    "section_general": "Allgemein",
+    "section_content": "Inhalt",
+    "section_appearance": "Aussehen & Layout",
     "bg_color": "Hintergrundfarbe",
     "bg_transparent": "Transparent",
     "border_color": "Rahmenfarbe",
@@ -340,6 +370,24 @@
     "stop_stream": "Stream stoppen",
     "disconnected": "Verbindung unterbrochen",
     "fullscreen": "Vollbild"
+  },
+  "appliance": {
+    "status": {
+      "unavailable": "Nicht verfügbar",
+      "inactive": "Inaktiv",
+      "ready": "Bereit",
+      "delayedstart": "Geplant",
+      "run": "Läuft",
+      "pause": "Pausiert",
+      "actionrequired": "Aktion nötig",
+      "finished": "Fertig",
+      "error": "Fehler",
+      "aborting": "Wird abgebrochen"
+    },
+    "remaining": "Restzeit",
+    "no_estimate": "Keine Schätzung",
+    "finished": "Programm beendet",
+    "ready": "Bereit zum Start"
   },
   "media": {
     "library": "Medienbibliothek",
@@ -490,6 +538,8 @@
     "local_account": "Lokales Konto",
     "access_title": "Dashboard-Zugriff für {name}",
     "access_hint": "Nichts ausgewählt = alle Dashboards sichtbar.",
+    "default_dashboard_label": "Standard-Dashboard",
+    "default_dashboard_hint": "Wird für diesen Benutzer zuerst verwendet, wenn verfügbar.",
     "promote": "Zum Admin befördern",
     "demote": "Zu User herabstufen",
     "delete_title": "Benutzer löschen?",
@@ -499,9 +549,12 @@
     "audit_dashboard_create": "hat Dashboard erstellt:",
     "audit_dashboard_save": "hat Dashboard gespeichert:",
     "audit_dashboard_delete": "hat Dashboard gelöscht:",
+    "audit_dashboard_default_change": "hat globales Standard-Dashboard geändert:",
     "audit_user_create": "hat Benutzer angelegt:",
     "audit_user_delete": "hat Benutzer gelöscht:",
     "audit_user_role_change": "hat Rolle geändert:",
+    "audit_user_default_dashboard_change": "hat Standard-Dashboard geändert:",
+    "audit_user_self_default_dashboard_change": "hat eigenes Standard-Dashboard geändert:",
     "error_default": "Fehler"
   }
 }

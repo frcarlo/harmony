@@ -1,12 +1,21 @@
 <template>
-  <UiSheet :open="open" side="right" width="400" @close="$emit('close')">
+  <UiSheet
+    :open="open"
+    side="right"
+    width="420"
+    :min-width="360"
+    :max-width="760"
+    resizable
+    storage-key="ha-widget-config-panel-width"
+    @close="$emit('close')"
+  >
     <template #header>
       <p class="text-subtitle-1 font-weight-semibold mb-2">{{ t('widget.config_title') }}</p>
     </template>
 
-    <div v-if="widget" class="d-flex flex-column ga-4">
+    <div v-if="widget" class="d-flex flex-column ga-3 config-panel">
       <!-- Widget type badge -->
-      <div class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.05)">
+      <div class="d-flex align-center ga-2 px-3 py-2 rounded-lg config-panel__badge" style="background: rgba(255,255,255,0.05)">
         <v-icon :icon="WIDGET_ICONS[widget.type] ?? 'mdi-widgets-outline'" size="18" color="primary" />
         <span class="text-body-2 font-weight-medium">{{ t(`widget.${widget.type}.label`) }}</span>
         <span v-if="cfg.name || cfg.entity_id" class="text-caption text-medium-emphasis text-truncate ml-1">
@@ -14,17 +23,38 @@
         </span>
       </div>
 
-      <!-- Entity -->
-      <div
-        v-if="widget.type !== 'clock' && widget.type !== 'label' && widget.type !== 'room_card' && widget.type !== 'calendar' && widget.type !== 'calendar_v2' && widget.type !== 'person' && widget.type !== 'energy' && widget.type !== 'status_bar'">
-        <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
-        <EntityPicker v-model="cfg.entity_id" :domain="ENTITY_DOMAINS[widget.type]" />
-      </div>
+      <v-expansion-panels v-model="openSections" multiple variant="accordion" class="config-panel__sections">
+        <v-expansion-panel v-if="hasGeneralSection" value="general" rounded="xl" elevation="0">
+          <v-expansion-panel-title class="config-panel__section-title">
+            {{ t('config.section_general') }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="config-panel__section-body">
+            <!-- Entity -->
+            <div
+              v-if="showEntityField"
+              class="config-panel__field-group"
+            >
+              <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
+              <EntityPicker v-model="cfg.entity_id" :domain="ENTITY_DOMAINS[widget.type]" />
+            </div>
 
-      <!-- Name -->
-      <v-text-field v-if="widget.type !== 'clock' && widget.type !== 'room_card' && widget.type !== 'status_bar' && widget.type !== 'calendar_v2'" v-model="cfg.name"
-        :label="t('config.display_name')" :placeholder="t('config.display_name_hint')" />
+            <!-- Name -->
+            <v-text-field
+              v-if="showNameField"
+              v-model="cfg.name"
+              :label="t('config.display_name')"
+              :placeholder="t('config.display_name_hint')"
+              density="compact"
+              hide-details="auto"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
 
+        <v-expansion-panel v-if="hasContentSection" value="content" rounded="xl" elevation="0">
+          <v-expansion-panel-title class="config-panel__section-title">
+            {{ t('config.section_content') }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="config-panel__section-body">
       <!-- Sensor -->
       <template v-if="widget.type === 'sensor'">
         <v-text-field v-model="cfg.unit" :label="t('config.unit')" :placeholder="t('config.unit_auto')" />
@@ -44,9 +74,41 @@
           clearable />
       </template>
 
+      <!-- Appliance -->
+      <template v-if="widget.type === 'appliance'">
+        <div class="d-flex flex-column ga-2">
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.status_entity') }}</p>
+            <EntityPicker v-model="cfg.status_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.progress_entity') }}</p>
+            <EntityPicker v-model="cfg.progress_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.end_time_entity') }}</p>
+            <EntityPicker v-model="cfg.end_time_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.countdown_entity') }}</p>
+            <EntityPicker v-model="cfg.countdown_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.program_entity') }}</p>
+            <EntityPicker v-model="cfg.program_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.power_entity') }}</p>
+            <EntityPicker v-model="cfg.power_entity_id" />
+          </div>
+          <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-dishwasher" density="compact" hide-details="auto" />
+          <v-text-field v-model="cfg.running_state" :label="t('config.running_state')" placeholder="run" density="compact" hide-details="auto" />
+          <v-checkbox v-model="cfg.compact" :label="t('config.compact_mode')" hide-details density="compact" />
+        </div>
+      </template>
+
       <!-- Cover / Cover Dial -->
       <template v-if="widget.type === 'cover' || widget.type === 'cover_dial'">
-        <v-text-field v-model="cfg.name" :label="t('config.display_name')" density="compact" hide-details clearable />
         <div>
           <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_position') }}</p>
           <v-btn-toggle v-model="cfg.buttons_position" mandatory density="compact" color="primary" class="w-100">
@@ -158,8 +220,6 @@
 
       <!-- Person Widget -->
       <template v-if="widget.type === 'person'">
-        <v-text-field v-model="cfg.name" :label="t('config.display_name')" :placeholder="t('widget.person.label')"
-          density="compact" hide-details clearable class="mb-2" />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">{{ t('person.persons') }}</p>
         <div v-for="(p, idx) in cfg.persons" :key="idx" class="d-flex align-center ga-1 mb-1">
           <EntityPicker v-model="p.entity_id" domain="person" class="flex-grow-1" />
@@ -173,8 +233,6 @@
 
       <!-- Energy Widget -->
       <template v-if="widget.type === 'energy'">
-        <v-text-field v-model="cfg.name" :label="t('config.display_name')" :placeholder="t('widget.energy.label')"
-          density="compact" hide-details clearable class="mb-2" />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">{{ t('energy.grid') }}</p>
         <EntityPicker v-model="cfg.grid_entity_id" domain="sensor" />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">{{ t('energy.solar') }}</p>
@@ -268,43 +326,49 @@
           @save="saveEntryDialog"
         />
       </template>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
 
-      <!-- Appearance -->
-      <v-divider />
-      <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.appearance') }}</p>
+        <v-expansion-panel value="appearance" rounded="xl" elevation="0">
+          <v-expansion-panel-title class="config-panel__section-title">
+            {{ t('config.section_appearance') }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="config-panel__section-body">
+            <div class="d-flex align-center ga-2">
+              <UiColorPicker v-model="appearance.bg_color" :label="t('config.bg_color')" clearable class="flex-grow-1"
+                :disabled="appearance.bg_color === 'transparent'" />
+              <v-btn
+                size="small" variant="tonal" density="comfortable"
+                :color="appearance.bg_color === 'transparent' ? 'primary' : undefined"
+                :title="t('config.bg_transparent')"
+                @click="appearance.bg_color = appearance.bg_color === 'transparent' ? undefined : 'transparent'"
+              >T</v-btn>
+            </div>
+            <UiColorPicker v-model="appearance.border_color" :label="t('config.border_color')" clearable />
+            <UiColorPicker v-model="appearance.active_color" :label="t('config.active_color')" clearable />
+            <UiColorPicker v-model="appearance.text_color" :label="t('config.text_color')" clearable />
+            <v-checkbox
+              v-model="appearance.disable_glass"
+              :label="t('config.disable_glass')"
+              :hint="t('config.disable_glass_hint')"
+              density="compact"
+              hide-details="auto"
+            />
 
-      <div class="d-flex align-center ga-2">
-        <UiColorPicker v-model="appearance.bg_color" :label="t('config.bg_color')" clearable class="flex-grow-1"
-          :disabled="appearance.bg_color === 'transparent'" />
-        <v-btn
-          size="small" variant="tonal" density="comfortable"
-          :color="appearance.bg_color === 'transparent' ? 'primary' : undefined"
-          :title="t('config.bg_transparent')"
-          @click="appearance.bg_color = appearance.bg_color === 'transparent' ? undefined : 'transparent'"
-        >T</v-btn>
-      </div>
-      <UiColorPicker v-model="appearance.border_color" :label="t('config.border_color')" clearable />
-      <UiColorPicker v-model="appearance.active_color" :label="t('config.active_color')" clearable />
-      <UiColorPicker v-model="appearance.text_color" :label="t('config.text_color')" clearable />
-      <v-checkbox
-        v-model="appearance.disable_glass"
-        :label="t('config.disable_glass')"
-        :hint="t('config.disable_glass_hint')"
-        density="compact"
-        hide-details="auto"
-      />
+            <div>
+              <p class="text-caption text-medium-emphasis mb-1">{{ t('config.border_width', {
+                n: appearance.border_width ??
+                '–' })
+                }}</p>
+              <v-slider v-model="appearance.border_width" min="0" max="8" step="1" thumb-label />
+            </div>
 
-      <div>
-        <p class="text-caption text-medium-emphasis mb-1">{{ t('config.border_width', {
-          n: appearance.border_width ??
-          '–' })
-          }}</p>
-        <v-slider v-model="appearance.border_width" min="0" max="8" step="1" thumb-label />
-      </div>
-
-      <v-text-field v-model.number="appearance.min_width" :label="t('config.min_width')"
-        :hint="currentWidgetWidth ? t('config.min_width_hint', { n: currentWidgetWidth }) : undefined" persistent-hint
-        type="number" min="0" placeholder="–" clearable />
+            <v-text-field v-model.number="appearance.min_width" :label="t('config.min_width')"
+              :hint="currentWidgetWidth ? t('config.min_width_hint', { n: currentWidgetWidth }) : undefined" persistent-hint
+              type="number" min="0" placeholder="–" clearable />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
     </div>
 
     <p v-else class="text-medium-emphasis text-body-2">{{ t('widget.none_selected') }}</p>
@@ -321,6 +385,7 @@ defineEmits<{ close: [] }>()
 
 const dashboardStore = useDashboardStore()
 const widget = computed(() => dashboardStore.dashboard?.widgets.find((w) => w.id === dashboardStore.selectedWidgetId))
+const openSections = ref(['general', 'content', 'appearance'])
 
 const currentWidgetWidth = ref<number | null>(null)
 watch(() => dashboardStore.selectedWidgetId, async (id) => {
@@ -334,6 +399,27 @@ const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknow
 watch(widget, (w) => { if (w && !w.appearance) w.appearance = {} }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance']
+const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
+const CONTENT_SECTION_TYPES = new Set<WidgetType>([
+  'sensor', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
+  'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy',
+  'room_card', 'status_bar',
+])
+
+const showEntityField = computed(() => !!widget.value && !ENTITY_FIELD_EXCLUDED_TYPES.includes(widget.value.type))
+const showNameField = computed(() => !!widget.value && !NAME_FIELD_EXCLUDED_TYPES.includes(widget.value.type))
+const hasGeneralSection = computed(() => showEntityField.value || showNameField.value)
+const hasContentSection = computed(() => !!widget.value && CONTENT_SECTION_TYPES.has(widget.value.type))
+
+watch(widget, (currentWidget) => {
+  openSections.value = [
+    ...(currentWidget && hasGeneralSection.value ? ['general'] : []),
+    ...(currentWidget && hasContentSection.value ? ['content'] : []),
+    'appearance',
+  ]
+}, { immediate: true })
+
 const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   sensor: 'mdi-gauge', switch: 'mdi-toggle-switch-outline', light: 'mdi-lightbulb-outline',
   chart: 'mdi-chart-line', camera: 'mdi-cctv', thermostat: 'mdi-thermostat',
@@ -342,7 +428,7 @@ const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   lock: 'mdi-lock-outline', weather: 'mdi-weather-partly-cloudy',
   clock: 'mdi-clock-outline', label: 'mdi-format-text', room_card: 'mdi-floor-plan',
   calendar: 'mdi-calendar-outline', calendar_v2: 'mdi-calendar-month-outline', person: 'mdi-account-group-outline',
-  energy: 'mdi-lightning-bolt', status_bar: 'mdi-view-list-outline',
+  energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', status_bar: 'mdi-view-list-outline',
 }
 
 const ENTITY_DOMAINS: Partial<Record<WidgetType, string>> = {
@@ -447,3 +533,55 @@ function removeStatusBarEntry(index: number) {
   cfg.value.entries = list
 }
 </script>
+
+<style scoped>
+.config-panel {
+  padding-bottom: 8px;
+}
+
+.config-panel__badge {
+  min-height: 0;
+}
+
+.config-panel__sections :deep(.v-expansion-panel) {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.config-panel__sections :deep(.v-expansion-panel-title) {
+  min-height: 52px;
+  padding: 0 16px;
+}
+
+.config-panel__sections :deep(.v-expansion-panel-text__wrapper) {
+  padding: 0 16px 16px;
+}
+
+.config-panel__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-panel__field-group :deep(.v-input) {
+  margin-top: 0;
+}
+
+.config-panel__field-group :deep(.v-field__input) {
+  min-height: 40px;
+}
+
+.config-panel :deep(.v-input) {
+  margin-top: 0;
+}
+
+.config-panel :deep(.v-selection-control) {
+  min-height: 36px;
+}
+
+.config-panel :deep(.v-field__input) {
+  min-height: 40px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+</style>

@@ -2,9 +2,15 @@ import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
+import { buildUserPreferenceKey } from '~/composables/useUserPreferenceStorage'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const savedTheme = import.meta.client ? (localStorage.getItem('ha-theme') ?? 'dark') : 'dark'
+  let savedTheme = 'dark'
+  if (import.meta.client) {
+    const { user, loggedIn } = useUserSession()
+    const userId = loggedIn.value ? (user.value?.id ?? null) : null
+    savedTheme = localStorage.getItem(buildUserPreferenceKey('ha-theme', userId)) ?? 'dark'
+  }
 
   const vuetify = createVuetify({
     icons: {

@@ -54,6 +54,19 @@
     "clone_error": "Duplication failed",
     "export": "Export dashboard",
     "export_error": "Export failed",
+    "set_global_default": "Set as global default dashboard",
+    "set_my_default": "Set as my default dashboard",
+    "unset_my_default": "Clear my default dashboard",
+    "global_default_badge": "Global",
+    "my_default_badge": "My Default",
+    "user_default_badge": "User Default",
+    "default_badge": "Default",
+    "global_default_set": "Global default dashboard updated",
+    "global_default_cleared": "Global default dashboard cleared",
+    "global_default_error": "Could not update global default dashboard",
+    "my_default_set": "My default dashboard was updated",
+    "my_default_cleared": "My default dashboard was cleared",
+    "my_default_error": "Could not update my default dashboard",
     "import": "Import dashboard",
     "imported": "Dashboard \"{name}\" imported",
     "import_error": "Import failed – invalid file?",
@@ -87,6 +100,9 @@
     "grid_preview_mobile": "Mobile (375px)",
     "signed_in": "Signed in",
     "user_mgmt": "User management",
+    "reset_local_settings": "Reset local settings",
+    "reset_local_settings_hint": "Only for this browser and this user",
+    "local_settings_reset_done": "Local browser settings were reset",
     "logout": "Sign out",
     "edit_mode_on": "Enable editing",
     "edit_mode_off": "Stop editing"
@@ -175,6 +191,10 @@
       "label": "Energy",
       "description": "Power & Solar overview"
     },
+    "appliance": {
+      "label": "Appliance",
+      "description": "Dishwasher, washing machine or dryer status card"
+    },
     "status_bar": {
       "label": "Status Bar",
       "description": "Status icons in one row"
@@ -252,6 +272,13 @@
     "forecast_rows": "Forecast rows: {n}",
     "format_24h": "24h format",
     "show_date": "Show date",
+    "status_entity": "Status entity",
+    "progress_entity": "Progress entity",
+    "end_time_entity": "End time entity",
+    "countdown_entity": "Countdown entity",
+    "program_entity": "Program entity",
+    "power_entity": "Power/status entity",
+    "running_state": "Running state value",
     "text": "Text",
     "text_placeholder": "Heading...",
     "font_size": "Font size",
@@ -270,6 +297,9 @@
     "active_state": "Active state (optional)",
     "active_state_hint": "e.g. locked, open, playing",
     "appearance": "Appearance",
+    "section_general": "General",
+    "section_content": "Content",
+    "section_appearance": "Appearance & layout",
     "bg_color": "Background color",
     "bg_transparent": "Transparent",
     "border_color": "Border color",
@@ -340,6 +370,24 @@
     "stop_stream": "Stop stream",
     "disconnected": "Connection lost",
     "fullscreen": "Fullscreen"
+  },
+  "appliance": {
+    "status": {
+      "unavailable": "Unavailable",
+      "inactive": "Inactive",
+      "ready": "Ready",
+      "delayedstart": "Scheduled",
+      "run": "Running",
+      "pause": "Paused",
+      "actionrequired": "Action required",
+      "finished": "Finished",
+      "error": "Error",
+      "aborting": "Stopping"
+    },
+    "remaining": "Remaining",
+    "no_estimate": "No estimate",
+    "finished": "Program finished",
+    "ready": "Ready to start"
   },
   "media": {
     "library": "Media Library",
@@ -490,6 +538,8 @@
     "local_account": "Local account",
     "access_title": "Dashboard access for {name}",
     "access_hint": "Nothing selected = all dashboards visible.",
+    "default_dashboard_label": "Default dashboard",
+    "default_dashboard_hint": "Used first for this user when available.",
     "promote": "Promote to admin",
     "demote": "Demote to user",
     "delete_title": "Delete user?",
@@ -499,9 +549,12 @@
     "audit_dashboard_create": "created dashboard:",
     "audit_dashboard_save": "saved dashboard:",
     "audit_dashboard_delete": "deleted dashboard:",
+    "audit_dashboard_default_change": "changed global default dashboard:",
     "audit_user_create": "created user:",
     "audit_user_delete": "deleted user:",
     "audit_user_role_change": "changed role:",
+    "audit_user_default_dashboard_change": "changed default dashboard:",
+    "audit_user_self_default_dashboard_change": "changed own default dashboard:",
     "error_default": "Error"
   }
 }

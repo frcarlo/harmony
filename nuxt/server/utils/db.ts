@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import path from 'path'
 import fs from 'fs'
-import type { Dashboard, Widget, DashboardListItem, NotificationRule } from '~/types/dashboard'
+import type { Dashboard, Widget, DashboardListItem, NotificationRule, DefaultDashboardResolution } from '~/types/dashboard'
 
 export interface DbUser {
   id: string
@@ -11,6 +11,8 @@ export interface DbUser {
   role: 'admin' | 'user'
   provider: string | null
   provider_id: string | null
+  default_dashboard_id: string | null
+  user_default_dashboard_id: string | null
   created_at: string
 }
 
@@ -43,6 +45,8 @@ function getDb(): DatabaseSync {
       role TEXT NOT NULL DEFAULT 'user',
       provider TEXT,
       provider_id TEXT,
+      default_dashboard_id TEXT,
+      user_default_dashboard_id TEXT,
       created_at TEXT NOT NULL
     );
 
@@ -63,6 +67,7 @@ function getDb(): DatabaseSync {
       icon TEXT,
       background TEXT,
       theme_override TEXT,
+      is_default INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -109,6 +114,13 @@ function getDb(): DatabaseSync {
     _db.exec('ALTER TABLE widgets ADD COLUMN appearance TEXT')
   }
   const dashCols = _db.prepare('PRAGMA table_info(dashboards)').all() as Array<{ name: string }>
+  const userCols = _db.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>
+  if (!userCols.some((c) => c.name === 'default_dashboard_id')) {
+    _db.exec('ALTER TABLE users ADD COLUMN default_dashboard_id TEXT')
+  }
+  if (!userCols.some((c) => c.name === 'user_default_dashboard_id')) {
+    _db.exec('ALTER TABLE users ADD COLUMN user_default_dashboard_id TEXT')
+  }
   if (!dashCols.some((c) => c.name === 'sort_order')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0')
     _db.exec('UPDATE dashboards SET sort_order = rowid')
@@ -118,6 +130,9 @@ function getDb(): DatabaseSync {
   }
   if (!dashCols.some((c) => c.name === 'theme_override')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN theme_override TEXT')
+  }
+  if (!dashCols.some((c) => c.name === 'is_default')) {
+    _db.exec('ALTER TABLE dashboards ADD COLUMN is_default INTEGER NOT NULL DEFAULT 0')
   }
 
   return _db
@@ -208,6 +223,7 @@ export function getDashboard(id: string): Dashboard | null {
     icon: normalizeOptionalString(row.icon) ?? undefined,
     background: normalizeOptionalString(row.background) ?? undefined,
     theme_override: normalizeOptionalString(row.theme_override) ?? undefined,
+    is_default: Number(row.is_default) === 1,
     grid_config: row.grid_config ? JSON.parse(row.grid_config) : undefined,
     widgets,
     created_at: row.created_at,
@@ -230,6 +246,7 @@ export function createDashboard(data: { name: string; icon?: string; theme_overr
     name: data.name,
     icon: normalizeOptionalString(data.icon) ?? undefined,
     theme_override: normalizeOptionalString(data.theme_override) ?? undefined,
+    is_default: false,
     widgets: [],
     created_at: now,
     updated_at: now,
@@ -279,8 +296,58 @@ export function saveDashboard(dashboard: Dashboard): void {
 
 export function deleteDashboard(id: string): boolean {
   const db = getDb()
+  db.prepare('UPDATE users SET default_dashboard_id = NULL WHERE default_dashboard_id = ?').run(id)
+  db.prepare('UPDATE users SET user_default_dashboard_id = NULL WHERE user_default_dashboard_id = ?').run(id)
   const result = db.prepare('DELETE FROM dashboards WHERE id = ?').run(id)
   return result.changes > 0
+}
+
+export function getGlobalDefaultDashboardId(): string | null {
+  const db = getDb()
+  const row = db.prepare('SELECT id FROM dashboards WHERE is_default = 1 ORDER BY sort_order ASC, created_at ASC LIMIT 1').get() as { id: string } | undefined
+  return row?.id ?? null
+}
+
+export function setGlobalDefaultDashboard(dashboardId: string | null): void {
+  const db = getDb()
+  db.exec('BEGIN')
+  try {
+    db.prepare('UPDATE dashboards SET is_default = 0').run()
+    if (dashboardId) db.prepare('UPDATE dashboards SET is_default = 1 WHERE id = ?').run(dashboardId)
+    db.exec('COMMIT')
+  } catch (e) {
+    db.exec('ROLLBACK')
+    throw e
+  }
+}
+
+export function resolveDefaultDashboardForUserWithSource(userId?: string, role?: string): (DefaultDashboardResolution & { dashboard: DashboardListItem | null }) {
+  const visibleDashboards = listDashboards(userId, role)
+  if (visibleDashboards.length === 0) return { dashboardId: null, source: null, dashboard: null }
+
+  if (userId) {
+    const user = getUserById(userId)
+    if (user?.user_default_dashboard_id) {
+      const personalDefault = visibleDashboards.find(d => d.id === user.user_default_dashboard_id)
+      if (personalDefault) return { dashboardId: personalDefault.id, source: 'user', dashboard: personalDefault }
+    }
+    if (user?.default_dashboard_id) {
+      const userDefault = visibleDashboards.find(d => d.id === user.default_dashboard_id)
+      if (userDefault) return { dashboardId: userDefault.id, source: 'admin', dashboard: userDefault }
+    }
+  }
+
+  const globalDefaultId = getGlobalDefaultDashboardId()
+  if (globalDefaultId) {
+    const globalDefault = visibleDashboards.find(d => d.id === globalDefaultId)
+    if (globalDefault) return { dashboardId: globalDefault.id, source: 'global', dashboard: globalDefault }
+  }
+
+  return { dashboardId: visibleDashboards[0]?.id ?? null, source: 'fallback', dashboard: visibleDashboards[0] ?? null }
+}
+
+export function resolveDefaultDashboardForUser(userId?: string, role?: string): DashboardListItem | null {
+  return resolveDefaultDashboardForUserWithSource(userId, role).dashboard
 }
 
 export function listNotificationRules(): NotificationRule[] {
@@ -364,21 +431,42 @@ export function getUserById(id: string): DbUser | null {
 
 export function listUsers(): Omit<DbUser, 'password_hash'>[] {
   const db = getDb()
-  return db.prepare('SELECT id, username, email, role, provider, provider_id, created_at FROM users ORDER BY created_at ASC').all() as Omit<DbUser, 'password_hash'>[]
+  return db.prepare('SELECT id, username, email, role, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Omit<DbUser, 'password_hash'>[]
 }
 
 export function createUser(data: { username: string; email?: string; passwordHash?: string; role: 'admin' | 'user'; provider?: string; providerId?: string }): DbUser {
   const db = getDb()
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
-  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, provider, provider_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, data.provider ?? null, data.providerId ?? null, now)
-  return { id, username: data.username, email: data.email ?? null, password_hash: data.passwordHash ?? null, role: data.role, provider: data.provider ?? null, provider_id: data.providerId ?? null, created_at: now }
+  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, data.provider ?? null, data.providerId ?? null, null, null, now)
+  return {
+    id,
+    username: data.username,
+    email: data.email ?? null,
+    password_hash: data.passwordHash ?? null,
+    role: data.role,
+    provider: data.provider ?? null,
+    provider_id: data.providerId ?? null,
+    default_dashboard_id: null,
+    user_default_dashboard_id: null,
+    created_at: now,
+  }
 }
 
 export function updateUserRole(id: string, role: 'admin' | 'user'): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id).changes > 0
+}
+
+export function updateUserDefaultDashboard(id: string, defaultDashboardId: string | null): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET default_dashboard_id = ? WHERE id = ?').run(defaultDashboardId, id).changes > 0
+}
+
+export function updateUserPersonalDefaultDashboard(id: string, defaultDashboardId: string | null): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET user_default_dashboard_id = ? WHERE id = ?').run(defaultDashboardId, id).changes > 0
 }
 
 export function deleteUser(id: string): boolean {
