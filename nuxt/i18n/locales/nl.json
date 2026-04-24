@@ -26,7 +26,8 @@
     "name": "Naam",
     "all": "Alles",
     "dashboards": "Dashboard's",
-    "undo": "Ongedaan maken"
+    "undo": "Ongedaan maken",
+    "connecting": "Verbinding maken met Home Assistant…"
   },
   "dashboard": {
     "title": "Mijn dashboards",
@@ -60,7 +61,16 @@
     "global_default_error": "Globaal standaarddashboard kon niet worden bijgewerkt",
     "my_default_set": "Mijn standaarddashboard is bijgewerkt",
     "my_default_cleared": "Mijn standaarddashboard is verwijderd",
-    "my_default_error": "Mijn standaarddashboard kon niet worden bijgewerkt"
+    "my_default_error": "Mijn standaarddashboard kon niet worden bijgewerkt",
+    "clone": "Dashboard dupliceren",
+    "clone_error": "Dupliceren mislukt",
+    "cloned": "\"{name}\" aangemaakt",
+    "export": "Dashboard exporteren",
+    "export_error": "Exporteren mislukt",
+    "import": "Dashboard importeren",
+    "import_error": "Importeren mislukt – ongeldig bestand?",
+    "import_exists": "Dashboard \"{name}\" bestaat al – geïmporteerd als kopie",
+    "imported": "Dashboard \"{name}\" geïmporteerd"
   },
   "updates": {
     "server_redeployed": "Server bijgewerkt — herlaad om wijzigingen toe te passen",
@@ -82,7 +92,20 @@
     "reset_local_settings": "Lokale instellingen resetten",
     "reset_local_settings_hint": "Alleen voor deze browser en deze gebruiker",
     "local_settings_reset_done": "Lokale browserinstellingen zijn gereset",
-    "logout": "Afmelden"
+    "logout": "Afmelden",
+    "edit_mode_off": "Bewerken stoppen",
+    "edit_mode_on": "Bewerken inschakelen",
+    "grid_breakpoints": "Responsieve breekpunten",
+    "grid_cell_height": "Rijhoogte: {n}px",
+    "grid_columns": "Kolommen: {n}",
+    "grid_margin": "Marge: {n}px",
+    "grid_preview": "Voorbeeldbreedte",
+    "grid_preview_full": "Volledige breedte",
+    "grid_preview_laptop": "Laptop (1280px)",
+    "grid_preview_mobile": "Mobiel (375px)",
+    "grid_preview_tablet": "Tablet liggend (1024px)",
+    "grid_preview_tablet_portrait": "Tablet staand (768px)",
+    "grid_settings": "Rasterinstellingen"
   },
   "connection": {
     "connected": "Verbonden",
@@ -176,7 +199,11 @@
       "label": "Kalender (Maand/Week/Dag)",
       "description": "Interactieve kalenderweergave met meerdere kalenders"
     },
-    "removed": "Widget verwijderd"
+    "removed": "Widget verwijderd",
+    "appliance": {
+      "description": "Statuskaart voor vaatwasser, wasmachine of droger",
+      "label": "Apparaat"
+    }
   },
   "calendar_v2": {
     "day": "Dag",
@@ -217,7 +244,11 @@
     },
     "door_open": "Deur open",
     "door_closed": "Deur gesloten",
-    "door_sensor": "Deursensor"
+    "door_sensor": "Deursensor",
+    "type_label": {
+      "gate": "Poort / Garage",
+      "lock": "Slot"
+    }
   },
   "config": {
     "entity": "Entiteit",
@@ -296,7 +327,36 @@
     "target_dashboard": "Doel-dashboard",
     "icon_color": "Icofonkleur",
     "inactive_icon": "Inactief icoon",
-    "add_nav": "Navigatie toevoegen"
+    "add_nav": "Navigatie toevoegen",
+    "add_group": "Groep toevoegen",
+    "bg_transparent": "Transparant",
+    "buttons_position": "Knoppositie",
+    "buttons_size": "Knopgrootte",
+    "countdown_entity": "Afteltimer entiteit",
+    "end_time_entity": "Eindtijd entiteit",
+    "entry_type_group": "Groep",
+    "entry_type_single": "Enkelvoudig",
+    "exclude_groups": "HA-groepen uitsluiten",
+    "filter_areas": "Zones",
+    "filter_domains": "Domeinen",
+    "filter_labels": "Labels",
+    "filter_name_contains": "Entiteit-ID bevat",
+    "filter_name_starts_with": "Entiteit-ID begint met",
+    "group_filter": "Filter",
+    "locked_icon": "Vergrendeld icoon",
+    "ma_player_id": "Music Assistant speler (optioneel)",
+    "pos_bottom": "Onder",
+    "pos_left": "Links",
+    "pos_right": "Rechts",
+    "pos_top": "Boven",
+    "power_entity": "Stroom/status entiteit",
+    "program_entity": "Programma entiteit",
+    "progress_entity": "Voortgang entiteit",
+    "running_state": "Actieve statuswaarde",
+    "show_badge": "Badge met teller tonen",
+    "show_door_button": "Deurknop tonen",
+    "status_entity": "Status entiteit",
+    "unlocked_icon": "Ontgrendeld icoon"
   },
   "entity_picker": {
     "placeholder": "Entiteit zoeken...",
@@ -314,7 +374,16 @@
   "media": {
     "library": "Mediabibliotheek",
     "no_content": "Geen inhoud gevonden",
-    "load_error": "Fout bij laden"
+    "load_error": "Fout bij laden",
+    "albums": "Albums",
+    "artists": "Artiesten",
+    "no_player_configured": "Geen Music Assistant speler geconfigureerd. Stel dit in in de widget-editor.",
+    "no_results": "Geen resultaten gevonden.",
+    "playlists": "Afspeellijsten",
+    "radio": "Radio",
+    "search": "Zoeken",
+    "search_placeholder": "Zoek nummers, albums, artiesten…",
+    "tracks": "Nummers"
   },
   "thermostat": {
     "mode_heat": "Verwarming",
@@ -465,5 +534,28 @@
     "audit_user_default_dashboard_change": "heeft standaarddashboard gewijzigd:",
     "audit_user_self_default_dashboard_change": "heeft eigen standaarddashboard gewijzigd:",
     "error_default": "Fout"
+  },
+  "appliance": {
+    "finished": "Programma voltooid",
+    "no_estimate": "Geen schatting",
+    "ready": "Klaar om te starten",
+    "remaining": "Resterend",
+    "status": {
+      "aborting": "Wordt gestopt",
+      "actionrequired": "Actie vereist",
+      "delayedstart": "Gepland",
+      "error": "Fout",
+      "finished": "Voltooid",
+      "idle": "Klaar",
+      "inactive": "Inactief",
+      "pause": "Gepauzeerd",
+      "ready": "Klaar",
+      "run": "Actief",
+      "unavailable": "Niet beschikbaar"
+    }
+  },
+  "group": {
+    "empty": "Geen overeenkomende entiteiten gevonden.",
+    "title": "Groep"
   }
 }

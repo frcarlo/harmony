@@ -373,6 +373,7 @@
   },
   "appliance": {
     "status": {
+      "idle": "Bereit",
       "unavailable": "Nicht verfügbar",
       "inactive": "Inaktiv",
       "ready": "Bereit",

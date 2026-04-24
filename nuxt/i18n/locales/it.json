@@ -26,7 +26,8 @@
     "name": "Nome",
     "all": "Tutti",
     "dashboards": "Dashboard",
-    "undo": "Annulla"
+    "undo": "Annulla",
+    "connecting": "Connessione a Home Assistant…"
   },
   "dashboard": {
     "title": "I miei Dashboard",
@@ -60,7 +61,16 @@
     "global_default_error": "Impossibile aggiornare la dashboard predefinita globale",
     "my_default_set": "La mia dashboard predefinita è stata aggiornata",
     "my_default_cleared": "La mia dashboard predefinita è stata rimossa",
-    "my_default_error": "Impossibile aggiornare la mia dashboard predefinita"
+    "my_default_error": "Impossibile aggiornare la mia dashboard predefinita",
+    "clone": "Duplica dashboard",
+    "clone_error": "Duplicazione fallita",
+    "cloned": "\"{name}\" creato",
+    "export": "Esporta dashboard",
+    "export_error": "Esportazione fallita",
+    "import": "Importa dashboard",
+    "import_error": "Importazione fallita – file non valido?",
+    "import_exists": "Dashboard \"{name}\" già esistente – importato come copia",
+    "imported": "Dashboard \"{name}\" importato"
   },
   "updates": {
     "server_redeployed": "Server aggiornato — ricarica per applicare le modifiche",
@@ -82,7 +92,20 @@
     "reset_local_settings": "Reimposta impostazioni locali",
     "reset_local_settings_hint": "Solo per questo browser e questo utente",
     "local_settings_reset_done": "Le impostazioni locali del browser sono state reimpostate",
-    "logout": "Disconnetti"
+    "logout": "Disconnetti",
+    "edit_mode_off": "Interrompi modifica",
+    "edit_mode_on": "Abilita modifica",
+    "grid_breakpoints": "Breakpoint responsive",
+    "grid_cell_height": "Altezza riga: {n}px",
+    "grid_columns": "Colonne: {n}",
+    "grid_margin": "Margine: {n}px",
+    "grid_preview": "Larghezza anteprima",
+    "grid_preview_full": "Larghezza intera",
+    "grid_preview_laptop": "Laptop (1280px)",
+    "grid_preview_mobile": "Mobile (375px)",
+    "grid_preview_tablet": "Tablet orizzontale (1024px)",
+    "grid_preview_tablet_portrait": "Tablet verticale (768px)",
+    "grid_settings": "Impostazioni griglia"
   },
   "connection": {
     "connected": "Connesso",
@@ -176,7 +199,11 @@
       "label": "Calendario (Mese/Settimana/Giorno)",
       "description": "Vista calendario interattiva con più calendari"
     },
-    "removed": "Widget rimosso"
+    "removed": "Widget rimosso",
+    "appliance": {
+      "description": "Scheda stato lavastoviglie, lavatrice o asciugatrice",
+      "label": "Elettrodomestico"
+    }
   },
   "calendar_v2": {
     "day": "Giorno",
@@ -217,7 +244,11 @@
     },
     "door_open": "Porta aperta",
     "door_closed": "Porta chiusa",
-    "door_sensor": "Sensore porta"
+    "door_sensor": "Sensore porta",
+    "type_label": {
+      "gate": "Cancello / Garage",
+      "lock": "Serratura"
+    }
   },
   "config": {
     "entity": "Entità",
@@ -296,7 +327,36 @@
     "target_dashboard": "Dashboard destinazione",
     "icon_color": "Colore icona",
     "inactive_icon": "Icona inattiva",
-    "add_nav": "Aggiungi navigazione"
+    "add_nav": "Aggiungi navigazione",
+    "add_group": "Aggiungi gruppo",
+    "bg_transparent": "Trasparente",
+    "buttons_position": "Posizione pulsanti",
+    "buttons_size": "Dimensione pulsanti",
+    "countdown_entity": "Entità conto alla rovescia",
+    "end_time_entity": "Entità ora di fine",
+    "entry_type_group": "Gruppo",
+    "entry_type_single": "Singolo",
+    "exclude_groups": "Escludi gruppi HA",
+    "filter_areas": "Aree",
+    "filter_domains": "Domini",
+    "filter_labels": "Etichette",
+    "filter_name_contains": "L'ID entità contiene",
+    "filter_name_starts_with": "L'ID entità inizia con",
+    "group_filter": "Filtro",
+    "locked_icon": "Icona bloccato",
+    "ma_player_id": "Lettore Music Assistant (opzionale)",
+    "pos_bottom": "Basso",
+    "pos_left": "Sinistra",
+    "pos_right": "Destra",
+    "pos_top": "Alto",
+    "power_entity": "Entità alimentazione/stato",
+    "program_entity": "Entità programma",
+    "progress_entity": "Entità avanzamento",
+    "running_state": "Valore stato in esecuzione",
+    "show_badge": "Mostra badge conteggio",
+    "show_door_button": "Mostra pulsante porta",
+    "status_entity": "Entità stato",
+    "unlocked_icon": "Icona sbloccato"
   },
   "entity_picker": {
     "placeholder": "Cerca entità...",
@@ -314,7 +374,16 @@
   "media": {
     "library": "Libreria multimediale",
     "no_content": "Nessun contenuto trovato",
-    "load_error": "Errore di caricamento"
+    "load_error": "Errore di caricamento",
+    "albums": "Album",
+    "artists": "Artisti",
+    "no_player_configured": "Nessun lettore Music Assistant configurato. Impostalo nell'editor widget.",
+    "no_results": "Nessun risultato trovato.",
+    "playlists": "Playlist",
+    "radio": "Radio",
+    "search": "Cerca",
+    "search_placeholder": "Cerca brani, album, artisti…",
+    "tracks": "Brani"
   },
   "thermostat": {
     "mode_heat": "Riscaldamento",
@@ -456,5 +525,37 @@
     "audit_user_default_dashboard_change": "ha cambiato la dashboard predefinita:",
     "audit_user_self_default_dashboard_change": "ha cambiato la propria dashboard predefinita:",
     "error_default": "Errore"
+  },
+  "appliance": {
+    "finished": "Programma terminato",
+    "no_estimate": "Nessuna stima",
+    "ready": "Pronto per l'avvio",
+    "remaining": "Rimanente",
+    "status": {
+      "aborting": "Arresto in corso",
+      "actionrequired": "Azione richiesta",
+      "delayedstart": "Programmato",
+      "error": "Errore",
+      "finished": "Terminato",
+      "idle": "Pronto",
+      "inactive": "Inattivo",
+      "pause": "In pausa",
+      "ready": "Pronto",
+      "run": "In esecuzione",
+      "unavailable": "Non disponibile"
+    }
+  },
+  "group": {
+    "empty": "Nessuna entità corrispondente trovata.",
+    "title": "Gruppo"
+  },
+  "setup": {
+    "confirm_password": "Conferma password",
+    "error_default": "Errore durante la creazione dell'account",
+    "error_min_length": "Almeno 8 caratteri",
+    "error_mismatch": "Le password non corrispondono",
+    "error_required": "Obbligatorio",
+    "submit": "Crea admin e accedi",
+    "subtitle": "Crea il primo account amministratore"
   }
 }
