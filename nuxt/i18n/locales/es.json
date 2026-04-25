@@ -334,6 +334,7 @@
     "buttons_size": "Tamaño de botones",
     "countdown_entity": "Entidad de cuenta regresiva",
     "end_time_entity": "Entidad de hora de fin",
+    "time_remaining_entity": "Entidad de tiempo restante",
     "entry_type_group": "Grupo",
     "entry_type_single": "Individual",
     "exclude_groups": "Excluir grupos de HA",
@@ -343,6 +344,8 @@
     "filter_name_contains": "El ID de entidad contiene",
     "filter_name_starts_with": "El ID de entidad comienza con",
     "group_filter": "Filtro",
+    "move_up": "Mover hacia arriba",
+    "move_down": "Mover hacia abajo",
     "locked_icon": "Icono bloqueado",
     "ma_player_id": "Reproductor Music Assistant (opcional)",
     "pos_bottom": "Abajo",
@@ -352,6 +355,15 @@
     "power_entity": "Entidad de alimentación/estado",
     "program_entity": "Entidad de programa",
     "progress_entity": "Entidad de progreso",
+    "alarm_code": "Código de alarma (opcional)",
+    "alarm_code_hint": "Solo es necesario si tu sistema de alarma requiere un código",
+    "alarm_code_prompt": "Pedir código en una ventana emergente",
+    "alarm_code_prompt_hint": "Solicita el código de la alarma en un diálogo al ejecutar una acción",
+    "alarm_code_keypad": "Usar teclado numérico en la ventana",
+    "alarm_code_keypad_hint": "Muestra un teclado numérico en el diálogo del código en lugar de texto libre",
+    "alarm_code_keypad_mobile": "Mostrar siempre el teclado en móvil",
+    "alarm_code_keypad_mobile_hint": "Fuerza el teclado numérico en pantallas pequeñas incluso si la entrada libre está activa",
+    "alarm_code_length": "Número de dígitos",
     "running_state": "Valor de estado en ejecución",
     "show_badge": "Mostrar insignia de conteo",
     "show_door_button": "Mostrar botón de puerta",
@@ -553,6 +565,9 @@
       "run": "En funcionamiento",
       "unavailable": "No disponible"
     }
+  },
+  "alarm": {
+    "enter_code": "Introducir código de alarma"
   },
   "group": {
     "empty": "No se encontraron entidades coincidentes.",

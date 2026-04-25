@@ -334,6 +334,7 @@
     "buttons_size": "Taille des boutons",
     "countdown_entity": "Entité compte à rebours",
     "end_time_entity": "Entité heure de fin",
+    "time_remaining_entity": "Entité temps restant",
     "entry_type_group": "Groupe",
     "entry_type_single": "Unique",
     "exclude_groups": "Exclure les groupes HA",
@@ -343,6 +344,8 @@
     "filter_name_contains": "L'ID d'entité contient",
     "filter_name_starts_with": "L'ID d'entité commence par",
     "group_filter": "Filtre",
+    "move_up": "Monter",
+    "move_down": "Descendre",
     "locked_icon": "Icône verrouillé",
     "ma_player_id": "Lecteur Music Assistant (optionnel)",
     "pos_bottom": "Bas",
@@ -352,6 +355,15 @@
     "power_entity": "Entité alimentation/statut",
     "program_entity": "Entité programme",
     "progress_entity": "Entité progression",
+    "alarm_code": "Code d'alarme (optionnel)",
+    "alarm_code_hint": "Seulement nécessaire si votre système d'alarme exige un code",
+    "alarm_code_prompt": "Demander le code via une fenêtre",
+    "alarm_code_prompt_hint": "Demande le code d'alarme dans un dialogue lors du déclenchement d'une action",
+    "alarm_code_keypad": "Utiliser un pavé numérique dans la fenêtre",
+    "alarm_code_keypad_hint": "Affiche un pavé numérique dans le dialogue du code au lieu d'une saisie libre",
+    "alarm_code_keypad_mobile": "Toujours afficher le pavé numérique sur mobile",
+    "alarm_code_keypad_mobile_hint": "Force le pavé numérique sur les petits écrans même si la saisie libre est activée",
+    "alarm_code_length": "Nombre de chiffres",
     "running_state": "Valeur état en cours",
     "show_badge": "Afficher le badge de comptage",
     "show_door_button": "Afficher le bouton de porte",
@@ -553,6 +565,9 @@
       "run": "En cours",
       "unavailable": "Indisponible"
     }
+  },
+  "alarm": {
+    "enter_code": "Entrer le code d'alarme"
   },
   "group": {
     "empty": "Aucune entité correspondante trouvée.",

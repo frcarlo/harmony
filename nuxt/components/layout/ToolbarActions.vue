@@ -49,6 +49,11 @@
         <v-list-item class="d-sm-none" :prepend-icon="borders ? 'mdi-border-all' : 'mdi-border-none'"
           :title="t('toolbar.widget_borders')" :active="borders" :color="borders ? 'primary' : undefined"
           rounded="lg" @click="toggleBorders" />
+        <v-list-item class="d-sm-none" prepend-icon="mdi-palette" :title="t('toolbar.theme')" rounded="lg">
+          <template #append>
+            <ThemeToggle button-icon="mdi-chevron-down" :button-title="t('toolbar.theme')" />
+          </template>
+        </v-list-item>
         <v-list-item class="d-sm-none" prepend-icon="mdi-translate" :title="locale.toUpperCase()"
           rounded="lg">
           <template #append>

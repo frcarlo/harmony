@@ -152,11 +152,11 @@
       "description": "Control blinds/shutters"
     },
     "cover_dial": {
-      "label": "Cover Dial",
+      "label": "Cover",
       "description": "Cover with circular progress"
     },
     "cover_dial2": {
-      "label": "Cover Dial2",
+      "label": "Cover",
       "description": "Cover with circular progress"
     },
     "lock": {
@@ -194,6 +194,10 @@
     "appliance": {
       "label": "Appliance",
       "description": "Dishwasher, washing machine or dryer status card"
+    },
+    "alarm": {
+      "label": "Alarm",
+      "description": "Arm or disarm your security system"
     },
     "status_bar": {
       "label": "Status Bar",
@@ -257,6 +261,7 @@
     "unit": "Unit (optional)",
     "unit_auto": "Auto",
     "decimal_places": "Decimal places",
+    "show_trend": "Show trend at the bottom",
     "show_brightness": "Show brightness slider",
     "period": "Period",
     "chart_type": "Chart type",
@@ -269,15 +274,34 @@
     "unlocked_icon": "Unlocked icon",
     "require_confirmation": "Confirm before unlocking",
     "show_door_button": "Show door button",
+    "actions_align": "Button alignment",
+    "align_left": "Left",
+    "align_center": "Center",
+    "align_right": "Right",
     "forecast_rows": "Forecast rows: {n}",
+    "clock_style": "Clock style",
+    "clock_style_default": "Default",
+    "clock_style_led": "LED",
     "format_24h": "24h format",
+    "show_seconds": "Show seconds",
     "show_date": "Show date",
     "status_entity": "Status entity",
     "progress_entity": "Progress entity",
     "end_time_entity": "End time entity",
     "countdown_entity": "Countdown entity",
+    "time_remaining_entity": "Time remaining entity",
     "program_entity": "Program entity",
     "power_entity": "Power/status entity",
+    "door_entity": "Door entity",
+    "alarm_code": "Alarm code (optional)",
+    "alarm_code_hint": "Only needed if your alarm system requires a code",
+    "alarm_code_prompt": "Ask for code in popup",
+    "alarm_code_prompt_hint": "Prompts for the alarm code in a dialog when an action is triggered",
+    "alarm_code_keypad": "Use keypad in popup",
+    "alarm_code_keypad_hint": "Shows a keypad in the code dialog instead of free text input",
+    "alarm_code_keypad_mobile": "Always show keypad on mobile",
+    "alarm_code_keypad_mobile_hint": "Forces the keypad on small screens even when free text input is enabled",
+    "alarm_code_length": "Number of digits",
     "running_state": "Running state value",
     "text": "Text",
     "text_placeholder": "Heading...",
@@ -301,6 +325,7 @@
     "section_content": "Content",
     "section_appearance": "Appearance & layout",
     "bg_color": "Background color",
+    "bg_opacity": "Background opacity: {n}%",
     "bg_transparent": "Transparent",
     "border_color": "Border color",
     "active_color": "Active color",
@@ -334,6 +359,8 @@
     "entry_type_single": "Single",
     "entry_type_group": "Group",
     "add_group": "Add group",
+    "move_up": "Move up",
+    "move_down": "Move down",
     "group_filter": "Filter",
     "filter_domains": "Domains",
     "filter_name_contains": "Entity ID contains",
@@ -388,7 +415,11 @@
     "remaining": "Remaining",
     "no_estimate": "No estimate",
     "finished": "Program finished",
-    "ready": "Ready to start"
+    "ready": "Ready to start",
+    "power_on": "Powered on",
+    "power_off": "Powered off",
+    "door_open": "Door open",
+    "door_closed": "Door closed"
   },
   "media": {
     "library": "Media Library",
@@ -470,6 +501,26 @@
   "media_player": {
     "idle": "Ready",
     "off": "Off"
+  },
+  "alarm": {
+    "state": {
+      "disarmed": "Disarmed",
+      "armed_home": "Armed home",
+      "armed_away": "Armed away",
+      "armed_night": "Armed night",
+      "pending": "Pending",
+      "arming": "Arming…",
+      "disarming": "Disarming…",
+      "triggered": "Triggered"
+    },
+    "action": {
+      "arm_home": "Arm home",
+      "arm_away": "Arm away",
+      "arm_night": "Arm night",
+      "disarm": "Disarm",
+      "trigger": "Trigger alarm"
+    },
+    "enter_code": "Enter alarm code"
   },
   "notifications": {
     "title": "Notifications",

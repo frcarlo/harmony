@@ -1,9 +1,20 @@
 <template>
-  <div class="h-100 d-flex px-2 py-2" :class="isVertical ? 'flex-column align-center' : 'align-center'" style="gap: 8px; overflow: hidden;">
+  <div
+    ref="rootEl"
+    class="h-100 d-flex px-2 py-2 statusbar-root"
+    :class="[
+      isVertical ? 'flex-column align-center' : 'align-center',
+      { 'statusbar-root--stacked': shouldStackRows },
+    ]"
+  >
 
     <!-- Nav group at start -->
-    <div v-if="navBadges.length && navAtStart" class="nav-group" :class="isVertical ? 'flex-column' : 'flex-row'">
-      <v-tooltip v-for="(badge, i) in navBadges" :key="'ns' + i" :text="badge.tooltipText" location="bottom">
+    <div
+      v-if="navBadges.length && navAtStart"
+      class="nav-group"
+      :class="[isVertical ? 'flex-column' : 'flex-row']"
+    >
+      <v-tooltip v-for="(badge, i) in navBadges" :key="'ns' + i" location="bottom">
         <template #activator="{ props: tp }">
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
@@ -11,12 +22,16 @@
             <span v-if="config.show_labels" class="badge-label">{{ badge.entry.label || '' }}</span>
           </div>
         </template>
+        <span>{{ badge.tooltipText }}</span>
       </v-tooltip>
     </div>
 
     <!-- Status badges (single + group) -->
-    <div class="status-group flex-grow-1" :class="isVertical ? 'flex-column' : 'flex-row'">
-      <v-tooltip v-for="(badge, i) in statusBadges" :key="'st' + i" :text="badge.tooltipText" location="bottom">
+    <div
+      class="status-group flex-grow-1"
+      :class="[isVertical ? 'flex-column' : 'flex-row']"
+    >
+      <v-tooltip v-for="(badge, i) in statusBadges" :key="'st' + i" location="bottom">
         <template #activator="{ props: tp }">
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
@@ -35,12 +50,17 @@
             </span>
           </div>
         </template>
+        <span>{{ badge.tooltipText }}</span>
       </v-tooltip>
     </div>
 
     <!-- Nav group at end -->
-    <div v-if="navBadges.length && !navAtStart" class="nav-group" :class="isVertical ? 'flex-column' : 'flex-row'">
-      <v-tooltip v-for="(badge, i) in navBadges" :key="'ne' + i" :text="badge.tooltipText" location="bottom">
+    <div
+      v-if="navBadges.length && !navAtStart"
+      class="nav-group"
+      :class="[isVertical ? 'flex-column' : 'flex-row']"
+    >
+      <v-tooltip v-for="(badge, i) in navBadges" :key="'ne' + i" location="bottom">
         <template #activator="{ props: tp }">
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
@@ -48,6 +68,7 @@
             <span v-if="config.show_labels" class="badge-label">{{ badge.entry.label || '' }}</span>
           </div>
         </template>
+        <span>{{ badge.tooltipText }}</span>
       </v-tooltip>
     </div>
 
@@ -79,9 +100,12 @@ defineOptions({ inheritAttrs: false })
 const props = defineProps<{ config: StatusBarWidgetConfig }>()
 const isVertical = computed(() => props.config.orientation === 'vertical')
 const navAtStart = computed(() => props.config.nav_position === 'start')
+const rootEl = ref<HTMLElement | null>(null)
+const containerWidth = ref(0)
 const entityStore = useEntityStore()
 const { getFilteredEntities } = useEntityGroupFilter()
 const router = useRouter()
+const shouldStackRows = computed(() => !isVertical.value && containerWidth.value > 0 && containerWidth.value < 420)
 
 type SingleBadge = { type: 'single'; entry: StatusBarEntry; active: boolean; state: string; tooltipText: string }
 type GroupBadge  = { type: 'group';  entry: StatusBarGroupEntry; active: boolean; activeCount: number; tooltipText: string }
@@ -126,6 +150,18 @@ const singleEntityId = ref<string | null>(null)
 const isMediaPlayer = computed(() => singleEntityId.value?.startsWith('media_player.') ?? false)
 const groupDetailOpen = ref(false)
 const groupEntry = ref<StatusBarGroupEntry | null>(null)
+
+onMounted(() => {
+  if (!rootEl.value) return
+  const updateSize = () => {
+    if (!rootEl.value) return
+    containerWidth.value = rootEl.value.clientWidth
+  }
+  updateSize()
+  const observer = new ResizeObserver(updateSize)
+  observer.observe(rootEl.value)
+  onUnmounted(() => observer.disconnect())
+})
 
 function handleClick(badge: SingleBadge | GroupBadge | NavBadge) {
   if (badge.type === 'nav') {
@@ -199,6 +235,17 @@ function shortState(state: string) {
 </script>
 
 <style scoped>
+.statusbar-root {
+  gap: 8px;
+  overflow: hidden;
+}
+
+.statusbar-root--stacked {
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow: visible;
+}
+
 .nav-group,
 .status-group {
   display: flex;

@@ -334,6 +334,7 @@
     "buttons_size": "Knopgrootte",
     "countdown_entity": "Afteltimer entiteit",
     "end_time_entity": "Eindtijd entiteit",
+    "time_remaining_entity": "Resterende tijd entiteit",
     "entry_type_group": "Groep",
     "entry_type_single": "Enkelvoudig",
     "exclude_groups": "HA-groepen uitsluiten",
@@ -343,6 +344,8 @@
     "filter_name_contains": "Entiteit-ID bevat",
     "filter_name_starts_with": "Entiteit-ID begint met",
     "group_filter": "Filter",
+    "move_up": "Omhoog verplaatsen",
+    "move_down": "Omlaag verplaatsen",
     "locked_icon": "Vergrendeld icoon",
     "ma_player_id": "Music Assistant speler (optioneel)",
     "pos_bottom": "Onder",
@@ -352,6 +355,15 @@
     "power_entity": "Stroom/status entiteit",
     "program_entity": "Programma entiteit",
     "progress_entity": "Voortgang entiteit",
+    "alarm_code": "Alarmcode (optioneel)",
+    "alarm_code_hint": "Alleen nodig als je alarmsysteem een code vereist",
+    "alarm_code_prompt": "Code in popup vragen",
+    "alarm_code_prompt_hint": "Vraagt de alarmcode in een dialoog wanneer je een actie uitvoert",
+    "alarm_code_keypad": "Cijfertoetsenblok in popup gebruiken",
+    "alarm_code_keypad_hint": "Toont een toetsenblok in de codedialoog in plaats van vrije invoer",
+    "alarm_code_keypad_mobile": "Toetsenblok op mobiel altijd tonen",
+    "alarm_code_keypad_mobile_hint": "Forceert het toetsenblok op kleine schermen, ook als vrije invoer actief is",
+    "alarm_code_length": "Aantal cijfers",
     "running_state": "Actieve statuswaarde",
     "show_badge": "Badge met teller tonen",
     "show_door_button": "Deurknop tonen",
@@ -553,6 +565,9 @@
       "run": "Actief",
       "unavailable": "Niet beschikbaar"
     }
+  },
+  "alarm": {
+    "enter_code": "Alarmcode invoeren"
   },
   "group": {
     "empty": "Geen overeenkomende entiteiten gevonden.",

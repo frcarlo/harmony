@@ -14,14 +14,16 @@
           autofocus
           @keydown.enter="handleCreate"
         />
-        <div>
-          <div class="text-caption text-medium-emphasis mb-2">{{ t('dashboard.icon') }}</div>
-          <div class="d-flex flex-wrap ga-1 mb-2">
+        <div class="d-flex flex-column ga-2">
+          <UiIconPicker
+            v-model="icon"
+            :label="t('dashboard.icon')"
+            placeholder="mdi-home-outline"
+          />
+          <div class="d-flex flex-wrap ga-1">
             <v-btn v-for="ic in PRESET_ICONS" :key="ic" :icon="ic" size="small" variant="text"
               :color="icon === ic ? 'primary' : undefined" @click="icon = ic" />
           </div>
-          <v-text-field v-model="icon" density="compact" variant="outlined" hide-details
-            placeholder="mdi-home" :prepend-inner-icon="icon || 'mdi-view-dashboard-outline'" />
         </div>
         <div>
           <div class="d-flex align-center justify-space-between mb-2">
@@ -44,7 +46,13 @@
           <ThemeToggle
             v-model="themeOverride"
             allow-default
+            activator-mode="button"
             button-icon="mdi-palette-outline"
+            button-append-icon="mdi-chevron-down"
+            button-variant="outlined"
+            button-block
+            button-class="theme-picker-button justify-space-between"
+            :button-text="selectedThemeLabel"
             :button-title="t('dashboard.theme')"
           />
         </div>
@@ -86,7 +94,11 @@ const selectedThemeLabel = computed(() => selectedTheme.value?.name ?? t('dashbo
 const themePreviewStyle = computed(() => ({
   '--preview-bg': selectedTheme.value?.bg ?? 'rgb(var(--v-theme-surface))',
   '--preview-primary': selectedTheme.value?.primary ?? 'rgb(var(--v-theme-primary))',
-  '--preview-text': selectedTheme.value?.dark ? '#f8fafc' : '#111827',
+  '--preview-text': selectedTheme.value?.dark ? '#f8fafc' : '#0f172a',
+  '--preview-muted': selectedTheme.value?.dark ? 'rgba(248, 250, 252, 0.72)' : 'rgba(15, 23, 42, 0.72)',
+  '--preview-line': selectedTheme.value?.dark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(15, 23, 42, 0.12)',
+  '--preview-tile-top': selectedTheme.value?.dark ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.9)',
+  '--preview-tile-bottom': selectedTheme.value?.dark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.08)',
 }))
 
 watch(dialog, (v) => {
@@ -127,9 +139,11 @@ async function handleCreate() {
   padding: 14px;
   color: var(--preview-text);
   background:
-    linear-gradient(145deg, color-mix(in srgb, var(--preview-bg) 88%, white 12%), var(--preview-bg));
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    linear-gradient(145deg, color-mix(in srgb, var(--preview-bg) 84%, white 16%), var(--preview-bg));
+  border: 1px solid var(--preview-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 .theme-preview__header {
@@ -139,6 +153,7 @@ async function handleCreate() {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 12px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
 }
 
 .theme-preview__dot {
@@ -160,8 +175,26 @@ async function handleCreate() {
   height: 44px;
   border-radius: 12px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+    linear-gradient(180deg, var(--preview-tile-top), var(--preview-tile-bottom)),
     color-mix(in srgb, var(--preview-bg) 78%, var(--preview-primary) 22%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--preview-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+:deep(.theme-picker-button) {
+  justify-content: space-between;
+  min-height: 42px;
+  border-color: rgba(var(--v-theme-primary), 0.28);
+  background: rgba(var(--v-theme-primary), 0.05);
+}
+
+:deep(.theme-picker-button .v-btn__content) {
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+:deep(.theme-picker-button .v-btn__append) {
+  margin-inline-start: auto;
 }
 </style>

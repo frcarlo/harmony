@@ -8,10 +8,14 @@ export function useEntityGroupFilter() {
     return Object.values(entityStore.entities).filter((entity) => {
       const id = entity.entity_id
       const domain = id.split('.')[0]
+      const objectId = id.split('.').slice(1).join('.')
+      const containsNeedle = filter.name_contains?.trim().toLowerCase()
+      const startsNeedle = filter.name_starts_with?.trim().toLowerCase()
+      const haystacks = [id.toLowerCase(), objectId.toLowerCase()]
 
       if (filter.domains?.length && !filter.domains.includes(domain)) return false
-      if (filter.name_contains && !id.includes(filter.name_contains)) return false
-      if (filter.name_starts_with && !id.startsWith(filter.name_starts_with)) return false
+      if (containsNeedle && !haystacks.some((value) => value.includes(containsNeedle))) return false
+      if (startsNeedle && !haystacks.some((value) => value.startsWith(startsNeedle))) return false
 
       if (filter.areas?.length) {
         const areaId = entityStore.entityAreaMap[id]

@@ -58,6 +58,7 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const entityStore = useEntityStore()
 const entity = computed(() => entityStore.entities[props.config.entity_id])
+const domain = computed(() => props.config.entity_id.split('.')[0] ?? '')
 const name = computed(() => props.config.name ?? (entity.value?.attributes?.friendly_name as string) ?? props.config.entity_id)
 
 const areaName = computed(() => {
@@ -67,9 +68,22 @@ const areaName = computed(() => {
 })
 
 const state = computed(() => entity.value?.state ?? '—')
+const isBinarySensor = computed(() => domain.value === 'binary_sensor')
 const unit = computed(() => props.config.unit ?? (entity.value?.attributes?.unit_of_measurement as string) ?? '')
 
+function stateAsNumber(raw: string) {
+  if (raw === 'on' || raw === 'true') return 1
+  if (raw === 'off' || raw === 'false') return 0
+  const num = parseFloat(raw)
+  return Number.isFinite(num) ? num : NaN
+}
+
 const displayState = computed(() => {
+  if (isBinarySensor.value) {
+    if (state.value === 'on') return t('common.on')
+    if (state.value === 'off') return t('common.off')
+    return state.value
+  }
   const num = parseFloat(state.value)
   if (!isNaN(num) && props.config.decimal_places !== undefined) return num.toFixed(props.config.decimal_places)
   return state.value
@@ -77,10 +91,11 @@ const displayState = computed(() => {
 
 const stateColor = computed(() => {
   if (!entity.value) return undefined
-  const val = parseFloat(state.value)
-  if (isNaN(val)) return undefined
+  const val = stateAsNumber(state.value)
+  if (Number.isNaN(val)) return undefined
   if (props.config.alert_above !== undefined && val > props.config.alert_above) return 'rgb(var(--v-theme-error))'
   if (props.config.alert_below !== undefined && val < props.config.alert_below) return 'rgb(var(--v-theme-info))'
+  if (isBinarySensor.value && state.value === 'on') return 'rgb(var(--v-theme-primary))'
   return undefined
 })
 

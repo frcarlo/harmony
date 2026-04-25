@@ -35,6 +35,41 @@
             <v-btn icon="mdi-stop" size="small" variant="text" @click.stop="coverAction(entity, 'stop_cover')" />
             <v-btn icon="mdi-arrow-down" size="small" variant="text" @click.stop="coverAction(entity, 'close_cover')" />
           </div>
+          <div v-else-if="isClimate(entity)" class="d-flex align-center ga-0 flex-shrink-0 climate-row" @click.stop>
+            <v-btn
+              icon="mdi-fire"
+              size="x-small"
+              variant="text"
+              :color="entity.state !== 'off' ? 'warning' : undefined"
+              :disabled="!supportsHvacMode(entity, 'heat')"
+              @click.stop="setClimateMode(entity, 'heat')"
+            />
+            <v-btn
+              icon="mdi-power"
+              size="x-small"
+              variant="text"
+              :color="entity.state === 'off' ? 'primary' : undefined"
+              :disabled="!supportsHvacMode(entity, 'off')"
+              @click.stop="setClimateMode(entity, 'off')"
+            />
+            <v-btn
+              icon="mdi-minus"
+              size="x-small"
+              variant="text"
+              :disabled="climateTargetTemp(entity) === undefined"
+              @click.stop="adjustClimateTemp(entity, -0.5)"
+            />
+            <span class="text-caption text-medium-emphasis climate-row__temp">
+              {{ climateTargetLabel(entity) }}
+            </span>
+            <v-btn
+              icon="mdi-plus"
+              size="x-small"
+              variant="text"
+              :disabled="climateTargetTemp(entity) === undefined"
+              @click.stop="adjustClimateTemp(entity, 0.5)"
+            />
+          </div>
           <v-switch
             v-else-if="isToggleable(entity)"
             :model-value="isActive(entity)"
@@ -82,6 +117,10 @@ function isCover(entity: HAState) {
   return entity.entity_id.split('.')[0] === 'cover'
 }
 
+function isClimate(entity: HAState) {
+  return entity.entity_id.split('.')[0] === 'climate'
+}
+
 function isToggleable(entity: HAState) {
   return TOGGLEABLE_DOMAINS.includes(entity.entity_id.split('.')[0])
 }
@@ -93,6 +132,7 @@ async function coverAction(entity: HAState, service: string) {
 function isActive(entity: HAState) {
   const domain = entity.entity_id.split('.')[0]
   if (domain === 'cover') return entity.state === 'open' || entity.state === 'opening'
+  if (domain === 'climate') return entity.state !== 'off' && entity.state !== 'unavailable'
   return entity.state === 'on'
 }
 
@@ -133,10 +173,46 @@ function entityIcon(entity: HAState) {
   if (domain === 'light') return isActive(entity) ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
   if (domain === 'switch') return isActive(entity) ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
   if (domain === 'fan') return 'mdi-fan'
+  if (domain === 'climate') return 'mdi-thermostat'
   if (domain === 'cover') return 'mdi-window-shutter'
   if (domain === 'sensor') return 'mdi-eye-outline'
   if (domain === 'binary_sensor') return isActive(entity) ? 'mdi-circle' : 'mdi-circle-outline'
   return 'mdi-devices'
+}
+
+function climateTargetTemp(entity: HAState): number | undefined {
+  return entity.attributes?.temperature as number | undefined
+}
+
+function climateTargetLabel(entity: HAState): string {
+  const value = climateTargetTemp(entity)
+  return value === undefined ? '—' : `${value.toFixed(1)}°`
+}
+
+function supportsHvacMode(entity: HAState, mode: string): boolean {
+  const modes = entity.attributes?.hvac_modes as string[] | undefined
+  return Array.isArray(modes) ? modes.includes(mode) : false
+}
+
+async function setClimateMode(entity: HAState, mode: 'heat' | 'off') {
+  if (!supportsHvacMode(entity, mode)) return
+  await client.callService({
+    domain: 'climate',
+    service: 'set_hvac_mode',
+    target: { entity_id: entity.entity_id },
+    service_data: { hvac_mode: mode },
+  })
+}
+
+async function adjustClimateTemp(entity: HAState, delta: number) {
+  const current = climateTargetTemp(entity)
+  if (current === undefined) return
+  await client.callService({
+    domain: 'climate',
+    service: 'set_temperature',
+    target: { entity_id: entity.entity_id },
+    service_data: { temperature: Math.round((current + delta) * 2) / 2 },
+  })
 }
 
 async function toggleEntity(entity: HAState) {
@@ -154,5 +230,17 @@ async function toggleEntity(entity: HAState) {
 }
 .entity-row:hover {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.climate-row :deep(.v-btn) {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.climate-row__temp {
+  min-width: 2.75rem;
+  text-align: center;
+  font-size: 0.72rem;
 }
 </style>
