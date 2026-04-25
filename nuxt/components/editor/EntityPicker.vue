@@ -39,7 +39,13 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-const props = defineProps<{ modelValue?: string; domain?: string; placeholder?: string; platform?: string }>()
+const props = defineProps<{
+  modelValue?: string
+  domain?: string
+  domainFilter?: string | string[]
+  placeholder?: string
+  platform?: string
+}>()
 defineEmits<{ 'update:modelValue': [v: string | undefined] }>()
 
 const entityStore = useEntityStore()
@@ -49,9 +55,18 @@ const areaItems = computed(() => [
   ...entityStore.areas.slice().sort((a, b) => a.name.localeCompare(b.name)),
 ])
 
+const domainFilters = computed(() => {
+  if (Array.isArray(props.domainFilter)) return props.domainFilter
+  if (props.domainFilter) return [props.domainFilter]
+  if (props.domain) return [props.domain]
+  return []
+})
+
 const options = computed(() => {
   const all = Object.values(entityStore.entities)
-  let filtered = props.domain ? all.filter((e) => e.entity_id.startsWith(props.domain + '.')) : all
+  let filtered = domainFilters.value.length
+    ? all.filter((e) => domainFilters.value.some((domain) => e.entity_id.startsWith(domain + '.')))
+    : all
   if (props.platform) filtered = filtered.filter((e) => entityStore.entityPlatformMap[e.entity_id] === props.platform)
   if (selectedArea.value) {
     filtered = filtered.filter((e) => entityStore.entityAreaMap[e.entity_id] === selectedArea.value)
@@ -63,4 +78,16 @@ const options = computed(() => {
     platform: entityStore.entityPlatformMap[e.entity_id] ?? '',
   }))
 })
+
+watch(
+  () => [props.modelValue, entityStore.entityAreaMap] as const,
+  ([entityId]) => {
+    if (!entityId) {
+      selectedArea.value = null
+      return
+    }
+    selectedArea.value = entityStore.entityAreaMap[entityId] ?? null
+  },
+  { immediate: true, deep: true },
+)
 </script>

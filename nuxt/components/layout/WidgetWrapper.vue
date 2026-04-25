@@ -31,9 +31,7 @@
       <ThermostatWidget v-else-if="widget.type === 'thermostat'" :config="widget.config as any"
         :appearance="widget.appearance" />
       <MediaPlayerWidget v-else-if="widget.type === 'media_player'" :config="widget.config as any" />
-      <CoverWidget v-else-if="widget.type === 'cover'" :config="widget.config as any" />
-      <CoverDialWidget v-else-if="widget.type === 'cover_dial'" :config="widget.config as any" />
-      <CoverDial2Widget v-else-if="widget.type === 'cover_dial2'" :config="widget.config as any" />
+      <CoverDial2Widget v-else-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'" :config="widget.config as any" />
       <LockWidget v-else-if="widget.type === 'lock'" :config="widget.config as any" :appearance="widget.appearance" />
       <WeatherWidget v-else-if="widget.type === 'weather'" :config="widget.config as any" />
       <ClockWidget v-else-if="widget.type === 'clock'" :config="widget.config as any" />
@@ -44,6 +42,7 @@
       <PersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
       <EnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
       <ApplianceWidget v-else-if="widget.type === 'appliance'" :config="widget.config as any" />
+      <AlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
       <StatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
       <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
     </div>
@@ -114,6 +113,12 @@ function toSemiTransparent(color: string, alpha = 0.55): string {
   return `color-mix(in srgb, ${color} ${Math.round(alpha * 100)}%, transparent)`
 }
 
+function clampOpacity(value: unknown, fallback: number) {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return fallback
+  return Math.min(1, Math.max(0, numeric / 100))
+}
+
 const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
@@ -122,7 +127,10 @@ const cardStyle = computed(() => {
   const neutralGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.32)' : 'rgba(var(--v-theme-surface), 0.38)'
 
   if (a.bg_color === 'transparent') style.backgroundColor = glassEnabled.value ? transparentGlassBg : 'transparent'
-  else if (a.bg_color) style.backgroundColor = glassEnabled.value ? toSemiTransparent(a.bg_color) : a.bg_color
+  else if (a.bg_color) {
+    const bgOpacity = clampOpacity(a.bg_opacity, glassEnabled.value ? 55 : 100)
+    style.backgroundColor = toSemiTransparent(a.bg_color, bgOpacity)
+  }
   else if (isActive.value) {
     const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
     if (activeColor) {

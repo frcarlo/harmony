@@ -11,10 +11,23 @@
     <template v-if="isCompact">
       <div class="d-flex flex-column flex-grow-1 justify-space-between"
         style="min-width: 0; position: relative; z-index: 1;">
-        <div class="pr-9">
-          <div class="text-body-1 font-weight-bold text-truncate">{{ statusLabel }}</div>
-          <div class="text-caption text-medium-emphasis text-truncate">
-            {{ subtitle }}
+        <div class="d-flex align-start justify-space-between ga-2">
+          <div class="pr-2 flex-grow-1" style="min-width: 0;">
+            <div class="text-body-1 font-weight-bold text-truncate">{{ statusLabel }}</div>
+            <div class="text-caption text-medium-emphasis text-truncate">
+              {{ subtitle }}
+            </div>
+          </div>
+          <div v-if="statusIndicators.length" class="d-flex align-center ga-1 flex-shrink-0 appliance-card__status-row appliance-card__status-row--compact">
+            <div
+              v-for="indicator in statusIndicators"
+              :key="indicator.key"
+              class="appliance-card__status-indicator"
+              :class="{ 'appliance-card__status-indicator--active': indicator.active }"
+              :title="indicator.label"
+            >
+              <v-icon :icon="indicator.icon" size="14" />
+            </div>
           </div>
         </div>
         <div>
@@ -30,15 +43,28 @@
 
     <template v-else>
       <div class="d-flex flex-column flex-grow-1" style="min-width: 0; position: relative; z-index: 1;">
-        <div class="d-flex flex-column" style="min-width: 0;">
-          <div class="text-h6 font-weight-bold text-truncate">{{ statusLabel }}</div>
-          <div class="text-body-2 text-medium-emphasis text-truncate pr-10">
-            {{ subtitle }}
+        <div class="d-flex align-start justify-space-between ga-2" style="min-width: 0;">
+          <div class="d-flex flex-column flex-grow-1" style="min-width: 0;">
+            <div class="text-h6 font-weight-bold text-truncate">{{ statusLabel }}</div>
+            <div class="text-body-2 text-medium-emphasis text-truncate pr-10">
+              {{ subtitle }}
+            </div>
           </div>
-          <div class="text-body-2 font-weight-medium mt-2">
-            {{ remainingLabel }}
+          <div v-if="statusIndicators.length" class="d-flex align-center ga-1 flex-shrink-0 appliance-card__status-row appliance-card__status-row--top">
+            <div
+              v-for="indicator in statusIndicators"
+              :key="indicator.key"
+              class="appliance-card__status-indicator"
+              :class="{ 'appliance-card__status-indicator--active': indicator.active }"
+              :title="indicator.label"
+            >
+              <v-icon :icon="indicator.icon" size="14" />
+            </div>
           </div>
         </div>
+        <div class="text-body-2 font-weight-medium mt-2">
+          {{ remainingLabel }}
+          </div>
 
         <div class="mt-auto pt-3">
           <v-progress-linear :model-value="progressValue" :color="isRunning ? 'warning' : 'primary'"
@@ -65,40 +91,93 @@ const statusEntity = computed(() => entityStore.entities[props.config.status_ent
 const progressEntity = computed(() => props.config.progress_entity_id ? entityStore.entities[props.config.progress_entity_id] : undefined)
 const endTimeEntity = computed(() => props.config.end_time_entity_id ? entityStore.entities[props.config.end_time_entity_id] : undefined)
 const countdownEntity = computed(() => props.config.countdown_entity_id ? entityStore.entities[props.config.countdown_entity_id] : undefined)
+const timeRemainingEntity = computed(() => props.config.time_remaining_entity_id ? entityStore.entities[props.config.time_remaining_entity_id] : undefined)
 const programEntity = computed(() => props.config.program_entity_id ? entityStore.entities[props.config.program_entity_id] : undefined)
 const powerEntity = computed(() => props.config.power_entity_id ? entityStore.entities[props.config.power_entity_id] : undefined)
+const doorEntity = computed(() => props.config.door_entity_id ? entityStore.entities[props.config.door_entity_id] : undefined)
 
-const runningState = computed(() => props.config.running_state || 'run')
+function normalizeStatusValue(value?: string | null) {
+  const normalized = (value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '')
+
+  const aliases: Record<string, string> = {
+    off: 'ready',
+    running: 'run',
+    paused: 'pause',
+    delayed_start: 'delayedstart',
+    delayedstart: 'delayedstart',
+    action_required: 'actionrequired',
+    actionrequired: 'actionrequired',
+  }
+
+  return aliases[normalized] ?? normalized
+}
+
+const runningState = computed(() => normalizeStatusValue(props.config.running_state || 'run'))
 const isCompact = computed(() => props.config.compact ?? false)
-const rawStatus = computed(() => statusEntity.value?.state ?? 'unknown')
+const rawStatus = computed(() => normalizeStatusValue(statusEntity.value?.state ?? 'unknown'))
+const numericPower = computed(() => Number(powerEntity.value?.state))
+const powerState = computed(() => String(powerEntity.value?.state ?? '').trim().toLowerCase())
+const hasActivePower = computed(() => {
+  if (['on', 'true', 'running', 'active'].includes(powerState.value)) return true
+  if (['off', 'false', 'idle', 'inactive'].includes(powerState.value)) return false
+  return Number.isFinite(numericPower.value) && numericPower.value > 1
+})
+const countdownSeconds = computed(() => Number(countdownEntity.value?.state))
+const hasCountdown = computed(() => Number.isFinite(countdownSeconds.value) && countdownSeconds.value > 0)
 const isUnavailable = computed(() => !statusEntity.value || rawStatus.value === 'unavailable' || rawStatus.value === 'unknown')
-const isRunning = computed(() => rawStatus.value === runningState.value)
-const isFinished = computed(() => rawStatus.value === 'finished')
-const isIdleLike = computed(() => ['idle', 'ready', 'inactive', 'off'].includes(rawStatus.value))
-const progressValue = computed(() => {
-  if (isIdleLike.value) return 0
-  if (isFinished.value) return 100
+const rawProgressValue = computed(() => {
   const raw = Number(progressEntity.value?.state ?? 0)
   if (!Number.isFinite(raw)) return 0
   return Math.max(0, Math.min(100, raw))
 })
+const isStaleRunning = computed(() => (
+  rawStatus.value === runningState.value
+  && !hasActivePower.value
+  && !hasCountdown.value
+  && rawProgressValue.value >= 100
+))
+const effectiveStatus = computed(() => {
+  if (isStaleRunning.value) return 'finished'
+  return rawStatus.value
+})
+const isRunning = computed(() => effectiveStatus.value === runningState.value)
+const isFinished = computed(() => effectiveStatus.value === 'finished')
+const isIdleLike = computed(() => ['idle', 'ready', 'inactive', 'off'].includes(effectiveStatus.value))
+const progressValue = computed(() => {
+  if (!isRunning.value) return 0
+  return rawProgressValue.value
+})
 
 const statusLabel = computed(() => {
   if (isUnavailable.value) return t('appliance.status.unavailable')
-  const key = `appliance.status.${rawStatus.value}`
+  const key = `appliance.status.${effectiveStatus.value}`
   const translated = t(key)
-  return translated === key ? rawStatus.value : translated
+  return translated === key ? effectiveStatus.value : translated
 })
 
 function prettifyProgram(raw?: string) {
   if (!raw) return ''
-  return raw
+  const normalized = raw.trim()
+  if (!normalized) return ''
+  return normalized
     .replace(/^dishcare_dishwasher_program_/, '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-const programLabel = computed(() => prettifyProgram(programEntity.value?.state))
+function isMeaningfulLabel(value?: string | null) {
+  if (!value) return false
+  const normalized = value.trim().toLowerCase()
+  return !['unknown', 'unavailable', 'none', 'null', '-', '—'].includes(normalized)
+}
+
+const programLabel = computed(() => {
+  const label = prettifyProgram(programEntity.value?.state)
+  return isMeaningfulLabel(label) ? label : null
+})
 const powerLabel = computed(() => {
   const raw = powerEntity.value?.state
   if (!raw || raw === 'unknown' || raw === 'unavailable') return null
@@ -107,15 +186,75 @@ const powerLabel = computed(() => {
   return `${raw}${unit ? ` ${unit}` : ''}`
 })
 
+const doorState = computed(() => String(doorEntity.value?.state ?? '').trim().toLowerCase())
+const isDoorOpen = computed(() => ['open', 'opened', 'on', 'true'].includes(doorState.value))
+const isDoorClosed = computed(() => ['closed', 'close', 'off', 'false'].includes(doorState.value))
+
+const statusIndicators = computed(() => {
+  const items: Array<{ key: string; icon: string; label: string; active: boolean }> = []
+
+  if (powerEntity.value) {
+    items.push({
+      key: 'power',
+      icon: hasActivePower.value ? 'mdi-power' : 'mdi-power-off',
+      label: hasActivePower.value ? t('appliance.power_on') : t('appliance.power_off'),
+      active: hasActivePower.value,
+    })
+  }
+
+  if (doorEntity.value && (isDoorOpen.value || isDoorClosed.value)) {
+    items.push({
+      key: 'door',
+      icon: isDoorOpen.value ? 'mdi-door-open' : 'mdi-door-closed',
+      label: isDoorOpen.value ? t('appliance.door_open') : t('appliance.door_closed'),
+      active: isDoorOpen.value,
+    })
+  }
+
+  return items
+})
+
 const subtitle = computed(() => {
-  let pLable = programLabel.value !== 'Unknown' ? programLabel.value : ""
   const parts = [
     props.config.name || ((statusEntity.value?.attributes?.friendly_name as string | undefined) ?? t('widget.appliance.label')),
-    pLable || null,
+    programLabel.value,
     powerLabel.value,
   ].filter(Boolean)
   return parts.join(' • ')
 })
+
+function parseDurationParts(raw: string) {
+  const normalized = raw.trim().toLowerCase()
+  if (!normalized || ['unknown', 'unavailable', 'none', 'null', '-', '—', 'off'].includes(normalized)) return null
+
+  if (/^\d+(?:\.\d+)?$/.test(normalized)) {
+    const minutes = Number(normalized)
+    return Number.isFinite(minutes) && minutes > 0 ? minutes * 60_000 : null
+  }
+
+  const colonParts = normalized.split(':').map((part) => Number(part))
+  if (colonParts.length >= 2 && colonParts.length <= 3 && colonParts.every((part) => Number.isFinite(part) && part >= 0)) {
+    const [first, second, third] = colonParts
+    if (colonParts.length === 3) return ((first * 3600) + (second * 60) + third) * 1000
+    return ((first * 60) + second) * 1000
+  }
+
+  let matched = false
+  let totalMs = 0
+  for (const match of normalized.matchAll(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes|s|sec|secs|second|seconds)\b/g)) {
+    matched = true
+    const amount = Number(match[1])
+    const unit = match[2]
+    if (!Number.isFinite(amount)) continue
+    if (unit.startsWith('h')) totalMs += amount * 3600_000
+    else if (unit.startsWith('m')) totalMs += amount * 60_000
+    else totalMs += amount * 1000
+  }
+
+  return matched && totalMs > 0 ? totalMs : null
+}
+
+const timeRemainingMs = computed(() => parseDurationParts(String(timeRemainingEntity.value?.state ?? '')))
 
 const endDate = computed(() => {
   const raw = endTimeEntity.value?.state
@@ -125,8 +264,15 @@ const endDate = computed(() => {
   }
 
   const countdown = Number(countdownEntity.value?.state)
-  if (!Number.isFinite(countdown) || countdown <= 0) return null
-  return new Date(now.value.getTime() + countdown * 1000)
+  if (Number.isFinite(countdown) && countdown > 0) {
+    return new Date(now.value.getTime() + countdown * 1000)
+  }
+
+  if (timeRemainingMs.value != null && timeRemainingMs.value > 0) {
+    return new Date(now.value.getTime() + timeRemainingMs.value)
+  }
+
+  return null
 })
 
 const remainingMs = computed(() => {
@@ -147,7 +293,7 @@ const remainingLabel = computed(() => {
   if (isUnavailable.value) return t('appliance.status.unavailable')
   if (!isRunning.value) {
     if (isFinished.value) return t('appliance.finished')
-    if (rawStatus.value === 'ready') return t('appliance.ready')
+    if (effectiveStatus.value === 'ready') return t('appliance.ready')
   }
   return `${t('appliance.remaining')}: ${formatDuration(remainingMs.value)}`
 })
@@ -228,6 +374,42 @@ const iconName = computed(() => props.config.icon || 'mdi-dishwasher')
 
 .appliance-card__progress :deep(.v-progress-linear__background) {
   opacity: 1;
+}
+
+.appliance-card__status-row {
+  min-height: 20px;
+}
+
+.appliance-card__status-row--top {
+  padding-top: 2px;
+}
+
+.appliance-card__status-row--compact {
+  min-height: 0;
+  padding-top: 2px;
+}
+
+.appliance-card__status-indicator {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.appliance-card__status-row--compact .appliance-card__status-indicator {
+  width: 20px;
+  height: 20px;
+}
+
+.appliance-card__status-indicator--active {
+  color: rgb(var(--v-theme-primary));
+  background: rgb(var(--v-theme-primary) / 0.14);
+  border-color: rgb(var(--v-theme-primary) / 0.22);
 }
 
 .appliance-card--running .appliance-card__icon-orbit {

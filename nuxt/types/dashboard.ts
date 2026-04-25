@@ -19,6 +19,7 @@ export type WidgetType =
   | 'person'
   | 'energy'
   | 'appliance'
+  | 'alarm'
   | 'status_bar'
 
 export interface WidgetLayout {
@@ -37,6 +38,7 @@ export interface SensorWidgetConfig {
   decimal_places?: number
   alert_below?: number
   alert_above?: number
+  show_trend?: boolean
 }
 
 export interface SwitchWidgetConfig {
@@ -111,6 +113,8 @@ export interface ClockWidgetConfig {
   timezone?: string
   format_24h?: boolean
   show_date?: boolean
+  show_seconds?: boolean
+  style?: 'default' | 'led'
 }
 
 export interface LabelWidgetConfig {
@@ -222,11 +226,26 @@ export interface ApplianceWidgetConfig {
   progress_entity_id?: string
   end_time_entity_id?: string
   countdown_entity_id?: string
+  time_remaining_entity_id?: string
   program_entity_id?: string
   power_entity_id?: string
+  door_entity_id?: string
   icon?: string
   running_state?: string
   compact?: boolean
+}
+
+export interface AlarmWidgetConfig {
+  entity_id: string
+  name?: string
+  icon?: string
+  code?: string
+  prompt_for_code?: boolean
+  use_keypad?: boolean
+  use_keypad_on_mobile?: boolean
+  code_length?: number
+  compact?: boolean
+  actions_align?: 'start' | 'center' | 'end'
 }
 
 export type WidgetConfig =
@@ -248,10 +267,12 @@ export type WidgetConfig =
   | PersonWidgetConfig
   | EnergyWidgetConfig
   | ApplianceWidgetConfig
+  | AlarmWidgetConfig
   | StatusBarWidgetConfig
 
 export interface WidgetAppearance {
   bg_color?: string        // Hintergrundfarbe der Karte
+  bg_opacity?: number      // Deckkraft der Hintergrundfarbe in Prozent (0-100)
   border_color?: string    // Rahmenfarbe (Standard)
   active_color?: string    // Rahmenfarbe wenn Entity aktiv (on/open/playing…)
   border_width?: number    // Rahmenstärke in px (0–8)

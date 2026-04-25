@@ -148,15 +148,15 @@
       "description": "Musik/Video steuern"
     },
     "cover": {
-      "label": "Rollo/Markise",
+      "label": "Cover",
       "description": "Rollos steuern"
     },
     "cover_dial": {
-      "label": "Rollo Dial",
+      "label": "Cover",
       "description": "Rollo mit Kreisanzeige"
     },
     "cover_dial2": {
-      "label": "Rollo Dial2",
+      "label": "Cover",
       "description": "Rollo mit Kreisanzeige"
     },
     "lock": {
@@ -198,6 +198,10 @@
     "appliance": {
       "label": "Haushaltsgerät",
       "description": "Spülmaschine, Waschmaschine oder Trockner als Statuskarte"
+    },
+    "alarm": {
+      "label": "Alarm",
+      "description": "Alarmanlage scharf oder unscharf schalten"
     },
     "status_bar": {
       "label": "Statusleiste",
@@ -257,6 +261,7 @@
     "unit": "Einheit (optional)",
     "unit_auto": "Auto",
     "decimal_places": "Dezimalstellen",
+    "show_trend": "Verlauf unten anzeigen",
     "show_brightness": "Helligkeitsregler anzeigen",
     "period": "Zeitraum",
     "chart_type": "Chart-Typ",
@@ -269,15 +274,34 @@
     "unlocked_icon": "Entsperrt-Icon",
     "require_confirmation": "Bestätigung beim Entsperren",
     "show_door_button": "Tür-Button anzeigen",
+    "actions_align": "Button-Ausrichtung",
+    "align_left": "Links",
+    "align_center": "Zentriert",
+    "align_right": "Rechts",
     "forecast_rows": "Forecast-Zeilen: {n}",
+    "clock_style": "Uhr-Stil",
+    "clock_style_default": "Standard",
+    "clock_style_led": "LED",
     "format_24h": "24h Format",
+    "show_seconds": "Sekunden anzeigen",
     "show_date": "Datum anzeigen",
     "status_entity": "Status-Entity",
     "progress_entity": "Fortschritt-Entity",
     "end_time_entity": "Endzeit-Entity",
     "countdown_entity": "Countdown-Entity",
+    "time_remaining_entity": "Restzeit-Entity",
     "program_entity": "Programm-Entity",
     "power_entity": "Power/Status-Entity",
+    "door_entity": "Tür-Entity",
+    "alarm_code": "Alarm-Code (optional)",
+    "alarm_code_hint": "Nur nötig, wenn deine Alarmanlage einen Code verlangt",
+    "alarm_code_prompt": "Code per Popup abfragen",
+    "alarm_code_prompt_hint": "Fragt den Alarm-Code erst beim Schalten über einen Dialog ab",
+    "alarm_code_keypad": "Nummernblock im Popup nutzen",
+    "alarm_code_keypad_hint": "Zeigt statt freier Eingabe einen Tastenblock im Code-Dialog",
+    "alarm_code_keypad_mobile": "Nummernblock auf Mobile immer anzeigen",
+    "alarm_code_keypad_mobile_hint": "Erzwingt den Tastenblock auf kleinen Displays auch dann, wenn freie Eingabe aktiv ist",
+    "alarm_code_length": "Anzahl Stellen",
     "running_state": "Statuswert für laufend",
     "text": "Text",
     "text_placeholder": "Überschrift...",
@@ -301,6 +325,7 @@
     "section_content": "Inhalt",
     "section_appearance": "Aussehen & Layout",
     "bg_color": "Hintergrundfarbe",
+    "bg_opacity": "Hintergrund-Deckkraft: {n}%",
     "bg_transparent": "Transparent",
     "border_color": "Rahmenfarbe",
     "active_color": "Aktiv-Farbe",
@@ -334,6 +359,8 @@
     "entry_type_single": "Einzeln",
     "entry_type_group": "Gruppe",
     "add_group": "Gruppe hinzufügen",
+    "move_up": "Nach oben",
+    "move_down": "Nach unten",
     "group_filter": "Filter",
     "filter_domains": "Domains",
     "filter_name_contains": "Entity-ID enthält",
@@ -388,7 +415,11 @@
     "remaining": "Restzeit",
     "no_estimate": "Keine Schätzung",
     "finished": "Programm beendet",
-    "ready": "Bereit zum Start"
+    "ready": "Bereit zum Start",
+    "power_on": "Eingeschaltet",
+    "power_off": "Ausgeschaltet",
+    "door_open": "Tür offen",
+    "door_closed": "Tür geschlossen"
   },
   "media": {
     "library": "Medienbibliothek",
@@ -470,6 +501,26 @@
   "media_player": {
     "idle": "Bereit",
     "off": "Aus"
+  },
+  "alarm": {
+    "state": {
+      "disarmed": "Unscharf",
+      "armed_home": "Scharf Zuhause",
+      "armed_away": "Scharf Abwesend",
+      "armed_night": "Scharf Nacht",
+      "pending": "Verzögert",
+      "arming": "Scharfschalten…",
+      "disarming": "Unscharf schalten…",
+      "triggered": "Alarm ausgelöst"
+    },
+    "action": {
+      "arm_home": "Zuhause scharf",
+      "arm_away": "Abwesend scharf",
+      "arm_night": "Nacht scharf",
+      "disarm": "Unscharf",
+      "trigger": "Alarm auslösen"
+    },
+    "enter_code": "Alarm-Code eingeben"
   },
   "notifications": {
     "title": "Benachrichtigungen",

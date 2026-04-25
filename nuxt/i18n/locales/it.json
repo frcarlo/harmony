@@ -334,6 +334,7 @@
     "buttons_size": "Dimensione pulsanti",
     "countdown_entity": "Entità conto alla rovescia",
     "end_time_entity": "Entità ora di fine",
+    "time_remaining_entity": "Entità tempo rimanente",
     "entry_type_group": "Gruppo",
     "entry_type_single": "Singolo",
     "exclude_groups": "Escludi gruppi HA",
@@ -343,6 +344,8 @@
     "filter_name_contains": "L'ID entità contiene",
     "filter_name_starts_with": "L'ID entità inizia con",
     "group_filter": "Filtro",
+    "move_up": "Sposta su",
+    "move_down": "Sposta giù",
     "locked_icon": "Icona bloccato",
     "ma_player_id": "Lettore Music Assistant (opzionale)",
     "pos_bottom": "Basso",
@@ -352,6 +355,15 @@
     "power_entity": "Entità alimentazione/stato",
     "program_entity": "Entità programma",
     "progress_entity": "Entità avanzamento",
+    "alarm_code": "Codice allarme (opzionale)",
+    "alarm_code_hint": "Necessario solo se il tuo sistema di allarme richiede un codice",
+    "alarm_code_prompt": "Chiedi il codice in un popup",
+    "alarm_code_prompt_hint": "Richiede il codice dell'allarme in una finestra di dialogo quando esegui un'azione",
+    "alarm_code_keypad": "Usa tastierino numerico nel popup",
+    "alarm_code_keypad_hint": "Mostra un tastierino numerico nel dialogo del codice invece dell'input libero",
+    "alarm_code_keypad_mobile": "Mostra sempre il tastierino su mobile",
+    "alarm_code_keypad_mobile_hint": "Forza il tastierino sui piccoli schermi anche quando l'input libero è attivo",
+    "alarm_code_length": "Numero di cifre",
     "running_state": "Valore stato in esecuzione",
     "show_badge": "Mostra badge conteggio",
     "show_door_button": "Mostra pulsante porta",
@@ -544,6 +556,9 @@
       "run": "In esecuzione",
       "unavailable": "Non disponibile"
     }
+  },
+  "alarm": {
+    "enter_code": "Inserisci il codice allarme"
   },
   "group": {
     "empty": "Nessuna entità corrispondente trovata.",

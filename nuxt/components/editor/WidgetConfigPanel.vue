@@ -35,18 +35,24 @@
               class="config-panel__field-group"
             >
               <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
-              <EntityPicker v-model="cfg.entity_id" :domain="ENTITY_DOMAINS[widget.type]" />
+              <EntityPicker v-model="cfg.entity_id" :domain-filter="ENTITY_DOMAINS[widget.type]" />
             </div>
 
             <!-- Name -->
-            <v-text-field
+            <div
               v-if="showNameField"
-              v-model="cfg.name"
-              :label="t('config.display_name')"
-              :placeholder="t('config.display_name_hint')"
-              density="compact"
-              hide-details="auto"
-            />
+              class="config-panel__field-group"
+            >
+              <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">
+                {{ t('config.display_name') }}
+              </p>
+              <v-text-field
+                v-model="cfg.name"
+                :placeholder="t('config.display_name_hint')"
+                density="compact"
+                hide-details="auto"
+              />
+            </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
 
@@ -60,6 +66,7 @@
         <v-text-field v-model="cfg.unit" :label="t('config.unit')" :placeholder="t('config.unit_auto')" />
         <v-text-field v-model.number="cfg.decimal_places" :label="t('config.decimal_places')" type="number" min="0"
           max="5" :placeholder="t('config.unit_auto')" />
+        <v-checkbox v-model="cfg.show_trend" :label="t('config.show_trend')" hide-details density="compact" />
       </template>
 
       <!-- Light -->
@@ -94,6 +101,10 @@
             <EntityPicker v-model="cfg.countdown_entity_id" />
           </div>
           <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.time_remaining_entity') }}</p>
+            <EntityPicker v-model="cfg.time_remaining_entity_id" />
+          </div>
+          <div class="config-panel__field-group">
             <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.program_entity') }}</p>
             <EntityPicker v-model="cfg.program_entity_id" />
           </div>
@@ -101,38 +112,75 @@
             <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.power_entity') }}</p>
             <EntityPicker v-model="cfg.power_entity_id" />
           </div>
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.door_entity') }}</p>
+            <EntityPicker v-model="cfg.door_entity_id" />
+          </div>
           <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-dishwasher" density="compact" hide-details="auto" />
           <v-text-field v-model="cfg.running_state" :label="t('config.running_state')" placeholder="run" density="compact" hide-details="auto" />
-          <v-checkbox v-model="cfg.compact" :label="t('config.compact_mode')" hide-details density="compact" />
+        </div>
+      </template>
+
+      <template v-if="widget.type === 'alarm'">
+        <div class="d-flex flex-column ga-2">
+          <div class="config-panel__field-group">
+            <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity') }}</p>
+            <EntityPicker v-model="cfg.entity_id" domain="alarm_control_panel" />
+          </div>
+          <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-shield-home-outline" density="compact" hide-details="auto" />
+          <v-text-field
+            v-model="cfg.code"
+            :label="t('config.alarm_code')"
+            :hint="t('config.alarm_code_hint')"
+            type="password"
+            density="compact"
+            hide-details="auto"
+          />
+          <v-checkbox
+            v-model="cfg.prompt_for_code"
+            :label="t('config.alarm_code_prompt')"
+            :hint="t('config.alarm_code_prompt_hint')"
+            density="compact"
+            hide-details="auto"
+          />
+          <v-checkbox
+            v-model="cfg.use_keypad"
+            :label="t('config.alarm_code_keypad')"
+            :hint="t('config.alarm_code_keypad_hint')"
+            density="compact"
+            hide-details="auto"
+          />
+          <v-checkbox
+            v-model="cfg.use_keypad_on_mobile"
+            :label="t('config.alarm_code_keypad_mobile')"
+            :hint="t('config.alarm_code_keypad_mobile_hint')"
+            density="compact"
+            hide-details="auto"
+          />
+          <v-text-field
+            v-model.number="cfg.code_length"
+            :label="t('config.alarm_code_length')"
+            type="number"
+            min="1"
+            max="8"
+            density="compact"
+            hide-details="auto"
+          />
+          <div>
+            <p class="text-caption text-medium-emphasis mb-2">{{ t('config.actions_align') }}</p>
+            <v-btn-toggle v-model="cfg.actions_align" mandatory density="compact" color="primary" class="w-100">
+              <v-btn value="start" size="small" class="flex-1-1" icon="mdi-format-align-left" :title="t('config.align_left')" />
+              <v-btn value="center" size="small" class="flex-1-1" icon="mdi-format-align-center" :title="t('config.align_center')" />
+              <v-btn value="end" size="small" class="flex-1-1" icon="mdi-format-align-right" :title="t('config.align_right')" />
+            </v-btn-toggle>
+          </div>
         </div>
       </template>
 
       <!-- Cover / Cover Dial -->
-      <template v-if="widget.type === 'cover' || widget.type === 'cover_dial'">
-        <div>
-          <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_position') }}</p>
-          <v-btn-toggle v-model="cfg.buttons_position" mandatory density="compact" color="primary" class="w-100">
-            <v-btn value="left"   size="small" class="flex-1-1" icon="mdi-arrow-left-bold" :title="t('config.pos_left')" />
-            <v-btn value="right"  size="small" class="flex-1-1" icon="mdi-arrow-right-bold" :title="t('config.pos_right')" />
-            <v-btn value="top"    size="small" class="flex-1-1" icon="mdi-arrow-up-bold" :title="t('config.pos_top')" />
-            <v-btn value="bottom" size="small" class="flex-1-1" icon="mdi-arrow-down-bold" :title="t('config.pos_bottom')" />
-          </v-btn-toggle>
-        </div>
-        <div>
-          <p class="text-caption text-medium-emphasis mb-2">{{ t('config.buttons_size') }}</p>
-          <v-btn-toggle v-model="cfg.buttons_size" mandatory density="compact" color="primary" class="w-100">
-            <v-btn value="x-small" size="small" class="flex-1-1">XS</v-btn>
-            <v-btn value="small"   size="small" class="flex-1-1">S</v-btn>
-            <v-btn value="default" size="small" class="flex-1-1">M</v-btn>
-            <v-btn value="large"   size="small" class="flex-1-1">L</v-btn>
-          </v-btn-toggle>
-        </div>
-        <UiColorPicker v-if="widget.type === 'cover_dial'" v-model="cfg.dial_color" :label="t('config.dial_color')" clearable />
-        <UiColorPicker v-if="widget.type === 'cover_dial'" v-model="cfg.dial_bg_color" :label="t('config.dial_bg_color')" clearable />
-      </template>
-
       <!-- Cover Dial 2 -->
-      <template v-if="widget.type === 'cover_dial2'">
+      <template v-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
+        <v-text-field v-model="cfg.name" :label="t('config.display_name')" density="compact" hide-details clearable />
         <v-checkbox v-model="cfg.compact" :label="t('config.compact_mode')" hide-details density="compact" />
         <UiColorPicker v-model="cfg.open_color" :label="t('config.open_color')" clearable />
         <UiColorPicker v-model="cfg.closed_color" :label="t('config.closed_color')" clearable />
@@ -177,7 +225,15 @@
 
       <!-- Clock -->
       <template v-if="widget.type === 'clock'">
+        <div>
+          <p class="text-caption text-medium-emphasis mb-2">{{ t('config.clock_style') }}</p>
+          <v-btn-toggle v-model="cfg.style" mandatory density="compact" color="primary" class="w-100">
+            <v-btn value="default" size="small" class="flex-1-1">{{ t('config.clock_style_default') }}</v-btn>
+            <v-btn value="led" size="small" class="flex-1-1">{{ t('config.clock_style_led') }}</v-btn>
+          </v-btn-toggle>
+        </div>
         <v-checkbox v-model="cfg.format_24h" :label="t('config.format_24h')" />
+        <v-checkbox v-model="cfg.show_seconds" :label="t('config.show_seconds')" />
         <v-checkbox v-model="cfg.show_date" :label="t('config.show_date')" />
       </template>
 
@@ -301,6 +357,24 @@
             <v-chip :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
               {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ? t('config.entry_type_nav') : t('config.entry_type_single') }}
             </v-chip>
+            <div class="d-flex align-center ga-1 flex-shrink-0">
+              <v-btn
+                icon="mdi-chevron-up"
+                size="x-small"
+                variant="text"
+                :disabled="idx === 0"
+                :title="t('config.move_up')"
+                @click="moveStatusBarEntry(idx, -1)"
+              />
+              <v-btn
+                icon="mdi-chevron-down"
+                size="x-small"
+                variant="text"
+                :disabled="idx === statusBarEntries.length - 1"
+                :title="t('config.move_down')"
+                @click="moveStatusBarEntry(idx, 1)"
+              />
+            </div>
             <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" @click="openEntryDialog(idx)" />
             <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeStatusBarEntry(idx)" />
           </div>
@@ -344,9 +418,27 @@
                 @click="appearance.bg_color = appearance.bg_color === 'transparent' ? undefined : 'transparent'"
               >T</v-btn>
             </div>
+            <div v-if="appearance.bg_color && appearance.bg_color !== 'transparent'">
+              <div class="d-flex align-center justify-space-between ga-3 mb-1">
+                <p class="text-caption text-medium-emphasis mb-0">
+                  {{ t('config.bg_opacity', { n: appearance.bg_opacity ?? 100 }) }}
+                </p>
+                <v-chip size="small" variant="tonal" color="primary">
+                  {{ appearance.bg_opacity ?? 100 }}%
+                </v-chip>
+              </div>
+              <v-slider v-model="appearance.bg_opacity" min="0" max="100" step="5" hide-details />
+            </div>
             <UiColorPicker v-model="appearance.border_color" :label="t('config.border_color')" clearable />
             <UiColorPicker v-model="appearance.active_color" :label="t('config.active_color')" clearable />
             <UiColorPicker v-model="appearance.text_color" :label="t('config.text_color')" clearable />
+            <v-checkbox
+              v-if="widget?.type === 'appliance'"
+              v-model="cfg.compact"
+              :label="t('config.compact_mode')"
+              density="compact"
+              hide-details
+            />
             <v-checkbox
               v-model="appearance.disable_glass"
               :label="t('config.disable_glass')"
@@ -399,11 +491,11 @@ const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknow
 watch(widget, (w) => { if (w && !w.appearance) w.appearance = {} }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
-  'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy',
+  'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
   'room_card', 'status_bar',
 ])
 
@@ -428,11 +520,11 @@ const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   lock: 'mdi-lock-outline', weather: 'mdi-weather-partly-cloudy',
   clock: 'mdi-clock-outline', label: 'mdi-format-text', room_card: 'mdi-floor-plan',
   calendar: 'mdi-calendar-outline', calendar_v2: 'mdi-calendar-month-outline', person: 'mdi-account-group-outline',
-  energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', status_bar: 'mdi-view-list-outline',
+  energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', alarm: 'mdi-shield-home-outline', status_bar: 'mdi-view-list-outline',
 }
 
-const ENTITY_DOMAINS: Partial<Record<WidgetType, string>> = {
-  switch: 'switch', light: 'light', camera: 'camera',
+const ENTITY_DOMAINS: Partial<Record<WidgetType, string | string[]>> = {
+  sensor: ['sensor', 'binary_sensor'], switch: 'switch', light: 'light', camera: 'camera',
   thermostat: 'climate', media_player: 'media_player', cover: 'cover', cover_dial: 'cover', cover_dial2: 'cover',
   lock: 'lock', weather: 'weather',
 }
@@ -503,7 +595,30 @@ function saveEntryDialog(updated: Record<string, unknown>) {
 
 function entryGroupSummary(entry: Record<string, unknown>) {
   const filter = entry.filter as Record<string, unknown> | undefined
-  return (filter?.domains as string[] | undefined)?.join(', ') ?? t('config.entry_type_group')
+  if (!filter) return t('config.entry_type_group')
+
+  const parts: string[] = []
+  const domains = (filter.domains as string[] | undefined)?.filter(Boolean) ?? []
+  const areas = (filter.areas as string[] | undefined)?.filter(Boolean) ?? []
+  const labels = (filter.labels as string[] | undefined)?.filter(Boolean) ?? []
+
+  if (domains.length) parts.push(domains.join(', '))
+
+  if (areas.length) {
+    const areaNames = areas
+      .map(id => entityStore.areas.find((area) => area.area_id === id)?.name ?? id)
+      .filter(Boolean)
+    if (areaNames.length) parts.push(areaNames.join(', '))
+  }
+
+  if (labels.length) {
+    const labelNames = labels
+      .map(id => entityStore.labels.find((label) => label.label_id === id)?.name ?? id)
+      .filter(Boolean)
+    if (labelNames.length) parts.push(labelNames.join(', '))
+  }
+
+  return parts.join(' · ') || t('config.entry_type_group')
 }
 
 function addStatusBarEntry() {
@@ -530,6 +645,16 @@ function addStatusBarGroupEntry() {
 function removeStatusBarEntry(index: number) {
   const list = [...statusBarEntries.value]
   list.splice(index, 1)
+  cfg.value.entries = list
+}
+
+function moveStatusBarEntry(index: number, direction: -1 | 1) {
+  const targetIndex = index + direction
+  if (targetIndex < 0 || targetIndex >= statusBarEntries.value.length) return
+
+  const list = [...statusBarEntries.value]
+  const [entry] = list.splice(index, 1)
+  list.splice(targetIndex, 0, entry)
   cfg.value.entries = list
 }
 </script>

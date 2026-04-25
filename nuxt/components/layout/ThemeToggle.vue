@@ -2,6 +2,19 @@
   <v-menu :close-on-content-click="false" offset="8">
     <template #activator="{ props: menuProps }">
       <v-btn
+        v-if="props.activatorMode === 'button'"
+        v-bind="menuProps"
+        :prepend-icon="props.buttonIcon || 'mdi-palette'"
+        :append-icon="props.buttonAppendIcon ?? 'mdi-chevron-down'"
+        :variant="props.buttonVariant || 'outlined'"
+        :block="props.buttonBlock"
+        :class="props.buttonClass"
+        :title="props.buttonTitle || t('toolbar.theme')"
+      >
+        {{ props.buttonText || t('toolbar.theme') }}
+      </v-btn>
+      <v-btn
+        v-else
         v-bind="menuProps"
         :icon="props.buttonIcon || 'mdi-palette'"
         size="small"
@@ -61,6 +74,12 @@ const props = defineProps<{
   allowDefault?: boolean
   buttonIcon?: string
   buttonTitle?: string
+  buttonText?: string
+  buttonVariant?: 'text' | 'flat' | 'outlined' | 'tonal' | 'plain'
+  buttonAppendIcon?: string
+  buttonBlock?: boolean
+  buttonClass?: string
+  activatorMode?: 'icon' | 'button'
 }>()
 const emit = defineEmits<{
   'update:modelValue': [value: string | null]
