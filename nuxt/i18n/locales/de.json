@@ -271,6 +271,8 @@
     "dial_color": "Ring-Farbe",
     "dial_bg_color": "Ring-Hintergrundfarbe",
     "refresh_interval": "Intervall (Sekunden)",
+    "light_entity": "Licht / Schalter (optional)",
+    "light_entity_placeholder": "Keines",
     "stream_type": "Stream-Modus",
     "stream_type_webrtc": "WebRTC (live)",
     "stream_type_mjpeg": "MJPEG (live)",
@@ -422,6 +424,7 @@
     "stop_stream": "Stream stoppen",
     "pause": "Stream pausieren",
     "resume": "Stream fortsetzen",
+    "toggle_light": "Licht umschalten",
     "disconnected": "Verbindung unterbrochen",
     "fullscreen": "Vollbild"
   },

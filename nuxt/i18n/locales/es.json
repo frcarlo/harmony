@@ -266,6 +266,8 @@
     "dial_color": "Color del anillo",
     "dial_bg_color": "Color de fondo del anillo",
     "refresh_interval": "Intervalo (segundos)",
+    "light_entity": "Luz / interruptor (opcional)",
+    "light_entity_placeholder": "Ninguno",
     "stream_type": "Modo de stream",
     "stream_type_webrtc": "WebRTC (en vivo)",
     "stream_type_mjpeg": "MJPEG (en vivo)",
@@ -406,6 +408,7 @@
     "stop_stream": "Detener flujo",
     "pause": "Pausar flujo",
     "resume": "Reanudar flujo",
+    "toggle_light": "Alternar luz",
     "disconnected": "Conexión interrumpida",
     "fullscreen": "Pantalla completa"
   },

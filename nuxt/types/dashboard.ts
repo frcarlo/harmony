@@ -70,6 +70,7 @@ export interface CameraWidgetConfig {
   name?: string
   refresh_interval?: number
   stream_type?: 'webrtc' | 'mjpeg' | 'snapshot'
+  light_entity_id?: string
 }
 
 export interface ThermostatWidgetConfig {
