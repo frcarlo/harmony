@@ -6,23 +6,26 @@
     </div>
   </div>
 
-  <div v-else-if="dashboard" class="d-flex flex-column" :style="bgStyle" style="min-height:100vh">
-    <AppToolbar
-      :dashboard-name="dashboard.name"
-      :dashboard-id="dashboard.id"
-      :dashboard-icon="dashboard.icon"
-      :is-my-default-dashboard="dashboard.id === myDefaultDashboardId"
-      :edit-mode="false"
-      :hide-edit="!isAdmin"
-      @back="goBack"
-      @toggle-edit="router.push(`/edit/${dashboard.id}`)"
-      @toggle-my-default="toggleMyDefaultDashboard"
-    />
-    <v-main>
-      <div class="pa-4">
-        <DashboardGrid :edit-mode="false" />
-      </div>
-    </v-main>
+  <div v-else-if="dashboard" :style="bgBase" style="min-height:100vh;position:relative">
+    <div v-if="bgImage" :style="bgImageStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
+    <div class="d-flex flex-column" style="position:relative;z-index:1;min-height:100vh">
+      <AppToolbar
+        :dashboard-name="dashboard.name"
+        :dashboard-id="dashboard.id"
+        :dashboard-icon="dashboard.icon"
+        :is-my-default-dashboard="dashboard.id === myDefaultDashboardId"
+        :edit-mode="false"
+        :hide-edit="!isAdmin"
+        @back="goBack"
+        @toggle-edit="router.push(`/edit/${dashboard.id}`)"
+        @toggle-my-default="toggleMyDefaultDashboard"
+      />
+      <v-main>
+        <div class="pa-4">
+          <DashboardGrid :edit-mode="false" />
+        </div>
+      </v-main>
+    </div>
   </div>
 </template>
 
@@ -60,18 +63,33 @@ const connected = computed(() => entityStore.connected)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)
 
+const bgBase = computed(() => ({ backgroundColor: 'rgb(var(--v-theme-background))' }))
+
+const bgImage = computed(() => {
+  const bg = dashboard.value?.background
+  if (!bg) return null
+  if (bg.startsWith('url(')) return bg.slice(4, -1)
+  if (bg.startsWith('http') || bg.startsWith('/api/')) return bg
+  return null
+})
+
+const bgImageStyle = computed(() => {
+  const size = dashboard.value?.bg_size ?? 'cover'
+  const opacity = (dashboard.value?.bg_opacity ?? 100) / 100
+  return {
+    backgroundImage: `url(${bgImage.value})`,
+    backgroundSize: size,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    opacity,
+  }
+})
+
 const bgStyle = computed(() => {
+  if (bgImage.value) return bgBase.value
   const bg = dashboard.value?.background
   const base = { backgroundColor: 'rgb(var(--v-theme-background))' }
   if (!bg) return base
-  if (bg.startsWith('http') || bg.startsWith('/')) {
-    return {
-      ...base,
-      backgroundImage: `url(${bg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }
-  }
   return { ...base, background: bg }
 })
 

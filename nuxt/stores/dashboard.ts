@@ -72,6 +72,16 @@ export const useDashboardStore = defineStore('dashboard', {
       this.dashboard.background = normalizeOptionalString(background)
     },
 
+    updateDashboardBgOpacity(opacity: number) {
+      if (!this.dashboard) return
+      this.dashboard.bg_opacity = opacity
+    },
+
+    updateDashboardBgSize(size: 'cover' | 'contain' | 'auto') {
+      if (!this.dashboard) return
+      this.dashboard.bg_size = size
+    },
+
     updateDashboardTheme(theme: string | null | undefined) {
       if (!this.dashboard) return
       this.dashboard.theme_override = normalizeOptionalString(theme ?? undefined)

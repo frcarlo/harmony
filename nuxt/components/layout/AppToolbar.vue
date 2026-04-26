@@ -84,6 +84,17 @@
             <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details clearable
               :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg"
               @click:clear="pickBg(undefined)" />
+            <template v-if="bgIsImage">
+              <div class="text-caption text-medium-emphasis mt-3 mb-1">{{ t('toolbar.bg_opacity') }}: {{ localBgOpacity }}%</div>
+              <v-slider v-model="localBgOpacity" min="0" max="100" step="1" hide-details density="compact" thumb-size="14"
+                @update:model-value="emit('rebgopacity', localBgOpacity)" />
+              <v-btn-toggle v-model="localBgSize" mandatory density="compact" variant="tonal" class="w-100 mt-2"
+                @update:model-value="emit('rebgsize', $event)">
+                <v-btn value="cover" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_cover') }}</v-btn>
+                <v-btn value="contain" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_contain') }}</v-btn>
+                <v-btn value="auto" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_auto') }}</v-btn>
+              </v-btn-toggle>
+            </template>
           </v-card-text>
         </v-card>
       </v-menu>
@@ -138,6 +149,8 @@ const props = defineProps<{
   dashboardId: string
   dashboardIcon?: string
   dashboardBackground?: string
+  dashboardBgOpacity?: number
+  dashboardBgSize?: string
   dashboardThemeOverride?: string
   isMyDefaultDashboard?: boolean
   dashboardGridConfig?: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }
@@ -155,6 +168,8 @@ const emit = defineEmits<{
   'rename': [name: string]
   'reicon': [icon: string]
   'rebackground': [bg: string | undefined]
+  'rebgopacity': [opacity: number]
+  'rebgsize': [size: 'cover' | 'contain' | 'auto']
   'retheme': [theme: string | null]
   'regrid': [cfg: { columns?: number; cell_height?: number; margin?: number; breakpoints?: boolean; max_width?: number }]
 }>()
@@ -181,6 +196,11 @@ const iconMenuOpen = ref(false)
 const bgMenuOpen = ref(false)
 const bgFileInput = ref<HTMLInputElement | null>(null)
 const bgUploading = ref(false)
+const localBgOpacity = ref(props.dashboardBgOpacity ?? 100)
+const localBgSize = ref<'cover' | 'contain' | 'auto'>((props.dashboardBgSize as any) ?? 'cover')
+
+watch(() => props.dashboardBgOpacity, v => { localBgOpacity.value = v ?? 100 })
+watch(() => props.dashboardBgSize, v => { localBgSize.value = (v as any) ?? 'cover' })
 const gridMenuOpen = ref(false)
 const localIcon = ref(props.dashboardIcon ?? '')
 const localBg = ref(props.dashboardBackground ?? '')
@@ -211,6 +231,11 @@ function pickIcon(ic: string) {
 }
 
 function commitIcon(val: string) { emit('reicon', val) }
+
+const bgIsImage = computed(() => {
+  const bg = localBg.value
+  return bg.startsWith('url(') || bg.startsWith('http') || bg.startsWith('/api/')
+})
 
 function pickBg(val: string | undefined) {
   localBg.value = val ?? ''

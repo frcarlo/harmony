@@ -338,6 +338,8 @@ export interface Dashboard {
   name: string
   icon?: string
   background?: string
+  bg_opacity?: number
+  bg_size?: 'cover' | 'contain' | 'auto'
   theme_override?: string
   is_default?: boolean
   grid_config?: GridConfig
