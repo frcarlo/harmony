@@ -266,6 +266,8 @@
     "dial_color": "Couleur de l'anneau",
     "dial_bg_color": "Couleur de fond de l'anneau",
     "refresh_interval": "Intervalle (secondes)",
+    "light_entity": "Lumière / interrupteur (optionnel)",
+    "light_entity_placeholder": "Aucun",
     "stream_type": "Mode de flux",
     "stream_type_webrtc": "WebRTC (en direct)",
     "stream_type_mjpeg": "MJPEG (en direct)",
@@ -406,6 +408,7 @@
     "stop_stream": "Arrêter le flux",
     "pause": "Mettre en pause",
     "resume": "Reprendre le flux",
+    "toggle_light": "Basculer la lumière",
     "disconnected": "Connexion interrompue",
     "fullscreen": "Plein écran"
   },

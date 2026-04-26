@@ -266,6 +266,8 @@
     "dial_color": "Colore anello",
     "dial_bg_color": "Colore sfondo anello",
     "refresh_interval": "Intervallo (secondi)",
+    "light_entity": "Luce / interruttore (opzionale)",
+    "light_entity_placeholder": "Nessuno",
     "stream_type": "Modalità stream",
     "stream_type_webrtc": "WebRTC (live)",
     "stream_type_mjpeg": "MJPEG (live)",
@@ -406,6 +408,7 @@
     "stop_stream": "Ferma stream",
     "pause": "Pausa stream",
     "resume": "Riprendi stream",
+    "toggle_light": "Attiva/disattiva luce",
     "disconnected": "Connessione interrotta",
     "fullscreen": "Schermo intero"
   },

@@ -3,6 +3,14 @@
     <div class="d-flex align-center ga-2 px-3 pt-3 pb-1">
       <v-icon icon="mdi-camera" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate flex-grow-1">{{ name }}</span>
+      <v-btn
+        v-if="props.config.light_entity_id"
+        :icon="lightOn ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
+        size="x-small" variant="text" density="compact"
+        :color="lightOn ? 'warning' : undefined"
+        :title="t('camera.toggle_light')"
+        @click="toggleLight"
+      />
       <template v-if="streamMode === 'mjpeg'">
         <v-btn
           :icon="mjpegPaused ? 'mdi-play' : 'mdi-pause'"
@@ -106,6 +114,13 @@
       <div class="d-flex align-center px-3 py-2" style="background:rgba(0,0,0,0.7);position:absolute;top:0;left:0;right:0;z-index:2">
         <v-icon icon="mdi-camera" size="14" color="white" class="mr-2" />
         <span class="text-caption text-white flex-grow-1">{{ name }}</span>
+        <v-btn
+          v-if="props.config.light_entity_id"
+          :icon="lightOn ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
+          size="x-small" variant="text" color="white"
+          :style="lightOn ? 'color: #fb8c00 !important' : ''"
+          @click="toggleLight"
+        />
         <template v-if="streamMode === 'mjpeg'">
           <v-btn
             :icon="mjpegPaused ? 'mdi-play' : 'mdi-pause'"
@@ -201,6 +216,21 @@ function toggleMjpeg() {
 let snapshotTimer: ReturnType<typeof setInterval> | null = null
 
 const client = useHAClient()
+const entityStore = useEntityStore()
+
+const lightOn = computed(() => {
+  const id = props.config.light_entity_id
+  if (!id) return false
+  return entityStore.entities[id]?.state === 'on'
+})
+
+function toggleLight() {
+  const id = props.config.light_entity_id
+  if (!id) return
+  const domain = id.split('.')[0]
+  client.callService({ domain, service: lightOn.value ? 'turn_off' : 'turn_on', target: { entity_id: id } })
+}
+
 let pc: RTCPeerConnection | null = null
 let unsubscribeWebRTC: (() => void) | null = null
 const muted = ref(true)

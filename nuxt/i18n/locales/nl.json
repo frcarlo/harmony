@@ -266,6 +266,8 @@
     "dial_color": "Ringkleur",
     "dial_bg_color": "Ringachtergrondkleur",
     "refresh_interval": "Interval (seconden)",
+    "light_entity": "Licht / schakelaar (optioneel)",
+    "light_entity_placeholder": "Geen",
     "stream_type": "Streammodus",
     "stream_type_webrtc": "WebRTC (live)",
     "stream_type_mjpeg": "MJPEG (live)",
@@ -406,6 +408,7 @@
     "stop_stream": "Stream stoppen",
     "pause": "Stream pauzeren",
     "resume": "Stream hervatten",
+    "toggle_light": "Licht omschakelen",
     "disconnected": "Verbinding verbroken",
     "fullscreen": "Volledig scherm"
   },
