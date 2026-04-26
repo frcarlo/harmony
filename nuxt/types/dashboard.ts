@@ -69,6 +69,7 @@ export interface CameraWidgetConfig {
   entity_id: string
   name?: string
   refresh_interval?: number
+  stream_type?: 'webrtc' | 'mjpeg' | 'snapshot'
 }
 
 export interface ThermostatWidgetConfig {
@@ -236,8 +237,12 @@ export interface StatusBarRoomEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
+export interface StatusBarDividerEntry {
+  entry_type: 'divider'
+}
+
 export interface StatusBarWidgetConfig {
-  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry)[]
+  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarDividerEntry)[]
   show_labels?: boolean
   orientation?: 'horizontal' | 'vertical'
   nav_position?: 'start' | 'end'

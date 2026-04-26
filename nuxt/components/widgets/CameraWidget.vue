@@ -3,7 +3,7 @@
     <div class="d-flex align-center ga-2 px-3 pt-3 pb-1">
       <v-icon icon="mdi-camera" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate flex-grow-1">{{ name }}</span>
-      <template v-if="streamState === 'playing'">
+      <template v-if="streamState === 'playing' && streamMode === 'webrtc'">
         <v-btn
           :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
           size="x-small" variant="text" density="compact"
@@ -12,7 +12,7 @@
         />
       </template>
       <v-btn
-        v-if="streamState !== 'idle'"
+        v-if="streamState !== 'idle' && streamMode === 'webrtc'"
         icon="mdi-stop"
         size="x-small" variant="text" density="compact"
         :title="t('camera.stop_stream')"
@@ -29,37 +29,61 @@
     <div class="flex-grow-1 position-relative overflow-hidden d-flex align-center justify-center"
       style="border-radius: 0 0 12px 12px; background: #000">
 
-      <!-- Idle: snapshot preview + play button -->
-      <template v-if="streamState === 'idle'">
-        <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
-          class="w-100 h-100 position-absolute" style="object-fit: cover; opacity: 0.5" />
-        <v-btn icon="mdi-play-circle" size="large" variant="flat" color="primary"
-          style="position: relative; z-index: 1" @click="startStream" />
-      </template>
-
-      <!-- Connecting -->
-      <template v-else-if="streamState === 'waking'">
-        <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
-          class="w-100 h-100 position-absolute" style="object-fit: cover; opacity: 0.3" />
-        <div class="d-flex flex-column align-center ga-2" style="position: relative; z-index: 1">
-          <v-progress-circular indeterminate color="primary" size="32" />
-          <span class="text-caption text-medium-emphasis">{{ t('camera.connecting') }}</span>
+      <!-- MJPEG mode: browser handles the stream natively -->
+      <template v-if="streamMode === 'mjpeg'">
+        <img v-if="!mjpegError" :src="mjpegSrc" :alt="name"
+          class="w-100 h-100 position-absolute" style="object-fit: cover"
+          @error="mjpegError = true" />
+        <div v-else class="d-flex flex-column align-center ga-2 text-medium-emphasis text-body-2">
+          <v-icon icon="mdi-camera-off" size="32" />
+          <span class="text-caption text-center px-2">{{ t('camera.unavailable') }}</span>
+          <v-btn size="x-small" variant="tonal" @click="retryMjpeg">{{ t('common.retry') }}</v-btn>
         </div>
       </template>
 
-      <!-- Live video (always in DOM so ref is available for ontrack) -->
-      <video ref="videoEl"
-        class="w-100 h-100"
-        :style="{ objectFit: 'cover', display: streamState === 'playing' ? 'block' : 'none' }"
-        autoplay playsinline />
+      <!-- Snapshot mode: periodically refreshed still image -->
+      <template v-else-if="streamMode === 'snapshot'">
+        <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
+          class="w-100 h-100 position-absolute" style="object-fit: cover" />
+        <div v-else class="d-flex flex-column align-center ga-2 text-medium-emphasis">
+          <v-progress-circular indeterminate color="primary" size="24" />
+        </div>
+      </template>
 
-      <!-- Error -->
-      <div v-if="streamState === 'error'"
-        class="d-flex flex-column align-center ga-2 text-medium-emphasis text-body-2">
-        <v-icon icon="mdi-camera-off" size="32" />
-        <span class="text-caption text-center px-2">{{ errorMsg }}</span>
-        <v-btn size="x-small" variant="tonal" @click="startStream">{{ t('common.retry') }}</v-btn>
-      </div>
+      <!-- WebRTC mode (default) -->
+      <template v-else>
+        <!-- Idle: snapshot preview + play button -->
+        <template v-if="streamState === 'idle'">
+          <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
+            class="w-100 h-100 position-absolute" style="object-fit: cover; opacity: 0.5" />
+          <v-btn icon="mdi-play-circle" size="large" variant="flat" color="primary"
+            style="position: relative; z-index: 1" @click="startStream" />
+        </template>
+
+        <!-- Connecting -->
+        <template v-else-if="streamState === 'waking'">
+          <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
+            class="w-100 h-100 position-absolute" style="object-fit: cover; opacity: 0.3" />
+          <div class="d-flex flex-column align-center ga-2" style="position: relative; z-index: 1">
+            <v-progress-circular indeterminate color="primary" size="32" />
+            <span class="text-caption text-medium-emphasis">{{ t('camera.connecting') }}</span>
+          </div>
+        </template>
+
+        <!-- Live video -->
+        <video ref="videoEl"
+          class="w-100 h-100"
+          :style="{ objectFit: 'cover', display: streamState === 'playing' ? 'block' : 'none' }"
+          autoplay playsinline />
+
+        <!-- Error -->
+        <div v-if="streamState === 'error'"
+          class="d-flex flex-column align-center ga-2 text-medium-emphasis text-body-2">
+          <v-icon icon="mdi-camera-off" size="32" />
+          <span class="text-caption text-center px-2">{{ errorMsg }}</span>
+          <v-btn size="x-small" variant="tonal" @click="startStream">{{ t('common.retry') }}</v-btn>
+        </div>
+      </template>
     </div>
   </div>
 
@@ -69,34 +93,49 @@
       <div class="d-flex align-center px-3 py-2" style="background:rgba(0,0,0,0.7);position:absolute;top:0;left:0;right:0;z-index:2">
         <v-icon icon="mdi-camera" size="14" color="white" class="mr-2" />
         <span class="text-caption text-white flex-grow-1">{{ name }}</span>
-        <v-btn
-          v-if="streamState === 'playing'"
-          :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
-          size="x-small" variant="text" color="white"
-          @click="toggleMute"
-        />
+        <template v-if="streamMode === 'webrtc' && streamState === 'playing'">
+          <v-btn
+            :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
+            size="x-small" variant="text" color="white"
+            @click="toggleMute"
+          />
+        </template>
         <v-btn icon="mdi-fullscreen-exit" size="x-small" variant="text" color="white"
           @click="fullscreen = false" />
       </div>
 
       <div class="flex-grow-1 d-flex align-center justify-center" style="background:#000">
-        <template v-if="streamState === 'idle'">
-          <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
-          <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary"
-            style="position:absolute" @click="startStream" />
+        <!-- MJPEG fullscreen -->
+        <template v-if="streamMode === 'mjpeg'">
+          <img :src="mjpegSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
         </template>
-        <template v-else-if="streamState === 'waking'">
-          <v-progress-circular indeterminate color="primary" size="48" />
+
+        <!-- Snapshot fullscreen -->
+        <template v-else-if="streamMode === 'snapshot'">
+          <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
+            style="max-width:100%;max-height:100%;object-fit:contain" />
         </template>
-        <video ref="videoElFs"
-          style="max-width:100%;max-height:100%;object-fit:contain"
-          :style="{ display: streamState === 'playing' ? 'block' : 'none' }"
-          autoplay playsinline />
-        <div v-if="streamState === 'error'" class="d-flex flex-column align-center ga-3 text-white">
-          <v-icon icon="mdi-camera-off" size="48" />
-          <span class="text-body-2">{{ errorMsg }}</span>
-          <v-btn variant="tonal" @click="startStream">{{ t('common.retry') }}</v-btn>
-        </div>
+
+        <!-- WebRTC fullscreen -->
+        <template v-else>
+          <template v-if="streamState === 'idle'">
+            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+            <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary"
+              style="position:absolute" @click="startStream" />
+          </template>
+          <template v-else-if="streamState === 'waking'">
+            <v-progress-circular indeterminate color="primary" size="48" />
+          </template>
+          <video ref="videoElFs"
+            style="max-width:100%;max-height:100%;object-fit:contain"
+            :style="{ display: streamState === 'playing' ? 'block' : 'none' }"
+            autoplay playsinline />
+          <div v-if="streamState === 'error'" class="d-flex flex-column align-center ga-3 text-white">
+            <v-icon icon="mdi-camera-off" size="48" />
+            <span class="text-body-2">{{ errorMsg }}</span>
+            <v-btn variant="tonal" @click="startStream">{{ t('common.retry') }}</v-btn>
+          </div>
+        </template>
       </div>
     </v-card>
   </v-dialog>
@@ -108,6 +147,7 @@ import type { CameraWidgetConfig } from '~/types/dashboard'
 const { t } = useI18n()
 const props = defineProps<{ config: CameraWidgetConfig }>()
 const name = computed(() => props.config.name ?? props.config.entity_id)
+const streamMode = computed(() => props.config.stream_type ?? 'webrtc')
 
 type StreamState = 'idle' | 'waking' | 'playing' | 'error'
 const streamState = ref<StreamState>('idle')
@@ -116,6 +156,13 @@ const videoElFs = ref<HTMLVideoElement | null>(null)
 const snapshotSrc = ref('')
 const errorMsg = ref('')
 const fullscreen = ref(false)
+
+// MJPEG
+const mjpegSrc = ref('')
+const mjpegError = ref(false)
+
+// Snapshot refresh
+let snapshotTimer: ReturnType<typeof setInterval> | null = null
 
 const client = useHAClient()
 let pc: RTCPeerConnection | null = null
@@ -130,17 +177,42 @@ function toggleMute() {
 
 function openFullscreen() {
   fullscreen.value = true
-  nextTick(() => {
-    if (videoElFs.value && videoEl.value?.srcObject) {
-      videoElFs.value.srcObject = videoEl.value.srcObject
-      videoElFs.value.muted = muted.value
-      videoElFs.value.play().catch(() => {})
-    }
-  })
+  if (streamMode.value === 'webrtc') {
+    nextTick(() => {
+      if (videoElFs.value && videoEl.value?.srcObject) {
+        videoElFs.value.srcObject = videoEl.value.srcObject
+        videoElFs.value.muted = muted.value
+        videoElFs.value.play().catch(() => {})
+      }
+    })
+  }
+}
+
+function refreshSnapshot() {
+  snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
+}
+
+function retryMjpeg() {
+  mjpegError.value = false
+  mjpegSrc.value = `/api/camera/stream/${props.config.entity_id}?t=${Date.now()}`
 }
 
 onMounted(() => {
-  snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
+  if (streamMode.value === 'mjpeg') {
+    mjpegSrc.value = `/api/camera/stream/${props.config.entity_id}`
+  } else if (streamMode.value === 'snapshot') {
+    const interval = (props.config.refresh_interval ?? 5) * 1000
+    refreshSnapshot()
+    snapshotTimer = setInterval(refreshSnapshot, interval)
+  } else {
+    snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
+  }
+})
+
+onUnmounted(() => {
+  if (snapshotTimer) { clearInterval(snapshotTimer); snapshotTimer = null }
+  unsubscribeWebRTC?.()
+  if (pc) pc.close()
 })
 
 async function startStream() {
@@ -152,7 +224,6 @@ async function startStream() {
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
     })
 
-    // Nest requires exactly: audio, video, application m-lines in that order
     pc.addTransceiver('audio', { direction: 'recvonly' })
     pc.addTransceiver('video', { direction: 'recvonly' })
     pc.createDataChannel('dataSendChannel')
@@ -164,7 +235,6 @@ async function startStream() {
         if (!videoEl.value.srcObject) {
           videoEl.value.srcObject = stream
         } else {
-          // Add additional tracks (e.g. audio arriving after video)
           const existing = videoEl.value.srcObject as MediaStream
           stream.getTracks().forEach(t => { if (!existing.getTrackById(t.id)) existing.addTrack(t) })
         }
@@ -187,14 +257,12 @@ async function startStream() {
       }
     }
 
-    // Collect local ICE candidates
     const localCandidates: RTCIceCandidate[] = []
     pc.onicecandidate = (e) => { if (e.candidate) localCandidates.push(e.candidate) }
 
     const offer = await pc.createOffer()
     await pc.setLocalDescription(offer)
 
-    // Wait for ICE gathering (max 3s)
     await new Promise<void>((resolve) => {
       if (pc!.iceGatheringState === 'complete') { resolve(); return }
       pc!.onicegatheringstatechange = () => { if (pc!.iceGatheringState === 'complete') resolve() }
@@ -242,9 +310,4 @@ function stopStream() {
   streamState.value = 'idle'
   snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
 }
-
-onUnmounted(() => {
-  unsubscribeWebRTC?.()
-  if (pc) pc.close()
-})
 </script>
