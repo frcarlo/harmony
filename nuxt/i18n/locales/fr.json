@@ -404,6 +404,8 @@
     "stream_unavailable": "Flux indisponible",
     "connecting": "Connexion…",
     "stop_stream": "Arrêter le flux",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre le flux",
     "disconnected": "Connexion interrompue",
     "fullscreen": "Plein écran"
   },

@@ -404,6 +404,8 @@
     "stream_unavailable": "Stream niet beschikbaar",
     "connecting": "Verbinden…",
     "stop_stream": "Stream stoppen",
+    "pause": "Stream pauzeren",
+    "resume": "Stream hervatten",
     "disconnected": "Verbinding verbroken",
     "fullscreen": "Volledig scherm"
   },

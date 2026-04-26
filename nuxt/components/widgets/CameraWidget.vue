@@ -3,6 +3,14 @@
     <div class="d-flex align-center ga-2 px-3 pt-3 pb-1">
       <v-icon icon="mdi-camera" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate flex-grow-1">{{ name }}</span>
+      <template v-if="streamMode === 'mjpeg'">
+        <v-btn
+          :icon="mjpegPaused ? 'mdi-play' : 'mdi-pause'"
+          size="x-small" variant="text" density="compact"
+          :title="mjpegPaused ? t('camera.resume') : t('camera.pause')"
+          @click="toggleMjpeg"
+        />
+      </template>
       <template v-if="streamState === 'playing' && streamMode === 'webrtc'">
         <v-btn
           :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
@@ -31,10 +39,15 @@
 
       <!-- MJPEG mode: browser handles the stream natively -->
       <template v-if="streamMode === 'mjpeg'">
-        <img v-if="!mjpegError" :src="mjpegSrc" :alt="name"
+        <img v-if="!mjpegError && !mjpegPaused" :src="mjpegSrc" :alt="name"
           class="w-100 h-100 position-absolute" style="object-fit: cover"
           @error="mjpegError = true" />
-        <div v-else class="d-flex flex-column align-center ga-2 text-medium-emphasis text-body-2">
+        <img v-else-if="snapshotSrc" :src="snapshotSrc" :alt="name"
+          class="w-100 h-100 position-absolute" style="object-fit: cover; opacity: 0.5" />
+        <div v-if="mjpegPaused" style="position: relative; z-index: 1">
+          <v-btn icon="mdi-play-circle" size="large" variant="flat" color="primary" @click="toggleMjpeg" />
+        </div>
+        <div v-else-if="mjpegError" class="d-flex flex-column align-center ga-2 text-medium-emphasis text-body-2">
           <v-icon icon="mdi-camera-off" size="32" />
           <span class="text-caption text-center px-2">{{ t('camera.unavailable') }}</span>
           <v-btn size="x-small" variant="tonal" @click="retryMjpeg">{{ t('common.retry') }}</v-btn>
@@ -93,6 +106,13 @@
       <div class="d-flex align-center px-3 py-2" style="background:rgba(0,0,0,0.7);position:absolute;top:0;left:0;right:0;z-index:2">
         <v-icon icon="mdi-camera" size="14" color="white" class="mr-2" />
         <span class="text-caption text-white flex-grow-1">{{ name }}</span>
+        <template v-if="streamMode === 'mjpeg'">
+          <v-btn
+            :icon="mjpegPaused ? 'mdi-play' : 'mdi-pause'"
+            size="x-small" variant="text" color="white"
+            @click="toggleMjpeg"
+          />
+        </template>
         <template v-if="streamMode === 'webrtc' && streamState === 'playing'">
           <v-btn
             :icon="muted ? 'mdi-volume-off' : 'mdi-volume-high'"
@@ -107,7 +127,11 @@
       <div class="flex-grow-1 d-flex align-center justify-center" style="background:#000">
         <!-- MJPEG fullscreen -->
         <template v-if="streamMode === 'mjpeg'">
-          <img :src="mjpegSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+          <img v-if="!mjpegPaused" :src="mjpegSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+          <div v-else class="d-flex flex-column align-center ga-2">
+            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain;opacity:0.5" />
+            <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary" style="position:absolute" @click="toggleMjpeg" />
+          </div>
         </template>
 
         <!-- Snapshot fullscreen -->
@@ -160,6 +184,18 @@ const fullscreen = ref(false)
 // MJPEG
 const mjpegSrc = ref('')
 const mjpegError = ref(false)
+const mjpegPaused = ref(false)
+
+function toggleMjpeg() {
+  if (mjpegPaused.value) {
+    mjpegPaused.value = false
+    mjpegError.value = false
+    mjpegSrc.value = `/api/camera/stream/${props.config.entity_id}?t=${Date.now()}`
+  } else {
+    snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
+    mjpegPaused.value = true
+  }
+}
 
 // Snapshot refresh
 let snapshotTimer: ReturnType<typeof setInterval> | null = null
