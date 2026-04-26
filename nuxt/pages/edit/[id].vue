@@ -1,6 +1,7 @@
 <template>
   <div v-if="dashboard" :style="bgBase" style="min-height:100vh;position:relative">
     <div v-if="bgImage" :style="bgImageStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
+    <div v-if="bgImage" :style="bgOverlayStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
     <div class="d-flex flex-column dashboard-bg" style="position:relative;z-index:1;min-height:100vh">
     <AppToolbar
       :dashboard-name="dashboard.name"
@@ -65,16 +66,16 @@ const bgImage = computed(() => {
   return null
 })
 
-const bgImageStyle = computed(() => {
-  const size = dashboard.value?.bg_size ?? 'cover'
-  const opacity = (dashboard.value?.bg_opacity ?? 100) / 100
-  return {
-    backgroundImage: `url(${bgImage.value})`,
-    backgroundSize: size,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    opacity,
-  }
+const bgImageStyle = computed(() => ({
+  backgroundImage: `url(${bgImage.value})`,
+  backgroundSize: dashboard.value?.bg_size ?? 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+}))
+
+const bgOverlayStyle = computed(() => {
+  const dim = 1 - (dashboard.value?.bg_opacity ?? 100) / 100
+  return { background: `rgba(0,0,0,${dim.toFixed(2)})` }
 })
 
 onBeforeMount(() => {
