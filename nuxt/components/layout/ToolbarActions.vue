@@ -137,10 +137,16 @@ function resetLocalSettings() {
 }
 
 async function logout() {
+  let keycloakLogoutUrl: string | undefined
   try {
-    await $fetch('/api/auth/logout', { method: 'POST' })
+    const res = await $fetch<{ ok: boolean; keycloakLogoutUrl?: string }>('/api/auth/logout', { method: 'POST' })
+    keycloakLogoutUrl = res.keycloakLogoutUrl
   } catch { /* ignore server errors — still clear client state */ }
   clear()
-  await navigateTo('/login')
+  if (keycloakLogoutUrl) {
+    window.location.href = keycloakLogoutUrl
+  } else {
+    await navigateTo('/login')
+  }
 }
 </script>
