@@ -420,6 +420,8 @@
     "stream_unavailable": "Stream nicht verfügbar",
     "connecting": "Verbinde…",
     "stop_stream": "Stream stoppen",
+    "pause": "Stream pausieren",
+    "resume": "Stream fortsetzen",
     "disconnected": "Verbindung unterbrochen",
     "fullscreen": "Vollbild"
   },

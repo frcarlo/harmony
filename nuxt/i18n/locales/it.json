@@ -404,6 +404,8 @@
     "stream_unavailable": "Stream non disponibile",
     "connecting": "Connessione in corso…",
     "stop_stream": "Ferma stream",
+    "pause": "Pausa stream",
+    "resume": "Riprendi stream",
     "disconnected": "Connessione interrotta",
     "fullscreen": "Schermo intero"
   },
