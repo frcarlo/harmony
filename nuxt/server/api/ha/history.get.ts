@@ -1,3 +1,9 @@
+import { getHAHistory, getHAStatistics, downsampleHistory } from '~/server/utils/ha-api'
+
+const MAX_POINTS: Record<string, number> = {
+  '1h': 300, '6h': 400, '24h': 500, '7d': 500, '30d': 720,
+}
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const entityId = query.entityId as string
@@ -11,8 +17,14 @@ export default defineEventHandler(async (event) => {
   const match = period.match(/^(\d+)h$/)
   const hours = periodMap[period] ?? (match ? parseInt(match[1]) : 24)
   const startTime = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+  const maxPoints = MAX_POINTS[period] ?? 500
+
+  if (period === '30d') {
+    const stats = await getHAStatistics(entityId, startTime, 'hour')
+    if (stats.length > 0) return downsampleHistory(stats, maxPoints)
+  }
 
   const data = await getHAHistory(entityId, startTime)
-  const entityHistory = Array.isArray(data) ? (data as unknown[]).flat() : []
-  return entityHistory
+  const raw = (Array.isArray(data) ? (data as unknown[]).flat() : []) as Array<{ last_changed: string; state: string }>
+  return downsampleHistory(raw, maxPoints)
 })

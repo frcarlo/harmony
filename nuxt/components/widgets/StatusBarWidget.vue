@@ -34,27 +34,35 @@
       class="status-group flex-grow-1"
       :class="[isVertical ? 'flex-column' : 'flex-row']"
     >
-      <v-tooltip v-for="(badge, i) in statusBadges" :key="'st' + i" location="bottom">
-        <template #activator="{ props: tp }">
-          <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
-            <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
-              <v-icon
-                :icon="badge.type === 'single' ? resolveIcon(badge) : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
-                :color="badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
-                :size="iconSize(badge.entry)"
-              />
-              <span v-if="badge.type === 'group' && badge.entry.show_badge && badge.activeCount > 0" class="status-badge">
-                {{ badge.activeCount }}
+      <template v-for="(badge, i) in statusBadges" :key="'st' + i">
+        <div
+          v-if="badge.type === 'divider'"
+          class="statusbar-entry-divider"
+          :class="{ 'statusbar-entry-divider--vertical': isVertical }"
+          aria-hidden="true"
+        />
+        <v-tooltip v-else location="bottom">
+          <template #activator="{ props: tp }">
+            <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
+              <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
+                <v-icon
+                  :icon="badge.type === 'single' ? resolveIcon(badge) : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
+                  :color="badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
+                  :size="iconSize(badge.entry)"
+                />
+                <span v-if="badge.type === 'group' && badge.entry.show_badge && badge.activeCount > 0" class="status-badge">
+                  {{ badge.activeCount }}
+                </span>
+              </div>
+              <span v-if="showLabels" class="badge-label"
+                :style="{ color: badge.active ? (badge.entry.active_color || undefined) : undefined }">
+                {{ badge.entry.label || (badge.type === 'single' ? shortState(badge.state) : '') }}
               </span>
             </div>
-            <span v-if="showLabels" class="badge-label"
-              :style="{ color: badge.active ? (badge.entry.active_color || undefined) : undefined }">
-              {{ badge.entry.label || (badge.type === 'single' ? shortState(badge.state) : '') }}
-            </span>
-          </div>
-        </template>
-        <span>{{ badge.tooltipText }}</span>
-      </v-tooltip>
+          </template>
+          <span>{{ badge.tooltipText }}</span>
+        </v-tooltip>
+      </template>
     </div>
 
     <!-- Nav group at end -->
@@ -116,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry } from '~/types/dashboard'
+import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarDividerEntry } from '~/types/dashboard'
 
 defineOptions({ inheritAttrs: false })
 
@@ -138,9 +146,13 @@ type SingleBadge = { type: 'single'; entry: StatusBarEntry; active: boolean; sta
 type GroupBadge  = { type: 'group';  entry: StatusBarGroupEntry; active: boolean; activeCount: number; tooltipText: string }
 type NavBadge    = { type: 'nav';    entry: StatusBarNavEntry; tooltipText: string }
 type RoomBadge   = { type: 'room';   entry: StatusBarRoomEntry; active: boolean; tooltipText: string }
+type DividerBadge = { type: 'divider'; entry: StatusBarDividerEntry; tooltipText: string }
 
-const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge)[] => {
+const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge | DividerBadge)[] => {
   return (props.config.entries ?? []).map((entry) => {
+    if (entry.entry_type === 'divider') {
+      return { type: 'divider' as const, entry, tooltipText: 'Divider' }
+    }
     if (entry.entry_type === 'nav') {
       return { type: 'nav' as const, entry, tooltipText: entry.label || entry.dashboard_id }
     }
@@ -179,7 +191,7 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomB
   })
 })
 
-const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge | RoomBadge)[])
+const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge | RoomBadge | DividerBadge)[])
 const navBadges = computed(() => resolvedBadges.value.filter(b => b.type === 'nav') as NavBadge[])
 
 const singleDialogOpen = ref(false)
@@ -204,9 +216,11 @@ onMounted(() => {
   onUnmounted(() => observer.disconnect())
 })
 
-function handleClick(badge: SingleBadge | GroupBadge | NavBadge | RoomBadge) {
+function handleClick(badge: SingleBadge | GroupBadge | NavBadge | RoomBadge | DividerBadge) {
   if (badge.type === 'nav') {
     router.push(`/dashboard/${badge.entry.dashboard_id}`)
+  } else if (badge.type === 'divider') {
+    return
   } else if (badge.type === 'room') {
     roomEntry.value = badge.entry
     roomDialogOpen.value = true
@@ -335,6 +349,24 @@ function shortState(state: string) {
   flex-direction: column;
   flex-wrap: nowrap;
   gap: 6px;
+}
+
+.statusbar-entry-divider {
+  align-self: stretch;
+  width: 1px;
+  min-height: 22px;
+  flex: 0 0 1px;
+  border-radius: 999px;
+  background: rgba(var(--v-theme-on-surface), 0.16);
+}
+
+.statusbar-entry-divider--vertical {
+  align-self: stretch;
+  width: auto;
+  height: 1px;
+  min-height: 0;
+  min-width: 22px;
+  flex: 0 0 1px;
 }
 
 .badge {
