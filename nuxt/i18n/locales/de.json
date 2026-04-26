@@ -262,6 +262,7 @@
     "unit_auto": "Auto",
     "decimal_places": "Dezimalstellen",
     "show_trend": "Verlauf unten anzeigen",
+    "show_sensor_trend": "Sensorverlauf anzeigen",
     "show_brightness": "Helligkeitsregler anzeigen",
     "period": "Zeitraum",
     "chart_type": "Chart-Typ",
@@ -292,6 +293,7 @@
     "time_remaining_entity": "Restzeit-Entity",
     "program_entity": "Programm-Entity",
     "power_entity": "Power/Status-Entity",
+    "sensor_entity": "Sensor-Entity",
     "door_entity": "Tür-Entity",
     "alarm_code": "Alarm-Code (optional)",
     "alarm_code_hint": "Nur nötig, wenn deine Alarmanlage einen Code verlangt",
@@ -315,8 +317,25 @@
     "sensor_no_thermostat": "Sensor (ohne Thermostat)",
     "icon_field": "Icon (mdi-...)",
     "light_dblclick_hint": "Doppelklick auf die Karte schaltet das Licht um",
+    "card_click_action": "Aktion bei Klick",
+    "card_double_click_action": "Aktion bei Doppelklick",
+    "card_hold_action": "Aktion bei Halten",
+    "action_none": "Keine Aktion",
+    "action_toggle_light": "Licht schalten",
+    "action_open_light_detail": "Lichtdetails öffnen",
+    "action_open_climate_detail": "Klimadetails öffnen",
+    "entry_type_room": "Raum",
+    "add_room": "Raum hinzufügen",
+    "room_active_source": "Aktivquelle",
+    "room_active_source_light": "Licht",
+    "room_active_source_climate": "Klima",
+    "room_active_source_custom": "Custom",
+    "main_entities": "Haupt-Entitäten",
+    "additional_sensors": "Sensoren",
+    "primary_sensor": "Hauptsensor",
     "status_entities": "Status-Entities",
     "add_status": "Status-Entity hinzufügen",
+    "add_sensor": "Sensor hinzufügen",
     "inactive_color": "Farbe (inaktiv)",
     "active_state": "Aktiver State (optional)",
     "active_state_hint": "z.B. locked, open, playing",
@@ -404,6 +423,7 @@
       "unavailable": "Nicht verfügbar",
       "inactive": "Inaktiv",
       "ready": "Bereit",
+      "starting": "Startet",
       "delayedstart": "Geplant",
       "run": "Läuft",
       "pause": "Pausiert",
@@ -424,6 +444,20 @@
   "media": {
     "library": "Medienbibliothek",
     "search": "Suche",
+    "spotify": "Spotify",
+    "recents": "Zuletzt gehört",
+    "now_playing": "Jetzt läuft",
+    "nothing_playing": "Gerade nichts abgespielt",
+    "spotify_search_placeholder": "Spotify nach Titeln, Alben, Künstlern suchen…",
+    "spotify_search_requires_ma": "Für die player-unabhängige Spotify-Suche muss Spotify in Music Assistant eingebunden sein.",
+    "spotify_library_empty": "Keine Spotify-Rubriken gefunden.",
+    "spotify_section_playlists": "Deine Playlists",
+    "spotify_section_artists": "Gefolgte Künstler",
+    "spotify_section_albums": "Gespeicherte Alben",
+    "spotify_section_liked_songs": "Lieblingssongs",
+    "spotify_section_recently_played": "Zuletzt gehört",
+    "spotify_section_top_artists": "Top-Künstler",
+    "spotify_section_top_tracks": "Top-Titel",
     "search_placeholder": "Titel, Alben, Künstler suchen…",
     "no_content": "Keine Inhalte gefunden",
     "no_results": "Keine Ergebnisse gefunden.",
@@ -433,7 +467,8 @@
     "albums": "Alben",
     "artists": "Künstler",
     "playlists": "Playlists",
-    "radio": "Radio"
+    "radio": "Radio",
+    "podcast": "Podcast"
   },
   "thermostat": {
     "mode_heat": "Heizen",
@@ -492,7 +527,9 @@
   },
   "detail": {
     "brightness": "Helligkeit",
-    "color_temp": "Farbtemperatur"
+    "color_temp": "Farbtemperatur",
+    "color": "Farbe",
+    "effect": "Effekt"
   },
   "group": {
     "title": "Gruppe",
@@ -501,6 +538,11 @@
   "media_player": {
     "idle": "Bereit",
     "off": "Aus"
+  },
+  "switch": {
+    "turn_on": "Einschalten",
+    "turn_off": "Ausschalten",
+    "tap_to_toggle": "Tippen zum Umschalten"
   },
   "alarm": {
     "state": {

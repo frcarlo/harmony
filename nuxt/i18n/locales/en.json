@@ -262,6 +262,7 @@
     "unit_auto": "Auto",
     "decimal_places": "Decimal places",
     "show_trend": "Show trend at the bottom",
+    "show_sensor_trend": "Show sensor trend",
     "show_brightness": "Show brightness slider",
     "period": "Period",
     "chart_type": "Chart type",
@@ -292,6 +293,7 @@
     "time_remaining_entity": "Time remaining entity",
     "program_entity": "Program entity",
     "power_entity": "Power/status entity",
+    "sensor_entity": "Sensor entity",
     "door_entity": "Door entity",
     "alarm_code": "Alarm code (optional)",
     "alarm_code_hint": "Only needed if your alarm system requires a code",
@@ -315,8 +317,25 @@
     "sensor_no_thermostat": "Sensor (without thermostat)",
     "icon_field": "Icon (mdi-...)",
     "light_dblclick_hint": "Double-click on the card toggles the light",
+    "card_click_action": "Click action",
+    "card_double_click_action": "Double-click action",
+    "card_hold_action": "Hold action",
+    "action_none": "No action",
+    "action_toggle_light": "Toggle light",
+    "action_open_light_detail": "Open light details",
+    "action_open_climate_detail": "Open climate details",
+    "entry_type_room": "Room",
+    "add_room": "Add room",
+    "room_active_source": "Active source",
+    "room_active_source_light": "Light",
+    "room_active_source_climate": "Climate",
+    "room_active_source_custom": "Custom",
+    "main_entities": "Main entities",
+    "additional_sensors": "Sensors",
+    "primary_sensor": "Primary sensor",
     "status_entities": "Status entities",
     "add_status": "Add status entity",
+    "add_sensor": "Add sensor",
     "inactive_color": "Color (inactive)",
     "active_state": "Active state (optional)",
     "active_state_hint": "e.g. locked, open, playing",
@@ -404,6 +423,7 @@
       "unavailable": "Unavailable",
       "inactive": "Inactive",
       "ready": "Ready",
+      "starting": "Starting",
       "delayedstart": "Scheduled",
       "run": "Running",
       "pause": "Paused",
@@ -424,6 +444,20 @@
   "media": {
     "library": "Media Library",
     "search": "Search",
+    "spotify": "Spotify",
+    "recents": "Recents",
+    "now_playing": "Now playing",
+    "nothing_playing": "Nothing playing right now",
+    "spotify_search_placeholder": "Search Spotify for tracks, albums, artists…",
+    "spotify_search_requires_ma": "For player-independent Spotify search, Spotify needs to be configured in Music Assistant.",
+    "spotify_library_empty": "No Spotify sections found.",
+    "spotify_section_playlists": "Your playlists",
+    "spotify_section_artists": "Followed artists",
+    "spotify_section_albums": "Saved albums",
+    "spotify_section_liked_songs": "Liked songs",
+    "spotify_section_recently_played": "Recently played",
+    "spotify_section_top_artists": "Top artists",
+    "spotify_section_top_tracks": "Top tracks",
     "search_placeholder": "Search tracks, albums, artists…",
     "no_content": "No content found",
     "no_results": "No results found.",
@@ -433,7 +467,8 @@
     "albums": "Albums",
     "artists": "Artists",
     "playlists": "Playlists",
-    "radio": "Radio"
+    "radio": "Radio",
+    "podcast": "Podcast"
   },
   "thermostat": {
     "mode_heat": "Heating",
@@ -492,7 +527,9 @@
   },
   "detail": {
     "brightness": "Brightness",
-    "color_temp": "Color temperature"
+    "color_temp": "Color temperature",
+    "color": "Color",
+    "effect": "Effect"
   },
   "group": {
     "title": "Group",
@@ -501,6 +538,11 @@
   "media_player": {
     "idle": "Ready",
     "off": "Off"
+  },
+  "switch": {
+    "turn_on": "Turn on",
+    "turn_off": "Turn off",
+    "tap_to_toggle": "Tap to toggle"
   },
   "alarm": {
     "state": {

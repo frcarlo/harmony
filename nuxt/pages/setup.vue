@@ -7,8 +7,7 @@
       <v-card width="400" rounded="xl" class="pa-2 login-card" style="position:relative;z-index:1">
         <v-card-text class="pa-6">
           <div class="text-center mb-6">
-            <v-icon icon="mdi-home-assistant" size="48" color="#18BCF2" class="mb-3" />
-            <div class="text-h6 font-weight-bold">HArmony</div>
+            <AppBrandLogo :size="160" class="mx-auto mb-3" />
             <div class="text-body-2 text-medium-emphasis mt-1">{{ t('setup.subtitle') }}</div>
           </div>
 

@@ -46,7 +46,7 @@ const widgetTypes = computed(() => ([
 ]).sort((a, b) => a.key.localeCompare(b.key)))
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
-  sensor: { entity_id: '' }, switch: { entity_id: '' },
+  sensor: { entity_id: '' }, switch: { entity_id: '', icon: '', sensor_entity_id: '', show_sensor_trend: false },
   light: { entity_id: '', show_brightness: true, border_width: 3 },
   chart: { entity_id: '', period: '24h', chart_type: 'area' },
   camera: { entity_id: '', refresh_interval: 5 },
@@ -55,7 +55,14 @@ const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
   weather: { entity_id: '', show_forecast: true, forecast_rows: 3 },
   clock: { format_24h: true, show_seconds: true, show_date: true },
   label: { text: 'Überschrift', font_size: 'lg' },
-  room_card: { name: 'Raum', show_temp_control: true, status_entities: [] },
+  room_card: {
+    name: 'Raum',
+    show_temp_control: true,
+    status_entities: [],
+    card_click_action: 'none',
+    card_double_click_action: 'toggle_light',
+    card_hold_action: 'open_climate_detail',
+  },
   calendar: { entity_id: '', show_time: true },
   calendar_v2: { calendars: [], view: 'month' },
   person: { persons: [] },

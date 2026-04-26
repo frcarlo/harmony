@@ -46,7 +46,9 @@
   </v-dialog>
 
   <!-- Entity detail dialog — uses frozen entity ID so it survives dismiss() -->
-  <EntityDetailDialog v-if="frozenEntityId" v-model="entityDialogOpen"
+  <LightDetailDialog v-if="frozenEntityId && frozenEntityDomain === 'light'" v-model="entityDialogOpen"
+    :entity-id="frozenEntityId" />
+  <EntityDetailDialog v-else-if="frozenEntityId" v-model="entityDialogOpen"
     :entity-id="frozenEntityId" />
 </template>
 
@@ -72,6 +74,7 @@ const now = useNow({ interval: 10_000 })
 const cameraDialogOpen = ref(false)
 const entityDialogOpen = ref(false)
 const frozenEntityId = ref<string | null>(null)
+const frozenEntityDomain = computed(() => frozenEntityId.value?.split('.')[0] ?? '')
 
 function openEntityDetail() {
   frozenEntityId.value = active.value?.rule.action_entity_id ?? null
