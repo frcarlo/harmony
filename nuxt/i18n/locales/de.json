@@ -86,6 +86,7 @@
     "theme_dashboard_default": "Globales Theme verwenden",
     "background": "Hintergrund",
     "bg_none": "Kein Hintergrund",
+    "bg_upload": "Bild hochladen",
     "bg_placeholder": "CSS-Farbe oder URL...",
     "grid_settings": "Raster-Einstellungen",
     "grid_columns": "Spalten: {n}",

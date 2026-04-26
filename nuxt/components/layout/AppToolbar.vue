@@ -74,6 +74,13 @@
               <v-btn size="32" rounded="sm" variant="outlined" icon="mdi-close-circle-outline"
                 :title="t('toolbar.bg_none')" @click="pickBg(undefined)" />
             </div>
+            <!-- Image upload -->
+            <v-btn variant="tonal" prepend-icon="mdi-upload" size="small" class="mb-3 w-100"
+              :loading="bgUploading" @click="bgFileInput?.click()">
+              {{ t('toolbar.bg_upload') }}
+            </v-btn>
+            <input ref="bgFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
+              class="d-none" @change="onBgFileChange" />
             <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details clearable
               :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg"
               @click:clear="pickBg(undefined)" />
@@ -172,6 +179,8 @@ const editingName = ref(false)
 const localName = ref('')
 const iconMenuOpen = ref(false)
 const bgMenuOpen = ref(false)
+const bgFileInput = ref<HTMLInputElement | null>(null)
+const bgUploading = ref(false)
 const gridMenuOpen = ref(false)
 const localIcon = ref(props.dashboardIcon ?? '')
 const localBg = ref(props.dashboardBackground ?? '')
@@ -212,6 +221,23 @@ function pickBg(val: string | undefined) {
 function commitBg(val: string) {
   const trimmed = val.trim()
   emit('rebackground', trimmed || undefined)
+}
+
+async function onBgFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  bgUploading.value = true
+  try {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await $fetch<{ url: string }>('/api/bg/upload', { method: 'POST', body: form })
+    pickBg(`url(${res.url})`)
+  } catch {
+    /* ignore */
+  } finally {
+    bgUploading.value = false
+    if (bgFileInput.value) bgFileInput.value.value = ''
+  }
 }
 
 function emitGrid() { emit('regrid', { ...localGrid.value }) }

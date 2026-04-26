@@ -86,6 +86,7 @@
     "theme_dashboard_default": "Utiliser le thème global",
     "background": "Arrière-plan",
     "bg_none": "Pas de fond",
+    "bg_upload": "Télécharger une image",
     "bg_placeholder": "Couleur CSS ou URL...",
     "signed_in": "Connecté",
     "user_mgmt": "Gestion des utilisateurs",

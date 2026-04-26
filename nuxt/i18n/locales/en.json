@@ -86,6 +86,7 @@
     "theme_dashboard_default": "Use global theme",
     "background": "Background",
     "bg_none": "No background",
+    "bg_upload": "Upload image",
     "bg_placeholder": "CSS color or URL...",
     "grid_settings": "Grid Settings",
     "grid_columns": "Columns: {n}",

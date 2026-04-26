@@ -86,6 +86,7 @@
     "theme_dashboard_default": "Globaal thema gebruiken",
     "background": "Achtergrond",
     "bg_none": "Geen achtergrond",
+    "bg_upload": "Afbeelding uploaden",
     "bg_placeholder": "CSS-kleur of URL...",
     "signed_in": "Aangemeld",
     "user_mgmt": "Gebruikersbeheer",
