@@ -174,11 +174,6 @@
 
             <!-- Camera -->
             <template v-if="widget.type === 'camera'">
-              <div>
-                <div class="text-caption text-medium-emphasis mb-1">{{ t('config.light_entity') }}</div>
-                <EntityPicker v-model="cfg.light_entity_id" :domain-filter="['light', 'switch']"
-                  :placeholder="t('config.light_entity_placeholder')" />
-              </div>
               <v-select
                 v-model="cfg.stream_type"
                 :items="[
@@ -192,6 +187,11 @@
               />
               <v-text-field v-if="cfg.stream_type === 'snapshot'" v-model.number="cfg.refresh_interval"
                 :label="t('config.refresh_interval')" type="number" min="1" />
+              <div>
+                <div class="text-caption text-medium-emphasis mb-1">{{ t('config.light_entity') }}</div>
+                <EntityPicker v-model="cfg.light_entity_id" :domain-filter="['light', 'switch']"
+                  :placeholder="t('config.light_entity_placeholder')" />
+              </div>
             </template>
 
             <!-- Lock -->
