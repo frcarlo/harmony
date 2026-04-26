@@ -134,6 +134,12 @@ function getDb(): DatabaseSync {
   if (!dashCols.some((c) => c.name === 'is_default')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN is_default INTEGER NOT NULL DEFAULT 0')
   }
+  if (!dashCols.some((c) => c.name === 'bg_opacity')) {
+    _db.exec('ALTER TABLE dashboards ADD COLUMN bg_opacity INTEGER')
+  }
+  if (!dashCols.some((c) => c.name === 'bg_size')) {
+    _db.exec('ALTER TABLE dashboards ADD COLUMN bg_size TEXT')
+  }
 
   return _db
 }
@@ -222,6 +228,8 @@ export function getDashboard(id: string): Dashboard | null {
     name: row.name,
     icon: normalizeOptionalString(row.icon) ?? undefined,
     background: normalizeOptionalString(row.background) ?? undefined,
+    bg_opacity: row.bg_opacity != null ? Number(row.bg_opacity) : undefined,
+    bg_size: normalizeOptionalString(row.bg_size) as Dashboard['bg_size'] ?? undefined,
     theme_override: normalizeOptionalString(row.theme_override) ?? undefined,
     is_default: Number(row.is_default) === 1,
     grid_config: row.grid_config ? JSON.parse(row.grid_config) : undefined,
@@ -261,11 +269,13 @@ export function saveDashboard(dashboard: Dashboard): void {
   try {
     const gridConfigJson = dashboard.grid_config && Object.keys(dashboard.grid_config).length > 0
       ? JSON.stringify(dashboard.grid_config) : null
-    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, theme_override=?, grid_config=?, updated_at=? WHERE id=?`)
+    db.prepare(`UPDATE dashboards SET name=?, icon=?, background=?, bg_opacity=?, bg_size=?, theme_override=?, grid_config=?, updated_at=? WHERE id=?`)
       .run(
         dashboard.name,
         normalizeOptionalString(dashboard.icon),
         normalizeOptionalString(dashboard.background),
+        dashboard.bg_opacity ?? null,
+        normalizeOptionalString(dashboard.bg_size),
         normalizeOptionalString(dashboard.theme_override),
         gridConfigJson,
         now,
