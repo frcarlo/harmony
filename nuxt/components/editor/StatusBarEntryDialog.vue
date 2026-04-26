@@ -67,7 +67,7 @@
                   <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium">
                     {{ t('config.primary_sensor') }}
                   </div>
-                  <EntityPicker v-model="draft.sensor_entity" domain="sensor" />
+                  <EntityPicker v-model="draft.sensor_entity" :domain-filter="['sensor', 'binary_sensor', 'input_number', 'number', 'input_boolean', 'switch', 'light', 'cover', 'lock', 'climate', 'weather', 'person', 'device_tracker']" />
                   <UiIconPicker
                     v-if="draft.sensor_entity"
                     :model-value="String(draft.sensor_icon ?? '')"
@@ -82,7 +82,7 @@
                   :key="`room-sensor-${idx}`"
                   class="d-flex flex-column ga-2"
                 >
-                  <EntityPicker v-model="sensor.entity_id" domain="sensor" />
+                  <EntityPicker v-model="sensor.entity_id" :domain-filter="['sensor', 'binary_sensor', 'input_number', 'number', 'input_boolean', 'switch', 'light', 'cover', 'lock', 'climate', 'weather', 'person', 'device_tracker']" />
                   <div class="d-flex align-center ga-2">
                     <div class="flex-grow-1">
                       <UiIconPicker
