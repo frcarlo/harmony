@@ -36,7 +36,14 @@
       "WebFetch(domain:github.com)",
       "Bash(git rm *)",
       "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/de.json)",
-      "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/en.json)"
+      "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/en.json)",
+      "Read(//data/docker-configs/**)",
+      "Bash(chmod +x /data/docker-configs/paperless-ai/deploy.sh)",
+      "Bash(python3 -c ' *)"
+    ],
+    "additionalDirectories": [
+      "/data/docker-configs/paperless-ai",
+      "/data/docker-configs/paperless-ngx"
     ]
   }
 }

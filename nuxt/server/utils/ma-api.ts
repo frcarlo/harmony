@@ -96,3 +96,8 @@ export async function maSearch(query: string, limit = 25): Promise<MASearchResul
     radio: result.radio ?? [],
   }
 }
+
+export async function maRecentlyPlayed(limit = 12): Promise<MAItem[]> {
+  const raw = await maCall('music/recently_played_items', { limit }, 20_000)
+  return Array.isArray(raw) ? raw as MAItem[] : []
+}

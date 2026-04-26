@@ -1,7 +1,8 @@
 <template>
   <div class="h-100 d-flex pa-3 ga-2"
     :style="{ cursor: props.config.light_entity ? 'pointer' : undefined, filter: lightOn ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))' : undefined }"
-    @dblclick="toggleLight"
+    @click="handleCardClick"
+    @dblclick="handleCardDoubleClick"
     @mousedown="startLongPress" @mouseup="cancelLongPress" @mouseleave="cancelLongPress"
     @touchstart.passive="startLongPress" @touchend="cancelLongPress" @touchmove="cancelLongPress">
     <!-- Main content -->
@@ -138,12 +139,58 @@ function openLightDetail() {
 }
 
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
+let clickTimer: ReturnType<typeof setTimeout> | null = null
+
+function resolveCardAction(kind: 'click' | 'double_click' | 'hold') {
+  if (kind === 'click') return props.config.card_click_action ?? 'none'
+  if (kind === 'double_click') return props.config.card_double_click_action ?? 'toggle_light'
+  return props.config.card_hold_action ?? 'open_climate_detail'
+}
+
+function runCardAction(action: string) {
+  if (action === 'toggle_light') {
+    void toggleLight()
+    return
+  }
+  if (action === 'open_light_detail') {
+    openLightDetail()
+    return
+  }
+  if (action === 'open_climate_detail' && props.config.climate_entity) {
+    climateDialogOpen.value = true
+  }
+}
+
+function handleCardClick() {
+  const action = resolveCardAction('click')
+  if (action === 'none') return
+  if (clickTimer) clearTimeout(clickTimer)
+  clickTimer = setTimeout(() => {
+    clickTimer = null
+    runCardAction(action)
+  }, 220)
+}
+
+function handleCardDoubleClick() {
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+  }
+  const action = resolveCardAction('double_click')
+  if (action === 'none') return
+  runCardAction(action)
+}
 
 function startLongPress() {
-  if (!props.config.climate_entity) return
+  const action = resolveCardAction('hold')
+  if (action === 'none') return
   longPressTimer = setTimeout(() => {
     longPressTimer = null
-    climateDialogOpen.value = true
+    if (clickTimer) {
+      clearTimeout(clickTimer)
+      clickTimer = null
+    }
+    runCardAction(action)
   }, 500)
 }
 

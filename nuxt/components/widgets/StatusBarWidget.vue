@@ -4,7 +4,10 @@
     class="h-100 d-flex px-2 py-2 statusbar-root"
     :class="[
       isVertical ? 'flex-column align-center' : 'align-center',
-      { 'statusbar-root--stacked': shouldStackRows },
+      {
+        'statusbar-root--stacked': shouldStackRows,
+        'statusbar-root--compact': isCompactMobile,
+      },
     ]"
   >
 
@@ -19,7 +22,7 @@
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
               :color="badge.entry.icon_color || 'medium-emphasis'" :size="iconSize(badge.entry)" />
-            <span v-if="config.show_labels" class="badge-label">{{ badge.entry.label || '' }}</span>
+            <span v-if="showLabels" class="badge-label">{{ badge.entry.label || '' }}</span>
           </div>
         </template>
         <span>{{ badge.tooltipText }}</span>
@@ -36,7 +39,7 @@
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
               <v-icon
-                :icon="badge.type === 'single' ? resolveIcon(badge) : (badge.entry.icon || 'mdi-circle')"
+                :icon="badge.type === 'single' ? resolveIcon(badge) : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
                 :color="badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
                 :size="iconSize(badge.entry)"
               />
@@ -44,7 +47,7 @@
                 {{ badge.activeCount }}
               </span>
             </div>
-            <span v-if="config.show_labels" class="badge-label"
+            <span v-if="showLabels" class="badge-label"
               :style="{ color: badge.active ? (badge.entry.active_color || undefined) : undefined }">
               {{ badge.entry.label || (badge.type === 'single' ? shortState(badge.state) : '') }}
             </span>
@@ -65,7 +68,7 @@
           <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
               :color="badge.entry.icon_color || 'medium-emphasis'" :size="iconSize(badge.entry)" />
-            <span v-if="config.show_labels" class="badge-label">{{ badge.entry.label || '' }}</span>
+            <span v-if="showLabels" class="badge-label">{{ badge.entry.label || '' }}</span>
           </div>
         </template>
         <span>{{ badge.tooltipText }}</span>
@@ -75,7 +78,8 @@
   </div>
 
   <!-- Single entity detail -->
-  <EntityDetailDialog v-if="singleDialogOpen && singleEntityId && !isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
+  <LightDetailDialog v-if="singleDialogOpen && singleEntityId && singleDialogDomain === 'light'" v-model="singleDialogOpen" :entity-id="singleEntityId" />
+  <EntityDetailDialog v-else-if="singleDialogOpen && singleEntityId && !isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
 
   <!-- Media player detail -->
   <MediaPlayerDetailDialog v-if="singleDialogOpen && singleEntityId && isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
@@ -90,10 +94,29 @@
     :active-color="groupEntry.active_color"
     :inactive-color="groupEntry.inactive_color"
   />
+
+  <RoomCardDetailDialog
+    v-if="roomDialogOpen && roomEntry"
+    v-model="roomDialogOpen"
+    :config="{
+      name: roomEntry.label || 'Room',
+      light_entity: roomEntry.light_entity,
+      climate_entity: roomEntry.climate_entity,
+      sensor_entity: roomEntry.sensor_entity,
+      sensor_icon: roomEntry.sensor_icon,
+      sensor_entities: roomEntry.sensor_entities ?? [],
+      status_entities: roomEntry.status_entities ?? [],
+      show_temp_control: true,
+      icon: roomEntry.icon,
+      card_click_action: 'none',
+      card_double_click_action: 'toggle_light',
+      card_hold_action: 'open_climate_detail',
+    }"
+  />
 </template>
 
 <script setup lang="ts">
-import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry } from '~/types/dashboard'
+import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry } from '~/types/dashboard'
 
 defineOptions({ inheritAttrs: false })
 
@@ -102,19 +125,33 @@ const isVertical = computed(() => props.config.orientation === 'vertical')
 const navAtStart = computed(() => props.config.nav_position === 'start')
 const rootEl = ref<HTMLElement | null>(null)
 const containerWidth = ref(0)
+const containerHeight = ref(0)
 const entityStore = useEntityStore()
 const { getFilteredEntities } = useEntityGroupFilter()
 const router = useRouter()
-const shouldStackRows = computed(() => !isVertical.value && containerWidth.value > 0 && containerWidth.value < 420)
+const isNarrowMobile = computed(() => !isVertical.value && containerWidth.value > 0 && containerWidth.value < 420)
+const shouldStackRows = computed(() => isNarrowMobile.value && containerHeight.value >= 84)
+const isCompactMobile = computed(() => isNarrowMobile.value && !shouldStackRows.value)
+const showLabels = computed(() => props.config.show_labels && !isCompactMobile.value)
 
 type SingleBadge = { type: 'single'; entry: StatusBarEntry; active: boolean; state: string; tooltipText: string }
 type GroupBadge  = { type: 'group';  entry: StatusBarGroupEntry; active: boolean; activeCount: number; tooltipText: string }
 type NavBadge    = { type: 'nav';    entry: StatusBarNavEntry; tooltipText: string }
+type RoomBadge   = { type: 'room';   entry: StatusBarRoomEntry; active: boolean; tooltipText: string }
 
-const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge)[] => {
+const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge)[] => {
   return (props.config.entries ?? []).map((entry) => {
     if (entry.entry_type === 'nav') {
       return { type: 'nav' as const, entry, tooltipText: entry.label || entry.dashboard_id }
+    }
+    if (entry.entry_type === 'room') {
+      const roomEntry = entry as StatusBarRoomEntry
+      return {
+        type: 'room' as const,
+        entry: roomEntry,
+        active: isRoomEntryActive(roomEntry),
+        tooltipText: roomEntry.label || roomEntry.light_entity || roomEntry.climate_entity || roomEntry.sensor_entity || 'room',
+      }
     }
     if (entry.entry_type === 'group') {
       const filtered = getFilteredEntities(entry.filter)
@@ -142,20 +179,24 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge)[] => {
   })
 })
 
-const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge)[])
+const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge | RoomBadge)[])
 const navBadges = computed(() => resolvedBadges.value.filter(b => b.type === 'nav') as NavBadge[])
 
 const singleDialogOpen = ref(false)
 const singleEntityId = ref<string | null>(null)
+const singleDialogDomain = computed(() => singleEntityId.value?.split('.')[0] ?? '')
 const isMediaPlayer = computed(() => singleEntityId.value?.startsWith('media_player.') ?? false)
 const groupDetailOpen = ref(false)
 const groupEntry = ref<StatusBarGroupEntry | null>(null)
+const roomDialogOpen = ref(false)
+const roomEntry = ref<StatusBarRoomEntry | null>(null)
 
 onMounted(() => {
   if (!rootEl.value) return
   const updateSize = () => {
     if (!rootEl.value) return
     containerWidth.value = rootEl.value.clientWidth
+    containerHeight.value = rootEl.value.clientHeight
   }
   updateSize()
   const observer = new ResizeObserver(updateSize)
@@ -163,9 +204,12 @@ onMounted(() => {
   onUnmounted(() => observer.disconnect())
 })
 
-function handleClick(badge: SingleBadge | GroupBadge | NavBadge) {
+function handleClick(badge: SingleBadge | GroupBadge | NavBadge | RoomBadge) {
   if (badge.type === 'nav') {
     router.push(`/dashboard/${badge.entry.dashboard_id}`)
+  } else if (badge.type === 'room') {
+    roomEntry.value = badge.entry
+    roomDialogOpen.value = true
   } else if (badge.type === 'group') {
     groupEntry.value = badge.entry
     groupDetailOpen.value = true
@@ -218,9 +262,26 @@ function defaultActiveState(entityId: string): string {
 }
 
 function iconSize(entry: { icon_size?: string }) {
+  if (isCompactMobile.value) return 18
   if (entry.icon_size === 'sm') return 16
   if (entry.icon_size === 'lg') return 26
   return 20
+}
+
+function isRoomEntryActive(entry: StatusBarRoomEntry) {
+  const activeSource = entry.active_source ?? 'light'
+  if (activeSource === 'light' && entry.light_entity) {
+    return entityStore.entities[entry.light_entity]?.state === 'on'
+  }
+  if (activeSource === 'climate' && entry.climate_entity) {
+    const state = entityStore.entities[entry.climate_entity]?.state
+    return !!state && state !== 'off' && state !== 'unavailable'
+  }
+  if (activeSource === 'custom' && entry.active_entity_id) {
+    const state = entityStore.entities[entry.active_entity_id]?.state
+    return state === (entry.active_state || defaultActiveState(entry.active_entity_id))
+  }
+  return false
 }
 
 function isEntityActive(entity: { entity_id: string; state: string }): boolean {
@@ -240,10 +301,24 @@ function shortState(state: string) {
   overflow: hidden;
 }
 
+.statusbar-root--compact {
+  gap: 4px;
+}
+
 .statusbar-root--stacked {
   flex-wrap: wrap;
   align-content: flex-start;
   overflow: visible;
+}
+
+.statusbar-root--stacked .nav-group,
+.statusbar-root--stacked .status-group {
+  width: 100%;
+  flex: 0 0 100%;
+}
+
+.statusbar-root--stacked .status-group {
+  justify-content: flex-start;
 }
 
 .nav-group,
@@ -269,6 +344,18 @@ function shortState(state: string) {
   transition: background 0.15s;
   min-width: 24px;
   align-items: center;
+}
+
+.statusbar-root--compact .nav-group,
+.statusbar-root--compact .status-group {
+  flex-wrap: nowrap;
+  gap: 4px;
+  row-gap: 0;
+}
+
+.statusbar-root--compact .badge {
+  padding: 1px 2px;
+  min-width: 20px;
 }
 
 .badge:hover {

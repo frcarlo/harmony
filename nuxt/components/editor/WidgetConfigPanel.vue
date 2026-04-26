@@ -72,6 +72,15 @@
       <!-- Light -->
       <v-checkbox v-if="widget.type === 'light'" v-model="cfg.show_brightness" :label="t('config.show_brightness')" />
 
+      <template v-if="widget.type === 'switch'">
+        <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-toggle-switch-outline" density="compact" hide-details="auto" />
+        <div class="config-panel__field-group">
+          <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.sensor_entity') }}</p>
+          <EntityPicker v-model="cfg.sensor_entity_id" :domain-filter="['sensor', 'binary_sensor']" />
+        </div>
+        <v-checkbox v-model="cfg.show_sensor_trend" :label="t('config.show_sensor_trend')" hide-details density="compact" />
+      </template>
+
       <!-- Chart -->
       <template v-if="widget.type === 'chart'">
         <v-select v-model="cfg.period" :label="t('config.period')" :items="periodItems" />
@@ -308,7 +317,33 @@
           t('config.sensor_no_thermostat') }}</p>
         <EntityPicker v-model="cfg.sensor_entity" domain="sensor" />
         <UiIconPicker v-if="cfg.sensor_entity" v-model="cfg.sensor_icon" :label="t('config.icon_field')" placeholder="mdi-eye" />
-        <p v-if="cfg.light_entity" class="text-caption text-medium-emphasis">{{ t('config.light_dblclick_hint') }}</p>
+        <v-select
+          v-model="cfg.card_click_action"
+          :label="t('config.card_click_action')"
+          :items="roomCardActionItems"
+          item-title="title"
+          item-value="value"
+          density="compact"
+          hide-details="auto"
+        />
+        <v-select
+          v-model="cfg.card_double_click_action"
+          :label="t('config.card_double_click_action')"
+          :items="roomCardActionItems"
+          item-title="title"
+          item-value="value"
+          density="compact"
+          hide-details="auto"
+        />
+        <v-select
+          v-model="cfg.card_hold_action"
+          :label="t('config.card_hold_action')"
+          :items="roomCardActionItems"
+          item-title="title"
+          item-value="value"
+          density="compact"
+          hide-details="auto"
+        />
         <v-divider />
         <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.status_entities') }}
         </p>
@@ -349,13 +384,13 @@
         <div class="d-flex flex-column ga-1">
           <div v-for="(entry, idx) in statusBarEntries" :key="idx"
             class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
-            <v-icon :icon="entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : 'mdi-circle')"
+            <v-icon :icon="entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : entry.entry_type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle')"
               size="18" class="flex-shrink-0" />
             <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
-              {{ entry.label || entry.entity_id || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ? entry.dashboard_id : '—') }}
+              {{ entry.label || entry.entity_id || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ? entry.dashboard_id : entry.entry_type === 'room' ? (entry.light_entity || entry.climate_entity || entry.sensor_entity || 'room') : '—') }}
             </div>
-            <v-chip :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
-              {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ? t('config.entry_type_nav') : t('config.entry_type_single') }}
+            <v-chip :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : entry.entry_type === 'room' ? 'warning' : undefined" size="x-small" variant="tonal" class="flex-shrink-0">
+              {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ? t('config.entry_type_nav') : entry.entry_type === 'room' ? t('config.entry_type_room') : t('config.entry_type_single') }}
             </v-chip>
             <div class="d-flex align-center ga-1 flex-shrink-0">
               <v-btn
@@ -386,6 +421,9 @@
           </v-btn>
           <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="primary" @click="addStatusBarGroupEntry">
             {{ t('config.add_group') }}
+          </v-btn>
+          <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="warning" @click="addStatusBarRoomEntry">
+            {{ t('config.add_room') }}
           </v-btn>
           <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="secondary" @click="addStatusBarNavEntry">
             {{ t('config.add_nav') }}
@@ -494,7 +532,7 @@ const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppe
 const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
-  'sensor', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
+  'sensor', 'switch', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
   'room_card', 'status_bar',
 ])
@@ -546,6 +584,12 @@ const fontSizeItems = computed(() => [
 const dayItems = computed(() => [
   { title: t('config.days_1'), value: 1 }, { title: t('config.days_3'), value: 3 },
   { title: t('config.days_7'), value: 7 }, { title: t('config.days_14'), value: 14 },
+])
+const roomCardActionItems = computed(() => [
+  { title: t('config.action_none'), value: 'none' },
+  { title: t('config.action_toggle_light'), value: 'toggle_light' },
+  { title: t('config.action_open_light_detail'), value: 'open_light_detail' },
+  { title: t('config.action_open_climate_detail'), value: 'open_climate_detail' },
 ])
 
 const availableForecastDays = ref<number | null>(null)
@@ -631,6 +675,22 @@ function addStatusBarEntry() {
 function addStatusBarNavEntry() {
   const list = [...statusBarEntries.value]
   list.push({ entry_type: 'nav', icon: 'mdi-arrow-right-circle-outline', label: '', dashboard_id: '' })
+  cfg.value.entries = list
+  openEntryDialog(list.length - 1)
+}
+
+function addStatusBarRoomEntry() {
+  const list = [...statusBarEntries.value]
+  list.push({
+    entry_type: 'room',
+    icon: 'mdi-sofa-outline',
+    label: '',
+    light_entity: '',
+    climate_entity: '',
+    sensor_entity: '',
+    status_entities: [],
+    active_source: 'light',
+  })
   cfg.value.entries = list
   openEntryDialog(list.length - 1)
 }

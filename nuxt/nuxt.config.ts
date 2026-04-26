@@ -1,9 +1,14 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import { resolve } from 'node:path'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   ssr: false,
   devtools: { enabled: true },
+
+  alias: {
+    '#app-manifest': resolve(__dirname, '.nuxt/manifest/meta/dev.json'),
+  },
 
   build: {
     transpile: ['vuetify'],
@@ -25,16 +30,16 @@ export default defineNuxtConfig({
         name: 'HArmony',
         short_name: 'HArmony',
         description: 'Home Assistant Dashboard Builder',
-        theme_color: '#0d1117',
-        background_color: '#0d1117',
+        theme_color: '#1a2535',
+        background_color: '#1a2535',
         display: 'standalone',
         orientation: 'any',
         scope: '/',
         start_url: '/dashboard',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icons/harmony/dark/icon/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/harmony/dark/icon/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/harmony/dark/icon/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
       workbox: {
@@ -121,13 +126,18 @@ export default defineNuxtConfig({
       title: 'HArmony',
       meta: [
         { name: 'description', content: 'Home Assistant Dashboard Builder' },
-        { name: 'theme-color', content: '#0d1117' },
+        { name: 'theme-color', content: '#1a2535' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'HArmony' },
       ],
       link: [
-        { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/icons/harmony/dark/icon/icon-32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/icons/harmony/dark/icon/icon-16.png' },
+        { rel: 'icon', href: '/icons/harmony/dark/icon/icon-32.png', media: '(prefers-color-scheme: light)' },
+        { rel: 'icon', href: '/icons/harmony/light/icon/icon-32.png', media: '(prefers-color-scheme: dark)' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/harmony/dark/icon/icon-180.png' },
       ],
       htmlAttrs: { lang: 'de' },
     },

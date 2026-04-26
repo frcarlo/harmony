@@ -44,6 +44,9 @@ export interface SensorWidgetConfig {
 export interface SwitchWidgetConfig {
   entity_id: string
   name?: string
+  icon?: string
+  sensor_entity_id?: string
+  show_sensor_trend?: boolean
 }
 
 export interface LightWidgetConfig {
@@ -145,6 +148,11 @@ export interface RoomCardStatusEntity {
   [key: string]: unknown
 }
 
+export interface RoomCardSensorEntity {
+  entity_id: string
+  icon?: string
+}
+
 export interface RoomCardWidgetConfig {
   name: string
   climate_entity?: string
@@ -152,7 +160,11 @@ export interface RoomCardWidgetConfig {
   light_entity?: string
   sensor_entity?: string
   sensor_icon?: string
+  sensor_entities?: RoomCardSensorEntity[]
   status_entities?: RoomCardStatusEntity[]
+  card_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
+  card_double_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
+  card_hold_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
 }
 
 export interface PersonEntry {
@@ -206,8 +218,26 @@ export interface StatusBarNavEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
+export interface StatusBarRoomEntry {
+  entry_type: 'room'
+  icon: string
+  label?: string
+  light_entity?: string
+  climate_entity?: string
+  sensor_entity?: string
+  sensor_icon?: string
+  sensor_entities?: RoomCardSensorEntity[]
+  status_entities?: RoomCardStatusEntity[]
+  active_source?: 'light' | 'climate' | 'custom'
+  active_entity_id?: string
+  active_state?: string
+  active_color?: string
+  inactive_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
+}
+
 export interface StatusBarWidgetConfig {
-  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry)[]
+  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry)[]
   show_labels?: boolean
   orientation?: 'horizontal' | 'vertical'
   nav_position?: 'start' | 'end'

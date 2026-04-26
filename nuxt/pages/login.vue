@@ -10,11 +10,10 @@
 
           <!-- Header -->
           <div class="mb-7">
-            <div class="d-flex align-center ga-3 mb-1">
-              <v-icon icon="mdi-home-assistant" size="28" color="#18BCF2" />
-              <span class="text-h6 font-weight-bold">{{ t('login.sign_in_to') }} HArmony</span>
+            <div class="d-flex justify-center mb-3">
+              <AppBrandLogo :size="120" />
             </div>
-            <p class="text-body-2 text-medium-emphasis ml-1">{{ t('login.subtitle') }}</p>
+            <p class="text-body-2 text-medium-emphasis text-center">{{ t('login.subtitle') }}</p>
           </div>
 
           <!-- HA nicht erreichbar -->

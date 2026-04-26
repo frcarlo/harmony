@@ -2,9 +2,8 @@
   <v-main>
     <v-app-bar color="transparent" border="b" elevation="0">
       <template #prepend>
-        <v-icon icon="mdi-home-assistant" class="ml-4" color="#18BCF2" />
+        <AppBrandLogo :size="44" class="ml-4" />
       </template>
-      <v-app-bar-title class="text-body-1 font-weight-semibold">HArmony</v-app-bar-title>
       <template #append>
         <v-btn v-if="isAdmin" icon="mdi-import" size="small" variant="text" :title="t('dashboard.import')"
           :loading="importing" @click="importInput?.click()" />

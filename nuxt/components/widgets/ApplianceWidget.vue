@@ -103,7 +103,9 @@ function normalizeStatusValue(value?: string | null) {
     .replace(/[\s-]+/g, '')
 
   const aliases: Record<string, string> = {
+    on: 'run',
     off: 'ready',
+    starting: 'starting',
     running: 'run',
     paused: 'pause',
     delayed_start: 'delayedstart',
