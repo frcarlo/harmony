@@ -20,12 +20,12 @@
           <template v-if="title">
             <v-tooltip :text="title" location="bottom" :open-delay="400">
               <template #activator="{ props: tp }">
-                <div v-bind="tp" class="text-body-2 font-weight-medium text-truncate">{{ title }}</div>
+                <div v-bind="tp" class="media-player-widget__title text-body-2 font-weight-medium text-truncate">{{ title }}</div>
               </template>
             </v-tooltip>
             <v-tooltip v-if="artist" :text="artist" location="bottom" :open-delay="400">
               <template #activator="{ props: tp }">
-                <div v-bind="tp" class="text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
+                <div v-bind="tp" class="media-player-widget__subtitle text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
               </template>
             </v-tooltip>
           </template>
@@ -64,12 +64,12 @@
             <template v-if="title">
               <v-tooltip :text="title" location="bottom" :open-delay="400">
                 <template #activator="{ props: tp }">
-                  <div v-bind="tp" class="text-body-2 font-weight-medium text-truncate">{{ title }}</div>
+                  <div v-bind="tp" class="media-player-widget__title text-body-2 font-weight-medium text-truncate">{{ title }}</div>
                 </template>
               </v-tooltip>
               <v-tooltip v-if="artist" :text="artist" location="bottom" :open-delay="400">
                 <template #activator="{ props: tp }">
-                  <div v-bind="tp" class="text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
+                  <div v-bind="tp" class="media-player-widget__subtitle text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
                 </template>
               </v-tooltip>
             </template>
@@ -106,8 +106,8 @@
         </div>
         <div class="flex-shrink-0 min-width-0">
           <template v-if="title">
-            <div class="text-body-2 font-weight-medium text-truncate">{{ title }}</div>
-            <div v-if="artist" class="text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
+            <div class="media-player-widget__title text-body-2 font-weight-medium text-truncate">{{ title }}</div>
+            <div v-if="artist" class="media-player-widget__subtitle text-caption text-medium-emphasis text-truncate">{{ artist }}</div>
           </template>
           <div v-else class="text-body-2 text-medium-emphasis">
             {{ state === 'idle' ? t('media_player.idle') : state === 'off' ? t('media_player.off') : state }}
@@ -155,7 +155,7 @@ const containerWidth = ref(0)
 const containerHeight = ref(0)
 
 const isWide = computed(() => containerWidth.value >= 260)
-const isBanner = computed(() => containerHeight.value >= 180 && config.show_album_art !== false)
+const isBanner = computed(() => containerHeight.value >= 288 && config.show_album_art !== false)
 const bannerHeight = computed(() => Math.min(Math.round(containerHeight.value * 0.55), 180))
 
 const { config } = props
@@ -192,3 +192,14 @@ async function setVolume(pct: number) {
   await client.callService({ domain: 'media_player', service: 'volume_set', target: { entity_id: props.config.entity_id }, service_data: { volume_level: pct / 100 } })
 }
 </script>
+
+<style scoped>
+.media-player-widget__title {
+  line-height: 1.25;
+}
+
+.media-player-widget__subtitle {
+  line-height: 1.35;
+  min-height: 1.35em;
+}
+</style>

@@ -1,13 +1,15 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import { resolve } from 'node:path'
 
+const appManifestPath = resolve(__dirname, '.nuxt/manifest/meta/dev.json')
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   ssr: false,
   devtools: { enabled: true },
 
   alias: {
-    '#app-manifest': resolve(__dirname, '.nuxt/manifest/meta/dev.json'),
+    '#app-manifest': appManifestPath,
   },
 
   build: {
@@ -82,6 +84,13 @@ export default defineNuxtConfig({
       template: { transformAssetUrls },
     },
     plugins: [
+      {
+        name: 'harmony-app-manifest-alias',
+        enforce: 'pre',
+        resolveId(id) {
+          if (id === '#app-manifest') return appManifestPath
+        },
+      },
       vuetify({ autoImport: true }),
     ],
   },
