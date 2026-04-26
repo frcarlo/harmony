@@ -184,7 +184,7 @@ const fullscreen = ref(false)
 // MJPEG
 const mjpegSrc = ref('')
 const mjpegError = ref(false)
-const mjpegPaused = ref(false)
+const mjpegPaused = ref(true)
 
 function toggleMjpeg() {
   if (mjpegPaused.value) {
@@ -235,7 +235,7 @@ function retryMjpeg() {
 
 onMounted(() => {
   if (streamMode.value === 'mjpeg') {
-    mjpegSrc.value = `/api/camera/stream/${props.config.entity_id}`
+    snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
   } else if (streamMode.value === 'snapshot') {
     const interval = (props.config.refresh_interval ?? 5) * 1000
     refreshSnapshot()
