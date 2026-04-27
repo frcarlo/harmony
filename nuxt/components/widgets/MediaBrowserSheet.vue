@@ -666,7 +666,7 @@ watch(activeTab, async (tab, prev) => {
   grid-auto-columns: 116px;
   gap: 10px;
   overflow-x: auto;
-  padding: 0 18px 8px;
+  padding: 6px 18px 12px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
@@ -719,8 +719,9 @@ watch(activeTab, async (tab, prev) => {
 }
 
 .spotify-card:hover .spotify-card__art {
-  transform: translateY(-1px);
-  border-color: rgba(var(--v-theme-primary), 0.28);
+  transform: scale(1.06) translateY(-2px);
+  border-color: rgba(var(--v-theme-primary), 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .spotify-card__art--track {
