@@ -12,7 +12,7 @@
 
       <!-- Tabs -->
       <v-tabs v-if="maAvailable || spotifyAccounts.length" v-model="activeTab" density="compact"
-        class="media-browser__tabs px-2">
+        class="media-browser__tabs px-2" :class="{ 'media-browser__tabs--glass': glass }">
         <v-tab v-if="maAvailable" value="browse" prepend-icon="mdi-folder-music-outline" size="small">{{
           t('media.library') }}</v-tab>
         <v-tab v-if="maAvailable" value="search" prepend-icon="mdi-magnify" size="small">{{ t('media.search') }}</v-tab>
@@ -51,7 +51,7 @@
       <v-card-text v-else-if="activeTab === 'spotify'"
         class="media-browser__spotify pa-2 bg-transparent d-flex flex-column ga-2">
         <v-slide-group v-if="spotifyAccounts.length > 1" v-model="selectedSpotifyIndex" selected-class="text-primary"
-          show-arrows class="media-browser__spotify-accounts">
+          show-arrows class="media-browser__spotify-accounts" :class="{ 'media-browser__sticky--glass': glass }">
           <v-slide-group-item v-for="(account, idx) in spotifyAccounts" :key="account.entity_id"
             v-slot="{ toggle, selectedClass }">
             <v-chip class="mr-2" :class="selectedClass" size="small" variant="tonal" @click="toggle">
@@ -60,7 +60,7 @@
           </v-slide-group-item>
         </v-slide-group>
 
-        <v-text-field v-model="spotifySearchQuery" class="media-browser__spotify-search"
+        <v-text-field v-model="spotifySearchQuery" class="media-browser__spotify-search" :class="{ 'media-browser__sticky--glass': glass }"
           :placeholder="t('media.spotify_search_placeholder')" prepend-inner-icon="mdi-magnify" density="compact"
           hide-details clearable variant="outlined" rounded="lg" :disabled="!maAvailable"
           @keyup.enter="doSpotifySearch">
@@ -146,7 +146,7 @@
 
       <!-- Search tab -->
       <v-card-text v-else class="media-browser__search pa-2 bg-transparent d-flex flex-column ga-2">
-        <v-text-field v-model="searchQuery" class="media-browser__search-field"
+        <v-text-field v-model="searchQuery" class="media-browser__search-field" :class="{ 'media-browser__sticky--glass': glass }"
           :placeholder="t('media.search_placeholder')"
           prepend-inner-icon="mdi-magnify" density="compact" hide-details clearable variant="outlined" rounded="lg"
           @keyup.enter="doSearch">
@@ -583,6 +583,11 @@ watch(activeTab, async (tab, prev) => {
   backdrop-filter: blur(10px);
 }
 
+.media-browser__tabs--glass {
+  background: rgba(var(--v-theme-surface), 0.35) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+}
+
 .media-browser__spotify {
   max-height: min(72vh, 560px);
 }
@@ -600,6 +605,11 @@ watch(activeTab, async (tab, prev) => {
   z-index: 2;
   background: rgba(var(--v-theme-surface), 0.84);
   backdrop-filter: blur(10px);
+}
+
+.media-browser__sticky--glass {
+  background: rgba(var(--v-theme-surface), 0.3) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
 }
 
 .media-browser__spotify-search :deep(.v-field),
