@@ -1,8 +1,8 @@
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
-  const issuer = config.keycloak?.issuer
+  const issuer = config.oidc?.issuer
+    || process.env.NUXT_OIDC_ISSUER
     || process.env.NUXT_KEYCLOAK_ISSUER
-    || process.env.KEYCLOAK_ISSUER
     || ''
 
   const haUrl = config.haUrl || process.env.NUXT_HA_URL || process.env.HA_URL || ''

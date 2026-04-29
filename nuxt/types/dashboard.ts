@@ -53,6 +53,9 @@ export interface LightWidgetConfig {
   entity_id: string
   name?: string
   show_brightness?: boolean
+  tap_action?: 'toggle' | 'open_detail' | 'none'
+  double_tap_action?: 'toggle' | 'open_detail' | 'none'
+  hold_action?: 'toggle' | 'open_detail' | 'none'
 }
 
 export interface ChartWidgetConfig {
@@ -65,12 +68,23 @@ export interface ChartWidgetConfig {
   unit?: string
 }
 
+export interface CameraStatusEntry {
+  entity_id: string
+  icon?: string
+  inactive_icon?: string
+  label?: string
+  active_state?: string
+  active_color?: string
+  inactive_color?: string
+}
+
 export interface CameraWidgetConfig {
   entity_id: string
   name?: string
   refresh_interval?: number
   stream_type?: 'webrtc' | 'mjpeg' | 'snapshot'
   light_entity_id?: string
+  status_entities?: CameraStatusEntry[]
 }
 
 export interface ThermostatWidgetConfig {

@@ -112,10 +112,10 @@ export default defineNuxtConfig({
       password: process.env.NUXT_SESSION_PASSWORD ?? '',
       maxAge: 60 * 60 * 24 * 7,
     },
-    keycloak: {
-      clientId: process.env.NUXT_KEYCLOAK_CLIENT_ID ?? process.env.KEYCLOAK_CLIENT_ID ?? '',
-      clientSecret: process.env.NUXT_KEYCLOAK_CLIENT_SECRET ?? process.env.KEYCLOAK_CLIENT_SECRET ?? '',
-      issuer: process.env.NUXT_KEYCLOAK_ISSUER ?? process.env.KEYCLOAK_ISSUER ?? '',
+    oidc: {
+      clientId: process.env.NUXT_OIDC_CLIENT_ID ?? process.env.NUXT_KEYCLOAK_CLIENT_ID ?? '',
+      clientSecret: process.env.NUXT_OIDC_CLIENT_SECRET ?? process.env.NUXT_KEYCLOAK_CLIENT_SECRET ?? '',
+      issuer: process.env.NUXT_OIDC_ISSUER ?? process.env.NUXT_KEYCLOAK_ISSUER ?? '',
     },
     maUrl: process.env.NUXT_MA_URL ?? '',
     maToken: process.env.NUXT_MA_TOKEN ?? '',

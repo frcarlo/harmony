@@ -106,6 +106,11 @@ function getDb(): DatabaseSync {
       entity_state TEXT NOT NULL,
       triggered_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS global_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `)
 
   // Migrations
@@ -464,6 +469,11 @@ export function createUser(data: { username: string; email?: string; passwordHas
   }
 }
 
+export function linkUserProvider(id: string, provider: string, providerId: string): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET provider = ?, provider_id = ? WHERE id = ?').run(provider, providerId, id).changes > 0
+}
+
 export function updateUserRole(id: string, role: 'admin' | 'user'): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id).changes > 0
@@ -482,4 +492,32 @@ export function updateUserPersonalDefaultDashboard(id: string, defaultDashboardI
 export function deleteUser(id: string): boolean {
   const db = getDb()
   return db.prepare('DELETE FROM users WHERE id = ?').run(id).changes > 0
+}
+
+// ── Global Settings ────────────────────────────────────────────────────────
+
+export function getGlobalSetting(key: string): string | null {
+  const db = getDb()
+  const row = db.prepare('SELECT value FROM global_settings WHERE key = ?').get(key) as { value: string } | undefined
+  return row?.value ?? null
+}
+
+export function setGlobalSetting(key: string, value: string | null): void {
+  const db = getDb()
+  if (value === null) {
+    db.prepare('DELETE FROM global_settings WHERE key = ?').run(key)
+  } else {
+    db.prepare('INSERT INTO global_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value)
+  }
+}
+
+export function getHomePageSettings(): { background?: string; bg_opacity?: number; bg_size?: string } {
+  const background = getGlobalSetting('home_background')
+  const bgOpacity = getGlobalSetting('home_bg_opacity')
+  const bgSize = getGlobalSetting('home_bg_size')
+  return {
+    background: background ?? undefined,
+    bg_opacity: bgOpacity != null ? Number(bgOpacity) : undefined,
+    bg_size: bgSize ?? undefined,
+  }
 }

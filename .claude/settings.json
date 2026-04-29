@@ -39,7 +39,16 @@
       "Bash(sed -n '2,10p' /data/docker-configs/ha-dashboard/nuxt/i18n/locales/en.json)",
       "Read(//data/docker-configs/**)",
       "Bash(chmod +x /data/docker-configs/paperless-ai/deploy.sh)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('Keys:', list\\(d.keys\\(\\)\\)[:5]\\); first=list\\(d.values\\(\\)\\)[0] if d else []; print\\('Entries:', len\\(first\\)\\); print\\('First:', first[:2] if first else 'none'\\)\")",
+      "Bash(python3 -c \"import json,sys; states=json.load\\(sys.stdin\\); [print\\(s['entity_id']\\) for s in states if 'shelly' in s['entity_id'].lower\\(\\) and \\('leistung' in s['entity_id'].lower\\(\\) or 'power' in s['entity_id'].lower\\(\\)\\)]\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); flat=sum\\(d,[]\\); print\\(f'Entries: {len\\(flat\\)}'\\); print\\('First:', flat[0] if flat else 'none'\\); print\\('Last:', flat[-1] if flat else 'none'\\)\")",
+      "mcp__home-assistant__ha_search_entities",
+      "Bash(git filter-branch *)",
+      "Bash(git stash *)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter 'grep -v \"^Co-Authored-By:\"' 231122f..HEAD)",
+      "Bash(xargs '-I{}' sh -c 'hash=$\\(echo \"{}\" | cut -d\" \" -f1\\); msg=$\\(git log -1 --format=\"%B\" $hash\\); if echo \"$msg\" | grep -q \"Co-Authored-By\"; then echo \"$hash\"; fi')",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter 'grep -v \"^Co-Authored-By:\"' -- --all)"
     ],
     "additionalDirectories": [
       "/data/docker-configs/paperless-ai",

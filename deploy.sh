@@ -2,14 +2,23 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-STACK="ha-dashboard"
+STACK="harmony"
+SKIP_BUILD=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --no-build|--deploy-only|-d) SKIP_BUILD=true ;;
+  esac
+done
 
 cd "$SCRIPT_DIR"
 
 IMAGE=$(grep 'image:' compose.yml | head -1 | awk '{print $2}')
 echo "==> Image: $IMAGE"
 
-if [[ "$IMAGE" == *"ghcr.io"* || "$IMAGE" == *"/"* ]]; then
+if [[ "$SKIP_BUILD" == "true" ]]; then
+  echo "==> Skipping build/pull (--no-build)"
+elif [[ "$IMAGE" == *"ghcr.io"* || "$IMAGE" == *"/"* ]]; then
   echo "==> Pulling image from registry..."
   docker pull "$IMAGE"
 else
