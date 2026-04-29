@@ -56,7 +56,14 @@ const pickerOpen = ref(false)
 const saving = ref(false)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 
-const bgBase = computed(() => ({ backgroundColor: 'rgb(var(--v-theme-background))' }))
+const bgBase = computed(() => {
+  const bg = dashboard.value?.background
+  if (!bg) return { backgroundColor: 'rgb(var(--v-theme-background))' }
+  if (bg.startsWith('url(') || bg.startsWith('http') || bg.startsWith('/api/')) {
+    return { backgroundColor: 'rgb(var(--v-theme-background))' }
+  }
+  return { background: bg }
+})
 
 const bgImage = computed(() => {
   const bg = dashboard.value?.background

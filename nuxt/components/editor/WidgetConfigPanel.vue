@@ -55,8 +55,18 @@
             </template>
 
             <!-- Light -->
-            <v-checkbox v-if="widget.type === 'light'" v-model="cfg.show_brightness"
-              :label="t('config.show_brightness')" />
+            <template v-if="widget.type === 'light'">
+              <v-checkbox v-model="cfg.show_brightness" :label="t('config.show_brightness')" />
+              <v-select v-model="cfg.tap_action" :label="t('config.tap_action')"
+                :items="lightTapActionItems" item-title="title" item-value="value"
+                density="compact" hide-details="auto" clearable />
+              <v-select v-model="cfg.double_tap_action" :label="t('config.double_tap_action')"
+                :items="lightTapActionItems" item-title="title" item-value="value"
+                density="compact" hide-details="auto" clearable />
+              <v-select v-model="cfg.hold_action" :label="t('config.hold_action')"
+                :items="lightTapActionItems" item-title="title" item-value="value"
+                density="compact" hide-details="auto" clearable />
+            </template>
 
             <template v-if="widget.type === 'switch'">
               <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-toggle-switch-outline"
@@ -192,6 +202,29 @@
                 <EntityPicker v-model="cfg.light_entity_id" :domain-filter="['light', 'switch']"
                   :placeholder="t('config.light_entity_placeholder')" />
               </div>
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.camera_status_entities') }}</p>
+              <div class="d-flex flex-column ga-1">
+                <div v-for="(entry, idx) in cameraStatusEntries" :key="idx"
+                  class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
+                  <v-icon :icon="entry.icon || 'mdi-circle'" size="18" class="flex-shrink-0" />
+                  <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">{{ entry.label || entry.entity_id || '—' }}</div>
+                  <div class="d-flex align-center ga-1 flex-shrink-0">
+                    <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="idx === 0"
+                      :title="t('config.move_up')" @click="moveCameraStatusEntry(idx, -1)" />
+                    <v-btn icon="mdi-chevron-down" size="x-small" variant="text"
+                      :disabled="idx === cameraStatusEntries.length - 1" :title="t('config.move_down')"
+                      @click="moveCameraStatusEntry(idx, 1)" />
+                  </div>
+                  <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" @click="openCameraStatusDialog(idx)" />
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeCameraStatusEntry(idx)" />
+                </div>
+              </div>
+              <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block @click="addCameraStatusEntry">
+                {{ t('config.add_camera_status') }}
+              </v-btn>
+              <StatusBarEntryDialog v-if="editingCameraStatusIdx !== null" v-model="cameraStatusDialogOpen"
+                :entry="cameraStatusEntries[editingCameraStatusIdx]" @save="saveCameraStatusEntry" />
             </template>
 
             <!-- Lock -->
@@ -570,6 +603,12 @@ const dayItems = computed(() => [
   { title: t('config.days_1'), value: 1 }, { title: t('config.days_3'), value: 3 },
   { title: t('config.days_7'), value: 7 }, { title: t('config.days_14'), value: 14 },
 ])
+const lightTapActionItems = computed(() => [
+  { title: t('config.action_none'), value: 'none' },
+  { title: t('config.action_toggle_light'), value: 'toggle' },
+  { title: t('config.action_open_light_detail'), value: 'open_detail' },
+])
+
 const roomCardActionItems = computed(() => [
   { title: t('config.action_none'), value: 'none' },
   { title: t('config.action_toggle_light'), value: 'toggle_light' },
@@ -707,6 +746,45 @@ function moveStatusBarEntry(index: number, direction: -1 | 1) {
   const [entry] = list.splice(index, 1)
   list.splice(targetIndex, 0, entry)
   cfg.value.entries = list
+}
+
+// ── Camera status entities ─────────────────────────────────────────────────
+
+const cameraStatusEntries = computed(() => (cfg.value.status_entities as Array<Record<string, unknown>>) ?? [])
+const cameraStatusDialogOpen = ref(false)
+const editingCameraStatusIdx = ref<number | null>(null)
+
+function openCameraStatusDialog(idx: number) {
+  editingCameraStatusIdx.value = idx
+  cameraStatusDialogOpen.value = true
+}
+
+function saveCameraStatusEntry(updated: Record<string, unknown>) {
+  const list = [...cameraStatusEntries.value]
+  if (editingCameraStatusIdx.value !== null) list[editingCameraStatusIdx.value] = updated
+  cfg.value.status_entities = list
+}
+
+function addCameraStatusEntry() {
+  const list = [...cameraStatusEntries.value]
+  list.push({ entity_id: '', icon: 'mdi-circle', active_state: 'on' })
+  cfg.value.status_entities = list
+  openCameraStatusDialog(list.length - 1)
+}
+
+function removeCameraStatusEntry(index: number) {
+  const list = [...cameraStatusEntries.value]
+  list.splice(index, 1)
+  cfg.value.status_entities = list
+}
+
+function moveCameraStatusEntry(index: number, direction: -1 | 1) {
+  const targetIndex = index + direction
+  if (targetIndex < 0 || targetIndex >= cameraStatusEntries.value.length) return
+  const list = [...cameraStatusEntries.value]
+  const [entry] = list.splice(index, 1)
+  list.splice(targetIndex, 0, entry)
+  cfg.value.status_entities = list
 }
 </script>
 

@@ -87,6 +87,7 @@
 
   <!-- Single entity detail -->
   <LightDetailDialog v-if="singleDialogOpen && singleEntityId && singleDialogDomain === 'light'" v-model="singleDialogOpen" :entity-id="singleEntityId" />
+  <UpdateDetailDialog v-else-if="singleDialogOpen && singleEntityId && singleDialogDomain === 'update'" v-model="singleDialogOpen" :entity-id="singleEntityId" />
   <EntityDetailDialog v-else-if="singleDialogOpen && singleEntityId && !isMediaPlayer" v-model="singleDialogOpen" :entity-id="singleEntityId" />
 
   <!-- Media player detail -->

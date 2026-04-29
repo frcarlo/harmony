@@ -1,21 +1,30 @@
 <template>
   <div ref="rootEl" class="h-100 d-flex flex-column overflow-hidden" style="position: relative;">
 
-    <!-- Banner layout (tall widget with album art) -->
-    <template v-if="isBanner && albumArt">
-      <!-- Album art banner -->
-      <div class="flex-shrink-0" style="position: relative; overflow: hidden;" :style="{ height: bannerHeight + 'px' }">
-        <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" width="100%" height="100%" cover
-          style="position: absolute; inset: 0; opacity: 0.3;" />
-        <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" :height="bannerHeight" contain
-          style="position: relative; z-index: 1;" />
-        <!-- Library button overlay -->
+    <!-- Banner layout (tall widget) -->
+    <template v-if="isBanner">
+      <!-- Album art / placeholder — fills all remaining space -->
+      <div class="flex-grow-1 min-height-0" style="position: relative; overflow: hidden;">
+        <!-- Default placeholder when no album art -->
+        <div v-if="!albumArt" class="h-100 d-flex align-center justify-center media-player-widget__placeholder">
+          <v-icon icon="mdi-music-note" size="72" color="medium-emphasis" style="opacity: 0.35;" />
+        </div>
+        <!-- Album art with blurred background -->
+        <template v-else>
+          <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" width="100%" height="100%" cover
+            style="position: absolute; inset: 0; opacity: 0.3;" />
+          <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" height="100%" contain
+            style="position: relative; z-index: 1;" />
+        </template>
+        <!-- Library button -->
         <v-btn icon="mdi-bookshelf" size="x-small" variant="text" density="compact"
           style="position: absolute; top: 10px; left: 10px; z-index: 2;" @click="browserOpen = true" />
+        <!-- Bottom fade for controls readability -->
+        <div class="media-player-widget__fade-bottom" />
       </div>
 
-      <!-- Info + controls -->
-      <div class="d-flex flex-column ga-1 px-3 pt-2 pb-2 flex-grow-1 justify-center">
+      <!-- Info + controls — fixed at bottom -->
+      <div class="d-flex flex-column ga-1 px-3 pt-2 pb-2 flex-shrink-0">
         <div style="min-width:0; overflow:hidden">
           <template v-if="title">
             <v-tooltip :text="title" location="bottom" :open-delay="400">
@@ -54,10 +63,13 @@
         <v-btn icon="mdi-bookshelf" size="x-small" variant="text" density="compact" @click="browserOpen = true" />
       </div>
       <div class="flex-grow-1 min-height-0 d-flex ga-3 overflow-hidden px-3 pb-3 pt-2">
-        <div v-if="config.show_album_art !== false && albumArt" class="flex-shrink-0"
+        <div v-if="config.show_album_art !== false"
+          class="flex-shrink-0 rounded-md overflow-hidden"
           style="width: 40%; max-width: 140px; align-self: stretch">
-          <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" width="100%" height="100%" contain
-            rounded="md" />
+          <v-img v-if="albumArt" :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" width="100%" height="100%" contain />
+          <div v-else class="h-100 d-flex align-center justify-center media-player-widget__placeholder">
+            <v-icon icon="mdi-music-note" size="36" color="medium-emphasis" style="opacity: 0.4;" />
+          </div>
         </div>
         <div class="flex-grow-1 min-width-0 d-flex flex-column justify-center ga-2">
           <div style="min-width:0; overflow:hidden; width:100%">
@@ -101,8 +113,11 @@
         <v-btn icon="mdi-bookshelf" size="x-small" variant="text" density="compact" @click="browserOpen = true" />
       </div>
       <div class="flex-grow-1 min-height-0 d-flex flex-column ga-2 overflow-hidden px-3 pt-2">
-        <div v-if="config.show_album_art !== false && albumArt" class="flex-grow-1 min-height-0 overflow-hidden">
-          <v-img :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" height="100%" contain rounded="md" />
+        <div v-if="config.show_album_art !== false" class="flex-grow-1 min-height-0 overflow-hidden rounded-md">
+          <v-img v-if="albumArt" :src="`/api/ha-image?path=${encodeURIComponent(albumArt)}`" height="100%" contain />
+          <div v-else class="h-100 d-flex align-center justify-center media-player-widget__placeholder">
+            <v-icon icon="mdi-music-note" size="36" color="medium-emphasis" style="opacity: 0.4;" />
+          </div>
         </div>
         <div class="flex-shrink-0 min-width-0">
           <template v-if="title">
@@ -155,8 +170,7 @@ const containerWidth = ref(0)
 const containerHeight = ref(0)
 
 const isWide = computed(() => containerWidth.value >= 260)
-const isBanner = computed(() => containerHeight.value >= 288 && config.show_album_art !== false)
-const bannerHeight = computed(() => Math.min(Math.round(containerHeight.value * 0.55), 180))
+const isBanner = computed(() => containerHeight.value >= 288 && props.config.show_album_art !== false)
 
 const { config } = props
 
@@ -201,5 +215,22 @@ async function setVolume(pct: number) {
 .media-player-widget__subtitle {
   line-height: 1.35;
   min-height: 1.35em;
+}
+
+.media-player-widget__placeholder {
+  background: linear-gradient(135deg,
+    rgba(var(--v-theme-primary), 0.12) 0%,
+    rgba(var(--v-theme-surface-variant), 0.3) 100%);
+}
+
+.media-player-widget__fade-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent);
+  z-index: 1;
+  pointer-events: none;
 }
 </style>

@@ -107,6 +107,11 @@
         <!-- Single entity -->
         <template v-else-if="draft.entry_type !== 'group'">
           <EntityPicker v-model="draft.entity_id" />
+          <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
+            <v-btn value="sm" size="small">S</v-btn>
+            <v-btn value="md" size="small">M</v-btn>
+            <v-btn value="lg" size="small">L</v-btn>
+          </v-btn-toggle>
           <v-text-field v-model="draft.label" :label="t('config.display_name')" density="compact" hide-details clearable />
           <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />

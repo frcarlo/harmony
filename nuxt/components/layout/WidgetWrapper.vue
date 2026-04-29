@@ -2,7 +2,7 @@
   <v-card height="100%" rounded="xl" class="overflow-hidden widget-card" style="position: relative;" :style="cardStyle" :class="{
     'ring-selected': isSelected,
     'widget-glass': glassEnabled && !appearance.bg_color && !hasActiveBackground,
-    'widget-glass-blur': glassEnabled && (!!appearance.bg_color || hasActiveBackground),
+    'widget-glass-blur': glassEnabled && !!appearance.bg_color && !hasActiveBackground,
   }">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
@@ -93,7 +93,7 @@ const appearance = computed(() => props.widget.appearance ?? {})
 const glassEnabled = computed(() => glass.value && appearance.value.disable_glass !== true)
 
 const hasActiveBackground = computed(() =>
-  isActive.value && (appearance.value.active_color != null || props.widget.type === 'room_card'),
+  isActive.value && (appearance.value.active_color != null || props.widget.type === 'room_card' || props.widget.type === 'light'),
 )
 
 const isCompactWidget = computed(() => {
@@ -132,10 +132,9 @@ const cardStyle = computed(() => {
     style.backgroundColor = toSemiTransparent(a.bg_color, bgOpacity)
   }
   else if (isActive.value) {
-    const activeColor = a.active_color ?? (props.widget.type === 'room_card' ? '#f59e0b' : undefined)
+    const activeColor = a.active_color ?? (props.widget.type === 'room_card' || props.widget.type === 'light' ? '#f59e0b' : undefined)
     if (activeColor) {
-      const activeAlpha = isCompactWidget.value ? 0.16 : 0.22
-      style.backgroundColor = glassEnabled.value ? toSemiTransparent(activeColor, activeAlpha) : activeColor + '28'
+      style.backgroundColor = glassEnabled.value ? toSemiTransparent(activeColor, 0.72) : toSemiTransparent(activeColor, 0.88)
     }
   } else if (glassEnabled.value) {
     style.backgroundColor = neutralGlassBg

@@ -36,107 +36,114 @@
 
     <template #append>
       <ToolbarActions :edit-mode="editMode" :can-edit="!hideEdit" @toggle-edit="$emit('toggle-edit')" />
-      <v-divider vertical class="mx-2 my-2" />
 
-      <v-btn
-        v-if="!editMode && dashboardId"
-        :icon="isMyDefaultDashboard ? 'mdi-star' : 'mdi-star-outline'"
-        size="small"
-        variant="text"
-        color="warning"
-        :title="isMyDefaultDashboard ? t('dashboard.unset_my_default') : t('dashboard.set_my_default')"
-        class="mr-1"
-        @click="$emit('toggle-my-default')"
-      />
+      <!-- Non-edit mode extras -->
+      <template v-if="!editMode">
+        <v-divider vertical class="mx-2 my-2" />
+        <v-btn
+          v-if="dashboardId"
+          :icon="isMyDefaultDashboard ? 'mdi-star' : 'mdi-star-outline'"
+          size="small" variant="text" color="warning"
+          :title="isMyDefaultDashboard ? t('dashboard.unset_my_default') : t('dashboard.set_my_default')"
+          @click="$emit('toggle-my-default')"
+        />
+      </template>
 
-      <ThemeToggle
-        v-if="editMode"
-        class="mr-1"
-        button-icon="mdi-monitor-dashboard"
-        :model-value="dashboardThemeOverride ?? null"
-        allow-default
-        @update:model-value="$emit('retheme', $event)"
-      />
+      <!-- Edit mode: grouped controls -->
+      <template v-if="editMode">
+        <v-divider vertical class="mx-2 my-2" />
 
+        <!-- Group 1: Dashboard appearance settings -->
+        <ThemeToggle button-icon="mdi-palette-outline" :model-value="dashboardThemeOverride ?? null"
+          allow-default :title="t('toolbar.theme')"
+          @update:model-value="$emit('retheme', $event)" />
 
-      <!-- Background picker -->
-      <v-menu v-if="editMode" v-model="bgMenuOpen" :close-on-content-click="false" offset="8">
-        <template #activator="{ props: menuProps }">
-          <v-btn v-bind="menuProps" icon="mdi-image-outline" size="small" variant="text" class="mr-1" />
-        </template>
-        <v-card min-width="280" rounded="lg">
-          <v-card-text class="pa-3">
-            <div class="text-caption text-medium-emphasis mb-2">{{ t('toolbar.background') }}</div>
-            <div class="d-flex flex-wrap ga-1 mb-3">
-              <v-btn v-for="c in BG_PRESETS" :key="c.value" size="32" rounded="sm" variant="flat"
-                :style="{ background: c.css }" :title="c.label"
-                @click="pickBg(c.value)" />
-              <v-btn size="32" rounded="sm" variant="outlined" icon="mdi-close-circle-outline"
-                :title="t('toolbar.bg_none')" @click="pickBg(undefined)" />
-            </div>
-            <!-- Image upload -->
-            <v-btn variant="tonal" prepend-icon="mdi-upload" size="small" class="mb-3 w-100"
-              :loading="bgUploading" @click="bgFileInput?.click()">
-              {{ t('toolbar.bg_upload') }}
-            </v-btn>
-            <input ref="bgFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
-              class="d-none" @change="onBgFileChange" />
-            <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details clearable
-              :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg"
-              @click:clear="pickBg(undefined)" />
-            <template v-if="bgIsImage">
-              <div class="text-caption text-medium-emphasis mt-3 mb-1">{{ t('toolbar.bg_opacity') }}: {{ localBgOpacity }}%</div>
-              <v-slider v-model="localBgOpacity" min="0" max="100" step="1" hide-details density="compact" thumb-size="14"
-                @update:model-value="emit('rebgopacity', localBgOpacity)" />
-              <v-btn-toggle v-model="localBgSize" mandatory density="compact" variant="tonal" class="w-100 mt-2"
-                @update:model-value="emit('rebgsize', $event)">
-                <v-btn value="cover" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_cover') }}</v-btn>
-                <v-btn value="contain" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_contain') }}</v-btn>
-                <v-btn value="auto" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_auto') }}</v-btn>
+        <!-- Background picker -->
+        <v-menu v-model="bgMenuOpen" :close-on-content-click="false" offset="8">
+          <template #activator="{ props: menuProps }">
+            <v-btn v-bind="menuProps" icon="mdi-image-outline" size="small" variant="text"
+              :title="t('toolbar.background')" />
+          </template>
+          <v-card min-width="280" rounded="lg">
+            <v-card-text class="pa-3">
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('toolbar.background') }}</div>
+              <div class="d-flex flex-wrap ga-1 mb-3">
+                <v-btn v-for="c in BG_PRESETS" :key="c.value" size="32" rounded="sm" variant="flat"
+                  :style="{ background: c.css, outline: localBg === c.value ? '2px solid rgb(var(--v-theme-primary))' : 'none', outlineOffset: '2px' }"
+                  :title="c.label" @click="pickBg(c.value)" />
+                <v-btn size="32" rounded="sm" variant="outlined" icon="mdi-close-circle-outline"
+                  :title="t('toolbar.bg_none')" @click="pickBg(undefined)" />
+              </div>
+              <v-btn variant="tonal" prepend-icon="mdi-upload" size="small" class="mb-3 w-100"
+                :loading="bgUploading" @click="bgFileInput?.click()">
+                {{ t('toolbar.bg_upload') }}
+              </v-btn>
+              <input ref="bgFileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
+                class="d-none" @change="onBgFileChange" />
+              <v-text-field v-model="localBg" density="compact" variant="outlined" hide-details clearable
+                :placeholder="t('toolbar.bg_placeholder')" @update:model-value="commitBg"
+                @click:clear="pickBg(undefined)" />
+              <template v-if="bgIsImage">
+                <div class="text-caption text-medium-emphasis mt-3 mb-1">{{ t('toolbar.bg_opacity') }}: {{ localBgOpacity }}%</div>
+                <v-slider v-model="localBgOpacity" min="0" max="100" step="1" hide-details density="compact" thumb-size="14"
+                  @update:model-value="emit('rebgopacity', localBgOpacity)" />
+                <v-btn-toggle v-model="localBgSize" mandatory density="compact" variant="tonal" class="w-100 mt-2"
+                  @update:model-value="emit('rebgsize', $event)">
+                  <v-btn value="cover" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_cover') }}</v-btn>
+                  <v-btn value="contain" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_contain') }}</v-btn>
+                  <v-btn value="auto" class="flex-grow-1 text-none text-caption">{{ t('toolbar.bg_size_auto') }}</v-btn>
+                </v-btn-toggle>
+              </template>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+
+        <!-- Grid settings -->
+        <v-menu v-model="gridMenuOpen" :close-on-content-click="false" offset="8">
+          <template #activator="{ props: menuProps }">
+            <v-btn v-bind="menuProps" icon="mdi-view-grid-plus-outline" size="small" variant="text"
+              :title="t('toolbar.grid_settings')" />
+          </template>
+          <v-card min-width="260" rounded="lg">
+            <v-card-text class="pa-3">
+              <div class="text-caption text-medium-emphasis mb-3">{{ t('toolbar.grid_settings') }}</div>
+              <div class="text-caption mb-1">{{ t('toolbar.grid_columns', { n: localGrid.columns }) }}</div>
+              <v-slider v-model="localGrid.columns" :min="8" :max="48" :step="4" hide-details density="compact"
+                color="primary" class="mb-3" @update:model-value="emitGrid" />
+              <div class="text-caption mb-1">{{ t('toolbar.grid_cell_height', { n: localGrid.cell_height }) }}</div>
+              <v-slider v-model="localGrid.cell_height" :min="40" :max="160" :step="10" hide-details density="compact"
+                color="primary" class="mb-3" @update:model-value="emitGrid" />
+              <div class="text-caption mb-1">{{ t('toolbar.grid_margin', { n: localGrid.margin }) }}</div>
+              <v-slider v-model="localGrid.margin" :min="0" :max="24" :step="2" hide-details density="compact"
+                color="primary" class="mb-3" @update:model-value="emitGrid" />
+              <v-switch v-model="localGrid.breakpoints" :label="t('toolbar.grid_breakpoints')" density="compact"
+                hide-details color="primary" class="mb-3" @update:model-value="emitGrid" />
+              <div class="text-caption mb-2">{{ t('toolbar.grid_preview') }}</div>
+              <v-btn-toggle v-model="localGrid.max_width" density="compact" color="primary" class="w-100"
+                @update:model-value="emitGrid">
+                <v-btn :value="undefined" size="small" class="flex-1-1" icon="mdi-monitor" :title="t('toolbar.grid_preview_full')" />
+                <v-btn :value="1280" size="small" class="flex-1-1" icon="mdi-laptop" :title="t('toolbar.grid_preview_laptop')" />
+                <v-btn :value="1024" size="small" class="flex-1-1" icon="mdi-tablet" :title="t('toolbar.grid_preview_tablet')" />
+                <v-btn :value="768" size="small" class="flex-1-1" icon="mdi-tablet-cellphone" :title="t('toolbar.grid_preview_tablet_portrait')" />
+                <v-btn :value="375" size="small" class="flex-1-1" icon="mdi-cellphone" :title="t('toolbar.grid_preview_mobile')" />
               </v-btn-toggle>
-            </template>
-          </v-card-text>
-        </v-card>
-      </v-menu>
+            </v-card-text>
+          </v-card>
+        </v-menu>
 
-      <!-- Grid settings -->
-      <v-menu v-if="editMode" v-model="gridMenuOpen" :close-on-content-click="false" offset="8">
-        <template #activator="{ props: menuProps }">
-          <v-btn v-bind="menuProps" icon="mdi-view-grid-plus-outline" size="small" variant="text" class="mr-1"
-            :title="t('toolbar.grid_settings')" />
-        </template>
-        <v-card min-width="260" rounded="lg">
-          <v-card-text class="pa-3">
-            <div class="text-caption text-medium-emphasis mb-3">{{ t('toolbar.grid_settings') }}</div>
-            <div class="text-caption mb-1">{{ t('toolbar.grid_columns', { n: localGrid.columns }) }}</div>
-            <v-slider v-model="localGrid.columns" :min="8" :max="48" :step="4" hide-details density="compact"
-              color="primary" class="mb-3" @update:model-value="emitGrid" />
-            <div class="text-caption mb-1">{{ t('toolbar.grid_cell_height', { n: localGrid.cell_height }) }}</div>
-            <v-slider v-model="localGrid.cell_height" :min="40" :max="160" :step="10" hide-details density="compact"
-              color="primary" class="mb-3" @update:model-value="emitGrid" />
-            <div class="text-caption mb-1">{{ t('toolbar.grid_margin', { n: localGrid.margin }) }}</div>
-            <v-slider v-model="localGrid.margin" :min="0" :max="24" :step="2" hide-details density="compact"
-              color="primary" class="mb-3" @update:model-value="emitGrid" />
-            <v-switch v-model="localGrid.breakpoints" :label="t('toolbar.grid_breakpoints')" density="compact"
-              hide-details color="primary" class="mb-3" @update:model-value="emitGrid" />
-            <div class="text-caption mb-2">{{ t('toolbar.grid_preview') }}</div>
-            <v-btn-toggle v-model="localGrid.max_width" density="compact" color="primary" class="w-100"
-              @update:model-value="emitGrid">
-              <v-btn :value="undefined" size="small" class="flex-1-1" icon="mdi-monitor" :title="t('toolbar.grid_preview_full')" />
-              <v-btn :value="1280" size="small" class="flex-1-1" icon="mdi-laptop" :title="t('toolbar.grid_preview_laptop')" />
-              <v-btn :value="1024" size="small" class="flex-1-1" icon="mdi-tablet" :title="t('toolbar.grid_preview_tablet')" />
-              <v-btn :value="768" size="small" class="flex-1-1" icon="mdi-tablet-cellphone" :title="t('toolbar.grid_preview_tablet_portrait')" />
-              <v-btn :value="375" size="small" class="flex-1-1" icon="mdi-cellphone" :title="t('toolbar.grid_preview_mobile')" />
-            </v-btn-toggle>
-          </v-card-text>
-        </v-card>
-      </v-menu>
+        <!-- Group 2: Primary actions -->
+        <v-divider vertical class="mx-2 my-2" />
 
-      <v-btn v-if="editMode" color="primary" variant="flat" prepend-icon="mdi-plus" size="small" class="mr-1"
-        @click="$emit('add-widget')">{{ t('toolbar.add_widget') }}</v-btn>
+        <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" size="small" class="mr-1"
+          @click="$emit('add-widget')">{{ t('toolbar.add_widget') }}</v-btn>
 
-      <v-btn v-if="editMode" variant="tonal" prepend-icon="mdi-content-save" size="small" :loading="saving" class="mr-2"
-        @click="$emit('save')">{{ t('toolbar.save') }}</v-btn>
+        <v-btn color="primary" variant="tonal" prepend-icon="mdi-content-save" size="small" :loading="saving"
+          class="mr-1" @click="$emit('save')">{{ t('toolbar.save') }}</v-btn>
+
+        <!-- Exit edit mode -->
+        <v-btn icon="mdi-pencil-off-outline" size="small" variant="text" color="primary"
+          :title="t('toolbar.edit_mode_off')" class="mr-1" @click="$emit('toggle-edit')" />
+      </template>
     </template>
   </v-app-bar>
 </template>
@@ -240,7 +247,6 @@ const bgIsImage = computed(() => {
 function pickBg(val: string | undefined) {
   localBg.value = val ?? ''
   emit('rebackground', val)
-  bgMenuOpen.value = false
 }
 
 function commitBg(val: string) {

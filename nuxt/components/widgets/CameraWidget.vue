@@ -3,6 +3,18 @@
     <div class="d-flex align-center ga-2 px-3 pt-3 pb-1">
       <v-icon icon="mdi-camera" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate flex-grow-1">{{ name }}</span>
+
+      <!-- Status entity icons -->
+      <template v-if="resolvedStatusBadges.length">
+        <v-tooltip v-for="(badge, i) in resolvedStatusBadges" :key="'s' + i" :text="badge.tooltip" location="bottom">
+          <template #activator="{ props: tp }">
+            <v-btn v-bind="tp" :icon="badge.icon" size="x-small" variant="text"
+              :color="badge.color" @click="openStatusDialog(badge.entry.entity_id)" />
+          </template>
+        </v-tooltip>
+        <v-divider vertical class="mx-1" style="opacity:0.3;height:16px;align-self:center" />
+      </template>
+
       <v-btn
         v-if="props.config.light_entity_id"
         :icon="lightOn ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
@@ -108,6 +120,12 @@
     </div>
   </div>
 
+  <!-- Status entity detail dialogs -->
+  <LightDetailDialog v-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'light'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <UpdateDetailDialog v-else-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'update'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <MediaPlayerDetailDialog v-else-if="statusDialogOpen && statusEntityId && isStatusMediaPlayer" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <EntityDetailDialog v-else-if="statusDialogOpen && statusEntityId" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+
   <!-- Fullscreen dialog -->
   <v-dialog v-model="fullscreen" max-width="100vw" max-height="100vh" :scrim="true">
     <v-card color="black" rounded="0" class="d-flex flex-column" style="width:100vw;height:100vh">
@@ -181,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CameraWidgetConfig } from '~/types/dashboard'
+import type { CameraWidgetConfig, CameraStatusEntry } from '~/types/dashboard'
 
 const { t } = useI18n()
 const props = defineProps<{ config: CameraWidgetConfig }>()
@@ -240,6 +258,67 @@ function toggleMute() {
   if (videoEl.value) videoEl.value.muted = muted.value
   if (videoElFs.value) videoElFs.value.muted = muted.value
 }
+
+// ── Status entity overlay icons ────────────────────────────────────────────
+
+const statusDialogOpen = ref(false)
+const statusEntityId = ref<string | null>(null)
+const statusDialogDomain = computed(() => statusEntityId.value?.split('.')[0] ?? '')
+const isStatusMediaPlayer = computed(() => statusEntityId.value?.startsWith('media_player.') ?? false)
+
+function openStatusDialog(entityId: string) {
+  statusEntityId.value = entityId
+  statusDialogOpen.value = true
+}
+
+function defaultActiveStateForEntity(entityId: string): string {
+  const domain = entityId.split('.')[0]
+  if (domain === 'lock') return 'locked'
+  if (domain === 'cover' || domain === 'media_player') return 'open'
+  return 'on'
+}
+
+function autoStatusIcon(entry: CameraStatusEntry, active: boolean): string {
+  const domain = entry.entity_id.split('.')[0]
+  const deviceClass = entityStore.entities[entry.entity_id]?.attributes?.device_class as string | undefined
+  if (domain === 'light') return active ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
+  if (domain === 'switch') return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
+  if (domain === 'lock') return active ? 'mdi-lock' : 'mdi-lock-open-outline'
+  if (domain === 'cover') return active ? 'mdi-window-shutter-open' : 'mdi-window-shutter'
+  if (domain === 'media_player') return active ? 'mdi-play-circle' : 'mdi-pause-circle-outline'
+  if (domain === 'update') return active ? 'mdi-package-up' : 'mdi-package-check'
+  if (domain === 'fan') return active ? 'mdi-fan' : 'mdi-fan-off'
+  if (domain === 'climate') return active ? 'mdi-thermometer' : 'mdi-thermometer-off'
+  if (domain === 'alarm_control_panel') return active ? 'mdi-shield-alert' : 'mdi-shield-home-outline'
+  if (domain === 'binary_sensor') {
+    if (deviceClass === 'motion') return active ? 'mdi-motion-sensor' : 'mdi-motion-sensor-off'
+    if (deviceClass === 'door') return active ? 'mdi-door-open' : 'mdi-door-closed'
+    if (deviceClass === 'window') return active ? 'mdi-window-open' : 'mdi-window-closed'
+    if (deviceClass === 'smoke') return active ? 'mdi-smoke-detector-alert' : 'mdi-smoke-detector-outline'
+    return active ? 'mdi-circle' : 'mdi-circle-outline'
+  }
+  if (entry.icon) return active ? entry.icon : (entry.inactive_icon || entry.icon)
+  return active ? 'mdi-circle' : 'mdi-circle-outline'
+}
+
+const resolvedStatusBadges = computed(() => {
+  return (props.config.status_entities ?? []).map(entry => {
+    const state = entityStore.entities[entry.entity_id]?.state ?? 'unknown'
+    const activeState = entry.active_state || defaultActiveStateForEntity(entry.entity_id)
+    const active = state === activeState
+    const icon = entry.icon
+      ? (active ? entry.icon : (entry.inactive_icon || entry.icon))
+      : autoStatusIcon(entry, active)
+    return {
+      entry,
+      active,
+      state,
+      icon,
+      color: active ? (entry.active_color || 'primary') : (entry.inactive_color || 'medium-emphasis'),
+      tooltip: entry.label || entry.entity_id,
+    }
+  })
+})
 
 function openFullscreen() {
   fullscreen.value = true

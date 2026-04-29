@@ -3,35 +3,6 @@
 
   <v-btn icon="mdi-bell-cog-outline" size="small" variant="text" @click="openDialog" />
 
-  <!-- Desktop-only actions -->
-  <div class="d-none d-sm-inline-flex align-center ga-0">
-    <v-btn :icon="glass ? 'mdi-blur' : 'mdi-blur-off'" size="small" variant="text"
-      :color="glass ? 'primary' : undefined" :title="t('toolbar.glass_effect')" @click="toggleGlass" />
-    <v-btn :icon="borders ? 'mdi-border-all' : 'mdi-border-none'" size="small" variant="text"
-      :color="borders ? 'primary' : undefined" :title="t('toolbar.widget_borders')" @click="toggleBorders" />
-
-    <v-menu>
-      <template #activator="{ props: mp }">
-        <v-btn size="small" variant="text" v-bind="mp">{{ locale.toUpperCase() }}</v-btn>
-      </template>
-      <v-card rounded="lg" :class="{ 'theme-card-glass': glass }">
-        <v-list density="compact" nav>
-          <v-list-item v-for="loc in availableLocales" :key="loc.code" :title="loc.name"
-            :active="locale === loc.code" :color="locale === loc.code ? 'primary' : undefined"
-            rounded="lg" @click="changeLocale(loc.code)" />
-        </v-list>
-      </v-card>
-    </v-menu>
-
-    <ThemeToggle />
-
-    <v-divider v-if="canEdit" vertical class="mx-1 my-2" />
-    <v-btn v-if="canEdit" :icon="editMode ? 'mdi-pencil-off-outline' : 'mdi-pencil-outline'"
-      size="small" variant="text" :color="editMode ? 'primary' : undefined"
-      :title="editMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on')"
-      @click="emit('toggle-edit')" />
-  </div>
-
   <!-- User menu (always visible, contains mobile extras) -->
   <v-menu>
     <template #activator="{ props: mp }">
@@ -42,20 +13,19 @@
         <v-list-item :title="user?.username" :subtitle="t('toolbar.signed_in')" disabled />
         <v-divider class="my-1" />
 
-        <!-- Mobile-only extras -->
-        <v-list-item class="d-sm-none" :prepend-icon="glass ? 'mdi-blur' : 'mdi-blur-off'"
+        <!-- View settings — always in menu -->
+        <v-list-item :prepend-icon="glass ? 'mdi-blur' : 'mdi-blur-off'"
           :title="t('toolbar.glass_effect')" :active="glass" :color="glass ? 'primary' : undefined"
           rounded="lg" @click="toggleGlass" />
-        <v-list-item class="d-sm-none" :prepend-icon="borders ? 'mdi-border-all' : 'mdi-border-none'"
+        <v-list-item :prepend-icon="borders ? 'mdi-border-all' : 'mdi-border-none'"
           :title="t('toolbar.widget_borders')" :active="borders" :color="borders ? 'primary' : undefined"
           rounded="lg" @click="toggleBorders" />
-        <v-list-item class="d-sm-none" prepend-icon="mdi-palette" :title="t('toolbar.theme')" rounded="lg">
+        <v-list-item prepend-icon="mdi-palette" :title="t('toolbar.theme')" rounded="lg">
           <template #append>
             <ThemeToggle button-icon="mdi-chevron-down" :button-title="t('toolbar.theme')" />
           </template>
         </v-list-item>
-        <v-list-item class="d-sm-none" prepend-icon="mdi-translate" :title="locale.toUpperCase()"
-          rounded="lg">
+        <v-list-item prepend-icon="mdi-translate" :title="locale.toUpperCase()" rounded="lg">
           <template #append>
             <div class="d-flex ga-1 flex-wrap justify-end" style="max-width:120px">
               <v-chip v-for="loc in availableLocales" :key="loc.code" size="x-small"
@@ -68,15 +38,13 @@
           </template>
         </v-list-item>
         <v-list-item
-          v-if="canEdit"
-          :prepend-icon="editMode ? 'mdi-pencil-off-outline' : 'mdi-pencil-outline'"
-          :title="editMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on')"
-          :active="editMode"
-          :color="editMode ? 'primary' : undefined"
+          v-if="canEdit && !editMode"
+          prepend-icon="mdi-pencil-outline"
+          :title="t('toolbar.edit_mode_on')"
           rounded="lg"
           @click="emit('toggle-edit')"
         />
-        <v-divider class="d-sm-none my-1" />
+        <v-divider class="my-1" />
 
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
           :title="t('toolbar.user_mgmt')" rounded="lg" to="/admin/users" />
