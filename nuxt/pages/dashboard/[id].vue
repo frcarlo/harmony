@@ -1,31 +1,35 @@
 <template>
-  <div v-if="!connected" class="d-flex align-center justify-center" style="min-height:100vh">
-    <div class="d-flex flex-column align-center ga-4">
-      <v-progress-circular indeterminate color="primary" size="48" />
-      <span class="text-body-2 text-medium-emphasis">{{ t('common.connecting') }}</span>
-    </div>
-  </div>
-
-  <div v-else-if="dashboard" :style="bgBase" style="min-height:100vh;position:relative">
+  <div :style="bgBase" style="min-height:100vh;position:relative">
     <div v-if="bgImage" :style="bgImageStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
     <div v-if="bgImage" :style="bgOverlayStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
     <div class="d-flex flex-column" style="position:relative;z-index:1;min-height:100vh">
+
+      <!-- Toolbar always rendered so back button is never swallowed by a disconnect flash -->
       <AppToolbar
-        :dashboard-name="dashboard.name"
-        :dashboard-id="dashboard.id"
-        :dashboard-icon="dashboard.icon"
-        :is-my-default-dashboard="dashboard.id === myDefaultDashboardId"
+        :dashboard-name="dashboard?.name ?? ''"
+        :dashboard-id="dashboard?.id ?? ''"
+        :dashboard-icon="dashboard?.icon"
+        :is-my-default-dashboard="dashboard?.id === myDefaultDashboardId"
         :edit-mode="false"
         :hide-edit="!isAdmin"
         @back="goBack"
-        @toggle-edit="router.push(`/edit/${dashboard.id}`)"
+        @toggle-edit="dashboard && router.push(`/edit/${dashboard.id}`)"
         @toggle-my-default="toggleMyDefaultDashboard"
       />
+
+      <!-- Content: spinner while connecting or loading, grid when ready -->
       <v-main>
-        <div class="pa-4">
+        <div v-if="!connected || !dashboard" class="d-flex align-center justify-center" style="min-height:80vh">
+          <div class="d-flex flex-column align-center ga-4">
+            <v-progress-circular indeterminate color="primary" size="48" />
+            <span class="text-body-2 text-medium-emphasis">{{ t('common.connecting') }}</span>
+          </div>
+        </div>
+        <div v-else class="pa-4">
           <DashboardGrid :edit-mode="false" />
         </div>
       </v-main>
+
     </div>
   </div>
 </template>
