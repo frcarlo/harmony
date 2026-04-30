@@ -33,12 +33,12 @@ export default defineNuxtPlugin(() => {
     scheduleFlush()
   })
 
-  // When screen wakes up, force a full state refresh in case we missed events
+  // When screen wakes up, patch only changed states to avoid a full re-render flash
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState !== 'visible' || !client.isConnected) return
     try {
       const states = await client.getStates()
-      entityStore.setEntities(states)
+      entityStore.batchSetEntities(states)
     } catch { /* ignore */ }
   })
 
