@@ -10,8 +10,6 @@ class HAWebSocketClient {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private reconnectDelay = 1000
   private maxReconnectDelay = 30000
-  private pingInterval: ReturnType<typeof setInterval> | null = null
-
   private globalStateCallback: StateCallback | null = null
   private pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>()
   private subscriptions = new Map<number, (event: unknown) => void>()
@@ -45,7 +43,6 @@ class HAWebSocketClient {
     this.ws.onclose = () => {
       console.warn('[HA WS] Disconnected')
       this.authenticated = false
-      this._stopHeartbeat()
       this.onDisconnectCallbacks.forEach((cb) => cb())
       this._scheduleReconnect()
     }
@@ -96,7 +93,6 @@ class HAWebSocketClient {
       console.log('[HA WS] Authenticated')
       this.authenticated = true
       this.reconnectDelay = 1000
-      this._startHeartbeat()
       this.onConnectCallbacks.forEach((cb) => cb())
       this._sendWithId({ type: 'subscribe_events', event_type: 'state_changed' })
       return
@@ -124,26 +120,6 @@ class HAWebSocketClient {
         this.globalStateCallback(ev.data.new_state)
       }
     }
-  }
-
-  private _startHeartbeat(): void {
-    this._stopHeartbeat()
-    this.pingInterval = setInterval(async () => {
-      if (!this.authenticated) return
-      try {
-        await Promise.race([
-          this._call({ type: 'ping' }),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('pong timeout')), 5000)),
-        ])
-      } catch {
-        console.warn('[HA WS] Heartbeat timeout — forcing reconnect')
-        this.ws?.close()
-      }
-    }, 30000)
-  }
-
-  private _stopHeartbeat(): void {
-    if (this.pingInterval) { clearInterval(this.pingInterval); this.pingInterval = null }
   }
 
   onConnect(cb: VoidCallback): () => void {
