@@ -6,23 +6,40 @@ export default defineNuxtPlugin(() => {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   const wsUrl = `${protocol}//${window.location.host}/api/ha-ws`
 
-  // Batch state updates — collect changes and apply once per animation frame
-  let pendingUpdates: Parameters<typeof entityStore.setEntity>[0][] = []
-  let rafScheduled = false
+  // Batch state updates — deduplicate per entity and flush once per frame (or 100ms if hidden)
+  let pendingUpdates = new Map<string, Parameters<typeof entityStore.setEntity>[0]>()
+  let flushScheduled = false
 
   function flushUpdates() {
-    rafScheduled = false
-    if (pendingUpdates.length === 0) return
-    entityStore.batchSetEntities(pendingUpdates)
-    pendingUpdates = []
+    flushScheduled = false
+    if (pendingUpdates.size === 0) return
+    entityStore.batchSetEntities([...pendingUpdates.values()])
+    pendingUpdates = new Map()
+  }
+
+  function scheduleFlush() {
+    if (flushScheduled) return
+    flushScheduled = true
+    if (document.visibilityState === 'hidden') {
+      // RAF doesn't fire when screen is off — fall back to setTimeout
+      setTimeout(flushUpdates, 100)
+    } else {
+      requestAnimationFrame(flushUpdates)
+    }
   }
 
   client.onStateChange((state) => {
-    pendingUpdates.push(state)
-    if (!rafScheduled) {
-      rafScheduled = true
-      requestAnimationFrame(flushUpdates)
-    }
+    pendingUpdates.set(state.entity_id, state)
+    scheduleFlush()
+  })
+
+  // When screen wakes up, force a full state refresh in case we missed events
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible' || !client.isConnected) return
+    try {
+      const states = await client.getStates()
+      entityStore.setEntities(states)
+    } catch { /* ignore */ }
   })
 
   client.onConnect(async () => {
