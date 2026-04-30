@@ -74,7 +74,13 @@
             </template>
           </draggable>
 
-          <div v-else-if="listLoaded" class="d-flex flex-column align-center justify-center py-16 text-center">
+          <v-row v-else-if="!listLoaded">
+            <v-col v-for="n in 4" :key="n" cols="12" sm="6" lg="4" xl="3">
+              <v-skeleton-loader type="card" rounded="xl" />
+            </v-col>
+          </v-row>
+
+          <div v-else class="d-flex flex-column align-center justify-center py-16 text-center">
             <v-icon icon="mdi-view-grid-outline" size="64" color="medium-emphasis" class="mb-4" style="opacity:0.3" />
             <h3 class="text-h6 font-weight-medium mb-2">{{ t('dashboard.empty_title') }}</h3>
             <p class="text-body-2 text-medium-emphasis mb-6" style="max-width:340px">
