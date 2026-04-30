@@ -67,7 +67,7 @@ definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
-const { data: appConfig, refresh: refreshAppConfig } = await useFetch('/api/app-config')
+const { data: appConfig, refresh: refreshAppConfig } = useFetch('/api/app-config')
 const keycloakEnabled = computed(() => appConfig.value?.keycloakEnabled ?? false)
 const { fetch: refreshSession } = useUserSession()
 
