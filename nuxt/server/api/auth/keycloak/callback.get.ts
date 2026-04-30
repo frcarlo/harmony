@@ -63,7 +63,9 @@ export default defineEventHandler(async (event) => {
   // Support Authentik (groups claim) and Keycloak (realm_access.roles)
   const groups = userInfo.groups ?? tokenPayload.groups ?? []
   const roles = tokenPayload.realm_access?.roles ?? []
-  const role = (groups.includes('ha-dashboard-admin') || roles.includes('ha-dashboard-admin')) ? 'admin' : 'user'
+  const isAdmin = groups.includes('ha-dashboard-admin') || roles.includes('ha-dashboard-admin')
+  const isEditor = groups.includes('ha-dashboard-editor') || roles.includes('ha-dashboard-editor')
+  const role: 'admin' | 'editor' | 'user' = isAdmin ? 'admin' : isEditor ? 'editor' : 'user'
 
   let dbUser = getUserByProviderId('keycloak', userInfo.sub)
   if (!dbUser) {
