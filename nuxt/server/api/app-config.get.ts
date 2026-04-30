@@ -13,7 +13,7 @@ export default defineEventHandler(async () => {
     try {
       const res = await fetch(`${haUrl}/api/`, {
         headers: { Authorization: `Bearer ${haToken}` },
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(5000),
       })
       haReachable = res.ok
     } catch {

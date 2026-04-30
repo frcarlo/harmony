@@ -67,9 +67,17 @@ definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
-const { data: appConfig } = await useFetch('/api/app-config')
+const { data: appConfig, refresh: refreshAppConfig } = await useFetch('/api/app-config')
 const keycloakEnabled = computed(() => appConfig.value?.keycloakEnabled ?? false)
 const { fetch: refreshSession } = useUserSession()
+
+// Auto-retry when HA is unreachable so the warning disappears without manual reload
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+watch(() => appConfig.value?.haReachable, (reachable) => {
+  if (retryTimer) { clearTimeout(retryTimer); retryTimer = null }
+  if (!reachable) retryTimer = setTimeout(refreshAppConfig, 5000)
+}, { immediate: true })
+onUnmounted(() => { if (retryTimer) clearTimeout(retryTimer) })
 
 const loading = ref(false)
 const loginError = ref('')
