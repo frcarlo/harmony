@@ -65,13 +65,12 @@ export default defineEventHandler(async (event) => {
   const roles = tokenPayload.realm_access?.roles ?? []
   const allClaims = [...groups, ...roles]
   const isAdmin = allClaims.includes('ha-dashboard-admin')
-  const isEditor = allClaims.includes('ha-dashboard-editor')
-  const role: 'admin' | 'editor' | 'user' = isAdmin ? 'admin' : isEditor ? 'editor' : 'user'
-
-  // Groups/roles named "ha-area-<area_id>" map to allowed areas for editors
   const ssoAreas = allClaims
     .filter(g => g.startsWith('ha-area-'))
     .map(g => g.slice('ha-area-'.length))
+  // ha-area-* groups imply editor even without explicit ha-dashboard-editor claim
+  const isEditor = allClaims.includes('ha-dashboard-editor') || ssoAreas.length > 0
+  const role: 'admin' | 'editor' | 'user' = isAdmin ? 'admin' : isEditor ? 'editor' : 'user'
   const allowedAreas = isEditor && ssoAreas.length > 0 ? ssoAreas : null
 
   let dbUser = getUserByProviderId('keycloak', userInfo.sub)
