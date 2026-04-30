@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
   if (user.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
-  const body = await readBody<{ username: string; password: string; role: 'admin' | 'user' }>(event)
+  const body = await readBody<{ username: string; password: string; role: 'admin' | 'editor' | 'user' }>(event)
   if (!body.username?.trim() || !body.password || body.password.length < 8) {
     throw createError({ statusCode: 400, statusMessage: 'Username and password (min 8 chars) required' })
   }

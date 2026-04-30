@@ -11,7 +11,7 @@
         :dashboard-icon="dashboard?.icon"
         :is-my-default-dashboard="dashboard?.id === myDefaultDashboardId"
         :edit-mode="false"
-        :hide-edit="!isAdmin"
+        :hide-edit="!canEdit"
         @back="goBack"
         @toggle-edit="dashboard && router.push(`/edit/${dashboard.id}`)"
         @toggle-my-default="toggleMyDefaultDashboard"
@@ -44,6 +44,7 @@ const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
+const canEdit = computed(() => user.value?.role === 'admin' || user.value?.role === 'editor')
 
 const dashboardNavStack = useState<string[]>('dashboardNavStack', () => [])
 const dashboardNavGoingBack = useState('dashboardNavGoingBack', () => false)

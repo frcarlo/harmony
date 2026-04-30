@@ -48,8 +48,10 @@
               <v-card-subtitle>{{ u.email ?? (u.provider ? `OAuth: ${u.provider}` : t('users.local_account')) }}</v-card-subtitle>
               <template #append>
                 <div class="d-flex align-center ga-2">
-                  <v-chip :color="u.role === 'admin' ? 'primary' : undefined" size="small" variant="tonal">
-                    {{ u.role === 'admin' ? 'Admin' : 'User' }}
+                  <v-chip
+                    :color="u.role === 'admin' ? 'primary' : u.role === 'editor' ? 'secondary' : undefined"
+                    size="small" variant="tonal">
+                    {{ u.role === 'admin' ? 'Admin' : u.role === 'editor' ? 'Editor' : 'User' }}
                   </v-chip>
                   <v-btn
                     v-if="u.role !== 'admin'"
@@ -112,6 +114,27 @@
                     </v-chip>
                   </div>
                 </div>
+                <!-- Area restriction (editor only) -->
+                <template v-if="accessUser?.role === 'editor' && entityStore.areas.length > 0">
+                  <v-divider class="my-3" />
+                  <p class="text-body-2 font-weight-medium mb-1">{{ t('users.allowed_areas_label') }}</p>
+                  <p class="text-caption text-medium-emphasis mb-3">{{ t('users.allowed_areas_hint') }}</p>
+                  <div class="d-flex flex-wrap ga-2 mb-3">
+                    <v-chip
+                      v-for="area in entityStore.areas.slice().sort((a, b) => a.name.localeCompare(b.name))"
+                      :key="area.area_id"
+                      :color="selectedAllowedAreaIds.includes(area.area_id) ? 'secondary' : undefined"
+                      :variant="selectedAllowedAreaIds.includes(area.area_id) ? 'flat' : 'outlined'"
+                      prepend-icon="mdi-home-outline"
+                      style="cursor: pointer"
+                      @click="selectedAllowedAreaIds.includes(area.area_id)
+                        ? selectedAllowedAreaIds.splice(selectedAllowedAreaIds.indexOf(area.area_id), 1)
+                        : selectedAllowedAreaIds.push(area.area_id)"
+                    >{{ area.name }}</v-chip>
+                  </div>
+                  <p class="text-caption text-disabled">{{ selectedAllowedAreaIds.length === 0 ? t('users.allowed_areas_all') : '' }}</p>
+                </template>
+
                 <div class="d-flex ga-2">
                   <v-btn color="primary" variant="flat" size="small" :loading="savingAccess" @click="saveAccess">
                     {{ t('common.save') }}
@@ -250,7 +273,8 @@ interface UserRow {
   id: string
   username: string
   email: string | null
-  role: 'admin' | 'user'
+  role: 'admin' | 'editor' | 'user'
+  allowed_areas: string[] | null
   provider: string | null
   default_dashboard_id?: string | null
   user_default_dashboard_id?: string | null
@@ -263,7 +287,7 @@ const activeTab = ref<'users' | 'audit'>('users')
 const showForm = ref(false)
 const saving = ref(false)
 const formError = ref('')
-const form = reactive({ username: '', password: '', role: 'user' as 'admin' | 'user' })
+const form = reactive({ username: '', password: '', role: 'user' as 'admin' | 'editor' | 'user' })
 
 const deleteDialog = ref(false)
 const deleteTarget = ref<UserRow | null>(null)
@@ -276,6 +300,8 @@ const selectedDashboardIds = ref<string[]>([])
 const selectedDefaultDashboardId = ref<string | null>(null)
 const loadingAccess = ref(false)
 const savingAccess = ref(false)
+const entityStore = useEntityStore()
+const selectedAllowedAreaIds = ref<string[]>([])
 
 // Audit log
 const auditLog = ref<AuditEntry[]>([])
@@ -342,7 +368,8 @@ async function handleDelete() {
 }
 
 async function toggleRole(u: UserRow) {
-  const newRole = u.role === 'admin' ? 'user' : 'admin'
+  const cycle: Record<string, 'admin' | 'editor' | 'user'> = { user: 'editor', editor: 'admin', admin: 'user' }
+  const newRole = cycle[u.role] ?? 'user'
   await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { role: newRole } })
   u.role = newRole
 }
@@ -359,6 +386,7 @@ async function openAccess(u: UserRow) {
     allDashboards.value = dbs
     selectedDashboardIds.value = access.dashboardIds ?? []
     selectedDefaultDashboardId.value = u.default_dashboard_id ?? null
+    selectedAllowedAreaIds.value = u.allowed_areas ?? []
   } finally {
     loadingAccess.value = false
   }
@@ -378,15 +406,18 @@ async function saveAccess() {
     if (selectedDefaultDashboardId.value && dashboardIds.length > 0 && !dashboardIds.includes(selectedDefaultDashboardId.value)) {
       dashboardIds.push(selectedDefaultDashboardId.value)
     }
-    await $fetch(`/api/users/${accessUser.value.id}/dashboards`, {
-      method: 'PUT',
-      body: { dashboardIds },
-    })
-    await $fetch(`/api/users/${accessUser.value.id}`, {
-      method: 'PATCH',
-      body: { default_dashboard_id: selectedDefaultDashboardId.value ?? null },
-    })
+    const allowedAreas = accessUser.value.role === 'editor' && selectedAllowedAreaIds.value.length > 0
+      ? selectedAllowedAreaIds.value
+      : null
+    await Promise.all([
+      $fetch(`/api/users/${accessUser.value.id}/dashboards`, { method: 'PUT', body: { dashboardIds } }),
+      $fetch(`/api/users/${accessUser.value.id}`, {
+        method: 'PATCH',
+        body: { default_dashboard_id: selectedDefaultDashboardId.value ?? null, allowed_areas: allowedAreas },
+      }),
+    ])
     accessUser.value.default_dashboard_id = selectedDefaultDashboardId.value ?? null
+    accessUser.value.allowed_areas = allowedAreas
     accessUser.value = null
   } finally {
     savingAccess.value = false

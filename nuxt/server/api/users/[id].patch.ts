@@ -1,17 +1,17 @@
-import { updateUserRole, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
+import { updateUserRole, updateUserAllowedAreas, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
   if (user.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
   const id = getRouterParam(event, 'id')!
-  const body = await readBody<{ role?: 'admin' | 'user'; default_dashboard_id?: string | null }>(event)
+  const body = await readBody<{ role?: 'admin' | 'editor' | 'user'; allowed_areas?: string[] | null; default_dashboard_id?: string | null }>(event)
 
   if (body.role != null) {
     const role = body.role
-    if (!['admin', 'user'].includes(role)) throw createError({ statusCode: 400, statusMessage: 'Invalid role' })
+    if (!['admin', 'editor', 'user'].includes(role)) throw createError({ statusCode: 400, statusMessage: 'Invalid role' })
 
-    if (role === 'user') {
+    if (role !== 'admin') {
       const target = getUserById(id)
       if (target?.role === 'admin') {
         const adminCount = listUsers().filter((u) => u.role === 'admin').length
@@ -22,6 +22,10 @@ export default defineEventHandler(async (event) => {
     if (!updateUserRole(id, role)) throw createError({ statusCode: 404, statusMessage: 'User not found' })
     const target = getUserById(id)
     addAuditLog({ user_id: user.id, username: user.username, action: 'user.role_change', target: target?.username, detail: `→ ${role}` })
+  }
+
+  if ('allowed_areas' in body) {
+    updateUserAllowedAreas(id, body.allowed_areas ?? null)
   }
 
   if (body.default_dashboard_id !== undefined) {

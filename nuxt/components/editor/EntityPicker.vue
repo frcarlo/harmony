@@ -49,11 +49,19 @@ const props = defineProps<{
 defineEmits<{ 'update:modelValue': [v: string | undefined] }>()
 
 const entityStore = useEntityStore()
+const { user } = useUserSession()
 const selectedArea = ref<string | null>(null)
 
-const areaItems = computed(() => [
-  ...entityStore.areas.slice().sort((a, b) => a.name.localeCompare(b.name)),
-])
+// Areas this user is allowed to pick from (null = no restriction)
+const allowedAreaIds = computed(() => {
+  const areas = user.value?.allowed_areas
+  return areas?.length ? areas : null
+})
+
+const areaItems = computed(() => {
+  const all = entityStore.areas.slice().sort((a, b) => a.name.localeCompare(b.name))
+  return allowedAreaIds.value ? all.filter(a => allowedAreaIds.value!.includes(a.area_id)) : all
+})
 
 const domainFilters = computed(() => {
   if (Array.isArray(props.domainFilter)) return props.domainFilter
@@ -68,9 +76,13 @@ const options = computed(() => {
     ? all.filter((e) => domainFilters.value.some((domain) => e.entity_id.startsWith(domain + '.')))
     : all
   if (props.platform) filtered = filtered.filter((e) => entityStore.entityPlatformMap[e.entity_id] === props.platform)
-  if (selectedArea.value) {
-    filtered = filtered.filter((e) => entityStore.entityAreaMap[e.entity_id] === selectedArea.value)
+
+  // Apply area filter: specific selected area, or full allowed-areas restriction
+  const effectiveAreas = selectedArea.value ? [selectedArea.value] : allowedAreaIds.value
+  if (effectiveAreas) {
+    filtered = filtered.filter((e) => effectiveAreas.includes(entityStore.entityAreaMap[e.entity_id] ?? ''))
   }
+
   return filtered.map((e) => ({
     entity_id: e.entity_id,
     label: (e.attributes?.friendly_name as string) ?? e.entity_id,
@@ -86,7 +98,9 @@ watch(
       selectedArea.value = null
       return
     }
-    selectedArea.value = entityStore.entityAreaMap[entityId] ?? null
+    const area = entityStore.entityAreaMap[entityId] ?? null
+    // Only pre-select area if it's within allowed areas
+    selectedArea.value = (!allowedAreaIds.value || allowedAreaIds.value.includes(area ?? '')) ? area : null
   },
   { immediate: true, deep: true },
 )

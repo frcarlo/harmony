@@ -10,11 +10,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/login')
   }
 
-  // Admin-only routes
-  if (to.path.startsWith('/edit/') && user.value?.role !== 'admin') {
+  // Role-restricted routes
+  const role = user.value?.role
+  if (to.path.startsWith('/edit/') && role !== 'admin' && role !== 'editor') {
     return navigateTo(`/dashboard/${to.params.id}`)
   }
-  if (to.path.startsWith('/admin/') && user.value?.role !== 'admin') {
+  if (to.path.startsWith('/admin/') && role !== 'admin') {
     return navigateTo('/dashboard')
   }
 })

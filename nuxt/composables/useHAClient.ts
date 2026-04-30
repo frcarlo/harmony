@@ -136,7 +136,7 @@ class HAWebSocketClient {
         console.warn('[HA WS] Heartbeat failed — forcing reconnect')
         this.ws?.close()
       }
-    }, 60000)
+    }, 100000)
   }
 
   private _stopHeartbeat(): void {
