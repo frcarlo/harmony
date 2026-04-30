@@ -1,4 +1,4 @@
-import { getUserByProviderId, getUserByUsername, linkUserProvider, createUser, updateUserRole, resolveDefaultDashboardForUser } from '~/server/utils/db'
+import { getUserByProviderId, getUserByUsername, linkUserProvider, createUser, updateUserRole, updateUserAllowedAreas, resolveDefaultDashboardForUser } from '~/server/utils/db'
 
 interface OidcDiscovery {
   token_endpoint: string
@@ -63,9 +63,16 @@ export default defineEventHandler(async (event) => {
   // Support Authentik (groups claim) and Keycloak (realm_access.roles)
   const groups = userInfo.groups ?? tokenPayload.groups ?? []
   const roles = tokenPayload.realm_access?.roles ?? []
-  const isAdmin = groups.includes('ha-dashboard-admin') || roles.includes('ha-dashboard-admin')
-  const isEditor = groups.includes('ha-dashboard-editor') || roles.includes('ha-dashboard-editor')
+  const allClaims = [...groups, ...roles]
+  const isAdmin = allClaims.includes('ha-dashboard-admin')
+  const isEditor = allClaims.includes('ha-dashboard-editor')
   const role: 'admin' | 'editor' | 'user' = isAdmin ? 'admin' : isEditor ? 'editor' : 'user'
+
+  // Groups/roles named "ha-area-<area_id>" map to allowed areas for editors
+  const ssoAreas = allClaims
+    .filter(g => g.startsWith('ha-area-'))
+    .map(g => g.slice('ha-area-'.length))
+  const allowedAreas = isEditor && ssoAreas.length > 0 ? ssoAreas : null
 
   let dbUser = getUserByProviderId('keycloak', userInfo.sub)
   if (!dbUser) {
@@ -87,6 +94,11 @@ export default defineEventHandler(async (event) => {
   if (dbUser.role !== role) {
     updateUserRole(dbUser.id, role)
     dbUser = { ...dbUser, role }
+  }
+  // Sync SSO-derived areas to DB so admin UI reflects current IdP state
+  if (isEditor) {
+    updateUserAllowedAreas(dbUser.id, allowedAreas)
+    dbUser = { ...dbUser, allowed_areas: allowedAreas }
   }
 
   await setUserSession(event, { user: { id: dbUser.id, username: dbUser.username, role: dbUser.role, allowed_areas: dbUser.allowed_areas ?? undefined }, keycloak_id_token: tokenRes.id_token } as any)
