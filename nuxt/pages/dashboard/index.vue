@@ -74,7 +74,7 @@
             </template>
           </draggable>
 
-          <div v-else class="d-flex flex-column align-center justify-center py-16 text-center">
+          <div v-else-if="listLoaded" class="d-flex flex-column align-center justify-center py-16 text-center">
             <v-icon icon="mdi-view-grid-outline" size="64" color="medium-emphasis" class="mb-4" style="opacity:0.3" />
             <h3 class="text-h6 font-weight-medium mb-2">{{ t('dashboard.empty_title') }}</h3>
             <p class="text-body-2 text-medium-emphasis mb-6" style="max-width:340px">
@@ -98,8 +98,9 @@ const { t } = useI18n()
 const { user } = useUserSession()
 const isAdmin = computed(() => user.value?.role === 'admin')
 
-const dashboards = ref<DashboardListItem[]>([])
-const resolvedDefault = ref<DefaultDashboardResolution>({ dashboardId: null, source: null })
+const dashboards = useState<DashboardListItem[]>('dashboard-list', () => [])
+const resolvedDefault = useState<DefaultDashboardResolution>('dashboard-list-default', () => ({ dashboardId: null, source: null }))
+const listLoaded = useState('dashboard-list-loaded', () => false)
 const listEditMode = ref(false)
 const importing = ref(false)
 const importInput = ref<HTMLInputElement | null>(null)
@@ -227,6 +228,7 @@ async function loadDashboards() {
   ])
   dashboards.value = items
   resolvedDefault.value = defaultInfo
+  listLoaded.value = true
 }
 
 onMounted(async () => {
