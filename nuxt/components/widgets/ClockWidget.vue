@@ -11,12 +11,14 @@ import type { ClockWidgetConfig } from '~/types/dashboard'
 const props = defineProps<{ config: ClockWidgetConfig }>()
 const now = ref(new Date())
 const isLed = computed(() => props.config.style === 'led')
+const { performanceMode } = useDashboardDisplayMode()
+const showSeconds = computed(() => props.config.show_seconds !== false && !performanceMode.value)
 
 onMounted(() => {
   let timer: ReturnType<typeof setTimeout> | null = null
   const tick = () => {
     now.value = new Date()
-    const updateMs = props.config.show_seconds === false ? 60_000 - (now.value.getSeconds() * 1000 + now.value.getMilliseconds()) : 1_000
+    const updateMs = showSeconds.value ? 1_000 : 60_000 - (now.value.getSeconds() * 1000 + now.value.getMilliseconds())
     timer = setTimeout(tick, Math.max(250, updateMs))
   }
   tick()
@@ -26,7 +28,7 @@ onMounted(() => {
 const timeStr = computed(() => now.value.toLocaleTimeString('de-DE', {
   hour: '2-digit',
   minute: '2-digit',
-  ...(props.config.show_seconds !== false ? { second: '2-digit' as const } : {}),
+  ...(showSeconds.value ? { second: '2-digit' as const } : {}),
   hour12: props.config.format_24h === false,
   timeZone: props.config.timezone,
 }))

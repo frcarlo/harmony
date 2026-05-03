@@ -206,6 +206,16 @@
   transition: none !important;
 }
 
+.performance-mode .appliance-card--running .appliance-card__icon-orbit,
+.performance-mode .appliance-card--running .appliance-card__icon,
+.performance-mode .switch-card--pending .switch-card__icon-wrap,
+.performance-mode .alarm-card__icon-wrap--busy,
+.performance-mode .alarm-card__icon-wrap--busy .v-icon,
+.performance-mode .alarm-card__icon-wrap--triggered,
+.performance-mode .spin {
+  animation: none !important;
+}
+
 /* Tooltip contrast */
 .tooltip-readable {
   background: rgba(15, 23, 42, 0.95) !important;

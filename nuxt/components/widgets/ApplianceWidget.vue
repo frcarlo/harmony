@@ -85,7 +85,19 @@ import type { ApplianceWidgetConfig } from '~/types/dashboard'
 const { t, locale } = useI18n()
 const props = defineProps<{ config: ApplianceWidgetConfig }>()
 const entityStore = useEntityStore()
-const now = useNow({ interval: 30_000 })
+const { performanceMode } = useDashboardDisplayMode()
+const now = ref(new Date())
+const clockIntervalMs = computed(() => performanceMode.value ? 60_000 : 30_000)
+
+onMounted(() => {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const tick = () => {
+    now.value = new Date()
+    timer = setTimeout(tick, clockIntervalMs.value)
+  }
+  tick()
+  onUnmounted(() => { if (timer) clearTimeout(timer) })
+})
 
 const statusEntity = computed(() => entityStore.entities[props.config.status_entity_id])
 const progressEntity = computed(() => props.config.progress_entity_id ? entityStore.entities[props.config.progress_entity_id] : undefined)

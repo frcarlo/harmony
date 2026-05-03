@@ -84,9 +84,16 @@ const days = computed(() => props.config.days ?? 1)
 
 // Clock
 const now = ref(new Date())
-let clockTimer: ReturnType<typeof setInterval>
-onMounted(() => { clockTimer = setInterval(() => { now.value = new Date() }, 1000) })
-onUnmounted(() => clearInterval(clockTimer))
+onMounted(() => {
+  let clockTimer: ReturnType<typeof setTimeout> | null = null
+  const tick = () => {
+    now.value = new Date()
+    const nextMinute = 60_000 - (now.value.getSeconds() * 1000 + now.value.getMilliseconds())
+    clockTimer = setTimeout(tick, Math.max(250, nextMinute))
+  }
+  tick()
+  onUnmounted(() => { if (clockTimer) clearTimeout(clockTimer) })
+})
 const currentTime = computed(() =>
   now.value.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
 )

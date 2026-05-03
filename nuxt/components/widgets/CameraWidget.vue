@@ -205,6 +205,11 @@ const { t } = useI18n()
 const props = defineProps<{ config: CameraWidgetConfig }>()
 const name = computed(() => props.config.name ?? props.config.entity_id)
 const streamMode = computed(() => props.config.stream_type ?? 'webrtc')
+const { performanceMode } = useDashboardDisplayMode()
+const snapshotIntervalMs = computed(() => {
+  const base = Math.max(1, props.config.refresh_interval ?? 5) * 1000
+  return performanceMode.value ? Math.max(base * 4, 30_000) : base
+})
 
 type StreamState = 'idle' | 'waking' | 'playing' | 'error'
 const streamState = ref<StreamState>('idle')
@@ -232,6 +237,7 @@ function toggleMjpeg() {
 
 // Snapshot refresh
 let snapshotTimer: ReturnType<typeof setInterval> | null = null
+let stopSnapshotWatcher: (() => void) | null = null
 
 const client = useHAClient()
 const entityStore = useEntityStore()
@@ -337,25 +343,43 @@ function refreshSnapshot() {
   snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
 }
 
+function stopSnapshotTimer() {
+  if (snapshotTimer) {
+    clearInterval(snapshotTimer)
+    snapshotTimer = null
+  }
+}
+
+function startSnapshotPreview() {
+  stopSnapshotTimer()
+  if (!props.config.entity_id) {
+    snapshotSrc.value = ''
+    return
+  }
+  if (streamMode.value === 'mjpeg' || streamMode.value === 'webrtc') {
+    refreshSnapshot()
+    return
+  }
+  refreshSnapshot()
+  snapshotTimer = setInterval(refreshSnapshot, snapshotIntervalMs.value)
+}
+
 function retryMjpeg() {
   mjpegError.value = false
   mjpegSrc.value = `/api/camera/stream/${props.config.entity_id}?t=${Date.now()}`
 }
 
 onMounted(() => {
-  if (streamMode.value === 'mjpeg') {
-    snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
-  } else if (streamMode.value === 'snapshot') {
-    const interval = (props.config.refresh_interval ?? 5) * 1000
-    refreshSnapshot()
-    snapshotTimer = setInterval(refreshSnapshot, interval)
-  } else {
-    snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
-  }
+  stopSnapshotWatcher = watch(
+    [streamMode, () => props.config.entity_id, snapshotIntervalMs],
+    startSnapshotPreview,
+    { immediate: true },
+  )
 })
 
 onUnmounted(() => {
-  if (snapshotTimer) { clearInterval(snapshotTimer); snapshotTimer = null }
+  stopSnapshotWatcher?.()
+  stopSnapshotTimer()
   unsubscribeWebRTC?.()
   if (pc) pc.close()
 })

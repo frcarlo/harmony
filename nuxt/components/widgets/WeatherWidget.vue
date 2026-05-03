@@ -152,9 +152,16 @@ function formatDay(datetime: string) {
 
 // Live clock
 const now = ref(new Date())
-let timer: ReturnType<typeof setInterval>
-onMounted(() => { timer = setInterval(() => { now.value = new Date() }, 1000) })
-onUnmounted(() => clearInterval(timer))
+onMounted(() => {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const tick = () => {
+    now.value = new Date()
+    const nextMinute = 60_000 - (now.value.getSeconds() * 1000 + now.value.getMilliseconds())
+    timer = setTimeout(tick, Math.max(250, nextMinute))
+  }
+  tick()
+  onUnmounted(() => { if (timer) clearTimeout(timer) })
+})
 
 const currentTime = computed(() =>
   now.value.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
