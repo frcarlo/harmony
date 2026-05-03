@@ -82,7 +82,7 @@ const detailOpen = ref(false)
 const detailEntityId = ref<string | null>(null)
 
 const GENERIC_ACTION_EXCLUDED_TYPES = new Set(['light', 'room_card', 'status_bar'])
-type GenericWidgetAction = 'none' | 'toggle' | 'open_detail'
+type GenericWidgetAction = 'none' | 'toggle' | 'open_detail' | 'call_service'
 
 const isSelected = computed(() => dashboardStore.selectedWidgetId === props.widget.id)
 
@@ -110,7 +110,7 @@ const isActive = computed(() => {
   return s === 'on' || s === 'open' || s === 'unlocked' || s === 'playing'
 })
 const widgetConfig = computed(() => props.widget.config as Record<string, unknown>)
-const genericActionsEnabled = computed(() => !GENERIC_ACTION_EXCLUDED_TYPES.has(props.widget.type) && !!entityId.value)
+const genericActionsEnabled = computed(() => !GENERIC_ACTION_EXCLUDED_TYPES.has(props.widget.type))
 const genericClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_click_action ?? widgetConfig.value.tap_action))
 const genericDoubleClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_double_click_action ?? widgetConfig.value.double_tap_action))
 const genericHoldAction = computed(() => normalizeGenericAction(widgetConfig.value.card_hold_action ?? widgetConfig.value.hold_action))
@@ -136,7 +136,7 @@ let genericHoldTimer: ReturnType<typeof setTimeout> | null = null
 let genericHoldTriggered = false
 
 function normalizeGenericAction(value: unknown): GenericWidgetAction {
-  return value === 'toggle' || value === 'open_detail' ? value : 'none'
+  return value === 'toggle' || value === 'open_detail' || value === 'call_service' ? value : 'none'
 }
 
 function shouldIgnoreGenericAction(event: Event) {
@@ -159,15 +159,56 @@ function shouldIgnoreGenericAction(event: Event) {
   ].join(','))
 }
 
-async function runGenericAction(action: GenericWidgetAction) {
-  if (!genericActionsEnabled.value || action === 'none' || !entityId.value) return
+function genericActionConfig(kind: 'click' | 'double_click' | 'hold') {
+  const prefix = kind === 'click' ? 'card_click' : kind === 'double_click' ? 'card_double_click' : 'card_hold'
+  return {
+    serviceName: widgetConfig.value[`${prefix}_service`] as string | undefined,
+    targetEntityId: widgetConfig.value[`${prefix}_target_entity`] as string | undefined,
+    serviceData: widgetConfig.value[`${prefix}_service_data`] as string | undefined,
+  }
+}
+
+function parseServiceData(raw: string | undefined) {
+  if (!raw?.trim()) return undefined
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : undefined
+  } catch {
+    toast.error(t('config.action_service_data_invalid'))
+    return null
+  }
+}
+
+async function runGenericAction(action: GenericWidgetAction, kind: 'click' | 'double_click' | 'hold') {
+  if (!genericActionsEnabled.value || action === 'none') return
 
   if (action === 'open_detail') {
+    if (!entityId.value) return
     detailEntityId.value = entityId.value
     detailOpen.value = true
     return
   }
 
+  if (action === 'call_service') {
+    const { serviceName, targetEntityId, serviceData } = genericActionConfig(kind)
+    const [domain, service] = (serviceName ?? '').split('.')
+    if (!domain || !service) {
+      toast.error(t('config.action_service_missing'))
+      return
+    }
+    const parsedData = parseServiceData(serviceData)
+    if (parsedData === null) return
+
+    await client.callService({
+      domain,
+      service,
+      target: targetEntityId ? { entity_id: targetEntityId } : undefined,
+      service_data: parsedData,
+    })
+    return
+  }
+
+  if (!entityId.value) return
   const entity = entityStore.entities[entityId.value]
   if (!entity || entity.state === 'unavailable' || entity.state === 'unknown') return
   await client.callService({ domain: 'homeassistant', service: 'toggle', target: { entity_id: entityId.value } })
@@ -186,7 +227,7 @@ function handleGenericClick(event: MouseEvent) {
   if (genericClickTimer) clearTimeout(genericClickTimer)
   genericClickTimer = setTimeout(() => {
     genericClickTimer = null
-    runGenericAction(genericClickAction.value)
+    runGenericAction(genericClickAction.value, 'click')
   }, 220)
 }
 
@@ -195,7 +236,7 @@ function handleGenericDoubleClick(event: MouseEvent) {
 
   event.stopPropagation()
   if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
-  runGenericAction(genericDoubleClickAction.value)
+  runGenericAction(genericDoubleClickAction.value, 'double_click')
 }
 
 function startGenericHold(event: MouseEvent | TouchEvent) {
@@ -207,7 +248,7 @@ function startGenericHold(event: MouseEvent | TouchEvent) {
     genericHoldTriggered = true
     genericHoldTimer = null
     if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
-    runGenericAction(genericHoldAction.value)
+    runGenericAction(genericHoldAction.value, 'hold')
   }, 500)
 }
 

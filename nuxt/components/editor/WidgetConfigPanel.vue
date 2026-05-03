@@ -475,15 +475,24 @@
             {{ t('config.section_actions') }}
           </v-expansion-panel-title>
           <v-expansion-panel-text class="config-panel__section-body">
-            <v-select v-model="cfg.card_click_action" :label="t('config.card_click_action')"
-              :items="genericActionItems" item-title="title" item-value="value"
-              density="compact" hide-details="auto" />
-            <v-select v-model="cfg.card_double_click_action" :label="t('config.card_double_click_action')"
-              :items="genericActionItems" item-title="title" item-value="value"
-              density="compact" hide-details="auto" />
-            <v-select v-model="cfg.card_hold_action" :label="t('config.card_hold_action')"
-              :items="genericActionItems" item-title="title" item-value="value"
-              density="compact" hide-details="auto" />
+            <div v-for="action in genericActionConfigs" :key="action.model" class="config-panel__action-block">
+              <v-select v-model="cfg[action.model]" :label="t(action.label)"
+                :items="genericActionItems" item-title="title" item-value="value"
+                density="compact" hide-details="auto" />
+              <template v-if="cfg[action.model] === 'call_service'">
+                <v-text-field v-model="cfg[action.service]" :label="t('config.action_service')"
+                  placeholder="script.turn_on" density="compact" hide-details="auto" />
+                <div class="config-panel__field-group">
+                  <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">
+                    {{ t('config.action_service_target') }}
+                  </p>
+                  <EntityPicker v-model="cfg[action.target]" :placeholder="t('config.action_service_target_optional')" />
+                </div>
+                <v-textarea v-model="cfg[action.data]" :label="t('config.action_service_data')"
+                  :placeholder="`{ ${t('config.action_service_data_placeholder')} }`"
+                  rows="3" auto-grow density="compact" hide-details="auto" />
+              </template>
+            </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
 
@@ -645,7 +654,32 @@ const genericActionItems = computed(() => [
   { title: t('config.action_none'), value: 'none' },
   { title: t('config.action_toggle_entity'), value: 'toggle' },
   { title: t('config.action_open_entity_detail'), value: 'open_detail' },
+  { title: t('config.action_call_service'), value: 'call_service' },
 ])
+
+const genericActionConfigs = [
+  {
+    label: 'config.card_click_action',
+    model: 'card_click_action',
+    service: 'card_click_service',
+    target: 'card_click_target_entity',
+    data: 'card_click_service_data',
+  },
+  {
+    label: 'config.card_double_click_action',
+    model: 'card_double_click_action',
+    service: 'card_double_click_service',
+    target: 'card_double_click_target_entity',
+    data: 'card_double_click_service_data',
+  },
+  {
+    label: 'config.card_hold_action',
+    model: 'card_hold_action',
+    service: 'card_hold_service',
+    target: 'card_hold_target_entity',
+    data: 'card_hold_service_data',
+  },
+] as const
 
 const roomCardActionItems = computed(() => [
   { title: t('config.action_none'), value: 'none' },
@@ -896,6 +930,15 @@ function moveCameraStatusEntry(index: number, direction: -1 | 1) {
 
 .config-panel__field-group :deep(.v-field__input) {
   min-height: 40px;
+}
+
+.config-panel__action-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
 }
 
 .config-panel :deep(.v-input) {
