@@ -266,6 +266,7 @@
       "unlocking": "Wird entsperrt…",
       "open": "Geöffnet",
       "opening": "Wird geöffnet…",
+      "moving": "Fährt…",
       "jammed": "Blockiert"
     },
     "door_open": "Tür geöffnet",

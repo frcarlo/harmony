@@ -25,9 +25,9 @@
 
       <template v-if="!confirming && !confirmingDoor">
 
-        <v-btn :prepend-icon="toggleIcon" :text="toggleLabel" variant="tonal" :color="isLocked ? 'primary' : 'warning'"
+        <v-btn :prepend-icon="toggleIcon" :text="toggleLabel" variant="tonal" :color="toggleColor"
           rounded="lg" size="small" class="flex-grow-1 text-none"
-          :disabled="isUnavailable || isTransitioning || isJammed" @click="handleToggle" />
+          :disabled="isToggleDisabled" @click="handleToggle" />
 
       </template>
       <template v-else-if="confirming">
@@ -74,6 +74,8 @@ const isLocked = computed(() => lockState.value === 'locked')
 const isTransitioning = computed(() => ['locking', 'unlocking', 'opening'].includes(lockState.value))
 const isJammed = computed(() => lockState.value === 'jammed')
 const isUnavailable = computed(() => !entity.value || lockState.value === 'unavailable')
+const lockType = computed(() => props.config.lock_type ?? 'lock')
+const isGate = computed(() => lockType.value === 'gate')
 const doorSensor = computed(() => props.config.door_sensor_entity ? entityStore.entities[props.config.door_sensor_entity] : undefined)
 const isDoorOpen = computed(() => { const s = doorSensor.value?.state; return s === 'on' || s === 'open' || s === 'unlocked' })
 const sensorOpenIcon = computed(() => lockType.value === 'gate' ? 'mdi-garage-open' : 'mdi-door-open')
@@ -89,12 +91,19 @@ const confirmingDoor = ref(false)
 // while the physical mechanism is still running.
 const isPending = ref(false)
 let pendingTimer: ReturnType<typeof setTimeout> | null = null
-function setPending() {
+const lastGateService = ref<'lock' | 'unlock' | 'open' | null>(null)
+function clearPending() {
+  isPending.value = false
+  if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null }
+}
+function setPending(service?: 'lock' | 'unlock' | 'open') {
   isPending.value = true
+  if (isGate.value && service) lastGateService.value = service
   if (pendingTimer) clearTimeout(pendingTimer)
-  pendingTimer = setTimeout(() => { isPending.value = false }, 20_000)
+  pendingTimer = setTimeout(clearPending, isGate.value ? 35_000 : 20_000)
 }
 const isAnimating = computed(() => isTransitioning.value || isPending.value)
+const isGateMoving = computed(() => isGate.value && (isTransitioning.value || isPending.value))
 
 const lockIcon = computed(() => {
   switch (lockState.value) {
@@ -117,8 +126,13 @@ const lockColor = computed(() => {
     default: return 'warning'
   }
 })
-const lockType = computed(() => props.config.lock_type ?? 'lock')
 const stateLabel = computed(() => {
+  if (isGateMoving.value) {
+    return isTransitioning.value ? t(`lock.state.${lockState.value}`) : t('lock.state.moving')
+  }
+  if (isGate.value && doorSensor.value) {
+    return isDoorOpen.value ? t('lock.type.gate.unlocked') : t('lock.type.gate.locked')
+  }
   switch (lockState.value) {
     case 'locked': return t(`lock.type.${lockType.value}.locked`)
     case 'unlocked': return t(`lock.type.${lockType.value}.unlocked`)
@@ -129,10 +143,24 @@ const stateLabelColor = computed(() => {
   if (lockState.value === 'locked') return 'text-medium-emphasis'
   if (isJammed.value) return 'text-error'
   if (isTransitioning.value) return 'text-primary'
+  if (isGateMoving.value) return 'text-primary'
   return 'text-warning'
 })
-const toggleIcon = computed(() => isLocked.value ? (props.config.unlocked_icon ?? 'mdi-lock-open-variant') : (props.config.locked_icon ?? 'mdi-lock'))
-const toggleLabel = computed(() => isLocked.value ? t(`lock.type.${lockType.value}.do_unlock`) : t(`lock.type.${lockType.value}.do_lock`))
+const gateOpenService = computed<'unlock' | 'open'>(() => supportsDoorOpen.value ? 'open' : 'unlock')
+const nextService = computed<'lock' | 'unlock' | 'open'>(() => isLocked.value ? gateOpenService.value : 'lock')
+const stopService = computed<'lock' | 'unlock' | 'open'>(() => {
+  if (lastGateService.value) return lastGateService.value
+  if (lockState.value === 'locking') return 'lock'
+  if (lockState.value === 'unlocking' || lockState.value === 'opening') return gateOpenService.value
+  return nextService.value
+})
+const toggleIcon = computed(() => {
+  if (isGateMoving.value) return 'mdi-stop'
+  return isLocked.value ? (props.config.unlocked_icon ?? 'mdi-lock-open-variant') : (props.config.locked_icon ?? 'mdi-lock')
+})
+const toggleLabel = computed(() => isGateMoving.value ? t('cover_detail.stop') : (isLocked.value ? t(`lock.type.${lockType.value}.do_unlock`) : t(`lock.type.${lockType.value}.do_lock`)))
+const toggleColor = computed(() => isGateMoving.value ? 'warning' : (isLocked.value ? 'primary' : 'warning'))
+const isToggleDisabled = computed(() => isUnavailable.value || (!isGate.value && isTransitioning.value) || isJammed.value)
 
 const now = useNow({ interval: 60_000 })
 const lastChanged = computed(() => {
@@ -144,6 +172,10 @@ const lastChanged = computed(() => {
 
 function handleToggle() {
   if (isUnavailable.value) return
+  if (isGateMoving.value) {
+    void stopGate()
+    return
+  }
   if (isLocked.value && props.config.require_confirmation !== false) {
     confirming.value = true
   } else {
@@ -153,11 +185,12 @@ function handleToggle() {
 
 async function doAction() {
   if (isUnavailable.value) return
-  setPending()
+  const service = nextService.value
+  setPending(service)
   try {
     await client.callService({
       domain: 'lock',
-      service: isLocked.value ? 'unlock' : 'lock',
+      service,
       target: { entity_id: props.config.entity_id },
     })
   } finally {
@@ -167,7 +200,7 @@ async function doAction() {
 
 async function openDoorAction() {
   if (isUnavailable.value) return
-  setPending()
+  setPending('open')
   try {
     await client.callService({
       domain: 'lock',
@@ -179,14 +212,36 @@ async function openDoorAction() {
   }
 }
 
+async function stopGate() {
+  if (isUnavailable.value) return
+  const service = stopService.value
+  try {
+    await client.callService({
+      domain: 'lock',
+      service,
+      target: { entity_id: props.config.entity_id },
+    })
+  } finally {
+    confirming.value = false
+    confirmingDoor.value = false
+    clearPending()
+  }
+}
+
 // Only reset confirmation when lock reaches a stable state, not during transitions.
 // Watching isLocked would fire on locked→locking too, clearing the confirm dialog prematurely.
 watch(lockState, (s) => {
   if (s === 'locked' || s === 'unlocked' || s === 'open' || s === 'jammed') {
     confirming.value = false
     confirmingDoor.value = false
-    isPending.value = false
-    if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null }
+    if (!isGate.value || s === 'jammed') clearPending()
+  }
+})
+
+watch([isDoorOpen, lastGateService], ([open, service]) => {
+  if (!isGate.value || !doorSensor.value || !isPending.value) return
+  if ((service === 'lock' && !open) || ((service === 'unlock' || service === 'open') && open)) {
+    clearPending()
   }
 })
 </script>

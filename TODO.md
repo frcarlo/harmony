@@ -19,7 +19,6 @@
 - [ ] **Migration auf Vuetify 4** — Vuetify 4 ist seit Feb 2026 stabil (MD3, CSS Layers, Elevation 0–5). Eigener Branch, `eslint-plugin-vuetify` für automatisches Flaggen der Breaking Changes nutzen
 
 - [x] **Lock-Widget Redesign** — Aktuelles Design zu klobig (großer State-Button + separater "Tür Öffnen"-Button). Ziel: kompakteres Layout, State und Aktion besser integriert, weniger vertikaler Platz
-- [ ] **LockWidget Garagentor nacharbeiten** — Mismatch zwischen Lock-State-Label und Sensor-Icon (Offen/Geschlossen); Garagentor-Verhalten: bei laufendem Motor stoppt ein Klick, beim nächsten Klick schließt es — Widget sollte das abbilden können
 - [x] **Cover-Dial2-Widget Redesign** — Großer Kreis-Dial nimmt zu viel Platz ein, Steuerknöpfe (↑ □ ↓) wirken verloren. Ziel: moderneres kompakteres Layout, bessere Proportionen zwischen Steuerung und Statusanzeige
 - [x] **Kalender-Widget v2 mit Vuetify Calendar** — Zweite Kalender-Karte auf Basis der Vuetify `v-calendar`-Komponente (Monats-/Wochen-Ansicht) statt der aktuellen Termin-Liste
 - [x] **Raumkarte: Aktive Hintergrundfarbe bei Licht an** — Aktiv-Farbe in der Widget-Konfiguration setzen; glass-aware semi-transparent
@@ -31,6 +30,7 @@
 - [x] **Translations für HA-Zustände aus einer Quelle** — HA-State-Texte, Device-Class-Texte, HVAC-Modi, Cover-/Lock-States und Statuslabels zentral gepflegt
 - [x] **Dashboard Performance-Modus** — Pro Gerät aktivierbar: Glass/Blur reduziert, Animationen aus, schwere Effekte reduziert
 - [x] **Performance-Modus Feinschliff** — Kamera-Snapshots im Performance-Modus langsamer aktualisieren, Clock-Sekunden automatisch ausblenden, Wetter/Kalender-Ticks reduzieren und laufende Widget-Animationen entschärfen
+- [x] **LockWidget Garagentor nacharbeiten** — Gate-State nutzt Türsensor für Offen/Geschlossen und Hauptbutton bleibt während Fahrt als Stop-Aktion bedienbar
 - [x] **Kiosk-Modus fürs Tablet** — Toolbar ausblendbar und Dashboard-only Ansicht aktivierbar
 - [x] **Klick-Aktionen für Entity-Widgets vereinheitlichen** — Klick, Doppelklick und Halten zentral für Entity-Widgets mit Toggle, Details und Service Actions
 - [x] **Custom Service Action** — Als zentrale Widget-Aktion beliebige Home-Assistant-Services ausführen können, inkl. optionaler Ziel-Entity und JSON-Service-Daten

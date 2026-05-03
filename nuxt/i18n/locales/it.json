@@ -258,6 +258,7 @@
       "unlocking": "Sblocco in corso…",
       "open": "Aperto",
       "opening": "Apertura in corso…",
+      "moving": "In movimento…",
       "jammed": "Bloccato"
     },
     "door_open": "Porta aperta",
