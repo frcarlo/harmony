@@ -17,12 +17,12 @@
         @toggle-my-default="toggleMyDefaultDashboard"
       />
 
-      <!-- Content: spinner while connecting or loading, grid when ready -->
+      <!-- Content: only show the loader until dashboard data exists; reconnects keep the dashboard visible. -->
       <v-main>
-        <div v-if="!connected || !dashboard" class="d-flex align-center justify-center" style="min-height:80vh">
+        <div v-if="!dashboard" class="d-flex align-center justify-center" style="min-height:80vh">
           <div class="d-flex flex-column align-center ga-4">
             <v-progress-circular indeterminate color="primary" size="48" />
-            <span class="text-body-2 text-medium-emphasis">{{ t('common.connecting') }}</span>
+            <span class="text-body-2 text-medium-emphasis">{{ t('common.loading') }}</span>
           </div>
         </div>
         <div v-else class="pa-4">
@@ -61,11 +61,9 @@ function goBack() {
   }
 }
 const dashboardStore = useDashboardStore()
-const entityStore = useEntityStore()
 const theme = useTheme()
 const storage = useUserPreferenceStorage()
 const dashboard = computed(() => dashboardStore.dashboard)
-const connected = computed(() => entityStore.connected)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)
 

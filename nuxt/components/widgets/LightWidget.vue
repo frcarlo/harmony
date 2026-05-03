@@ -1,11 +1,13 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-3 ga-3">
-    <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden"
-      :class="{ 'cursor-pointer': hasAnyAction }"
-      @click.stop="handleTap"
-      @dblclick.stop="handleDoubleTap"
-      @mousedown.stop="startLongPress" @mouseup.stop="cancelLongPress" @mouseleave="cancelLongPress"
-      @touchstart.stop="startLongPress" @touchend.stop="cancelLongPress" @touchmove.stop="cancelLongPress">
+  <div
+    class="h-100 d-flex flex-column pa-3 ga-3"
+    :class="{ 'cursor-pointer': hasAnyAction }"
+    @click="handleCardClick"
+    @dblclick="handleCardDoubleClick"
+    @mousedown="startLongPress" @mouseup="cancelLongPress" @mouseleave="cancelLongPress"
+    @touchstart.passive="startLongPress" @touchend="cancelLongPress" @touchmove="cancelLongPress"
+  >
+    <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
       <v-icon icon="mdi-lightbulb"
         size="36" :color="isOn ? 'warning' : 'medium-emphasis'" class="flex-shrink-0" />
       <div class="overflow-hidden">
@@ -15,7 +17,7 @@
         </div>
       </div>
     </div>
-    <div class="d-flex align-center ga-2">
+    <div class="d-flex align-center ga-2" @click.stop @dblclick.stop @mousedown.stop @touchstart.stop>
       <UiSwitch :checked="isOn" :disabled="isUnavailable" @change="toggle" />
       <v-slider v-if="showBrightness" :model-value="brightnessPercent"
         min="1" max="100" color="warning" hide-details class="flex-grow-1"
@@ -41,10 +43,10 @@ const brightness = computed(() => entity.value?.attributes?.brightness as number
 const brightnessPercent = computed(() => brightness.value !== undefined ? Math.round((brightness.value / 255) * 100) : 0)
 const showBrightness = computed(() => props.config.show_brightness !== false && isOn.value && brightness.value !== undefined)
 
-const tapAction = computed(() => props.config.tap_action ?? 'none')
-const doubleTapAction = computed(() => props.config.double_tap_action ?? 'none')
-const holdAction = computed(() => props.config.hold_action ?? 'none')
-const hasAnyAction = computed(() => tapAction.value !== 'none' || doubleTapAction.value !== 'none' || holdAction.value !== 'none')
+const clickAction = computed(() => props.config.card_click_action ?? props.config.tap_action ?? 'none')
+const doubleClickAction = computed(() => props.config.card_double_click_action ?? props.config.double_tap_action ?? 'none')
+const holdAction = computed(() => props.config.card_hold_action ?? props.config.hold_action ?? 'none')
+const hasAnyAction = computed(() => clickAction.value !== 'none' || doubleClickAction.value !== 'none' || holdAction.value !== 'none')
 
 const detailOpen = ref(false)
 let clickTimer: ReturnType<typeof setTimeout> | null = null
@@ -56,20 +58,20 @@ function runAction(action: string) {
   else if (action === 'open_detail') detailOpen.value = true
 }
 
-function handleTap() {
-  if (tapAction.value === 'none') return
+function handleCardClick() {
+  if (clickAction.value === 'none') return
   if (clickTimer) clearTimeout(clickTimer)
   clickTimer = setTimeout(() => {
     clickTimer = null
     if (longPressTriggered) { longPressTriggered = false; return }
-    runAction(tapAction.value)
+    runAction(clickAction.value)
   }, 220)
 }
 
-function handleDoubleTap() {
+function handleCardDoubleClick() {
   if (clickTimer) { clearTimeout(clickTimer); clickTimer = null }
-  if (doubleTapAction.value === 'none') return
-  runAction(doubleTapAction.value)
+  if (doubleClickAction.value === 'none') return
+  runAction(doubleClickAction.value)
 }
 
 function startLongPress() {

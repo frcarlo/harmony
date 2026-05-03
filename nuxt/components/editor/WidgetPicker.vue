@@ -47,7 +47,14 @@ const widgetTypes = computed(() => ([
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
   sensor: { entity_id: '' }, switch: { entity_id: '', icon: '', sensor_entity_id: '', show_sensor_trend: false },
-  light: { entity_id: '', show_brightness: true, border_width: 3 },
+  light: {
+    entity_id: '',
+    show_brightness: true,
+    border_width: 3,
+    card_click_action: 'none',
+    card_double_click_action: 'toggle',
+    card_hold_action: 'open_detail',
+  },
   chart: { entity_id: '', period: '24h', chart_type: 'area' },
   camera: { entity_id: '', refresh_interval: 5 },
   thermostat: { entity_id: '' }, media_player: { entity_id: '', show_album_art: true },

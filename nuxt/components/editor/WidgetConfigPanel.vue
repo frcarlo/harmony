@@ -57,13 +57,13 @@
             <!-- Light -->
             <template v-if="widget.type === 'light'">
               <v-checkbox v-model="cfg.show_brightness" :label="t('config.show_brightness')" />
-              <v-select v-model="cfg.tap_action" :label="t('config.tap_action')"
+              <v-select v-model="cfg.card_click_action" :label="t('config.card_click_action')"
                 :items="lightTapActionItems" item-title="title" item-value="value"
                 density="compact" hide-details="auto" clearable />
-              <v-select v-model="cfg.double_tap_action" :label="t('config.double_tap_action')"
+              <v-select v-model="cfg.card_double_click_action" :label="t('config.card_double_click_action')"
                 :items="lightTapActionItems" item-title="title" item-value="value"
                 density="compact" hide-details="auto" clearable />
-              <v-select v-model="cfg.hold_action" :label="t('config.hold_action')"
+              <v-select v-model="cfg.card_hold_action" :label="t('config.card_hold_action')"
                 :items="lightTapActionItems" item-title="title" item-value="value"
                 density="compact" hide-details="auto" clearable />
             </template>
@@ -544,7 +544,16 @@ watch(() => dashboardStore.selectedWidgetId, async (id) => {
 }, { immediate: true })
 const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknown>)
 
-watch(widget, (w) => { if (w && !w.appearance) w.appearance = {} }, { immediate: true })
+watch(widget, (w) => {
+  if (!w) return
+  if (!w.appearance) w.appearance = {}
+  if (w.type === 'light') {
+    const config = w.config as Record<string, unknown>
+    config.card_click_action ??= config.tap_action ?? 'none'
+    config.card_double_click_action ??= config.double_tap_action ?? 'none'
+    config.card_hold_action ??= config.hold_action ?? 'none'
+  }
+}, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 
 const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm']

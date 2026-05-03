@@ -13,8 +13,14 @@ const now = ref(new Date())
 const isLed = computed(() => props.config.style === 'led')
 
 onMounted(() => {
-  const interval = setInterval(() => { now.value = new Date() }, 1000)
-  onUnmounted(() => clearInterval(interval))
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const tick = () => {
+    now.value = new Date()
+    const updateMs = props.config.show_seconds === false ? 60_000 - (now.value.getSeconds() * 1000 + now.value.getMilliseconds()) : 1_000
+    timer = setTimeout(tick, Math.max(250, updateMs))
+  }
+  tick()
+  onUnmounted(() => { if (timer) clearTimeout(timer) })
 })
 
 const timeStr = computed(() => now.value.toLocaleTimeString('de-DE', {

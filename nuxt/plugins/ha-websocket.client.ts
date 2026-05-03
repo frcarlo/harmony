@@ -9,6 +9,7 @@ export default defineNuxtPlugin(() => {
   // Batch state updates — deduplicate per entity and flush once per frame (or 100ms if hidden)
   let pendingUpdates = new Map<string, Parameters<typeof entityStore.setEntity>[0]>()
   let flushScheduled = false
+  let initialized = false
 
   function flushUpdates() {
     flushScheduled = false
@@ -45,17 +46,23 @@ export default defineNuxtPlugin(() => {
   client.onConnect(async () => {
     entityStore.setConnected(true)
     try {
-      const [states, areas, entityRegistry, deviceRegistry, labelRegistry] = await Promise.all([
-        client.getStates(),
+      const states = await client.getStates()
+
+      if (initialized) {
+        entityStore.batchSetEntities(states)
+        return
+      }
+
+      const [areas, entityRegistry, deviceRegistry, labelRegistry] = await Promise.all([
         client.getAreas(),
         client.getEntityRegistry(),
         client.getDeviceRegistry(),
         client.getLabelRegistry().catch(() => []),
       ])
+
       entityStore.setEntities(states)
       entityStore.setAreas(areas)
       entityStore.setLabels(labelRegistry)
-
       const deviceAreaMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.area_id]))
       const deviceLabelsMap = Object.fromEntries(deviceRegistry.map(d => [d.id, d.labels ?? []]))
       const entityAreaMap: Record<string, string> = {}
@@ -73,6 +80,7 @@ export default defineNuxtPlugin(() => {
       entityStore.setEntityAreaMap(entityAreaMap)
       entityStore.setEntityLabelsMap(entityLabelsMap)
       entityStore.setEntityPlatformMap(entityPlatformMap)
+      initialized = true
     } catch (e) {
       console.error('[HA] onConnect init failed:', e)
     }

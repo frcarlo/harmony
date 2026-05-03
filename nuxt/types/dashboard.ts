@@ -53,6 +53,9 @@ export interface LightWidgetConfig {
   entity_id: string
   name?: string
   show_brightness?: boolean
+  card_click_action?: 'toggle' | 'open_detail' | 'none'
+  card_double_click_action?: 'toggle' | 'open_detail' | 'none'
+  card_hold_action?: 'toggle' | 'open_detail' | 'none'
   tap_action?: 'toggle' | 'open_detail' | 'none'
   double_tap_action?: 'toggle' | 'open_detail' | 'none'
   hold_action?: 'toggle' | 'open_detail' | 'none'

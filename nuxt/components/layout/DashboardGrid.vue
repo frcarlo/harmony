@@ -65,7 +65,7 @@ function initGrid() {
       ...columnOpts,
       cellHeight,
       margin,
-      animate: true,
+      animate: !!props.editMode,
       float: true,
       draggable: { handle: '.drag-handle' },
       disableDrag: !props.editMode,
@@ -130,4 +130,3 @@ onUnmounted(() => {
   grid = null
 })
 </script>
-

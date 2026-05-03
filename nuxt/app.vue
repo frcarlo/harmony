@@ -121,6 +121,17 @@ onMounted(async () => {
   opacity: 0;
 }
 
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .glass-blobs {
+    display: none;
+  }
+
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition: none !important;
+  }
+}
+
 /* ... blob-2 und blob-3 analog ... */
 
 /* WICHTIG: Vuetify Korrekturen */
