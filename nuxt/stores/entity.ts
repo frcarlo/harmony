@@ -6,6 +6,7 @@ export const useEntityStore = defineStore('entity', {
   state: () => ({
     entities: {} as Record<string, HAState>,
     connected: false,
+    hasConnectedOnce: false,
     areas: [] as HAArea[],
     labels: [] as HALabel[],
     entityAreaMap: {} as Record<string, string>,   // entity_id → area_id
@@ -34,6 +35,7 @@ export const useEntityStore = defineStore('entity', {
 
     setConnected(connected: boolean) {
       this.connected = connected
+      if (connected) this.hasConnectedOnce = true
     },
 
     setAreas(areas: HAArea[]) {

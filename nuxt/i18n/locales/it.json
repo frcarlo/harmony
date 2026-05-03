@@ -127,7 +127,8 @@
   },
   "connection": {
     "connected": "Connesso",
-    "connecting": "Connessione in corso..."
+    "connecting": "Connessione in corso...",
+    "reconnecting": "Riconnessione"
   },
   "widget": {
     "add_title": "Aggiungi Widget",

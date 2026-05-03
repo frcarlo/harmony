@@ -3,7 +3,6 @@
 ## Offen
 
 - [ ] **Widget-Sichtbarkeit nach Gerät** — Widgets abhängig von Tablet, Handy oder Desktop ein-/ausblenden, damit Tablet-Dashboards schlanker werden können
-- [ ] **Reconnect-Anzeige als dezenter Status** — Keine Spinner/Content-Wechsel bei Reconnect; stattdessen kleiner Statuspunkt oder Icon in der Toolbar
 - [ ] **Status-Bar Actions vereinheitlichen** — Klick, Doppelklick und Halten auch für Status-Bar-Einträge konfigurierbar machen
 - [ ] **Quick Edit im Dashboard** — Langer Klick auf ein Widget öffnet direkt die Konfiguration, ohne erst in den Edit-Modus zu wechseln
 - [ ] **Auto-Icons und Auto-Labels nach Entity-Typ** — Fenster, Türen, Bewegung, Batterie, Updates, Geräteklassen usw. automatisch passend darstellen
@@ -28,6 +27,7 @@
 
 - [x] **State-Übersetzung überall zentralisieren** — `useLocalizedEntityState` in SensorWidget, EntityDetailDialog, SensorDetailDialog, StatusBarGroupDetail, Raumkarten, Status-Bar und Notification-Popup nutzen
 - [x] **Translations für HA-Zustände aus einer Quelle** — HA-State-Texte, Device-Class-Texte, HVAC-Modi, Cover-/Lock-States und Statuslabels zentral gepflegt
+- [x] **Reconnect-Anzeige als dezenter Status** — Reconnect wird als ruhiger Toolbar-Statuspunkt ohne Blink-Animation oder Textwechsel angezeigt
 - [x] **Dashboard Performance-Modus** — Pro Gerät aktivierbar: Glass/Blur reduziert, Animationen aus, schwere Effekte reduziert
 - [x] **Performance-Modus Feinschliff** — Kamera-Snapshots im Performance-Modus langsamer aktualisieren, Clock-Sekunden automatisch ausblenden, Wetter/Kalender-Ticks reduzieren und laufende Widget-Animationen entschärfen
 - [x] **LockWidget Garagentor nacharbeiten** — Gate-State nutzt Türsensor für Offen/Geschlossen und Hauptbutton bleibt während Fahrt als Stop-Aktion bedienbar

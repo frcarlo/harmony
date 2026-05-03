@@ -127,7 +127,8 @@
   },
   "connection": {
     "connected": "Verbonden",
-    "connecting": "Verbinden..."
+    "connecting": "Verbinden...",
+    "reconnecting": "Opnieuw verbinden"
   },
   "widget": {
     "add_title": "Widget toevoegen",

@@ -127,7 +127,8 @@
   },
   "connection": {
     "connected": "Verbunden",
-    "connecting": "Verbinde..."
+    "connecting": "Verbinde...",
+    "reconnecting": "Verbindung wird wiederhergestellt"
   },
   "widget": {
     "add_title": "Widget hinzufügen",
