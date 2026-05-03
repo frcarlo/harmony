@@ -17,6 +17,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' })
   }
 
-  await setUserSession(event, { user: { id: user.id, username: user.username, role: user.role, allowed_areas: user.allowed_areas ?? undefined } })
+  await setUserSession(event, {
+    user: {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      force_kiosk: user.force_kiosk,
+      allowed_areas: user.allowed_areas ?? undefined,
+    },
+  })
   return { ok: true }
 })

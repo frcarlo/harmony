@@ -29,6 +29,9 @@
           <v-chip :color="u.role === 'admin' ? 'primary' : undefined" size="x-small" variant="tonal">
             {{ u.role }}
           </v-chip>
+          <v-chip v-if="u.force_kiosk" color="warning" size="x-small" variant="tonal">
+            Kiosk
+          </v-chip>
           <v-menu>
             <template #activator="{ props: mp }">
               <v-btn icon="mdi-dots-vertical" size="x-small" variant="text" v-bind="mp" />
@@ -39,6 +42,9 @@
                 rounded="lg" @click="toggleRole(u)" />
               <v-list-item v-if="u.role !== 'admin'" title="Dashboard-Zugriff" prepend-icon="mdi-view-dashboard-outline"
                 rounded="lg" @click="openAccess(u)" />
+              <v-list-item :title="u.force_kiosk ? 'Kiosk-Zwang deaktivieren' : 'Kiosk-Zwang aktivieren'"
+                :prepend-icon="u.force_kiosk ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+                rounded="lg" @click="toggleForceKiosk(u)" />
               <v-list-item title="Löschen" prepend-icon="mdi-trash-can-outline" rounded="lg"
                 color="error" :disabled="u.id === currentUser?.id" @click="handleDelete(u.id)" />
             </v-list>
@@ -133,7 +139,14 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const { user: currentUser } = useUserSession()
 
-interface UserRow { id: string; username: string; email: string | null; role: 'admin' | 'user'; provider: string | null }
+interface UserRow {
+  id: string
+  username: string
+  email: string | null
+  role: 'admin' | 'editor' | 'user'
+  force_kiosk: boolean
+  provider: string | null
+}
 interface DashboardRow { id: string; name: string; icon?: string }
 
 const users = ref<UserRow[]>([])
@@ -161,6 +174,7 @@ function auditLabel(action: string) {
     'user.create': 'hat Benutzer angelegt:',
     'user.delete': 'hat Benutzer gelöscht:',
     'user.role_change': 'hat Rolle geändert:',
+    'user.force_kiosk_change': 'hat Kiosk-Zwang geändert:',
   }
   return map[action] ?? action
 }
@@ -256,6 +270,16 @@ async function toggleRole(u: UserRow) {
   try {
     await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { role: newRole } })
     u.role = newRole
+  } catch (e: any) {
+    alert(e?.data?.statusMessage ?? 'Fehler')
+  }
+}
+
+async function toggleForceKiosk(u: UserRow) {
+  const next = !u.force_kiosk
+  try {
+    await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_kiosk: next } })
+    u.force_kiosk = next
   } catch (e: any) {
     alert(e?.data?.statusMessage ?? 'Fehler')
   }

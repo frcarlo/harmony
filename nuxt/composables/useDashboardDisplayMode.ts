@@ -1,15 +1,17 @@
 export function useDashboardDisplayMode() {
   const storage = useUserPreferenceStorage()
+  const { user } = useUserSession()
+  const forcedKioskMode = computed(() => user.value?.force_kiosk === true)
   const performanceMode = useState('dashboard-performance-mode', () =>
     storage.read('ha-performance-mode') === 'true'
   )
   const kioskMode = useState('dashboard-kiosk-mode', () =>
-    storage.read('ha-kiosk-mode') === 'true'
+    forcedKioskMode.value || storage.read('ha-kiosk-mode') === 'true'
   )
 
-  watch(() => storage.currentUserId.value, () => {
+  watch([() => storage.currentUserId.value, forcedKioskMode], () => {
     performanceMode.value = storage.read('ha-performance-mode') === 'true'
-    kioskMode.value = storage.read('ha-kiosk-mode') === 'true'
+    kioskMode.value = forcedKioskMode.value || storage.read('ha-kiosk-mode') === 'true'
   }, { immediate: true })
 
   function togglePerformanceMode() {
@@ -18,6 +20,10 @@ export function useDashboardDisplayMode() {
   }
 
   function toggleKioskMode() {
+    if (forcedKioskMode.value) {
+      kioskMode.value = true
+      return
+    }
     kioskMode.value = !kioskMode.value
     storage.write('ha-kiosk-mode', String(kioskMode.value))
   }
@@ -25,6 +31,7 @@ export function useDashboardDisplayMode() {
   return {
     performanceMode,
     kioskMode,
+    forcedKioskMode,
     togglePerformanceMode,
     toggleKioskMode,
   }

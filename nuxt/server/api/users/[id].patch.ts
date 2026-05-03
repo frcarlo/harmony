@@ -1,11 +1,16 @@
-import { updateUserRole, updateUserAllowedAreas, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
+import { updateUserRole, updateUserAllowedAreas, updateUserForceKiosk, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
   if (user.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
   const id = getRouterParam(event, 'id')!
-  const body = await readBody<{ role?: 'admin' | 'editor' | 'user'; allowed_areas?: string[] | null; default_dashboard_id?: string | null }>(event)
+  const body = await readBody<{
+    role?: 'admin' | 'editor' | 'user'
+    force_kiosk?: boolean
+    allowed_areas?: string[] | null
+    default_dashboard_id?: string | null
+  }>(event)
 
   if (body.role != null) {
     const role = body.role
@@ -26,6 +31,31 @@ export default defineEventHandler(async (event) => {
 
   if ('allowed_areas' in body) {
     updateUserAllowedAreas(id, body.allowed_areas ?? null)
+  }
+
+  if (body.force_kiosk !== undefined) {
+    if (!updateUserForceKiosk(id, !!body.force_kiosk)) throw createError({ statusCode: 404, statusMessage: 'User not found' })
+    const target = getUserById(id)
+    if (user.id === id && target) {
+      const currentSession = await getUserSession(event) as Record<string, unknown>
+      await setUserSession(event, {
+        ...currentSession,
+        user: {
+          id: target.id,
+          username: target.username,
+          role: target.role,
+          force_kiosk: target.force_kiosk,
+          allowed_areas: target.allowed_areas ?? undefined,
+        },
+      })
+    }
+    addAuditLog({
+      user_id: user.id,
+      username: user.username,
+      action: 'user.force_kiosk_change',
+      target: target?.username,
+      detail: body.force_kiosk ? 'enabled' : 'disabled',
+    })
   }
 
   if (body.default_dashboard_id !== undefined) {

@@ -21,7 +21,7 @@
       <!-- Content: only show the loader until dashboard data exists; reconnects keep the dashboard visible. -->
       <v-main>
         <v-btn
-          v-if="kioskMode"
+          v-if="kioskMode && !forcedKioskMode"
           class="kiosk-exit-btn"
           icon="mdi-fullscreen-exit"
           size="small"
@@ -73,7 +73,7 @@ function goBack() {
 const dashboardStore = useDashboardStore()
 const theme = useTheme()
 const storage = useUserPreferenceStorage()
-const { kioskMode, toggleKioskMode } = useDashboardDisplayMode()
+const { kioskMode, forcedKioskMode, toggleKioskMode } = useDashboardDisplayMode()
 const dashboard = computed(() => dashboardStore.dashboard)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)

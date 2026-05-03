@@ -100,7 +100,16 @@ export default defineEventHandler(async (event) => {
     dbUser = { ...dbUser, allowed_areas: allowedAreas }
   }
 
-  await setUserSession(event, { user: { id: dbUser.id, username: dbUser.username, role: dbUser.role, allowed_areas: dbUser.allowed_areas ?? undefined }, keycloak_id_token: tokenRes.id_token } as any)
+  await setUserSession(event, {
+    user: {
+      id: dbUser.id,
+      username: dbUser.username,
+      role: dbUser.role,
+      force_kiosk: dbUser.force_kiosk,
+      allowed_areas: dbUser.allowed_areas ?? undefined,
+    },
+    keycloak_id_token: tokenRes.id_token,
+  } as any)
   const defaultDashboard = resolveDefaultDashboardForUser(dbUser.id, dbUser.role)
   return sendRedirect(event, defaultDashboard ? `/dashboard/${defaultDashboard.id}` : '/dashboard')
 })

@@ -9,6 +9,7 @@ export interface DbUser {
   email: string | null
   password_hash: string | null
   role: 'admin' | 'editor' | 'user'
+  force_kiosk: boolean
   allowed_areas: string[] | null
   provider: string | null
   provider_id: string | null
@@ -44,6 +45,7 @@ function getDb(): DatabaseSync {
       email TEXT,
       password_hash TEXT,
       role TEXT NOT NULL DEFAULT 'user',
+      force_kiosk INTEGER NOT NULL DEFAULT 0,
       provider TEXT,
       provider_id TEXT,
       default_dashboard_id TEXT,
@@ -129,6 +131,9 @@ function getDb(): DatabaseSync {
   }
   if (!userCols.some((c) => c.name === 'allowed_areas')) {
     _db.exec('ALTER TABLE users ADD COLUMN allowed_areas TEXT')
+  }
+  if (!userCols.some((c) => c.name === 'force_kiosk')) {
+    _db.exec('ALTER TABLE users ADD COLUMN force_kiosk INTEGER NOT NULL DEFAULT 0')
   }
   if (!dashCols.some((c) => c.name === 'sort_order')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0')
@@ -436,6 +441,7 @@ export function countUsers(): number {
 function parseDbUser(row: Record<string, unknown>): DbUser {
   return {
     ...(row as DbUser),
+    force_kiosk: row.force_kiosk === 1 || row.force_kiosk === true,
     allowed_areas: row.allowed_areas ? JSON.parse(row.allowed_areas as string) : null,
   }
 }
@@ -460,7 +466,7 @@ export function getUserById(id: string): DbUser | null {
 
 export function listUsers(): Omit<DbUser, 'password_hash'>[] {
   const db = getDb()
-  const rows = db.prepare('SELECT id, username, email, role, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
+  const rows = db.prepare('SELECT id, username, email, role, force_kiosk, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
   return rows.map(r => parseDbUser(r) as Omit<DbUser, 'password_hash'>)
 }
 
@@ -468,14 +474,15 @@ export function createUser(data: { username: string; email?: string; passwordHas
   const db = getDb()
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
-  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, null, data.provider ?? null, data.providerId ?? null, null, null, now)
+  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, force_kiosk, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, 0, null, data.provider ?? null, data.providerId ?? null, null, null, now)
   return {
     id,
     username: data.username,
     email: data.email ?? null,
     password_hash: data.passwordHash ?? null,
     role: data.role,
+    force_kiosk: false,
     allowed_areas: null,
     provider: data.provider ?? null,
     provider_id: data.providerId ?? null,
@@ -493,6 +500,11 @@ export function linkUserProvider(id: string, provider: string, providerId: strin
 export function updateUserRole(id: string, role: 'admin' | 'editor' | 'user'): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id).changes > 0
+}
+
+export function updateUserForceKiosk(id: string, forceKiosk: boolean): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET force_kiosk = ? WHERE id = ?').run(forceKiosk ? 1 : 0, id).changes > 0
 }
 
 export function updateUserAllowedAreas(id: string, areas: string[] | null): boolean {

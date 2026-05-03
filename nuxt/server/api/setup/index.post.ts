@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
   const passwordHash = await bcrypt.hash(password, 12)
   const user = createUser({ username: username.trim(), passwordHash, role: 'admin' })
 
-  await setUserSession(event, { user: { id: user.id, username: user.username, role: user.role } })
+  await setUserSession(event, { user: { id: user.id, username: user.username, role: user.role, force_kiosk: user.force_kiosk } })
   return { ok: true }
 })

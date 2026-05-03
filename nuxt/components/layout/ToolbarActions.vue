@@ -24,7 +24,7 @@
           :title="t('toolbar.performance_mode')" :subtitle="t('toolbar.performance_mode_hint')"
           :active="performanceMode" :color="performanceMode ? 'primary' : undefined"
           rounded="lg" @click="togglePerformanceMode" />
-        <v-list-item :prepend-icon="kioskMode ? 'mdi-fullscreen' : 'mdi-fullscreen-exit'"
+        <v-list-item v-if="!forcedKioskMode" :prepend-icon="kioskMode ? 'mdi-fullscreen' : 'mdi-fullscreen-exit'"
           :title="t('toolbar.kiosk_mode')" :subtitle="t('toolbar.kiosk_mode_hint')"
           :active="kioskMode" :color="kioskMode ? 'primary' : undefined"
           rounded="lg" @click="toggleKioskMode" />
@@ -82,7 +82,7 @@ type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
-const { performanceMode, kioskMode, togglePerformanceMode, toggleKioskMode } = useDashboardDisplayMode()
+const { performanceMode, kioskMode, forcedKioskMode, togglePerformanceMode, toggleKioskMode } = useDashboardDisplayMode()
 const availableLocales = computed(() => (locales.value as { code: LocaleCode; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
 const theme = useTheme()
@@ -107,7 +107,7 @@ function resetLocalSettings() {
   glass.value = false
   borders.value = true
   performanceMode.value = false
-  kioskMode.value = false
+  kioskMode.value = forcedKioskMode.value
 
   const effectiveTheme = dashboardStore.dashboard?.theme_override ?? storage.read('ha-theme', 'dark') ?? 'dark'
   theme.change(effectiveTheme)
