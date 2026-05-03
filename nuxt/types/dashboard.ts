@@ -177,10 +177,12 @@ export interface RoomCardWidgetConfig {
   climate_entity?: string
   show_temp_control?: boolean
   light_entity?: string
+  light_entities?: string[]
   sensor_entity?: string
   sensor_icon?: string
   sensor_entities?: RoomCardSensorEntity[]
   status_entities?: RoomCardStatusEntity[]
+  auto_status_entities?: boolean
   card_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
   card_double_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
   card_hold_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'

@@ -351,13 +351,35 @@
               <v-text-field v-model="cfg.name" :label="t('config.room_name')" />
               <EntityPicker v-model="cfg.climate_entity" domain="climate" />
               <v-checkbox v-model="cfg.show_temp_control" :label="t('config.show_temp_control')" />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.room_lights') }}</p>
               <EntityPicker v-model="cfg.light_entity" domain="light" />
+              <template v-for="(_, idx) in roomLightEntities" :key="`room-light-${idx}`">
+                <div class="d-flex align-center ga-1">
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_light') }} {{ idx + 1 }}</span>
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeRoomLight(idx)" />
+                </div>
+                <EntityPicker v-model="roomLightEntities[idx]" domain="light" :placeholder="t('config.light_entity_placeholder')" />
+              </template>
+              <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" @click="addRoomLight">
+                {{ t('config.add_light') }}
+              </v-btn>
               <v-divider />
               <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{
                 t('config.sensor_no_thermostat') }}</p>
               <EntityPicker v-model="cfg.sensor_entity" domain="sensor" />
               <UiIconPicker v-if="cfg.sensor_entity" v-model="cfg.sensor_icon" :label="t('config.icon_field')"
                 placeholder="mdi-eye" />
+              <template v-for="(sensor, idx) in roomSensorEntities" :key="`room-sensor-${idx}`">
+                <div class="d-flex align-center ga-1">
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_sensors') }} {{ idx + 1 }}</span>
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeRoomSensor(idx)" />
+                </div>
+                <EntityPicker v-model="sensor.entity_id" :domain-filter="['sensor', 'binary_sensor']" :placeholder="t('config.sensor_entity')" />
+                <UiIconPicker v-if="sensor.entity_id" v-model="sensor.icon" :label="t('config.icon_field')" placeholder="mdi-gauge" />
+              </template>
+              <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" @click="addRoomSensor">
+                {{ t('config.add_sensor') }}
+              </v-btn>
               <v-select v-model="cfg.card_click_action" :label="t('config.card_click_action')"
                 :items="roomCardActionItems" item-title="title" item-value="value" density="compact"
                 hide-details="auto" />
@@ -368,6 +390,9 @@
                 :items="roomCardActionItems" item-title="title" item-value="value" density="compact"
                 hide-details="auto" />
               <v-divider />
+              <v-checkbox :model-value="cfg.auto_status_entities !== false" :label="t('config.auto_status_entities')"
+                :hint="t('config.auto_status_entities_hint')" density="compact" hide-details="auto"
+                @update:model-value="cfg.auto_status_entities = $event ? undefined : false" />
               <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{
                 t('config.status_entities') }}
               </p>
@@ -704,6 +729,44 @@ watch(() => [widget.value?.type, cfg.value.entity_id] as const, async ([type, en
 }, { immediate: true })
 
 const roomStatusEntities = computed(() => (cfg.value.status_entities as Array<Record<string, unknown>>) ?? [])
+const roomLightEntities = computed({
+  get: () => {
+    if (!Array.isArray(cfg.value.light_entities)) cfg.value.light_entities = []
+    return cfg.value.light_entities as string[]
+  },
+  set: (value: string[]) => {
+    cfg.value.light_entities = value
+  },
+})
+const roomSensorEntities = computed({
+  get: () => {
+    if (!Array.isArray(cfg.value.sensor_entities)) cfg.value.sensor_entities = []
+    return cfg.value.sensor_entities as Array<Record<string, unknown>>
+  },
+  set: (value: Array<Record<string, unknown>>) => {
+    cfg.value.sensor_entities = value
+  },
+})
+
+function addRoomLight() {
+  roomLightEntities.value = [...roomLightEntities.value, '']
+}
+
+function removeRoomLight(index: number) {
+  const list = [...roomLightEntities.value]
+  list.splice(index, 1)
+  roomLightEntities.value = list
+}
+
+function addRoomSensor() {
+  roomSensorEntities.value = [...roomSensorEntities.value, { entity_id: '', icon: 'mdi-gauge' }]
+}
+
+function removeRoomSensor(index: number) {
+  const list = [...roomSensorEntities.value]
+  list.splice(index, 1)
+  roomSensorEntities.value = list
+}
 
 function addStatusSlot() {
   const list = [...roomStatusEntities.value]

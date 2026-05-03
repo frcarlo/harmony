@@ -65,7 +65,10 @@ const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
   room_card: {
     name: 'Raum',
     show_temp_control: true,
+    light_entities: [],
+    sensor_entities: [],
     status_entities: [],
+    auto_status_entities: true,
     card_click_action: 'none',
     card_double_click_action: 'toggle_light',
     card_hold_action: 'open_climate_detail',

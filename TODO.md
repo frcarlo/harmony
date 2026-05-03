@@ -7,7 +7,6 @@
 - [ ] **Widget-Sichtbarkeit nach Gerät** — Widgets abhängig von Tablet, Handy oder Desktop ein-/ausblenden, damit Tablet-Dashboards schlanker werden können
 - [ ] **Reconnect-Anzeige als dezenter Status** — Keine Spinner/Content-Wechsel bei Reconnect; stattdessen kleiner Statuspunkt oder Icon in der Toolbar
 - [ ] **Klick-Aktionen für alle Widgets vereinheitlichen** — Klick, Doppelklick und Halten für Light, Switch, Sensor, Lock, Room, Status-Bar usw. mit denselben Optionen anbieten
-- [ ] **Raumkarte erweitern** — Mehrere Lichter/Gruppen, mehrere Sensoren kompakt, Fenster/Türen automatisch als Statuszeile anzeigen
 - [ ] **Quick Edit im Dashboard** — Langer Klick auf ein Widget öffnet direkt die Konfiguration, ohne erst in den Edit-Modus zu wechseln
 - [ ] **Auto-Icons und Auto-Labels nach Entity-Typ** — Fenster, Türen, Bewegung, Batterie, Updates, Geräteklassen usw. automatisch passend darstellen
 - [ ] **Batterie-/Problem-Übersicht** — Widget oder Status-Bar-Gruppe für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
@@ -32,6 +31,7 @@
 ## Erledigt
 
 - [x] **Custom Service Action** — Als zentrale Widget-Aktion beliebige Home-Assistant-Services ausführen können, inkl. optionaler Ziel-Entity und JSON-Service-Daten
+- [x] **Raumkarte erweitern** — Mehrere Lichter/Gruppen, mehrere Sensoren kompakt und Fenster/Türen automatisch als Status anzeigen
 - [x] Label-Filter in Status-Bar-Gruppen (inkl. Device-Labels)
 - [x] Status-Bar-Widget mit Gruppen (domain/area/label Filter)
 - [x] Music Assistant Suche (Tabs: Tracks/Alben/Künstler/Playlists/Radio)

@@ -1,6 +1,6 @@
 <template>
-  <div class="h-100 d-flex pa-3 ga-2"
-    :style="{ cursor: props.config.light_entity ? 'pointer' : undefined, filter: lightOn ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))' : undefined }"
+  <div class="h-100 d-flex pa-3 ga-2 room-card"
+    :style="{ cursor: lightEntityIds.length ? 'pointer' : undefined, filter: lightOn ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))' : undefined }"
     @click="handleCardClick"
     @dblclick="handleCardDoubleClick"
     @mousedown="startLongPress" @mouseup="cancelLongPress" @mouseleave="cancelLongPress"
@@ -10,10 +10,10 @@
       <!-- Status icons -->
       <div class="d-flex ga-1 flex-wrap align-center">
         <!-- Light indicator -->
-        <v-btn v-if="props.config.light_entity" :icon="lightOn ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
+        <v-btn v-if="lightEntityIds.length" :icon="lightOn ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
           :color="lightOn ? 'warning' : 'medium-emphasis'" size="x-small" rounded="circle"
           :variant="lightOn ? 'flat' : 'tonal'" density="comfortable"
-          :title="lightOn ? t('room_card.light_on') : t('room_card.light_off')"
+          :title="lightButtonTitle"
           @mousedown.stop @click.stop="openLightDetail" />
         <!-- Climate mode indicator -->
         <v-tooltip v-if="props.config.climate_entity && hvacMode" :text="hvacModeLabel" location="top">
@@ -23,14 +23,14 @@
               density="comfortable" @mousedown.stop @click.stop="climateDialogOpen = true" />
           </template>
         </v-tooltip>
-        <v-btn v-for="(s, i) in statusEntities" :key="i" :icon="s.icon" size="x-small" rounded="circle"
+        <v-btn v-for="(s, i) in visibleStatusEntities" :key="`${s.entity_id}-${i}`" :icon="s.icon" size="x-small" rounded="circle"
           :variant="isActive(s) ? 'flat' : 'tonal'"
           :color="isActive(s) ? (s.active_color ?? 'primary') : (s.inactive_color ?? 'medium-emphasis')"
-          density="comfortable" @mousedown.stop @click.stop="openDetail(s)" />
+          density="comfortable" :title="statusTitle(s)" @mousedown.stop @click.stop="openDetail(s)" />
       </div>
 
       <!-- Info: climate temp or free sensor -->
-      <div class="d-flex align-center ga-2">
+      <div class="d-flex align-center ga-2 room-card__values">
         <template v-if="props.config.climate_entity">
           <v-icon icon="mdi-thermometer" size="20" color="medium-emphasis" />
           <span v-if="currentTemp !== undefined" class="text-h5 font-weight-bold">{{ currentTemp.toFixed(1) }}°C</span>
@@ -39,6 +39,12 @@
         <template v-else-if="props.config.sensor_entity && sensorEntity">
           <v-icon :icon="props.config.sensor_icon || 'mdi-eye'" size="20" color="medium-emphasis" />
           <span class="text-h5 font-weight-bold">{{ sensorDisplay }}</span>
+        </template>
+        <template v-for="sensor in compactExtraSensors" :key="sensor.entity_id">
+          <v-chip size="x-small" variant="tonal" class="room-card__sensor-chip" @mousedown.stop @click.stop="openSensorEntity(sensor.entity_id)">
+            <v-icon :icon="sensor.icon || 'mdi-gauge'" size="14" start />
+            {{ sensorDisplayFor(sensor) }}
+          </v-chip>
         </template>
       </div>
 
@@ -84,11 +90,48 @@ const currentTemp = computed(() => climateEntity.value?.attributes?.current_temp
 const targetTemp = computed(() => climateEntity.value?.attributes?.temperature as number | undefined)
 const isUnavailable = computed(() => !climateEntity.value || climateEntity.value.state === 'unavailable')
 
+const MANAGED_OPENING_CLASSES = new Set(['door', 'garage_door', 'opening', 'window'])
 const statusEntities = computed(() => (props.config.status_entities ?? []).filter((s) => s.entity_id))
-const lightEntity = computed(() => props.config.light_entity ? entityStore.entities[props.config.light_entity] : undefined)
+const lightEntityIds = computed(() => {
+  const ids = [
+    props.config.light_entity,
+    ...(props.config.light_entities ?? []),
+  ].filter((id): id is string => typeof id === 'string' && id.length > 0)
+  return [...new Set(ids)]
+})
+const lightEntities = computed(() => lightEntityIds.value.map(id => entityStore.entities[id]).filter(Boolean))
+const lightEntity = computed(() => lightEntities.value[0])
 const sensorEntity = computed(() => props.config.sensor_entity ? entityStore.entities[props.config.sensor_entity] : undefined)
 const sensorDisplay = computed(() => formatEntityState(sensorEntity.value))
-const lightOn = computed(() => lightEntity.value?.state === 'on')
+const lightOn = computed(() => lightEntities.value.some(entity => entity.state === 'on'))
+const compactExtraSensors = computed(() => (props.config.sensor_entities ?? []).filter((sensor) => sensor.entity_id).slice(0, 3))
+const lightButtonTitle = computed(() => {
+  const state = lightOn.value ? t('room_card.light_on') : t('room_card.light_off')
+  return lightEntityIds.value.length > 1 ? `${state} · ${lightEntityIds.value.length}` : state
+})
+
+const roomAreaId = computed(() => {
+  const firstEntityId = props.config.light_entity || props.config.climate_entity || props.config.sensor_entity || lightEntityIds.value[0]
+  return firstEntityId ? entityStore.entityAreaMap[firstEntityId] : undefined
+})
+
+const autoStatusEntities = computed<RoomCardStatusEntity[]>(() => {
+  if (props.config.auto_status_entities === false || !roomAreaId.value) return []
+  const configuredIds = new Set(statusEntities.value.map(status => status.entity_id))
+  return Object.values(entityStore.entities)
+    .filter(entity => entity.entity_id.startsWith('binary_sensor.'))
+    .filter(entity => entityStore.entityAreaMap[entity.entity_id] === roomAreaId.value)
+    .filter(entity => MANAGED_OPENING_CLASSES.has(String(entity.attributes?.device_class ?? '')))
+    .filter(entity => !configuredIds.has(entity.entity_id))
+    .slice(0, 6)
+    .map(entity => ({
+      entity_id: entity.entity_id,
+      icon: autoStatusIcon(String(entity.attributes?.device_class ?? '')),
+      active_state: 'on',
+      active_color: 'warning',
+    }))
+})
+const visibleStatusEntities = computed(() => [...statusEntities.value, ...autoStatusEntities.value])
 
 const HVAC_MODE_ICONS: Record<string, string> = {
   heat: 'mdi-fire', cool: 'mdi-snowflake', auto: 'mdi-thermostat-auto',
@@ -114,9 +157,21 @@ function defaultActiveState(entityId: string): string {
   return 'on'
 }
 
+function autoStatusIcon(deviceClass: string) {
+  if (deviceClass === 'window') return 'mdi-window-open-variant'
+  if (deviceClass === 'garage_door') return 'mdi-garage-open-variant'
+  return 'mdi-door-open'
+}
+
 function isActive(s: { entity_id: string; active_state?: string }) {
   const e = entityStore.entities[s.entity_id]
   return e?.state === (s.active_state || defaultActiveState(s.entity_id))
+}
+
+function statusTitle(s: RoomCardStatusEntity) {
+  const entity = entityStore.entities[s.entity_id]
+  const name = (entity?.attributes?.friendly_name as string | undefined) ?? s.entity_id
+  return `${name}: ${formatEntityState(entity)}`
 }
 
 // Dialog state
@@ -133,10 +188,25 @@ function openDetail(s: RoomCardStatusEntity) {
 }
 
 function openLightDetail() {
-  if (!props.config.light_entity) return
+  const entityId = lightEntityIds.value[0]
+  if (!entityId) return
   dialogStatusEntity.value = null
-  dialogEntityId.value = props.config.light_entity
+  dialogEntityId.value = entityId
   dialogOpen.value = true
+}
+
+function openSensorEntity(entityId: string) {
+  dialogStatusEntity.value = null
+  dialogEntityId.value = entityId
+  dialogOpen.value = true
+}
+
+function sensorEntityState(sensor: { entity_id: string }) {
+  return entityStore.entities[sensor.entity_id]
+}
+
+function sensorDisplayFor(sensor: { entity_id: string }) {
+  return formatEntityState(sensorEntityState(sensor))
 }
 
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
@@ -200,11 +270,15 @@ function cancelLongPress() {
 }
 
 async function toggleLight() {
-  if (!props.config.light_entity || !lightEntity.value || lightEntity.value.state === 'unavailable') return
+  const ids = lightEntityIds.value.filter((id) => {
+    const entity = entityStore.entities[id]
+    return entity && entity.state !== 'unavailable' && entity.state !== 'unknown'
+  })
+  if (!ids.length) return
   await client.callService({
     domain: 'light',
     service: lightOn.value ? 'turn_off' : 'turn_on',
-    target: { entity_id: props.config.light_entity },
+    target: { entity_id: ids },
   })
 }
 
@@ -217,3 +291,14 @@ async function adjustTemp(delta: number) {
   })
 }
 </script>
+
+<style scoped>
+.room-card__values {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.room-card__sensor-chip {
+  max-width: 120px;
+}
+</style>

@@ -26,11 +26,11 @@
         </div>
 
         <div class="room-detail-grid">
-          <div v-if="config.light_entity" class="room-detail-section">
+          <div v-if="lightEntityIds.length" class="room-detail-section">
             <div class="d-flex justify-space-between align-center mb-2">
               <span class="text-body-2 font-weight-medium">{{ t('widget.light.label') }}</span>
               <v-chip size="x-small" variant="tonal" :color="lightOn ? 'warning' : undefined">
-                {{ lightOn ? t('common.on') : t('common.off') }}
+                {{ lightOn ? t('common.on') : t('common.off') }} · {{ lightEntityIds.length }}
               </v-chip>
             </div>
             <div class="d-flex align-center justify-center ga-2">
@@ -43,7 +43,21 @@
               >
                 {{ lightOn ? t('switch.turn_off') : t('switch.turn_on') }}
               </v-btn>
-              <v-btn icon="mdi-tune-variant" variant="text" :title="t('notification.details')" @click="lightDialogOpen = true" />
+              <v-btn icon="mdi-tune-variant" variant="text" :title="t('notification.details')" @click="openFirstLightDetail" />
+            </div>
+            <div v-if="lightEntityIds.length > 1" class="d-flex flex-column ga-1 mt-3">
+              <button
+                v-for="entityId in lightEntityIds"
+                :key="entityId"
+                class="room-detail-row"
+                type="button"
+                @click="openLightDetail(entityId)"
+              >
+                <v-icon :icon="entityStore.entities[entityId]?.state === 'on' ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'"
+                  size="16" :color="entityStore.entities[entityId]?.state === 'on' ? 'warning' : 'medium-emphasis'" />
+                <span class="text-body-2 text-truncate">{{ entityName(entityId) }}</span>
+                <span class="text-caption text-medium-emphasis">{{ formatEntityState(entityStore.entities[entityId]) }}</span>
+              </button>
             </div>
           </div>
 
@@ -122,12 +136,12 @@
           </div>
         </div>
 
-        <div v-if="statusEntities.length" class="room-detail-section mt-4">
+        <div v-if="visibleStatusEntities.length" class="room-detail-section mt-4">
           <div class="text-body-2 font-weight-medium mb-3">{{ t('config.status_entities') }}</div>
           <div class="d-flex flex-wrap ga-2">
             <v-btn
-              v-for="(status, idx) in statusEntities"
-              :key="idx"
+              v-for="(status, idx) in visibleStatusEntities"
+              :key="`${status.entity_id}-${idx}`"
               :prepend-icon="status.icon"
               variant="tonal"
               size="small"
@@ -142,9 +156,9 @@
     </v-card>
 
     <LightDetailDialog
-      v-if="config.light_entity"
+      v-if="lightDialogEntity"
       v-model="lightDialogOpen"
-      :entity-id="config.light_entity"
+      :entity-id="lightDialogEntity"
     />
     <ClimateDetailDialog
       v-if="config.climate_entity"
@@ -190,19 +204,51 @@ const config = computed(() => props.config)
 const entityStore = useEntityStore()
 const client = useHAClient()
 
-const lightEntity = computed(() => props.config.light_entity ? entityStore.entities[props.config.light_entity] : undefined)
+const MANAGED_OPENING_CLASSES = new Set(['door', 'garage_door', 'opening', 'window'])
+const lightEntityIds = computed(() => {
+  const ids = [
+    props.config.light_entity,
+    ...(props.config.light_entities ?? []),
+  ].filter((id): id is string => typeof id === 'string' && id.length > 0)
+  return [...new Set(ids)]
+})
+const lightEntities = computed(() => lightEntityIds.value.map(id => entityStore.entities[id]).filter(Boolean))
+const lightEntity = computed(() => lightEntities.value[0])
 const climateEntity = computed(() => props.config.climate_entity ? entityStore.entities[props.config.climate_entity] : undefined)
 const sensorEntity = computed(() => props.config.sensor_entity ? entityStore.entities[props.config.sensor_entity] : undefined)
 const statusEntities = computed(() => (props.config.status_entities ?? []).filter((status) => status.entity_id))
 
 const areaName = computed(() => {
-  const firstEntityId = props.config.light_entity || props.config.climate_entity || props.config.sensor_entity
+  const firstEntityId = props.config.light_entity || props.config.climate_entity || props.config.sensor_entity || lightEntityIds.value[0]
   if (!firstEntityId) return undefined
   const areaId = entityStore.entityAreaMap[firstEntityId]
   return areaId ? entityStore.areas.find((area) => area.area_id === areaId)?.name : undefined
 })
 
-const lightOn = computed(() => lightEntity.value?.state === 'on')
+const roomAreaId = computed(() => {
+  const firstEntityId = props.config.light_entity || props.config.climate_entity || props.config.sensor_entity || lightEntityIds.value[0]
+  return firstEntityId ? entityStore.entityAreaMap[firstEntityId] : undefined
+})
+
+const autoStatusEntities = computed<RoomCardStatusEntity[]>(() => {
+  if (props.config.auto_status_entities === false || !roomAreaId.value) return []
+  const configuredIds = new Set(statusEntities.value.map(status => status.entity_id))
+  return Object.values(entityStore.entities)
+    .filter(entity => entity.entity_id.startsWith('binary_sensor.'))
+    .filter(entity => entityStore.entityAreaMap[entity.entity_id] === roomAreaId.value)
+    .filter(entity => MANAGED_OPENING_CLASSES.has(String(entity.attributes?.device_class ?? '')))
+    .filter(entity => !configuredIds.has(entity.entity_id))
+    .slice(0, 10)
+    .map(entity => ({
+      entity_id: entity.entity_id,
+      icon: autoStatusIcon(String(entity.attributes?.device_class ?? '')),
+      active_state: 'on',
+      active_color: 'warning',
+    }))
+})
+const visibleStatusEntities = computed(() => [...statusEntities.value, ...autoStatusEntities.value])
+
+const lightOn = computed(() => lightEntities.value.some(entity => entity.state === 'on'))
 const hvacMode = computed(() => String(climateEntity.value?.state ?? 'off'))
 const climateActive = computed(() => !!climateEntity.value && !['off', 'unavailable'].includes(hvacMode.value))
 const currentTemp = computed(() => climateEntity.value?.attributes?.current_temperature as number | undefined)
@@ -254,6 +300,7 @@ const hvacModeLabel = computed(() => {
 })
 
 const lightDialogOpen = ref(false)
+const lightDialogEntity = ref<string | null>(null)
 const climateDialogOpen = ref(false)
 const statusDialogOpen = ref(false)
 const statusDialogEntity = ref<string | null>(null)
@@ -269,6 +316,12 @@ function defaultActiveState(entityId: string): string {
   return 'on'
 }
 
+function autoStatusIcon(deviceClass: string) {
+  if (deviceClass === 'window') return 'mdi-window-open-variant'
+  if (deviceClass === 'garage_door') return 'mdi-garage-open-variant'
+  return 'mdi-door-open'
+}
+
 function isStatusActive(status: RoomCardStatusEntity) {
   const entity = entityStore.entities[status.entity_id]
   return entity?.state === (status.active_state || defaultActiveState(status.entity_id))
@@ -276,7 +329,8 @@ function isStatusActive(status: RoomCardStatusEntity) {
 
 function statusLabel(status: RoomCardStatusEntity) {
   const entity = entityStore.entities[status.entity_id]
-  return (entity?.attributes?.friendly_name as string | undefined) ?? status.entity_id
+  const name = (entity?.attributes?.friendly_name as string | undefined) ?? status.entity_id
+  return `${name}: ${formatEntityState(entity)}`
 }
 
 function openStatusDetail(status: RoomCardStatusEntity) {
@@ -310,12 +364,30 @@ function openExtraSensorDetail(sensor: RoomCardSensorEntity) {
   statusDialogOpen.value = true
 }
 
+function entityName(entityId: string) {
+  return (entityStore.entities[entityId]?.attributes?.friendly_name as string | undefined) ?? entityId
+}
+
+function openLightDetail(entityId: string) {
+  lightDialogEntity.value = entityId
+  lightDialogOpen.value = true
+}
+
+function openFirstLightDetail() {
+  const entityId = lightEntityIds.value[0]
+  if (entityId) openLightDetail(entityId)
+}
+
 async function toggleLight() {
-  if (!props.config.light_entity || !lightEntity.value || lightEntity.value.state === 'unavailable') return
+  const ids = lightEntityIds.value.filter((id) => {
+    const entity = entityStore.entities[id]
+    return entity && entity.state !== 'unavailable' && entity.state !== 'unknown'
+  })
+  if (!ids.length) return
   await client.callService({
     domain: 'light',
     service: lightOn.value ? 'turn_off' : 'turn_on',
-    target: { entity_id: props.config.light_entity },
+    target: { entity_id: ids },
   })
 }
 
@@ -378,6 +450,21 @@ const availableClimateOnMode = computed(() => {
 .room-detail-section--clickable {
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.room-detail-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .room-detail-section--clickable:hover {
