@@ -94,6 +94,7 @@
     "performance_mode_hint": "Reduces effects and animations",
     "kiosk_mode": "Kiosk mode",
     "kiosk_mode_hint": "Hides the dashboard bar",
+    "kiosk_mode_exit": "Exit kiosk mode",
     "theme": "Choose theme",
     "theme_dashboard_default": "Use global theme",
     "background": "Background",

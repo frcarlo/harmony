@@ -94,6 +94,7 @@
     "performance_mode_hint": "Vermindert effecten en animaties",
     "kiosk_mode": "Kioskmodus",
     "kiosk_mode_hint": "Verbergt de dashboardbalk",
+    "kiosk_mode_exit": "Kioskmodus verlaten",
     "theme": "Thema kiezen",
     "theme_dashboard_default": "Globaal thema gebruiken",
     "background": "Achtergrond",

@@ -94,6 +94,7 @@
     "performance_mode_hint": "Reduziert Effekte und Animationen",
     "kiosk_mode": "Kiosk-Modus",
     "kiosk_mode_hint": "Blendet die Dashboard-Leiste aus",
+    "kiosk_mode_exit": "Kiosk-Modus beenden",
     "theme": "Theme wählen",
     "theme_dashboard_default": "Globales Theme verwenden",
     "background": "Hintergrund",

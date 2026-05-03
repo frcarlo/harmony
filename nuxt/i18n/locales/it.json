@@ -94,6 +94,7 @@
     "performance_mode_hint": "Riduce effetti e animazioni",
     "kiosk_mode": "Modalità chiosco",
     "kiosk_mode_hint": "Nasconde la barra della dashboard",
+    "kiosk_mode_exit": "Esci dalla modalità chiosco",
     "theme": "Scegli tema",
     "theme_dashboard_default": "Usa il tema globale",
     "background": "Sfondo",

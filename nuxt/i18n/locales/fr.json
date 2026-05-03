@@ -94,6 +94,7 @@
     "performance_mode_hint": "Réduit les effets et animations",
     "kiosk_mode": "Mode kiosque",
     "kiosk_mode_hint": "Masque la barre du tableau",
+    "kiosk_mode_exit": "Quitter le mode kiosque",
     "theme": "Choisir le thème",
     "theme_dashboard_default": "Utiliser le thème global",
     "background": "Arrière-plan",

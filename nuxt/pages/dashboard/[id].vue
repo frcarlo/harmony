@@ -20,6 +20,15 @@
 
       <!-- Content: only show the loader until dashboard data exists; reconnects keep the dashboard visible. -->
       <v-main>
+        <v-btn
+          v-if="kioskMode"
+          class="kiosk-exit-btn"
+          icon="mdi-fullscreen-exit"
+          size="small"
+          variant="tonal"
+          :title="t('toolbar.kiosk_mode_exit')"
+          @click="toggleKioskMode"
+        />
         <div v-if="!dashboard" class="d-flex align-center justify-center" style="min-height:80vh">
           <div class="d-flex flex-column align-center ga-4">
             <v-progress-circular indeterminate color="primary" size="48" />
@@ -64,7 +73,7 @@ function goBack() {
 const dashboardStore = useDashboardStore()
 const theme = useTheme()
 const storage = useUserPreferenceStorage()
-const { kioskMode } = useDashboardDisplayMode()
+const { kioskMode, toggleKioskMode } = useDashboardDisplayMode()
 const dashboard = computed(() => dashboardStore.dashboard)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)
@@ -137,3 +146,19 @@ async function toggleMyDefaultDashboard() {
   }
 }
 </script>
+
+<style scoped>
+.kiosk-exit-btn {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 20;
+  opacity: 0.38;
+  backdrop-filter: blur(8px);
+}
+
+.kiosk-exit-btn:hover,
+.kiosk-exit-btn:focus-visible {
+  opacity: 1;
+}
+</style>
