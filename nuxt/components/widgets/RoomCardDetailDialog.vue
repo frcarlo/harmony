@@ -177,6 +177,7 @@ import type { RoomCardSensorEntity, RoomCardStatusEntity, RoomCardWidgetConfig }
 
 const { t } = useI18n()
 const { glass } = useGlassEffect()
+const { formatEntityState } = useLocalizedEntityState()
 
 const props = defineProps<{
   modelValue: boolean
@@ -213,8 +214,7 @@ const sensorFriendlyName = computed(() => (
 ) ?? props.config.sensor_entity ?? '')
 const sensorDisplay = computed(() => {
   if (!sensorEntity.value) return '—'
-  const unit = sensorEntity.value.attributes?.unit_of_measurement as string | undefined
-  return `${sensorEntity.value.state}${unit ? ` ${unit}` : ''}`
+  return formatEntityState(sensorEntity.value)
 })
 
 const currentTempDisplay = computed(() => currentTemp.value !== undefined ? `${currentTemp.value.toFixed(1)}°C` : '—')
@@ -301,10 +301,7 @@ function sensorFriendlyNameFor(sensor: RoomCardSensorEntity) {
 }
 
 function sensorDisplayFor(sensor: RoomCardSensorEntity) {
-  const entity = sensorEntityState(sensor)
-  if (!entity) return '—'
-  const unit = entity.attributes?.unit_of_measurement as string | undefined
-  return `${entity.state}${unit ? ` ${unit}` : ''}`
+  return formatEntityState(sensorEntityState(sensor))
 }
 
 function openExtraSensorDetail(sensor: RoomCardSensorEntity) {

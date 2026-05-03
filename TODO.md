@@ -2,6 +2,23 @@
 
 ## Offen
 
+- [ ] **State-Übersetzung überall zentralisieren** — `useLocalizedEntityState` in SensorWidget, EntityDetailDialog, SensorDetailDialog, StatusBarGroupDetail, Camera-Status-Anzeigen und weiteren Roh-State-Ausgaben nutzen, damit `off/on/unavailable/unknown` sowie `binary_sensor.device_class` überall korrekt angezeigt werden
+- [ ] **Dashboard Performance-Modus** — Pro Gerät oder global aktivierbar: Glass/Blur aus, Animationen aus, Kamera-Snapshots langsamer, Clock ohne Sekunden, schwere Effekte reduzieren
+- [ ] **Widget-Sichtbarkeit nach Gerät** — Widgets abhängig von Tablet, Handy oder Desktop ein-/ausblenden, damit Tablet-Dashboards schlanker werden können
+- [ ] **Reconnect-Anzeige als dezenter Status** — Keine Spinner/Content-Wechsel bei Reconnect; stattdessen kleiner Statuspunkt oder Icon in der Toolbar
+- [ ] **Klick-Aktionen für alle Widgets vereinheitlichen** — Klick, Doppelklick und Halten für Light, Switch, Sensor, Lock, Room, Status-Bar usw. mit denselben Optionen anbieten
+- [ ] **Custom Service Action** — Als Widget-Aktion beliebige Home-Assistant-Services ausführen können, z.B. Script starten, Szene aktivieren oder Gerät steuern
+- [ ] **Raumkarte erweitern** — Mehrere Lichter/Gruppen, mehrere Sensoren kompakt, Fenster/Türen automatisch als Statuszeile anzeigen
+- [ ] **Quick Edit im Dashboard** — Langer Klick auf ein Widget öffnet direkt die Konfiguration, ohne erst in den Edit-Modus zu wechseln
+- [ ] **Auto-Icons und Auto-Labels nach Entity-Typ** — Fenster, Türen, Bewegung, Batterie, Updates, Geräteklassen usw. automatisch passend darstellen
+- [ ] **Batterie-/Problem-Übersicht** — Widget oder Status-Bar-Gruppe für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
+- [ ] **Adaptive Themes** — Automatisch hell/dunkel/dim nach Tageszeit, Sonnenstand oder Dashboard-Einstellung wechseln
+- [ ] **Kiosk-Modus fürs Tablet** — Toolbar ausblendbar, Dashboard-only Ansicht, optional Wake-Lock/Fullscreen-freundlich
+- [ ] **Lazy Loading für schwere Widgets** — Kamera, Charts, Kalender und Detaildaten erst laden, wenn sichtbar oder geöffnet
+- [ ] **Code-Splitting verbessern** — Große Nuxt/Vite-Chunks aufteilen, um Tablet-Startzeit und Cache-Verhalten zu verbessern
+- [ ] **Store-Updates nach Dashboard filtern** — WebSocket-Entity-Updates nur für Entities verarbeiten, die im aktuellen Dashboard tatsächlich genutzt werden
+- [ ] **Translations für HA-Zustände aus einer Quelle** — HA-State-Texte, Device-Class-Texte, HVAC-Modi, Cover-/Lock-States und Statuslabels zentral pflegen
+
 ## Ideen / Nice-to-have
 
 - [ ] **Migration auf Vuetify 4** — Vuetify 4 ist seit Feb 2026 stabil (MD3, CSS Layers, Elevation 0–5). Eigener Branch, `eslint-plugin-vuetify` für automatisches Flaggen der Breaking Changes nutzen

@@ -42,7 +42,7 @@ export function useUserPreferenceStorage() {
   function clearCurrentUserSettings() {
     if (import.meta.server) return
 
-    for (const baseKey of ['ha-theme', 'ha-glass', 'ha-widget-borders', 'ha-locale']) {
+    for (const baseKey of ['ha-theme', 'ha-glass', 'ha-widget-borders', 'ha-locale', 'ha-performance-mode', 'ha-kiosk-mode']) {
       localStorage.removeItem(key(baseKey))
     }
 

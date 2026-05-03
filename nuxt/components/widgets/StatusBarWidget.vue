@@ -56,7 +56,7 @@
               </div>
               <span v-if="showLabels" class="badge-label"
                 :style="{ color: badge.active ? (badge.entry.active_color || undefined) : undefined }">
-                {{ badge.entry.label || (badge.type === 'single' ? shortState(badge.state) : '') }}
+                {{ badge.entry.label || (badge.type === 'single' ? shortState(badge.entry.entity_id) : '') }}
               </span>
             </div>
           </template>
@@ -137,6 +137,7 @@ const containerWidth = ref(0)
 const containerHeight = ref(0)
 const entityStore = useEntityStore()
 const { getFilteredEntities } = useEntityGroupFilter()
+const { formatEntityState } = useLocalizedEntityState()
 const router = useRouter()
 const isNarrowMobile = computed(() => !isVertical.value && containerWidth.value > 0 && containerWidth.value < 420)
 const shouldStackRows = computed(() => isNarrowMobile.value && containerHeight.value >= 84)
@@ -305,8 +306,9 @@ function isEntityActive(entity: { entity_id: string; state: string }): boolean {
   return entity.state === 'on'
 }
 
-function shortState(state: string) {
-  return state.length > 6 ? state.slice(0, 5) + '…' : state
+function shortState(entityId: string) {
+  const label = formatEntityState(entityStore.entities[entityId])
+  return label.length > 6 ? label.slice(0, 5) + '…' : label
 }
 </script>
 

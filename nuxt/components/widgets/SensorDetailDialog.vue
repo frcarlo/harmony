@@ -49,6 +49,7 @@ import type { SensorWidgetConfig } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
+const { formatEntityState } = useLocalizedEntityState()
 
 const props = defineProps<{
   modelValue: boolean
@@ -79,14 +80,10 @@ function stateAsNumber(raw: string) {
 }
 
 const displayState = computed(() => {
-  if (isBinarySensor.value) {
-    if (state.value === 'on') return t('common.on')
-    if (state.value === 'off') return t('common.off')
-    return state.value
-  }
+  if (isBinarySensor.value) return formatEntityState(entity.value)
   const num = parseFloat(state.value)
   if (!isNaN(num) && props.config.decimal_places !== undefined) return num.toFixed(props.config.decimal_places)
-  return state.value
+  return formatEntityState(entity.value)
 })
 
 const stateColor = computed(() => {

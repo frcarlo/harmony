@@ -1,6 +1,6 @@
 <template>
-  <v-app>
-    <div v-if="glass" class="glass-blobs" aria-hidden="true">
+  <v-app :class="{ 'performance-mode': performanceMode }">
+    <div v-if="glass && !performanceMode" class="glass-blobs" aria-hidden="true">
       <div class="blob blob-1" />
       <div class="blob blob-2" />
     </div>
@@ -18,6 +18,7 @@
 import { Toaster } from 'vue-sonner'
 import { useTheme } from 'vuetify'
 const { glass } = useGlassEffect()
+const { performanceMode } = useDashboardDisplayMode()
 const theme = useTheme()
 const isDark = computed(() => theme.current.value.dark)
 const { loggedIn, user } = useUserSession()
@@ -130,6 +131,16 @@ onMounted(async () => {
   .page-fade-leave-active {
     transition: none !important;
   }
+}
+
+.performance-mode .page-fade-enter-active,
+.performance-mode .page-fade-leave-active {
+  transition: none !important;
+}
+
+.performance-mode .v-overlay__scrim {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* ... blob-2 und blob-3 analog ... */

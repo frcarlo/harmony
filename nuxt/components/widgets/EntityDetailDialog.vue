@@ -22,7 +22,7 @@
           <span class="text-body-2 text-medium-emphasis">{{ t('common.status') }}</span>
           <div class="d-flex align-center ga-2">
             <v-chip :color="isActive ? (activeColor ?? 'primary') : undefined" size="small" variant="tonal">
-              {{ entity.state }}
+              {{ stateLabel }}
             </v-chip>
             <v-switch v-if="isToggleable" :model-value="isActive" :color="activeColor ?? 'primary'"
               hide-details density="compact" :disabled="isUnavailable" @update:model-value="toggle" />
@@ -137,6 +137,7 @@
 <script setup lang="ts">
 const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
+const { formatEntityState } = useLocalizedEntityState()
 
 const props = defineProps<{
   modelValue: boolean
@@ -154,6 +155,7 @@ const domain = computed(() => props.entityId.split('.')[0])
 const isToggleable = computed(() => ['light', 'switch', 'fan'].includes(domain.value))
 const isUnavailable = computed(() => entity.value?.state === 'unavailable')
 const name = computed(() => (entity.value?.attributes?.friendly_name as string) ?? props.entityId)
+const stateLabel = computed(() => formatEntityState(entity.value))
 const areaName = computed(() => {
   const areaId = entityStore.entityAreaMap[props.entityId]
   return areaId ? entityStore.areas.find((a) => a.area_id === areaId)?.name : undefined

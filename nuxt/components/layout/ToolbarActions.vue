@@ -20,6 +20,14 @@
         <v-list-item :prepend-icon="borders ? 'mdi-border-all' : 'mdi-border-none'"
           :title="t('toolbar.widget_borders')" :active="borders" :color="borders ? 'primary' : undefined"
           rounded="lg" @click="toggleBorders" />
+        <v-list-item :prepend-icon="performanceMode ? 'mdi-speedometer' : 'mdi-speedometer-slow'"
+          :title="t('toolbar.performance_mode')" :subtitle="t('toolbar.performance_mode_hint')"
+          :active="performanceMode" :color="performanceMode ? 'primary' : undefined"
+          rounded="lg" @click="togglePerformanceMode" />
+        <v-list-item :prepend-icon="kioskMode ? 'mdi-fullscreen' : 'mdi-fullscreen-exit'"
+          :title="t('toolbar.kiosk_mode')" :subtitle="t('toolbar.kiosk_mode_hint')"
+          :active="kioskMode" :color="kioskMode ? 'primary' : undefined"
+          rounded="lg" @click="toggleKioskMode" />
         <v-list-item prepend-icon="mdi-palette" :title="t('toolbar.theme')" rounded="lg">
           <template #append>
             <ThemeToggle button-icon="mdi-chevron-down" :button-title="t('toolbar.theme')" />
@@ -74,6 +82,7 @@ type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
+const { performanceMode, kioskMode, togglePerformanceMode, toggleKioskMode } = useDashboardDisplayMode()
 const availableLocales = computed(() => (locales.value as { code: LocaleCode; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
 const theme = useTheme()
@@ -97,6 +106,8 @@ function resetLocalSettings() {
 
   glass.value = false
   borders.value = true
+  performanceMode.value = false
+  kioskMode.value = false
 
   const effectiveTheme = dashboardStore.dashboard?.theme_override ?? storage.read('ha-theme', 'dark') ?? 'dark'
   theme.change(effectiveTheme)

@@ -6,6 +6,7 @@
 
       <!-- Toolbar always rendered so back button is never swallowed by a disconnect flash -->
       <AppToolbar
+        v-if="!kioskMode"
         :dashboard-name="dashboard?.name ?? ''"
         :dashboard-id="dashboard?.id ?? ''"
         :dashboard-icon="dashboard?.icon"
@@ -63,6 +64,7 @@ function goBack() {
 const dashboardStore = useDashboardStore()
 const theme = useTheme()
 const storage = useUserPreferenceStorage()
+const { kioskMode } = useDashboardDisplayMode()
 const dashboard = computed(() => dashboardStore.dashboard)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)

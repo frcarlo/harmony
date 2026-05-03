@@ -470,6 +470,23 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
 
+        <v-expansion-panel v-if="hasGenericActionSection" value="actions" rounded="xl" elevation="0">
+          <v-expansion-panel-title class="config-panel__section-title">
+            {{ t('config.section_actions') }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="config-panel__section-body">
+            <v-select v-model="cfg.card_click_action" :label="t('config.card_click_action')"
+              :items="genericActionItems" item-title="title" item-value="value"
+              density="compact" hide-details="auto" />
+            <v-select v-model="cfg.card_double_click_action" :label="t('config.card_double_click_action')"
+              :items="genericActionItems" item-title="title" item-value="value"
+              density="compact" hide-details="auto" />
+            <v-select v-model="cfg.card_hold_action" :label="t('config.card_hold_action')"
+              :items="genericActionItems" item-title="title" item-value="value"
+              density="compact" hide-details="auto" />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+
         <v-expansion-panel value="appearance" rounded="xl" elevation="0">
           <v-expansion-panel-title class="config-panel__section-title">
             {{ t('config.section_appearance') }}
@@ -563,16 +580,22 @@ const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
   'room_card', 'status_bar',
 ])
+const GENERIC_ACTION_TYPES = new Set<WidgetType>([
+  'sensor', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
+  'lock', 'weather', 'calendar',
+])
 
 const showEntityField = computed(() => !!widget.value && !ENTITY_FIELD_EXCLUDED_TYPES.includes(widget.value.type))
 const showNameField = computed(() => !!widget.value && !NAME_FIELD_EXCLUDED_TYPES.includes(widget.value.type))
 const hasGeneralSection = computed(() => showEntityField.value || showNameField.value)
 const hasContentSection = computed(() => !!widget.value && CONTENT_SECTION_TYPES.has(widget.value.type))
+const hasGenericActionSection = computed(() => !!widget.value && GENERIC_ACTION_TYPES.has(widget.value.type))
 
 watch(widget, (currentWidget) => {
   openSections.value = [
     ...(currentWidget && hasGeneralSection.value ? ['general'] : []),
     ...(currentWidget && hasContentSection.value ? ['content'] : []),
+    ...(currentWidget && hasGenericActionSection.value ? ['actions'] : []),
     'appearance',
   ]
 }, { immediate: true })
@@ -616,6 +639,12 @@ const lightTapActionItems = computed(() => [
   { title: t('config.action_none'), value: 'none' },
   { title: t('config.action_toggle_light'), value: 'toggle' },
   { title: t('config.action_open_light_detail'), value: 'open_detail' },
+])
+
+const genericActionItems = computed(() => [
+  { title: t('config.action_none'), value: 'none' },
+  { title: t('config.action_toggle_entity'), value: 'toggle' },
+  { title: t('config.action_open_entity_detail'), value: 'open_detail' },
 ])
 
 const roomCardActionItems = computed(() => [

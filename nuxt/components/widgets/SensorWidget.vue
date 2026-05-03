@@ -7,7 +7,7 @@
     @click="dialogOpen = true"
   >
     <div class="d-flex align-center ga-2 flex-shrink-0">
-      <v-icon :icon="iconName" size="32"
+      <v-icon :icon="iconName"
         :size="isTiny ? 22 : 32"
         :color="stateColor ?? 'medium-emphasis'" class="flex-shrink-0" />
       <span class="font-weight-medium text-truncate" :class="isTiny ? 'text-caption' : 'text-body-2'">{{ name }}</span>
@@ -35,10 +35,11 @@ import type { SensorWidgetConfig } from '~/types/dashboard'
 
 defineOptions({ inheritAttrs: false })
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const props = defineProps<{ config: SensorWidgetConfig }>()
 const dialogOpen = ref(false)
 const entityStore = useEntityStore()
+const { formatEntityState } = useLocalizedEntityState()
 const cardEl = ref<HTMLDivElement | null>(null)
 const cardSize = ref({ width: 0, height: 0 })
 const entity = computed(() => entityStore.entities[props.config.entity_id])
@@ -53,12 +54,6 @@ const showTrend = computed(() => props.config.show_trend !== false && !isUnavail
 const isTiny = computed(() => cardSize.value.width < 240 || cardSize.value.height < 135)
 const trendPoints = ref<Array<[number, number]>>([])
 
-function binaryStateLabel(raw: string) {
-  if (raw === 'on') return t('common.on')
-  if (raw === 'off') return t('common.off')
-  return raw
-}
-
 function stateAsNumber(raw: string) {
   if (raw === 'on' || raw === 'true') return 1
   if (raw === 'off' || raw === 'false') return 0
@@ -67,13 +62,13 @@ function stateAsNumber(raw: string) {
 }
 
 const displayState = computed(() => {
-  if (isBinarySensor.value) return binaryStateLabel(state.value)
+  if (isBinarySensor.value) return formatEntityState(entity.value)
   const num = parseFloat(state.value)
   if (!Number.isNaN(num)) {
     if (props.config.decimal_places !== undefined) return num.toFixed(props.config.decimal_places)
     return new Intl.NumberFormat(locale.value, { maximumFractionDigits: 2 }).format(num)
   }
-  return state.value
+  return formatEntityState(entity.value)
 })
 
 const alertColor = computed(() => {

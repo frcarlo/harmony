@@ -182,6 +182,30 @@
   }
 }
 
+.performance-mode .widget-glass.v-card,
+.performance-mode .widget-glass-blur.v-card,
+.performance-mode .dialog-glass.v-card,
+.performance-mode .ui-sheet-glass.v-navigation-drawer,
+.performance-mode .theme-card-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.performance-mode .widget-glass.v-card,
+.performance-mode .widget-glass-blur.v-card {
+  box-shadow: 0 0 0 1px rgba(var(--v-border-color), 0.18) !important;
+}
+
+.performance-mode .widget-edit-controls,
+.performance-mode .drag-handle,
+.performance-mode .theme-swatch,
+.performance-mode .v-btn,
+.performance-mode .v-card,
+.performance-mode .entity-row,
+.performance-mode .room-detail-section--clickable {
+  transition: none !important;
+}
+
 /* Tooltip contrast */
 .tooltip-readable {
   background: rgba(15, 23, 42, 0.95) !important;

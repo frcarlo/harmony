@@ -79,7 +79,7 @@
             class="flex-shrink-0"
             @click.stop="toggleEntity(entity)"
           />
-          <span v-else class="text-caption text-medium-emphasis">{{ entity.state }}</span>
+          <span v-else class="text-caption text-medium-emphasis">{{ formatEntityState(entity) }}</span>
         </div>
       </div>
     </v-card>
@@ -107,6 +107,7 @@ const { glass } = useGlassEffect()
 const entityStore = useEntityStore()
 const client = useHAClient()
 const { useFilteredEntities } = useEntityGroupFilter()
+const { formatEntityState } = useLocalizedEntityState()
 
 const filterRef = computed(() => props.filter)
 const entities = useFilteredEntities(filterRef)

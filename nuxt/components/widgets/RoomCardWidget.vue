@@ -38,7 +38,7 @@
         </template>
         <template v-else-if="props.config.sensor_entity && sensorEntity">
           <v-icon :icon="props.config.sensor_icon || 'mdi-eye'" size="20" color="medium-emphasis" />
-          <span class="text-h5 font-weight-bold">{{ sensorEntity.state }}<span class="text-body-2 ml-1">{{ sensorUnit }}</span></span>
+          <span class="text-h5 font-weight-bold">{{ sensorDisplay }}</span>
         </template>
       </div>
 
@@ -75,6 +75,7 @@ const { t } = useI18n()
 const props = defineProps<{ config: RoomCardWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
+const { formatEntityState } = useLocalizedEntityState()
 
 const climateEntity = computed(() =>
   props.config.climate_entity ? entityStore.entities[props.config.climate_entity] : undefined
@@ -86,7 +87,7 @@ const isUnavailable = computed(() => !climateEntity.value || climateEntity.value
 const statusEntities = computed(() => (props.config.status_entities ?? []).filter((s) => s.entity_id))
 const lightEntity = computed(() => props.config.light_entity ? entityStore.entities[props.config.light_entity] : undefined)
 const sensorEntity = computed(() => props.config.sensor_entity ? entityStore.entities[props.config.sensor_entity] : undefined)
-const sensorUnit = computed(() => sensorEntity.value?.attributes?.unit_of_measurement as string ?? '')
+const sensorDisplay = computed(() => formatEntityState(sensorEntity.value))
 const lightOn = computed(() => lightEntity.value?.state === 'on')
 
 const HVAC_MODE_ICONS: Record<string, string> = {

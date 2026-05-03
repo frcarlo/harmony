@@ -1,9 +1,18 @@
 <template>
   <v-card height="100%" rounded="xl" class="overflow-hidden widget-card" style="position: relative;" :style="cardStyle" :class="{
     'ring-selected': isSelected,
+    'cursor-pointer': hasGenericActions,
     'widget-glass': glassEnabled && !appearance.bg_color && !hasActiveBackground,
     'widget-glass-blur': glassEnabled && !!appearance.bg_color && !hasActiveBackground,
-  }">
+  }"
+    @click.capture="handleGenericClick"
+    @dblclick.capture="handleGenericDoubleClick"
+    @mousedown.capture="startGenericHold"
+    @mouseup.capture="cancelGenericHold"
+    @mouseleave.capture="cancelGenericHold"
+    @touchstart.passive.capture="startGenericHold"
+    @touchend.capture="cancelGenericHold"
+    @touchmove.capture="cancelGenericHold">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
       <v-icon icon="mdi-drag-horizontal" size="16" color="medium-emphasis" />
@@ -47,6 +56,11 @@
       <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
     </div>
   </v-card>
+
+  <LightDetailDialog v-if="detailOpen && detailEntityId && detailDomain === 'light'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <UpdateDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'update'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <MediaPlayerDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'media_player'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <EntityDetailDialog v-else-if="detailOpen && detailEntityId" v-model="detailOpen" :entity-id="detailEntityId" />
 </template>
 
 <script setup lang="ts">
@@ -59,10 +73,16 @@ const props = defineProps<{ widget: Widget; editMode: boolean }>()
 
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
+const client = useHAClient()
 const { glass } = useGlassEffect()
 const { borders } = useWidgetBorders()
 const theme = useTheme()
 const isDark = computed(() => theme.current.value.dark)
+const detailOpen = ref(false)
+const detailEntityId = ref<string | null>(null)
+
+const GENERIC_ACTION_EXCLUDED_TYPES = new Set(['light', 'room_card', 'status_bar'])
+type GenericWidgetAction = 'none' | 'toggle' | 'open_detail'
 
 const isSelected = computed(() => dashboardStore.selectedWidgetId === props.widget.id)
 
@@ -84,10 +104,20 @@ const entityId = computed(() => {
   return c?.entity_id as string | undefined
 })
 const entityState = computed(() => entityId.value ? entityStore.entities[entityId.value]?.state : undefined)
+const detailDomain = computed(() => detailEntityId.value?.split('.')[0] ?? '')
 const isActive = computed(() => {
   const s = entityState.value
   return s === 'on' || s === 'open' || s === 'unlocked' || s === 'playing'
 })
+const widgetConfig = computed(() => props.widget.config as Record<string, unknown>)
+const genericActionsEnabled = computed(() => !GENERIC_ACTION_EXCLUDED_TYPES.has(props.widget.type) && !!entityId.value)
+const genericClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_click_action ?? widgetConfig.value.tap_action))
+const genericDoubleClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_double_click_action ?? widgetConfig.value.double_tap_action))
+const genericHoldAction = computed(() => normalizeGenericAction(widgetConfig.value.card_hold_action ?? widgetConfig.value.hold_action))
+const hasGenericActions = computed(() =>
+  genericActionsEnabled.value
+  && (genericClickAction.value !== 'none' || genericDoubleClickAction.value !== 'none' || genericHoldAction.value !== 'none'),
+)
 
 const appearance = computed(() => props.widget.appearance ?? {})
 const glassEnabled = computed(() => glass.value && appearance.value.disable_glass !== true)
@@ -100,6 +130,90 @@ const isCompactWidget = computed(() => {
   const { w, h } = props.widget.layout
   return w <= 4 || h <= 2
 })
+
+let genericClickTimer: ReturnType<typeof setTimeout> | null = null
+let genericHoldTimer: ReturnType<typeof setTimeout> | null = null
+let genericHoldTriggered = false
+
+function normalizeGenericAction(value: unknown): GenericWidgetAction {
+  return value === 'toggle' || value === 'open_detail' ? value : 'none'
+}
+
+function shouldIgnoreGenericAction(event: Event) {
+  const target = event.target
+  if (!(target instanceof Element)) return false
+  return !!target.closest([
+    '[data-no-widget-action]',
+    'button',
+    'a',
+    'input',
+    'textarea',
+    'select',
+    '[contenteditable="true"]',
+    '[role="button"]',
+    '[role="slider"]',
+    '.v-btn',
+    '.v-slider',
+    '.v-switch',
+    '.v-selection-control',
+  ].join(','))
+}
+
+async function runGenericAction(action: GenericWidgetAction) {
+  if (!genericActionsEnabled.value || action === 'none' || !entityId.value) return
+
+  if (action === 'open_detail') {
+    detailEntityId.value = entityId.value
+    detailOpen.value = true
+    return
+  }
+
+  const entity = entityStore.entities[entityId.value]
+  if (!entity || entity.state === 'unavailable' || entity.state === 'unknown') return
+  await client.callService({ domain: 'homeassistant', service: 'toggle', target: { entity_id: entityId.value } })
+}
+
+function handleGenericClick(event: MouseEvent) {
+  if (!genericActionsEnabled.value) return
+  if (genericHoldTriggered) {
+    event.stopPropagation()
+    genericHoldTriggered = false
+    return
+  }
+  if (genericClickAction.value === 'none' || shouldIgnoreGenericAction(event)) return
+
+  event.stopPropagation()
+  if (genericClickTimer) clearTimeout(genericClickTimer)
+  genericClickTimer = setTimeout(() => {
+    genericClickTimer = null
+    runGenericAction(genericClickAction.value)
+  }, 220)
+}
+
+function handleGenericDoubleClick(event: MouseEvent) {
+  if (!genericActionsEnabled.value || genericDoubleClickAction.value === 'none' || shouldIgnoreGenericAction(event)) return
+
+  event.stopPropagation()
+  if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
+  runGenericAction(genericDoubleClickAction.value)
+}
+
+function startGenericHold(event: MouseEvent | TouchEvent) {
+  if (!genericActionsEnabled.value || genericHoldAction.value === 'none' || shouldIgnoreGenericAction(event)) return
+
+  event.stopPropagation()
+  genericHoldTriggered = false
+  genericHoldTimer = setTimeout(() => {
+    genericHoldTriggered = true
+    genericHoldTimer = null
+    if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
+    runGenericAction(genericHoldAction.value)
+  }, 500)
+}
+
+function cancelGenericHold() {
+  if (genericHoldTimer) { clearTimeout(genericHoldTimer); genericHoldTimer = null }
+}
 
 function toSemiTransparent(color: string, alpha = 0.55): string {
   if (color.startsWith('#')) {

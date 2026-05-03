@@ -69,6 +69,7 @@ const { t, locale } = useI18n()
 const { glass } = useGlassEffect()
 const { active, dismiss } = useNotificationRules()
 const entityStore = useEntityStore()
+const { formatEntityState } = useLocalizedEntityState()
 
 const now = useNow({ interval: 10_000 })
 const cameraDialogOpen = ref(false)
@@ -111,11 +112,12 @@ const entityName = computed(() => {
 
 const entityState = computed(() => {
   if (!active.value) return ''
-  return entityStore.entities[active.value.rule.action_entity_id]?.state ?? '–'
+  return formatEntityState(entityStore.entities[active.value.rule.action_entity_id], '–')
 })
 
 const entityColor = computed(() => {
-  const s = entityState.value
+  if (!active.value) return undefined
+  const s = entityStore.entities[active.value.rule.action_entity_id]?.state
   if (s === 'on' || s === 'open' || s === 'unlocked') return 'success'
   if (s === 'off' || s === 'closed' || s === 'locked') return undefined
   return 'warning'
