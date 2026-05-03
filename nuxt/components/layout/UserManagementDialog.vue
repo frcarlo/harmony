@@ -82,16 +82,26 @@
         Welche Dashboards darf <strong>{{ accessUser.username }}</strong> sehen?
         Wenn nichts ausgewählt, sieht der User alle.
       </p>
-      <v-switch
-        :model-value="accessUser.force_kiosk"
-        color="warning"
-        density="compact"
-        hide-details
-        inset
-        label="Kiosk-Modus für diesen Benutzer erzwingen"
-        class="mb-3"
-        @update:model-value="toggleForceKiosk(accessUser)"
-      />
+      <v-card variant="tonal" :color="accessUser.force_kiosk ? 'warning' : undefined" rounded="lg" class="pa-3 mb-3">
+        <div class="d-flex align-center ga-3">
+          <v-icon icon="mdi-fullscreen" size="20" />
+          <div class="flex-grow-1" style="min-width: 0">
+            <div class="text-body-2 font-weight-bold">Kiosk-Zwang</div>
+            <div class="text-caption text-medium-emphasis">
+              {{ accessUser.force_kiosk ? 'Aktiv - der Benutzer kann Kiosk nicht verlassen.' : 'Aus - der Benutzer kann Kiosk selbst steuern.' }}
+            </div>
+          </div>
+          <v-btn
+            :color="accessUser.force_kiosk ? 'warning' : 'primary'"
+            :prepend-icon="accessUser.force_kiosk ? 'mdi-lock-open-outline' : 'mdi-lock-outline'"
+            size="small"
+            variant="flat"
+            @click="toggleForceKiosk(accessUser)"
+          >
+            {{ accessUser.force_kiosk ? 'Deaktivieren' : 'Aktivieren' }}
+          </v-btn>
+        </div>
+      </v-card>
       <div v-if="loadingAccess" class="text-center py-6">
         <v-progress-circular indeterminate size="24" />
       </div>
