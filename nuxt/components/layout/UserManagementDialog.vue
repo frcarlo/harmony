@@ -82,6 +82,16 @@
         Welche Dashboards darf <strong>{{ accessUser.username }}</strong> sehen?
         Wenn nichts ausgewählt, sieht der User alle.
       </p>
+      <v-switch
+        :model-value="accessUser.force_kiosk"
+        color="warning"
+        density="compact"
+        hide-details
+        inset
+        label="Kiosk-Modus für diesen Benutzer erzwingen"
+        class="mb-3"
+        @update:model-value="toggleForceKiosk(accessUser)"
+      />
       <div v-if="loadingAccess" class="text-center py-6">
         <v-progress-circular indeterminate size="24" />
       </div>
