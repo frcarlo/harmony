@@ -53,6 +53,9 @@
                     size="small" variant="tonal">
                     {{ u.role === 'admin' ? 'Admin' : u.role === 'editor' ? 'Editor' : 'User' }}
                   </v-chip>
+                  <v-chip v-if="u.force_kiosk" color="warning" size="small" variant="tonal">
+                    {{ t('users.kiosk_forced_chip') }}
+                  </v-chip>
                   <v-btn
                     v-if="u.role !== 'admin'"
                     icon="mdi-view-dashboard-outline"
@@ -83,6 +86,31 @@
                 <v-divider class="mb-4" />
                 <p class="text-body-2 font-weight-medium mb-1">{{ t('users.access_title', { name: u.username }) }}</p>
                 <p class="text-caption text-medium-emphasis mb-3">{{ t('users.access_hint') }}</p>
+                <v-card
+                  variant="tonal"
+                  :color="accessUser.force_kiosk ? 'warning' : undefined"
+                  rounded="lg"
+                  class="pa-3 mb-3"
+                >
+                  <div class="d-flex align-center ga-3">
+                    <v-icon icon="mdi-fullscreen" size="20" />
+                    <div class="flex-grow-1" style="min-width: 0">
+                      <div class="text-body-2 font-weight-bold">{{ t('users.force_kiosk_label') }}</div>
+                      <div class="text-caption text-medium-emphasis">
+                        {{ accessUser.force_kiosk ? t('users.force_kiosk_active') : t('users.force_kiosk_inactive') }}
+                      </div>
+                    </div>
+                    <v-btn
+                      :color="accessUser.force_kiosk ? 'warning' : 'primary'"
+                      :prepend-icon="accessUser.force_kiosk ? 'mdi-lock-open-outline' : 'mdi-lock-outline'"
+                      size="small"
+                      variant="flat"
+                      @click="toggleForceKiosk(accessUser)"
+                    >
+                      {{ accessUser.force_kiosk ? t('users.force_kiosk_disable') : t('users.force_kiosk_enable') }}
+                    </v-btn>
+                  </div>
+                </v-card>
                 <div v-if="loadingAccess" class="py-4 text-center">
                   <v-progress-circular indeterminate size="24" />
                 </div>
@@ -276,6 +304,7 @@ interface UserRow {
   role: 'admin' | 'editor' | 'user'
   allowed_areas: string[] | null
   provider: string | null
+  force_kiosk: boolean
   default_dashboard_id?: string | null
   user_default_dashboard_id?: string | null
 }
@@ -374,6 +403,16 @@ async function toggleRole(u: UserRow) {
   u.role = newRole
 }
 
+async function toggleForceKiosk(u: UserRow) {
+  const next = !u.force_kiosk
+  try {
+    await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_kiosk: next } })
+    u.force_kiosk = next
+  } catch (e: any) {
+    alert(e?.data?.statusMessage ?? t('users.error_default'))
+  }
+}
+
 async function openAccess(u: UserRow) {
   if (accessUser.value?.id === u.id) { accessUser.value = null; return }
   accessUser.value = u
@@ -435,6 +474,7 @@ function auditLabel(action: string) {
     'user.create': t('users.audit_user_create'),
     'user.delete': t('users.audit_user_delete'),
     'user.role_change': t('users.audit_user_role_change'),
+    'user.force_kiosk_change': t('users.audit_user_force_kiosk_change'),
     'user.default_dashboard_change': t('users.audit_user_default_dashboard_change'),
     'user.self_default_dashboard_change': t('users.audit_user_self_default_dashboard_change'),
   }
