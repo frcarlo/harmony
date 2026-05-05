@@ -15,6 +15,26 @@
       </div>
     </div>
 
+    <!-- Detail values -->
+    <div v-if="hasAnyDetail" class="weather-details mb-1">
+      <div v-if="props.config.detail_humidity && humidity !== undefined" class="weather-detail__item">
+        <v-icon icon="mdi-water-percent" size="14" class="weather-detail__icon" />
+        <span>{{ humidity }}%</span>
+      </div>
+      <div v-if="props.config.detail_pressure && pressure !== undefined" class="weather-detail__item">
+        <v-icon icon="mdi-gauge" size="14" class="weather-detail__icon" />
+        <span>{{ pressure }} {{ pressureUnit }}</span>
+      </div>
+      <div v-if="props.config.detail_wind && windSpeed !== undefined" class="weather-detail__item">
+        <v-icon icon="mdi-weather-windy" size="14" class="weather-detail__icon" />
+        <span>{{ windSpeed }} {{ windSpeedUnit }}<template v-if="windBearingLabel"> ({{ windBearingLabel }})</template></span>
+      </div>
+      <div v-if="props.config.detail_visibility && visibility !== undefined" class="weather-detail__item">
+        <v-icon icon="mdi-eye-outline" size="14" class="weather-detail__icon" />
+        <span>{{ visibility }} {{ visibilityUnit }}</span>
+      </div>
+    </div>
+
     <!-- Forecast error -->
     <div v-if="forecastError" class="text-caption text-error mt-1">{{ forecastError }}</div>
 
@@ -87,6 +107,37 @@ const temp = computed(() => entity.value?.attributes?.temperature as number | un
 const conditionLabel = computed(() => (CONDITION_LABELS.value as Record<string, string>)[state.value] ?? state.value)
 const conditionIcon = computed(() => CONDITION_ICONS[state.value] ?? 'mdi-weather-cloudy')
 const iconColor = computed(() => CONDITION_COLORS[state.value] ?? '#94a3b8')
+
+const humidity = computed(() => entity.value?.attributes?.humidity as number | undefined)
+const pressure = computed(() => {
+  const p = entity.value?.attributes?.pressure as number | undefined
+  return p !== undefined ? Math.round(p) : undefined
+})
+const pressureUnit = computed(() => (entity.value?.attributes?.pressure_unit as string | undefined) ?? 'hPa')
+const windSpeed = computed(() => {
+  const w = entity.value?.attributes?.wind_speed as number | undefined
+  return w !== undefined ? Math.round(w * 10) / 10 : undefined
+})
+const windSpeedUnit = computed(() => (entity.value?.attributes?.wind_speed_unit as string | undefined) ?? 'km/h')
+const windBearing = computed(() => entity.value?.attributes?.wind_bearing as number | string | undefined)
+const windBearingLabel = computed(() => {
+  const b = windBearing.value
+  if (b === undefined || b === null) return undefined
+  if (typeof b === 'string') return b
+  const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+  return dirs[Math.round((b % 360) / 45) % 8]
+})
+const visibility = computed(() => {
+  const v = entity.value?.attributes?.visibility as number | undefined
+  return v !== undefined ? Math.round(v * 10) / 10 : undefined
+})
+const visibilityUnit = computed(() => (entity.value?.attributes?.visibility_unit as string | undefined) ?? 'km')
+const hasAnyDetail = computed(() =>
+  (props.config.detail_humidity && humidity.value !== undefined) ||
+  (props.config.detail_pressure && pressure.value !== undefined) ||
+  (props.config.detail_wind && windSpeed.value !== undefined) ||
+  (props.config.detail_visibility && visibility.value !== undefined)
+)
 
 const forecastRows = computed(() => props.config.forecast_rows ?? 3)
 
@@ -170,3 +221,26 @@ const currentDate = computed(() =>
   now.value.toLocaleDateString(locale.value, { day: 'numeric', month: 'numeric', year: 'numeric' })
 )
 </script>
+
+<style scoped>
+.weather-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+}
+
+.weather-detail__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.73rem;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.weather-detail__icon {
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+</style>

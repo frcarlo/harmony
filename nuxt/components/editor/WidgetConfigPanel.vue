@@ -253,6 +253,13 @@
 
             <!-- Weather -->
             <template v-if="widget.type === 'weather'">
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.weather_details') }}</p>
+              <div class="d-flex flex-wrap ga-1">
+                <v-checkbox v-model="cfg.detail_humidity" :label="t('config.weather_detail_humidity')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_pressure" :label="t('config.weather_detail_pressure')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_wind" :label="t('config.weather_detail_wind')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_visibility" :label="t('config.weather_detail_visibility')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
+              </div>
               <div>
                 <p class="text-caption text-medium-emphasis mb-1">{{ t('config.forecast_rows', {
                   n: cfg.forecast_rows ??

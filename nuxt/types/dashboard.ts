@@ -129,6 +129,10 @@ export interface WeatherWidgetConfig {
   name?: string
   show_forecast?: boolean
   forecast_rows?: number
+  detail_humidity?: boolean
+  detail_pressure?: boolean
+  detail_wind?: boolean
+  detail_visibility?: boolean
 }
 
 export interface ClockWidgetConfig {
