@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <ClimateDetailDialog v-model="dialogOpen" :entity-id="props.config.entity_id" />
+  <LazyClimateDetailDialog v-if="dialogOpen" v-model="dialogOpen" :entity-id="props.config.entity_id" />
 </template>
 
 <script setup lang="ts">

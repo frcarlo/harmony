@@ -83,6 +83,19 @@ export default defineNuxtConfig({
     vue: {
       template: { transformAssetUrls },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return
+            if (id.includes('node_modules/vuetify') || id.includes('@mdi/font')) return 'vendor-ui'
+            if (id.includes('node_modules/gridstack')) return 'vendor-grid'
+            if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender')) return 'vendor-charts'
+            if (id.includes('node_modules/pinia') || id.includes('node_modules/vue-sonner') || id.includes('node_modules/ws')) return 'vendor-app'
+          },
+        },
+      },
+    },
     plugins: [
       {
         name: 'harmony-app-manifest-alias',

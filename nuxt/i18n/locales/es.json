@@ -35,6 +35,9 @@
     "all": "Todos",
     "dashboards": "Paneles",
     "undo": "Deshacer",
+    "entity_id": "Entidad",
+    "copy": "Copiar",
+    "copied": "Copiado",
     "connecting": "Conectando a Home Assistant…"
   },
   "dashboard": {
@@ -142,9 +145,25 @@
       "label": "Sensor",
       "description": "Mostrar valor del sensor"
     },
+    "gauge": {
+      "label": "Indicador",
+      "description": "Mostrar un sensor numerico como indicador"
+    },
+    "template": {
+      "label": "Plantilla",
+      "description": "Plantilla de Home Assistant como tarjeta Markdown"
+    },
     "switch": {
       "label": "Interruptor",
       "description": "Alternar encendido/apagado"
+    },
+    "button": {
+      "label": "Botón",
+      "description": "Pulsar un botón de Home Assistant"
+    },
+    "select": {
+      "label": "Selección",
+      "description": "Elegir una opción de una entidad select"
     },
     "light": {
       "label": "Luz",
@@ -210,6 +229,10 @@
       "label": "Energía",
       "description": "Resumen eléctrico y solar"
     },
+    "problem_overview": {
+      "label": "Problemas",
+      "description": "Baterías, ventanas abiertas, actualizaciones y errores"
+    },
     "status_bar": {
       "label": "Barra de estado",
       "description": "Iconos de estado en una fila"
@@ -232,6 +255,24 @@
     "calendars": "Calendarios",
     "add_calendar": "Añadir calendario",
     "all_day": "Todo el día"
+  },
+  "problem_overview": {
+    "all_clear": "Todo correcto",
+    "count": "{n} aviso(s)",
+    "empty_hint": "No se detectaron problemas",
+    "more": "+ {n} más",
+    "unavailable": "No disponible",
+    "update": "Actualización disponible",
+    "update_running": "Actualización en curso",
+    "update_running_progress": "Actualización en curso ({n}%)",
+    "low_battery": "Batería baja",
+    "low_battery_value": "Batería {n}%",
+    "tab_all": "Todos",
+    "tab_updates": "Updates",
+    "tab_batteries": "Baterías",
+    "tab_unavailable": "Offline",
+    "tab_openings": "Abiertos",
+    "tab_alerts": "Alertas"
   },
   "door": {
     "label": "Puerta",
@@ -277,7 +318,26 @@
     "unit": "Unidad (opcional)",
     "unit_auto": "Auto",
     "decimal_places": "Decimales",
+    "gauge_min": "Minimo",
+    "gauge_max": "Maximo",
+    "gauge_yellow_from": "Amarillo desde",
+    "gauge_red_from": "Rojo desde",
+    "gauge_yellow_below": "Amarillo por debajo",
+    "gauge_red_below": "Rojo por debajo",
+    "gauge_severity_direction": "Evaluacion",
+    "gauge_high_bad": "Valor alto es malo",
+    "gauge_low_bad": "Valor bajo es malo",
+    "gauge_value_position": "Posicion del valor",
+    "gauge_value_top": "Arriba",
+    "gauge_value_right": "A la derecha",
+    "gauge_value_bottom": "Abajo",
+    "gauge_value_left": "A la izquierda",
+    "gauge_value_center": "Centrado",
+    "gauge_green": "Verde",
+    "gauge_yellow": "Amarillo",
+    "gauge_red": "Rojo",
     "show_power_trend": "Mostrar tendencia de potencia",
+    "template": "Plantilla",
     "show_brightness": "Mostrar control de brillo",
     "period": "Período",
     "chart_type": "Tipo de gráfico",
@@ -307,6 +367,10 @@
     "weather_detail_pressure": "Presión",
     "weather_detail_wind": "Viento",
     "weather_detail_visibility": "Visibilidad",
+    "weather_warning_entity": "Aviso meteorológico",
+    "weather_warning_entity_placeholder": "Seleccionar aviso NINA",
+    "weather_warning_name": "Nombre del aviso",
+    "weather_warning_name_placeholder": "NINA o plantilla",
     "days": "Días a mostrar",
     "show_time": "Mostrar hora",
     "room_name": "Nombre de la habitación",
@@ -339,6 +403,8 @@
     "action_service_data_invalid": "Los datos del servicio no son un objeto JSON válido",
     "entry_type_room": "Habitación",
     "add_room": "Añadir habitación",
+    "entry_type_problem": "Problemas",
+    "add_problem": "Añadir problemas",
     "room_active_source": "Fuente activa",
     "room_active_source_light": "Luz",
     "room_active_source_climate": "Clima",
@@ -436,6 +502,13 @@
     "alarm_code_keypad_mobile": "Mostrar siempre el teclado en móvil",
     "alarm_code_keypad_mobile_hint": "Fuerza el teclado numérico en pantallas pequeñas incluso si la entrada libre está activa",
     "alarm_code_length": "Número de dígitos",
+    "problem_battery_threshold": "Batería baja por debajo de",
+    "problem_max_items": "Máximo de elementos",
+    "problem_show_batteries": "Mostrar baterías bajas",
+    "problem_show_unavailable": "Mostrar entidades no disponibles",
+    "problem_show_openings": "Mostrar puertas/ventanas abiertas",
+    "problem_show_updates": "Mostrar actualizaciones",
+    "problem_show_alerts": "Mostrar errores y alarmas",
     "running_state": "Valor de estado en ejecución",
     "show_badge": "Mostrar insignia de conteo",
     "show_door_button": "Mostrar botón de puerta",
@@ -493,6 +566,9 @@
     "mode_auto": "Auto",
     "mode_off": "Apagado"
   },
+  "template": {
+    "render_error": "No se pudo renderizar la plantilla"
+  },
   "climate_detail": {
     "current_temp": "Temperatura actual",
     "humidity": "Humedad",
@@ -523,7 +599,9 @@
     "snowy_rainy": "Aguanieve",
     "windy": "Ventoso",
     "windy_variant": "Ventoso",
-    "exceptional": "Excepcional"
+    "exceptional": "Excepcional",
+    "warning_none": "Sin aviso",
+    "warning_unavailable": "Aviso no disponible"
   },
   "cover": {
     "open": "Abierto",
@@ -556,6 +634,9 @@
     "turn_on": "Encender",
     "turn_off": "Apagar",
     "tap_to_toggle": "Toca para cambiar"
+  },
+  "button": {
+    "never_pressed": "Nunca pulsado"
   },
   "notifications": {
     "title": "Notificaciones",

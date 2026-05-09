@@ -106,6 +106,19 @@ export async function getHACalendarEvents(entityId: string, start: string, end: 
   return res.json()
 }
 
+export async function renderHATemplate(template: string): Promise<string> {
+  const url = `${haUrl()}/api/template`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: haHeaders(),
+    cache: 'no-store',
+    signal: AbortSignal.timeout(10_000),
+    body: JSON.stringify({ template }),
+  })
+  if (!res.ok) throw new Error(`HA template error: ${res.status}`)
+  return res.text()
+}
+
 export async function getCameraSnapshot(entityId: string): Promise<Response> {
   const url = `${haUrl()}/api/camera_proxy/${entityId}`
   return fetch(url, { headers: haHeaders(), cache: 'no-store' })

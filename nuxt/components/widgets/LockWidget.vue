@@ -46,7 +46,7 @@
     </div>
   </div>
 
-  <EntityDetailDialog v-if="props.config.door_sensor_entity" v-model="sensorDialogOpen"
+  <LazyEntityDetailDialog v-if="sensorDialogOpen && props.config.door_sensor_entity" v-model="sensorDialogOpen"
     :entity-id="props.config.door_sensor_entity" icon="mdi-door-open" active-color="warning" active-state="on" />
 </template>
 

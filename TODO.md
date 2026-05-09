@@ -2,11 +2,10 @@
 
 ## Offen
 
-- [ ] **Widget-Sichtbarkeit nach Gerät** — Widgets abhängig von Tablet, Handy oder Desktop ein-/ausblenden, damit Tablet-Dashboards schlanker werden können
+- [ ] **Widget-Sichtbarkeit pro Gerät** — Pro Widget einstellen: sichtbar auf Desktop, Tablet und/oder Mobile, damit Tablet-Dashboards schlanker werden können
 - [ ] **Status-Bar Actions vereinheitlichen** — Klick, Doppelklick und Halten auch für Status-Bar-Einträge konfigurierbar machen
-- [ ] **Quick Edit im Dashboard** — Langer Klick auf ein Widget öffnet direkt die Konfiguration, ohne erst in den Edit-Modus zu wechseln
 - [ ] **Auto-Icons und Auto-Labels nach Entity-Typ** — Fenster, Türen, Bewegung, Batterie, Updates, Geräteklassen usw. automatisch passend darstellen
-- [ ] **Batterie-/Problem-Übersicht** — Widget oder Status-Bar-Gruppe für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
+- [ ] **Batterie-/Problem-Übersicht als Status-Bar-Gruppe** — Kompakte Status-Bar-Variante für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
 - [ ] **Adaptive Themes** — Automatisch hell/dunkel/dim nach Tageszeit, Sonnenstand oder Dashboard-Einstellung wechseln
 - [ ] **Kiosk-Modus Feinschliff** — Optional Wake-Lock/Fullscreen-freundlich machen und leichter wieder aus dem Kiosk-Modus herauskommen
 - [ ] **Lazy Loading für schwere Widgets** — Kamera, Charts, Kalender und Detaildaten erst laden, wenn sichtbar oder geöffnet
@@ -25,6 +24,8 @@
 
 ## Erledigt
 
+- [x] **Batterie-/Problem-Übersicht als Widget** — Erste Widget-Version erkennt niedrige Batterien, nicht verfügbare Entities, offene Türen/Fenster, Updates und Alarm-/Fehlerzustände
+- [x] **Quick Edit im Dashboard** — Langer Klick auf ein Widget öffnet direkt die Konfiguration, ohne erst in den Edit-Modus zu wechseln
 - [x] **State-Übersetzung überall zentralisieren** — `useLocalizedEntityState` in SensorWidget, EntityDetailDialog, SensorDetailDialog, StatusBarGroupDetail, Raumkarten, Status-Bar und Notification-Popup nutzen
 - [x] **Translations für HA-Zustände aus einer Quelle** — HA-State-Texte, Device-Class-Texte, HVAC-Modi, Cover-/Lock-States und Statuslabels zentral gepflegt
 - [x] **Reconnect-Anzeige als dezenter Status** — Reconnect wird als ruhiger Toolbar-Statuspunkt ohne Blink-Animation oder Textwechsel angezeigt

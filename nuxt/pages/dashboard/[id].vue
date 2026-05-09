@@ -36,10 +36,11 @@
           </div>
         </div>
         <div v-else class="pa-4">
-          <DashboardGrid :edit-mode="false" />
+          <DashboardGrid :edit-mode="false" :quick-edit="canEdit" @quick-edit="openQuickEdit" />
         </div>
       </v-main>
 
+      <LazyWidgetConfigPanel v-if="quickEditOpen" :open="quickEditOpen" @close="closeQuickEdit" />
     </div>
   </div>
 </template>
@@ -77,6 +78,8 @@ const { kioskMode, forcedKioskMode, toggleKioskMode } = useDashboardDisplayMode(
 const dashboard = computed(() => dashboardStore.dashboard)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)
+const quickEditOpen = computed(() => !!dashboardStore.selectedWidgetId)
+const quickEditSaving = ref(false)
 
 const bgBase = computed(() => ({ backgroundColor: 'rgb(var(--v-theme-background))' }))
 
@@ -110,6 +113,7 @@ const bgStyle = computed(() => {
 
 onBeforeMount(() => {
   dashboardStore.clearDashboard()
+  dashboardStore.setSelectedWidget(null)
 })
 
 onMounted(async () => {
@@ -143,6 +147,37 @@ async function toggleMyDefaultDashboard() {
     toast.success(nextDashboardId ? t('dashboard.my_default_set') : t('dashboard.my_default_cleared'))
   } catch {
     toast.error(t('dashboard.my_default_error'))
+  }
+}
+
+function openQuickEdit(widgetId: string) {
+  if (!canEdit.value) return
+  dashboardStore.setSelectedWidget(widgetId)
+}
+
+async function closeQuickEdit() {
+  const hadSelection = !!dashboardStore.selectedWidgetId
+  dashboardStore.setSelectedWidget(null)
+  if (!hadSelection || !dashboard.value || quickEditSaving.value) return
+
+  quickEditSaving.value = true
+  try {
+    await $fetch(`/api/dashboards/${dashboard.value.id}`, {
+      method: 'PUT',
+      body: {
+        ...dashboard.value,
+        icon: dashboard.value.icon ?? null,
+        background: dashboard.value.background ?? null,
+        bg_opacity: dashboard.value.bg_opacity ?? null,
+        bg_size: dashboard.value.bg_size ?? null,
+        theme_override: dashboard.value.theme_override ?? null,
+      },
+    })
+    toast.success('Widget gespeichert')
+  } catch {
+    toast.error('Speichern fehlgeschlagen')
+  } finally {
+    quickEditSaving.value = false
   }
 }
 </script>

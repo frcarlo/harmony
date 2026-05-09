@@ -2,7 +2,7 @@
   <div
     ref="cardEl"
     class="h-100 d-flex flex-column pa-3 ga-2 sensor-card"
-    :class="{ 'sensor-card--tiny': isTiny }"
+    :class="{ 'sensor-card--tiny': isTiny, 'sensor-card--no-trend': !hasTrend }"
     style="cursor:pointer"
     @click="dialogOpen = true"
   >
@@ -15,11 +15,11 @@
     <div class="sensor-card__value-wrap">
       <span v-if="isUnavailable" class="text-medium-emphasis text-body-2">N/A</span>
       <div v-else class="d-flex align-end ga-1 sensor-card__value-row">
-        <span class="sensor-card__value font-weight-bold" :class="{ 'sensor-card__value--tiny': isTiny }" :style="{ color: stateColor }">{{ displayState }}</span>
-        <span v-if="unit" class="text-medium-emphasis pb-1" :class="isTiny ? 'text-caption' : 'text-body-2'">{{ unit }}</span>
+        <span class="sensor-card__value font-weight-bold" :class="{ 'sensor-card__value--tiny': useCompactValue }" :style="valueStyle">{{ displayState }}</span>
+        <span v-if="unit" class="text-medium-emphasis pb-1" :class="useCompactValue ? 'text-caption' : 'text-body-2'">{{ unit }}</span>
       </div>
     </div>
-    <div v-if="showTrend && trendPath" class="sensor-card__trend-wrap" :class="{ 'sensor-card__trend-wrap--tiny': isTiny }">
+    <div v-if="hasTrend" class="sensor-card__trend-wrap" :class="{ 'sensor-card__trend-wrap--tiny': isTiny }">
       <svg class="sensor-card__trend" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true">
         <path :d="trendAreaPath" class="sensor-card__trend-area" />
         <path :d="trendPath" class="sensor-card__trend-line" :style="{ color: alertColor ?? 'rgb(var(--v-theme-primary))' }" />
@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <SensorDetailDialog v-model="dialogOpen" :config="props.config" />
+  <LazySensorDetailDialog v-if="dialogOpen" v-model="dialogOpen" :config="props.config" />
 </template>
 
 <script setup lang="ts">
@@ -53,6 +53,8 @@ const isUnavailable = computed(() => state.value === 'unavailable' || state.valu
 const showTrend = computed(() => props.config.show_trend !== false && !isUnavailable.value)
 const isTiny = computed(() => cardSize.value.width < 240 || cardSize.value.height < 135)
 const trendPoints = ref<Array<[number, number]>>([])
+const hasTrend = computed(() => showTrend.value && !!trendPath.value)
+const useCompactValue = computed(() => isTiny.value && hasTrend.value)
 
 function stateAsNumber(raw: string) {
   if (raw === 'on' || raw === 'true') return 1
@@ -69,6 +71,18 @@ const displayState = computed(() => {
     return new Intl.NumberFormat(locale.value, { maximumFractionDigits: 2 }).format(num)
   }
   return formatEntityState(entity.value)
+})
+
+const valueStyle = computed(() => {
+  const style: Record<string, string | undefined> = { color: stateColor.value }
+  if (hasTrend.value || !cardSize.value.width || !cardSize.value.height) return style
+
+  const textLength = Math.max(displayState.value.length + (unit.value ? unit.value.length * 0.45 : 0), 2)
+  const widthLimited = cardSize.value.width / (textLength * 0.48)
+  const heightLimited = cardSize.value.height * 0.42
+  const size = Math.max(28, Math.min(widthLimited, heightLimited, 56))
+  style.fontSize = `${size.toFixed(1)}px`
+  return style
 })
 
 const alertColor = computed(() => {
@@ -211,6 +225,7 @@ watch(() => [props.config.entity_id, props.config.show_trend] as const, () => {
   font-size: clamp(1.2rem, 4vw, 2.2rem);
   line-height: 1;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .sensor-card__value--tiny {
@@ -225,5 +240,16 @@ watch(() => [props.config.entity_id, props.config.show_trend] as const, () => {
   flex: 0 0 auto;
   padding-top: 0;
   align-items: flex-start;
+}
+
+.sensor-card--no-trend .sensor-card__value-wrap {
+  flex: 1 1 auto;
+  align-items: center;
+  padding-top: 0;
+}
+
+.sensor-card--no-trend.sensor-card--tiny .sensor-card__value-wrap {
+  flex: 1 1 auto;
+  align-items: center;
 }
 </style>

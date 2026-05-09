@@ -22,8 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import * as echarts from 'echarts'
+import { BarChart, LineChart } from 'echarts/charts'
+import { DataZoomComponent, GridComponent, TooltipComponent } from 'echarts/components'
+import { graphic, init, use, type ECharts } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
 import type { ChartWidgetConfig } from '~/types/dashboard'
+
+use([BarChart, CanvasRenderer, DataZoomComponent, GridComponent, LineChart, TooltipComponent])
 
 const props = defineProps<{ config: ChartWidgetConfig }>()
 const entityStore = useEntityStore()
@@ -44,12 +49,12 @@ const periods = ['1h', '6h', '24h', '7d', '30d'] as const
 const period = ref(props.config.period ?? '24h')
 const loading = ref(true)
 const chartEl = ref<HTMLDivElement | null>(null)
-let chart: echarts.ECharts | null = null
+let chart: ECharts | null = null
 let cachedPoints: Array<[number, number]> = []
 
 onMounted(() => {
   if (!chartEl.value) return
-  chart = echarts.init(chartEl.value, 'dark', { renderer: 'canvas' })
+  chart = init(chartEl.value, 'dark', { renderer: 'canvas' })
   const observer = new ResizeObserver(() => chart?.resize())
   observer.observe(chartEl.value)
   onUnmounted(() => { observer.disconnect(); chart?.dispose(); chart = null })
@@ -117,7 +122,7 @@ function renderChart(points: Array<[number, number]>) {
       itemStyle: { color: c },
       ...(type === 'area' ? {
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 5, [
+          color: new graphic.LinearGradient(0, 0, 0, 5, [
             { offset: 0, color: hexToRgba(props.config.area_color ?? c, 0.5) },
             { offset: 1, color: hexToRgba(props.config.area_color ?? c, 0) },
           ]),

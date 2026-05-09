@@ -27,7 +27,8 @@
               <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity')
               }}
               </p>
-              <EntityPicker v-model="cfg.entity_id" :domain-filter="ENTITY_DOMAINS[widget.type]" />
+              <EntityPicker v-model="cfg.entity_id" :domain-filter="ENTITY_DOMAINS[widget.type]"
+                :numeric-only="widget.type === 'gauge'" />
             </div>
 
             <!-- Name -->
@@ -54,22 +55,60 @@
               <v-checkbox v-model="cfg.show_trend" :label="t('config.show_trend')" hide-details density="compact" />
             </template>
 
+            <template v-if="widget.type === 'gauge'">
+              <div class="d-flex flex-column ga-3">
+                <v-text-field v-model="cfg.unit" :label="t('config.unit')" :placeholder="t('config.unit_auto')"
+                  density="compact" hide-details="auto" />
+                <v-text-field v-model.number="cfg.decimal_places" :label="t('config.decimal_places')" type="number"
+                  min="0" max="5" :placeholder="t('config.unit_auto')" density="compact" hide-details="auto" />
+                <v-select v-model="cfg.value_position" :label="t('config.gauge_value_position')"
+                  :items="gaugeValuePositionItems" item-title="title" item-value="value" density="compact"
+                  hide-details="auto" />
+                <v-select v-model="cfg.severity_direction" :label="t('config.gauge_severity_direction')"
+                  :items="gaugeSeverityDirectionItems" item-title="title" item-value="value" density="compact"
+                  hide-details="auto" />
+                <div class="d-flex ga-3">
+                  <v-text-field v-model.number="cfg.min" :label="t('config.gauge_min')" type="number" density="compact"
+                    hide-details="auto" />
+                  <v-text-field v-model.number="cfg.max" :label="t('config.gauge_max')" type="number" density="compact"
+                    hide-details="auto" />
+                </div>
+                <div class="d-flex ga-3">
+                  <v-text-field v-model.number="cfg.yellow_from" :label="gaugeYellowThresholdLabel" type="number"
+                    density="compact" hide-details="auto" />
+                  <v-text-field v-model.number="cfg.red_from" :label="gaugeRedThresholdLabel" type="number"
+                    density="compact" hide-details="auto" />
+                </div>
+                <div class="d-flex ga-3">
+                  <UiColorPicker v-model="gaugeGreenColor" :label="t('config.gauge_green')" clearable
+                    class="flex-1-1" />
+                  <UiColorPicker v-model="gaugeYellowColor" :label="t('config.gauge_yellow')" clearable
+                    class="flex-1-1" />
+                  <UiColorPicker v-model="gaugeRedColor" :label="t('config.gauge_red')" clearable class="flex-1-1" />
+                </div>
+              </div>
+            </template>
+
+            <template v-if="widget.type === 'template'">
+              <v-textarea v-model="cfg.template" :label="t('config.template')" rows="12" auto-grow density="compact"
+                hide-details="auto" />
+              <v-text-field v-model.number="cfg.refresh_interval" :label="t('config.refresh_interval')" type="number"
+                min="5" suffix="s" density="compact" hide-details="auto" />
+            </template>
+
             <!-- Light -->
             <template v-if="widget.type === 'light'">
               <v-checkbox v-model="cfg.show_brightness" :label="t('config.show_brightness')" />
               <v-select v-model="cfg.card_click_action" :label="t('config.card_click_action')"
-                :items="lightTapActionItems" item-title="title" item-value="value"
-                density="compact" hide-details="auto" clearable />
+                :items="lightTapActionItems" item-title="title" item-value="value" density="compact" hide-details="auto"
+                clearable />
               <v-select v-model="cfg.card_double_click_action" :label="t('config.card_double_click_action')"
-                :items="lightTapActionItems" item-title="title" item-value="value"
-                density="compact" hide-details="auto" clearable />
-              <v-select v-model="cfg.card_hold_action" :label="t('config.card_hold_action')"
-                :items="lightTapActionItems" item-title="title" item-value="value"
-                density="compact" hide-details="auto" clearable />
+                :items="lightTapActionItems" item-title="title" item-value="value" density="compact" hide-details="auto"
+                clearable />
             </template>
 
             <template v-if="widget.type === 'switch'">
-              <UiIconPicker v-model="cfg.icon" :label="t('config.icon_field')" placeholder="mdi-toggle-switch-outline"
+              <UiIconPicker v-model="iconModel" :label="t('config.icon_field')" placeholder="mdi-toggle-switch-outline"
                 density="compact" hide-details="auto" />
               <div class="config-panel__field-group">
                 <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{
@@ -78,6 +117,16 @@
               </div>
               <v-checkbox v-model="cfg.show_sensor_trend" :label="t('config.show_sensor_trend')" hide-details
                 density="compact" />
+            </template>
+
+            <template v-if="widget.type === 'button'">
+              <UiIconPicker v-model="iconModel" :label="t('config.icon_field')" placeholder="mdi-gesture-tap-button"
+                density="compact" hide-details="auto" />
+            </template>
+
+            <template v-if="widget.type === 'select'">
+              <UiIconPicker v-model="iconModel" :label="t('config.icon_field')" placeholder="mdi-form-dropdown"
+                density="compact" hide-details="auto" />
             </template>
 
             <!-- Chart -->
@@ -172,6 +221,25 @@
               </div>
             </template>
 
+            <template v-if="widget.type === 'problem_overview'">
+              <div class="d-flex flex-column ga-2">
+                <v-text-field v-model.number="cfg.battery_threshold" :label="t('config.problem_battery_threshold')"
+                  type="number" min="1" max="100" suffix="%" density="compact" hide-details="auto" />
+                <v-text-field v-model.number="cfg.max_items" :label="t('config.problem_max_items')" type="number"
+                  min="1" max="50" density="compact" hide-details="auto" />
+                <v-checkbox v-model="cfg.show_batteries" :label="t('config.problem_show_batteries')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_openings" :label="t('config.problem_show_openings')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_updates" :label="t('config.problem_show_updates')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_alerts" :label="t('config.problem_show_alerts')" hide-details
+                  density="compact" />
+              </div>
+            </template>
+
             <!-- Cover / Cover Dial -->
             <!-- Cover Dial 2 -->
             <template v-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'">
@@ -184,17 +252,11 @@
 
             <!-- Camera -->
             <template v-if="widget.type === 'camera'">
-              <v-select
-                v-model="cfg.stream_type"
-                :items="[
-                  { title: t('config.stream_type_webrtc'), value: 'webrtc' },
-                  { title: t('config.stream_type_mjpeg'), value: 'mjpeg' },
-                  { title: t('config.stream_type_snapshot'), value: 'snapshot' },
-                ]"
-                :label="t('config.stream_type')"
-                :placeholder="t('config.stream_type_webrtc')"
-                clearable
-              />
+              <v-select v-model="cfg.stream_type" :items="[
+                { title: t('config.stream_type_webrtc'), value: 'webrtc' },
+                { title: t('config.stream_type_mjpeg'), value: 'mjpeg' },
+                { title: t('config.stream_type_snapshot'), value: 'snapshot' },
+              ]" :label="t('config.stream_type')" :placeholder="t('config.stream_type_webrtc')" clearable />
               <v-text-field v-if="cfg.stream_type === 'snapshot'" v-model.number="cfg.refresh_interval"
                 :label="t('config.refresh_interval')" type="number" min="1" />
               <div>
@@ -203,12 +265,14 @@
                   :placeholder="t('config.light_entity_placeholder')" />
               </div>
               <v-divider />
-              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.camera_status_entities') }}</p>
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{
+                t('config.camera_status_entities') }}</p>
               <div class="d-flex flex-column ga-1">
                 <div v-for="(entry, idx) in cameraStatusEntries" :key="idx"
                   class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
                   <v-icon :icon="entry.icon || 'mdi-circle'" size="18" class="flex-shrink-0" />
-                  <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">{{ entry.label || entry.entity_id || '—' }}</div>
+                  <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">{{ entry.label ||
+                    entry.entity_id || '—' }}</div>
                   <div class="d-flex align-center ga-1 flex-shrink-0">
                     <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="idx === 0"
                       :title="t('config.move_up')" @click="moveCameraStatusEntry(idx, -1)" />
@@ -217,13 +281,14 @@
                       @click="moveCameraStatusEntry(idx, 1)" />
                   </div>
                   <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" @click="openCameraStatusDialog(idx)" />
-                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeCameraStatusEntry(idx)" />
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error"
+                    @click="removeCameraStatusEntry(idx)" />
                 </div>
               </div>
               <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block @click="addCameraStatusEntry">
                 {{ t('config.add_camera_status') }}
               </v-btn>
-              <StatusBarEntryDialog v-if="editingCameraStatusIdx !== null" v-model="cameraStatusDialogOpen"
+              <LazyStatusBarEntryDialog v-if="editingCameraStatusIdx !== null" v-model="cameraStatusDialogOpen"
                 :entry="cameraStatusEntries[editingCameraStatusIdx]" @save="saveCameraStatusEntry" />
             </template>
 
@@ -253,13 +318,27 @@
 
             <!-- Weather -->
             <template v-if="widget.type === 'weather'">
-              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.weather_details') }}</p>
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{
+                t('config.weather_details') }}</p>
               <div class="d-flex flex-wrap ga-1">
-                <v-checkbox v-model="cfg.detail_humidity" :label="t('config.weather_detail_humidity')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
-                <v-checkbox v-model="cfg.detail_pressure" :label="t('config.weather_detail_pressure')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
-                <v-checkbox v-model="cfg.detail_wind" :label="t('config.weather_detail_wind')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
-                <v-checkbox v-model="cfg.detail_visibility" :label="t('config.weather_detail_visibility')" hide-details density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_humidity" :label="t('config.weather_detail_humidity')" hide-details
+                  density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_pressure" :label="t('config.weather_detail_pressure')" hide-details
+                  density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_wind" :label="t('config.weather_detail_wind')" hide-details
+                  density="compact" class="flex-grow-1" style="min-width: 120px" />
+                <v-checkbox v-model="cfg.detail_visibility" :label="t('config.weather_detail_visibility')" hide-details
+                  density="compact" class="flex-grow-1" style="min-width: 120px" />
               </div>
+              <div class="config-panel__field-group">
+                <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{
+                  t('config.weather_warning_entity') }}</p>
+                <EntityPicker v-model="cfg.warning_entity_id" :domain-filter="['sensor', 'binary_sensor']"
+                  :placeholder="t('config.weather_warning_entity_placeholder')" />
+              </div>
+              <v-text-field v-if="cfg.warning_entity_id" v-model="cfg.warning_name"
+                :label="t('config.weather_warning_name')" :placeholder="t('config.weather_warning_name_placeholder')"
+                density="compact" hide-details="auto" />
               <div>
                 <p class="text-caption text-medium-emphasis mb-1">{{ t('config.forecast_rows', {
                   n: cfg.forecast_rows ??
@@ -358,14 +437,17 @@
               <v-text-field v-model="cfg.name" :label="t('config.room_name')" />
               <EntityPicker v-model="cfg.climate_entity" domain="climate" />
               <v-checkbox v-model="cfg.show_temp_control" :label="t('config.show_temp_control')" />
-              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.room_lights') }}</p>
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.room_lights')
+              }}</p>
               <EntityPicker v-model="cfg.light_entity" domain="light" />
               <template v-for="(_, idx) in roomLightEntities" :key="`room-light-${idx}`">
                 <div class="d-flex align-center ga-1">
-                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_light') }} {{ idx + 1 }}</span>
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_light') }} {{ idx
+                    + 1 }}</span>
                   <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeRoomLight(idx)" />
                 </div>
-                <EntityPicker v-model="roomLightEntities[idx]" domain="light" :placeholder="t('config.light_entity_placeholder')" />
+                <EntityPicker v-model="roomLightEntities[idx]" domain="light"
+                  :placeholder="t('config.light_entity_placeholder')" />
               </template>
               <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" @click="addRoomLight">
                 {{ t('config.add_light') }}
@@ -378,11 +460,14 @@
                 placeholder="mdi-eye" />
               <template v-for="(sensor, idx) in roomSensorEntities" :key="`room-sensor-${idx}`">
                 <div class="d-flex align-center ga-1">
-                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_sensors') }} {{ idx + 1 }}</span>
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ t('config.additional_sensors') }} {{
+                    idx + 1 }}</span>
                   <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeRoomSensor(idx)" />
                 </div>
-                <EntityPicker v-model="sensor.entity_id" :domain-filter="['sensor', 'binary_sensor']" :placeholder="t('config.sensor_entity')" />
-                <UiIconPicker v-if="sensor.entity_id" v-model="sensor.icon" :label="t('config.icon_field')" placeholder="mdi-gauge" />
+                <EntityPicker v-model="sensor.entity_id" :domain-filter="['sensor', 'binary_sensor']"
+                  :placeholder="t('config.sensor_entity')" />
+                <UiIconPicker v-if="sensor.entity_id" v-model="sensor.icon" :label="t('config.icon_field')"
+                  placeholder="mdi-gauge" />
               </template>
               <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" @click="addRoomSensor">
                 {{ t('config.add_sensor') }}
@@ -391,9 +476,6 @@
                 :items="roomCardActionItems" item-title="title" item-value="value" density="compact"
                 hide-details="auto" />
               <v-select v-model="cfg.card_double_click_action" :label="t('config.card_double_click_action')"
-                :items="roomCardActionItems" item-title="title" item-value="value" density="compact"
-                hide-details="auto" />
-              <v-select v-model="cfg.card_hold_action" :label="t('config.card_hold_action')"
                 :items="roomCardActionItems" item-title="title" item-value="value" density="compact"
                 hide-details="auto" />
               <v-divider />
@@ -443,20 +525,21 @@
                 <div v-for="(entry, idx) in statusBarEntries" :key="idx"
                   class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
                   <v-icon
-                    :icon="entry.entry_type === 'divider' ? 'mdi-minus' : (entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : entry.entry_type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
+                    :icon="entry.entry_type === 'divider' ? 'mdi-minus' : (entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : entry.entry_type === 'room' ? 'mdi-sofa-outline' : entry.entry_type === 'problem' ? 'mdi-home-alert-outline' : 'mdi-circle'))"
                     size="18" class="flex-shrink-0" />
                   <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
                     {{ entry.entry_type === 'divider' ? t('config.entry_type_divider') : (entry.label || entry.entity_id
                       || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ?
                         entry.dashboard_id : entry.entry_type === 'room' ? (entry.light_entity || entry.climate_entity ||
-                          entry.sensor_entity || 'room') : '—')) }}
+                          entry.sensor_entity || 'room') : entry.entry_type === 'problem' ? t('config.entry_type_problem') : '—')) }}
                   </div>
                   <v-chip
-                    :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : entry.entry_type === 'room' ? 'warning' : entry.entry_type === 'divider' ? 'medium-emphasis' : undefined"
+                    :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : entry.entry_type === 'room' ? 'warning' : entry.entry_type === 'problem' ? 'error' : entry.entry_type === 'divider' ? 'medium-emphasis' : undefined"
                     size="x-small" variant="tonal" class="flex-shrink-0">
                     {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ?
                       t('config.entry_type_nav') : entry.entry_type === 'room' ? t('config.entry_type_room') :
-                        entry.entry_type === 'divider' ? t('config.entry_type_divider') : t('config.entry_type_single') }}
+                        entry.entry_type === 'problem' ? t('config.entry_type_problem') :
+                          entry.entry_type === 'divider' ? t('config.entry_type_divider') : t('config.entry_type_single') }}
                   </v-chip>
                   <div class="d-flex align-center ga-1 flex-shrink-0">
                     <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="idx === 0"
@@ -485,6 +568,10 @@
                   class="statusbar-add-btn statusbar-add-btn--room" @click="addStatusBarRoomEntry">
                   {{ t('config.add_room') }}
                 </v-btn>
+                <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block color="error"
+                  class="statusbar-add-btn statusbar-add-btn--problem" @click="addStatusBarProblemEntry">
+                  {{ t('config.add_problem') }}
+                </v-btn>
                 <v-btn prepend-icon="mdi-minus" variant="tonal" size="small" block
                   class="statusbar-add-btn statusbar-add-btn--divider" @click="addStatusBarDividerEntry">
                   {{ t('config.add_divider') }}
@@ -496,7 +583,7 @@
               </div>
 
               <!-- Entry edit dialog -->
-              <StatusBarEntryDialog v-if="editingEntryIdx !== null" v-model="entryDialogOpen"
+              <LazyStatusBarEntryDialog v-if="editingEntryIdx !== null" v-model="entryDialogOpen"
                 :entry="statusBarEntries[editingEntryIdx]" @save="saveEntryDialog" />
             </template>
           </v-expansion-panel-text>
@@ -508,9 +595,8 @@
           </v-expansion-panel-title>
           <v-expansion-panel-text class="config-panel__section-body">
             <div v-for="action in genericActionConfigs" :key="action.model" class="config-panel__action-block">
-              <v-select v-model="cfg[action.model]" :label="t(action.label)"
-                :items="genericActionItems" item-title="title" item-value="value"
-                density="compact" hide-details="auto" />
+              <v-select v-model="cfg[action.model]" :label="t(action.label)" :items="genericActionItems"
+                item-title="title" item-value="value" density="compact" hide-details="auto" />
               <template v-if="cfg[action.model] === 'call_service'">
                 <v-text-field v-model="cfg[action.service]" :label="t('config.action_service')"
                   placeholder="script.turn_on" density="compact" hide-details="auto" />
@@ -518,11 +604,12 @@
                   <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">
                     {{ t('config.action_service_target') }}
                   </p>
-                  <EntityPicker v-model="cfg[action.target]" :placeholder="t('config.action_service_target_optional')" />
+                  <EntityPicker v-model="cfg[action.target]"
+                    :placeholder="t('config.action_service_target_optional')" />
                 </div>
                 <v-textarea v-model="cfg[action.data]" :label="t('config.action_service_data')"
-                  :placeholder="`{ ${t('config.action_service_data_placeholder')} }`"
-                  rows="3" auto-grow density="compact" hide-details="auto" />
+                  :placeholder="`{ ${t('config.action_service_data_placeholder')} }`" rows="3" auto-grow
+                  density="compact" hide-details="auto" />
               </template>
             </div>
           </v-expansion-panel-text>
@@ -602,6 +689,25 @@ watch(() => dashboardStore.selectedWidgetId, async (id) => {
 }, { immediate: true })
 const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknown>)
 
+function stringConfigModel(key: string) {
+  return computed({
+    get: () => (typeof cfg.value[key] === 'string' ? cfg.value[key] as string : undefined),
+    set: (value?: string) => {
+      cfg.value[key] = value || undefined
+    },
+  })
+}
+
+const gaugeGreenColor = stringConfigModel('green_color')
+const gaugeYellowColor = stringConfigModel('yellow_color')
+const gaugeRedColor = stringConfigModel('red_color')
+const iconModel = computed({
+  get: () => (typeof cfg.value.icon === 'string' ? cfg.value.icon : ''),
+  set: (value: string) => {
+    cfg.value.icon = value || undefined
+  },
+})
+
 watch(widget, (w) => {
   if (!w) return
   if (!w.appearance) w.appearance = {}
@@ -609,20 +715,19 @@ watch(widget, (w) => {
     const config = w.config as Record<string, unknown>
     config.card_click_action ??= config.tap_action ?? 'none'
     config.card_double_click_action ??= config.double_tap_action ?? 'none'
-    config.card_hold_action ??= config.hold_action ?? 'none'
   }
 }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
-  'sensor', 'switch', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
+  'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
-  'room_card', 'status_bar',
+  'room_card', 'status_bar', 'problem_overview',
 ])
 const GENERIC_ACTION_TYPES = new Set<WidgetType>([
-  'sensor', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
+  'sensor', 'gauge', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
   'lock', 'weather', 'calendar',
 ])
 
@@ -642,18 +747,20 @@ watch(widget, (currentWidget) => {
 }, { immediate: true })
 
 const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
-  sensor: 'mdi-gauge', switch: 'mdi-toggle-switch-outline', light: 'mdi-lightbulb-outline',
+  sensor: 'mdi-gauge', gauge: 'mdi-gauge-full', template: 'mdi-code-braces', switch: 'mdi-toggle-switch-outline',
+  button: 'mdi-gesture-tap-button', select: 'mdi-form-dropdown', light: 'mdi-lightbulb-outline',
   chart: 'mdi-chart-line', camera: 'mdi-cctv', thermostat: 'mdi-thermostat',
   media_player: 'mdi-play-circle-outline', cover: 'mdi-window-shutter',
   cover_dial: 'mdi-window-shutter', cover_dial2: 'mdi-window-shutter',
   lock: 'mdi-lock-outline', weather: 'mdi-weather-partly-cloudy',
   clock: 'mdi-clock-outline', label: 'mdi-format-text', room_card: 'mdi-floor-plan',
   calendar: 'mdi-calendar-outline', calendar_v2: 'mdi-calendar-month-outline', person: 'mdi-account-group-outline',
-  energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', alarm: 'mdi-shield-home-outline', status_bar: 'mdi-view-list-outline',
+  energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', alarm: 'mdi-shield-home-outline',
+  problem_overview: 'mdi-home-alert-outline', status_bar: 'mdi-view-list-outline',
 }
 
 const ENTITY_DOMAINS: Partial<Record<WidgetType, string | string[]>> = {
-  sensor: ['sensor', 'binary_sensor'], switch: 'switch', light: 'light', camera: 'camera',
+  sensor: ['sensor', 'binary_sensor'], gauge: ['sensor', 'number', 'input_number'], switch: ['switch'], button: 'button', select: 'select', light: 'light', camera: 'camera',
   thermostat: 'climate', media_player: 'media_player', cover: 'cover', cover_dial: 'cover', cover_dial2: 'cover',
   lock: 'lock', weather: 'weather',
 }
@@ -672,6 +779,23 @@ const fontSizeItems = computed(() => [
   { title: t('config.font_sm'), value: 'sm' }, { title: t('config.font_md'), value: 'md' },
   { title: t('config.font_lg'), value: 'lg' }, { title: t('config.font_xl'), value: 'xl' },
 ])
+const gaugeValuePositionItems = computed(() => [
+  { title: t('config.gauge_value_top'), value: 'top' },
+  { title: t('config.gauge_value_right'), value: 'right' },
+  { title: t('config.gauge_value_bottom'), value: 'bottom' },
+  { title: t('config.gauge_value_left'), value: 'left' },
+  { title: t('config.gauge_value_center'), value: 'center' },
+])
+const gaugeSeverityDirectionItems = computed(() => [
+  { title: t('config.gauge_high_bad'), value: 'high_bad' },
+  { title: t('config.gauge_low_bad'), value: 'low_bad' },
+])
+const gaugeYellowThresholdLabel = computed(() =>
+  cfg.value.severity_direction === 'low_bad' ? t('config.gauge_yellow_below') : t('config.gauge_yellow_from'),
+)
+const gaugeRedThresholdLabel = computed(() =>
+  cfg.value.severity_direction === 'low_bad' ? t('config.gauge_red_below') : t('config.gauge_red_from'),
+)
 const dayItems = computed(() => [
   { title: t('config.days_1'), value: 1 }, { title: t('config.days_3'), value: 3 },
   { title: t('config.days_7'), value: 7 }, { title: t('config.days_14'), value: 14 },
@@ -703,13 +827,6 @@ const genericActionConfigs = [
     service: 'card_double_click_service',
     target: 'card_double_click_target_entity',
     data: 'card_double_click_service_data',
-  },
-  {
-    label: 'config.card_hold_action',
-    model: 'card_hold_action',
-    service: 'card_hold_service',
-    target: 'card_hold_target_entity',
-    data: 'card_hold_service_data',
   },
 ] as const
 
@@ -856,6 +973,26 @@ function addStatusBarRoomEntry() {
     sensor_entity: '',
     status_entities: [],
     active_source: 'light',
+  })
+  cfg.value.entries = list
+  openEntryDialog(list.length - 1)
+}
+
+function addStatusBarProblemEntry() {
+  const list = [...statusBarEntries.value]
+  list.push({
+    entry_type: 'problem',
+    icon: 'mdi-home-alert-outline',
+    inactive_icon: 'mdi-shield-check-outline',
+    label: '',
+    battery_threshold: 20,
+    max_items: 8,
+    show_badge: true,
+    show_batteries: true,
+    show_unavailable: true,
+    show_openings: true,
+    show_updates: true,
+    show_alerts: true,
   })
   cfg.value.entries = list
   openEntryDialog(list.length - 1)

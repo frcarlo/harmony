@@ -155,27 +155,27 @@
       </v-card-text>
     </v-card>
 
-    <LightDetailDialog
+    <LazyLightDetailDialog
       v-if="lightDialogEntity"
       v-model="lightDialogOpen"
       :entity-id="lightDialogEntity"
     />
-    <ClimateDetailDialog
-      v-if="config.climate_entity"
+    <LazyClimateDetailDialog
+      v-if="climateDialogOpen && config.climate_entity"
       v-model="climateDialogOpen"
       :entity-id="config.climate_entity"
     />
-    <LockDetailDialog
+    <LazyLockDetailDialog
       v-if="statusDialogOpen && statusDialogEntity && statusDialogDomain === 'lock'"
       v-model="statusDialogOpen"
       :entity-id="statusDialogEntity"
     />
-    <LightDetailDialog
+    <LazyLightDetailDialog
       v-else-if="statusDialogOpen && statusDialogEntity && statusDialogDomain === 'light'"
       v-model="statusDialogOpen"
       :entity-id="statusDialogEntity"
     />
-    <EntityDetailDialog
+    <LazyEntityDetailDialog
       v-else-if="statusDialogOpen && statusDialogEntity"
       v-model="statusDialogOpen"
       :entity-id="statusDialogEntity"

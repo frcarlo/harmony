@@ -32,8 +32,8 @@
       </div>
     </v-main>
 
-    <WidgetPicker :open="pickerOpen" @close="pickerOpen = false" />
-    <WidgetConfigPanel :open="!!selectedWidgetId" @close="dashboardStore.setSelectedWidget(null)" />
+    <LazyWidgetPicker v-if="pickerOpen" :open="pickerOpen" @close="pickerOpen = false" />
+    <LazyWidgetConfigPanel v-if="selectedWidgetId" :open="!!selectedWidgetId" @close="dashboardStore.setSelectedWidget(null)" />
     </div>
   </div>
 </template>

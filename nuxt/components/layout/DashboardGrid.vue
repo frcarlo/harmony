@@ -6,7 +6,12 @@
         :gs-min-h="widget.layout.minH ?? (['label', 'status_bar'].includes(widget.type) ? 1 : 2)"
         :style="widget.appearance?.min_width ? { minWidth: widget.appearance.min_width + 'px' } : undefined">
         <div class="grid-stack-item-content">
-          <WidgetWrapper :widget="widget" :edit-mode="editMode" />
+          <WidgetWrapper
+            :widget="widget"
+            :edit-mode="editMode"
+            :quick-edit="quickEdit"
+            @quick-edit="$emit('quickEdit', $event)"
+          />
         </div>
       </div>
     </div>
@@ -23,7 +28,8 @@
 <script setup lang="ts">
 import { GridStack } from 'gridstack'
 
-const props = defineProps<{ editMode?: boolean }>()
+const props = defineProps<{ editMode?: boolean; quickEdit?: boolean }>()
+defineEmits<{ quickEdit: [widgetId: string] }>()
 
 const dashboardStore = useDashboardStore()
 const widgets = computed(() => dashboardStore.dashboard?.widgets ?? [])

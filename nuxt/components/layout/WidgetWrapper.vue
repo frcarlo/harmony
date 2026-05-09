@@ -7,12 +7,12 @@
   }"
     @click.capture="handleGenericClick"
     @dblclick.capture="handleGenericDoubleClick"
-    @mousedown.capture="startGenericHold"
-    @mouseup.capture="cancelGenericHold"
-    @mouseleave.capture="cancelGenericHold"
-    @touchstart.passive.capture="startGenericHold"
-    @touchend.capture="cancelGenericHold"
-    @touchmove.capture="cancelGenericHold">
+    @mousedown.capture="startHold"
+    @mouseup.capture="cancelHold"
+    @mouseleave.capture="cancelHold"
+    @touchstart.passive.capture="startHold"
+    @touchend.capture="cancelHold"
+    @touchmove.capture="cancelHold">
     <!-- Drag handle -->
     <div v-if="editMode" class="drag-handle">
       <v-icon icon="mdi-drag-horizontal" size="16" color="medium-emphasis" />
@@ -31,36 +31,41 @@
 
     <!-- Widget content -->
     <div class="h-100" :style="{ pointerEvents: editMode ? 'none' : undefined }">
-      <SensorWidget v-if="widget.type === 'sensor'" :config="widget.config as any" :appearance="widget.appearance" />
-      <SwitchWidget v-else-if="widget.type === 'switch'" :config="widget.config as any"
+      <LazySensorWidget v-if="widget.type === 'sensor'" :config="widget.config as any" :appearance="widget.appearance" />
+      <LazyGaugeWidget v-else-if="widget.type === 'gauge'" :config="widget.config as any" />
+      <LazyTemplateWidget v-else-if="widget.type === 'template'" :config="widget.config as any" />
+      <LazySwitchWidget v-else-if="widget.type === 'switch'" :config="widget.config as any"
         :appearance="widget.appearance" />
-      <LightWidget v-else-if="widget.type === 'light'" :config="widget.config as any" :appearance="widget.appearance" />
-      <ChartWidget v-else-if="widget.type === 'chart'" :config="widget.config as any" />
-      <CameraWidget v-else-if="widget.type === 'camera'" :config="widget.config as any" />
-      <ThermostatWidget v-else-if="widget.type === 'thermostat'" :config="widget.config as any"
+      <LazyButtonWidget v-else-if="widget.type === 'button'" :config="widget.config as any" />
+      <LazySelectWidget v-else-if="widget.type === 'select'" :config="widget.config as any" />
+      <LazyLightWidget v-else-if="widget.type === 'light'" :config="widget.config as any" :appearance="widget.appearance" />
+      <LazyChartWidget v-else-if="widget.type === 'chart'" :config="widget.config as any" />
+      <LazyCameraWidget v-else-if="widget.type === 'camera'" :config="widget.config as any" />
+      <LazyThermostatWidget v-else-if="widget.type === 'thermostat'" :config="widget.config as any"
         :appearance="widget.appearance" />
-      <MediaPlayerWidget v-else-if="widget.type === 'media_player'" :config="widget.config as any" />
-      <CoverDial2Widget v-else-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'" :config="widget.config as any" />
-      <LockWidget v-else-if="widget.type === 'lock'" :config="widget.config as any" :appearance="widget.appearance" />
-      <WeatherWidget v-else-if="widget.type === 'weather'" :config="widget.config as any" />
-      <ClockWidget v-else-if="widget.type === 'clock'" :config="widget.config as any" />
-      <LabelWidget v-else-if="widget.type === 'label'" :config="widget.config as any" />
-      <RoomCardWidget v-else-if="widget.type === 'room_card'" :config="widget.config as any" />
-      <CalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
-      <CalendarV2Widget v-else-if="widget.type === 'calendar_v2'" :config="widget.config as any" />
-      <PersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
-      <EnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
-      <ApplianceWidget v-else-if="widget.type === 'appliance'" :config="widget.config as any" />
-      <AlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
-      <StatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
+      <LazyMediaPlayerWidget v-else-if="widget.type === 'media_player'" :config="widget.config as any" />
+      <LazyCoverDial2Widget v-else-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'" :config="widget.config as any" />
+      <LazyLockWidget v-else-if="widget.type === 'lock'" :config="widget.config as any" :appearance="widget.appearance" />
+      <LazyWeatherWidget v-else-if="widget.type === 'weather'" :config="widget.config as any" />
+      <LazyClockWidget v-else-if="widget.type === 'clock'" :config="widget.config as any" />
+      <LazyLabelWidget v-else-if="widget.type === 'label'" :config="widget.config as any" />
+      <LazyRoomCardWidget v-else-if="widget.type === 'room_card'" :config="widget.config as any" />
+      <LazyCalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
+      <LazyCalendarV2Widget v-else-if="widget.type === 'calendar_v2'" :config="widget.config as any" />
+      <LazyPersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
+      <LazyEnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
+      <LazyApplianceWidget v-else-if="widget.type === 'appliance'" :config="widget.config as any" />
+      <LazyAlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
+      <LazyProblemOverviewWidget v-else-if="widget.type === 'problem_overview'" :config="widget.config as any" />
+      <LazyStatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
       <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
     </div>
   </v-card>
 
-  <LightDetailDialog v-if="detailOpen && detailEntityId && detailDomain === 'light'" v-model="detailOpen" :entity-id="detailEntityId" />
-  <UpdateDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'update'" v-model="detailOpen" :entity-id="detailEntityId" />
-  <MediaPlayerDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'media_player'" v-model="detailOpen" :entity-id="detailEntityId" />
-  <EntityDetailDialog v-else-if="detailOpen && detailEntityId" v-model="detailOpen" :entity-id="detailEntityId" />
+  <LazyLightDetailDialog v-if="detailOpen && detailEntityId && detailDomain === 'light'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <LazyUpdateDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'update'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <LazyMediaPlayerDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'media_player'" v-model="detailOpen" :entity-id="detailEntityId" />
+  <LazyEntityDetailDialog v-else-if="detailOpen && detailEntityId" v-model="detailOpen" :entity-id="detailEntityId" />
 </template>
 
 <script setup lang="ts">
@@ -69,7 +74,8 @@ import { useTheme } from 'vuetify'
 import type { Widget } from '~/types/dashboard'
 
 const { t } = useI18n()
-const props = defineProps<{ widget: Widget; editMode: boolean }>()
+const props = defineProps<{ widget: Widget; editMode: boolean; quickEdit?: boolean }>()
+const emit = defineEmits<{ quickEdit: [widgetId: string] }>()
 
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
@@ -113,10 +119,9 @@ const widgetConfig = computed(() => props.widget.config as Record<string, unknow
 const genericActionsEnabled = computed(() => !GENERIC_ACTION_EXCLUDED_TYPES.has(props.widget.type))
 const genericClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_click_action ?? widgetConfig.value.tap_action))
 const genericDoubleClickAction = computed(() => normalizeGenericAction(widgetConfig.value.card_double_click_action ?? widgetConfig.value.double_tap_action))
-const genericHoldAction = computed(() => normalizeGenericAction(widgetConfig.value.card_hold_action ?? widgetConfig.value.hold_action))
 const hasGenericActions = computed(() =>
   genericActionsEnabled.value
-  && (genericClickAction.value !== 'none' || genericDoubleClickAction.value !== 'none' || genericHoldAction.value !== 'none'),
+  && (genericClickAction.value !== 'none' || genericDoubleClickAction.value !== 'none'),
 )
 
 const appearance = computed(() => props.widget.appearance ?? {})
@@ -132,8 +137,8 @@ const isCompactWidget = computed(() => {
 })
 
 let genericClickTimer: ReturnType<typeof setTimeout> | null = null
-let genericHoldTimer: ReturnType<typeof setTimeout> | null = null
-let genericHoldTriggered = false
+let quickEditTimer: ReturnType<typeof setTimeout> | null = null
+let quickEditTriggered = false
 
 function normalizeGenericAction(value: unknown): GenericWidgetAction {
   return value === 'toggle' || value === 'open_detail' || value === 'call_service' ? value : 'none'
@@ -159,8 +164,8 @@ function shouldIgnoreGenericAction(event: Event) {
   ].join(','))
 }
 
-function genericActionConfig(kind: 'click' | 'double_click' | 'hold') {
-  const prefix = kind === 'click' ? 'card_click' : kind === 'double_click' ? 'card_double_click' : 'card_hold'
+function genericActionConfig(kind: 'click' | 'double_click') {
+  const prefix = kind === 'click' ? 'card_click' : 'card_double_click'
   return {
     serviceName: widgetConfig.value[`${prefix}_service`] as string | undefined,
     targetEntityId: widgetConfig.value[`${prefix}_target_entity`] as string | undefined,
@@ -179,7 +184,7 @@ function parseServiceData(raw: string | undefined) {
   }
 }
 
-async function runGenericAction(action: GenericWidgetAction, kind: 'click' | 'double_click' | 'hold') {
+async function runGenericAction(action: GenericWidgetAction, kind: 'click' | 'double_click') {
   if (!genericActionsEnabled.value || action === 'none') return
 
   if (action === 'open_detail') {
@@ -215,12 +220,12 @@ async function runGenericAction(action: GenericWidgetAction, kind: 'click' | 'do
 }
 
 function handleGenericClick(event: MouseEvent) {
-  if (!genericActionsEnabled.value) return
-  if (genericHoldTriggered) {
+  if (quickEditTriggered) {
     event.stopPropagation()
-    genericHoldTriggered = false
+    quickEditTriggered = false
     return
   }
+  if (!genericActionsEnabled.value) return
   if (genericClickAction.value === 'none' || shouldIgnoreGenericAction(event)) return
 
   event.stopPropagation()
@@ -239,21 +244,21 @@ function handleGenericDoubleClick(event: MouseEvent) {
   runGenericAction(genericDoubleClickAction.value, 'double_click')
 }
 
-function startGenericHold(event: MouseEvent | TouchEvent) {
-  if (!genericActionsEnabled.value || genericHoldAction.value === 'none' || shouldIgnoreGenericAction(event)) return
+function startHold(event: MouseEvent | TouchEvent) {
+  if (!props.quickEdit || props.editMode || shouldIgnoreGenericAction(event)) return
 
   event.stopPropagation()
-  genericHoldTriggered = false
-  genericHoldTimer = setTimeout(() => {
-    genericHoldTriggered = true
-    genericHoldTimer = null
+  quickEditTriggered = false
+  quickEditTimer = setTimeout(() => {
+    quickEditTriggered = true
+    quickEditTimer = null
     if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
-    runGenericAction(genericHoldAction.value, 'hold')
-  }, 500)
+    emit('quickEdit', props.widget.id)
+  }, 650)
 }
 
-function cancelGenericHold() {
-  if (genericHoldTimer) { clearTimeout(genericHoldTimer); genericHoldTimer = null }
+function cancelHold() {
+  if (quickEditTimer) { clearTimeout(quickEditTimer); quickEditTimer = null }
 }
 
 function toSemiTransparent(color: string, alpha = 0.55): string {

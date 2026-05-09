@@ -2,9 +2,7 @@
   <div class="h-100 d-flex pa-3 ga-2 room-card"
     :style="{ cursor: lightEntityIds.length ? 'pointer' : undefined, filter: lightOn ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))' : undefined }"
     @click="handleCardClick"
-    @dblclick="handleCardDoubleClick"
-    @mousedown="startLongPress" @mouseup="cancelLongPress" @mouseleave="cancelLongPress"
-    @touchstart.passive="startLongPress" @touchend="cancelLongPress" @touchmove="cancelLongPress">
+    @dblclick="handleCardDoubleClick">
     <!-- Main content -->
     <div class="flex-grow-1 d-flex flex-column justify-space-between overflow-hidden">
       <!-- Status icons -->
@@ -64,13 +62,13 @@
   </div>
 
   <!-- Detail dialogs (domain-aware) -->
-  <LightDetailDialog v-if="dialogDomain === 'light'" v-model="dialogOpen" :entity-id="dialogEntityId!" />
-  <LockDetailDialog v-else-if="dialogDomain === 'lock'" v-model="dialogOpen" :entity-id="dialogEntityId!" />
-  <EntityDetailDialog v-else-if="dialogOpen && dialogEntityId" v-model="dialogOpen" :entity-id="dialogEntityId"
+  <LazyLightDetailDialog v-if="dialogDomain === 'light'" v-model="dialogOpen" :entity-id="dialogEntityId!" />
+  <LazyLockDetailDialog v-else-if="dialogDomain === 'lock'" v-model="dialogOpen" :entity-id="dialogEntityId!" />
+  <LazyEntityDetailDialog v-else-if="dialogOpen && dialogEntityId" v-model="dialogOpen" :entity-id="dialogEntityId"
     :icon="dialogStatusEntity?.icon" :active-color="dialogStatusEntity?.active_color"
     :active-state="dialogStatusEntity?.active_state" />
-  <!-- Climate detail via long press -->
-  <ClimateDetailDialog v-if="props.config.climate_entity" v-model="climateDialogOpen" :entity-id="props.config.climate_entity" />
+  <!-- Climate detail -->
+  <LazyClimateDetailDialog v-if="climateDialogOpen && props.config.climate_entity" v-model="climateDialogOpen" :entity-id="props.config.climate_entity" />
 </template>
 
 <script setup lang="ts">
@@ -209,13 +207,11 @@ function sensorDisplayFor(sensor: { entity_id: string }) {
   return formatEntityState(sensorEntityState(sensor))
 }
 
-let longPressTimer: ReturnType<typeof setTimeout> | null = null
 let clickTimer: ReturnType<typeof setTimeout> | null = null
 
-function resolveCardAction(kind: 'click' | 'double_click' | 'hold') {
+function resolveCardAction(kind: 'click' | 'double_click') {
   if (kind === 'click') return props.config.card_click_action ?? 'none'
-  if (kind === 'double_click') return props.config.card_double_click_action ?? 'toggle_light'
-  return props.config.card_hold_action ?? 'open_climate_detail'
+  return props.config.card_double_click_action ?? 'toggle_light'
 }
 
 function runCardAction(action: string) {
@@ -250,23 +246,6 @@ function handleCardDoubleClick() {
   const action = resolveCardAction('double_click')
   if (action === 'none') return
   runCardAction(action)
-}
-
-function startLongPress() {
-  const action = resolveCardAction('hold')
-  if (action === 'none') return
-  longPressTimer = setTimeout(() => {
-    longPressTimer = null
-    if (clickTimer) {
-      clearTimeout(clickTimer)
-      clickTimer = null
-    }
-    runCardAction(action)
-  }, 500)
-}
-
-function cancelLongPress() {
-  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
 }
 
 async function toggleLight() {

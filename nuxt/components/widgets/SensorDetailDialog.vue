@@ -35,6 +35,22 @@
 
         <v-divider v-if="relevantAttributes.length > 0" class="mt-2 mb-2" />
 
+        <div class="d-flex justify-space-between align-center ga-3 py-1">
+          <span class="text-caption text-medium-emphasis">{{ t('common.entity_id') }}</span>
+          <div class="d-flex align-center ga-1 min-w-0">
+            <span class="text-caption text-medium-emphasis text-truncate entity-id-text">{{ props.config.entity_id }}</span>
+            <v-btn
+              :icon="copied ? 'mdi-check' : 'mdi-content-copy'"
+              size="x-small"
+              variant="text"
+              density="comfortable"
+              :title="copied ? t('common.copied') : t('common.copy')"
+              @click="copyEntityId"
+            />
+          </div>
+        </div>
+        <v-divider class="mt-2 mb-2" />
+
         <div class="d-flex justify-space-between">
           <span class="text-caption text-medium-emphasis">{{ t('common.last_updated') }}</span>
           <span class="text-caption text-medium-emphasis">{{ lastUpdated }}</span>
@@ -58,6 +74,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const entityStore = useEntityStore()
+const copied = ref(false)
 const entity = computed(() => entityStore.entities[props.config.entity_id])
 const domain = computed(() => props.config.entity_id.split('.')[0] ?? '')
 const name = computed(() => props.config.name ?? (entity.value?.attributes?.friendly_name as string) ?? props.config.entity_id)
@@ -123,4 +140,19 @@ const lastUpdated = computed(() => {
   if (!ts) return '–'
   return new Date(ts).toLocaleString(locale.value, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 })
+
+async function copyEntityId() {
+  await navigator.clipboard?.writeText(props.config.entity_id)
+  copied.value = true
+  window.setTimeout(() => {
+    copied.value = false
+  }, 1200)
+}
 </script>
+
+<style scoped>
+.entity-id-text {
+  max-width: 190px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+</style>

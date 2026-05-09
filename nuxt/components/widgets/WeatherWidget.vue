@@ -38,6 +38,15 @@
     <!-- Forecast error -->
     <div v-if="forecastError" class="text-caption text-error mt-1">{{ forecastError }}</div>
 
+    <!-- Warning entity (e.g. NINA) -->
+    <div v-if="warningEntity" class="weather-warning" :class="{ 'weather-warning--active': warningActive }">
+      <v-icon :icon="warningActive ? 'mdi-alert-outline' : 'mdi-shield-check-outline'" size="16" class="weather-warning__icon" />
+      <div class="weather-warning__copy">
+        <span class="weather-warning__label text-truncate">{{ warningName }}</span>
+        <span class="weather-warning__state text-truncate">{{ warningLabel }}</span>
+      </div>
+    </div>
+
     <!-- Forecast rows -->
     <div v-if="forecastRows > 0 && visibleForecast.length" class="mt-auto d-flex flex-column ga-1 pt-2"
       style="border-top: 1px solid rgba(255,255,255,0.08)">
@@ -101,6 +110,8 @@ type ForecastEntry = { datetime: string; condition: string; temperature: number;
 const props = defineProps<{ config: WeatherWidgetConfig }>()
 const entityStore = useEntityStore()
 const entity = computed(() => entityStore.entities[props.config.entity_id])
+const warningEntity = computed(() => props.config.warning_entity_id ? entityStore.entities[props.config.warning_entity_id] : undefined)
+const renderedWarningName = ref('')
 const state = computed(() => entity.value?.state ?? 'unknown')
 const temp = computed(() => entity.value?.attributes?.temperature as number | undefined)
 
@@ -139,6 +150,42 @@ const hasAnyDetail = computed(() =>
   (props.config.detail_visibility && visibility.value !== undefined)
 )
 
+const SAFE_WARNING_STATES = new Set(['off', 'safe', 'sicher', 'clear', 'none', '0', 'unavailable', 'unknown'])
+const warningState = computed(() => String(warningEntity.value?.state ?? 'unknown'))
+const warningActive = computed(() => !SAFE_WARNING_STATES.has(warningState.value.trim().toLowerCase()))
+const warningNameTemplate = computed(() => props.config.warning_name?.trim() ?? '')
+const warningName = computed(() => {
+  const fallbackName = (warningEntity.value?.attributes?.friendly_name as string | undefined) ?? props.config.warning_entity_id ?? 'NINA'
+  return renderedWarningName.value || warningNameTemplate.value || fallbackName
+})
+const warningLabel = computed(() => {
+  if (!warningEntity.value) return t('weather.warning_unavailable')
+  if (!warningActive.value) return t('weather.warning_none')
+  const headline = warningEntity.value.attributes?.headline
+    ?? warningEntity.value.attributes?.title
+    ?? warningEntity.value.attributes?.event
+    ?? warningEntity.value.attributes?.description
+  return typeof headline === 'string' && headline.trim() ? headline : warningState.value
+})
+
+async function renderWarningName() {
+  const template = warningNameTemplate.value
+  if (!template) {
+    renderedWarningName.value = ''
+    return
+  }
+
+  try {
+    const data = await $fetch<{ rendered: string }>('/api/ha/template', {
+      method: 'POST',
+      body: { template },
+    })
+    renderedWarningName.value = (data.rendered ?? '').trim()
+  } catch {
+    renderedWarningName.value = template
+  }
+}
+
 const forecastRows = computed(() => props.config.forecast_rows ?? 3)
 
 // Fetch forecast from server (HA deprecated forecast in attributes)
@@ -157,6 +204,8 @@ async function fetchForecast() {
 }
 onMounted(fetchForecast)
 watch(() => props.config.entity_id, fetchForecast)
+onMounted(renderWarningName)
+watch(() => [props.config.warning_name, props.config.warning_entity_id] as const, renderWarningName)
 
 const visibleForecast = computed(() => forecast.value.slice(0, forecastRows.value))
 
@@ -242,5 +291,46 @@ const currentDate = computed(() =>
 .weather-detail__icon {
   opacity: 0.7;
   flex-shrink: 0;
+}
+
+.weather-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 4px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  color: rgb(var(--v-theme-success));
+  background: rgba(var(--v-theme-success), 0.1);
+  border: 1px solid rgba(var(--v-theme-success), 0.16);
+}
+
+.weather-warning--active {
+  color: rgb(var(--v-theme-warning));
+  background: rgba(var(--v-theme-warning), 0.12);
+  border-color: rgba(var(--v-theme-warning), 0.24);
+}
+
+.weather-warning__icon {
+  flex: 0 0 auto;
+}
+
+.weather-warning__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.weather-warning__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.weather-warning__state {
+  margin-top: 1px;
+  font-size: 0.7rem;
+  color: rgba(var(--v-theme-on-surface), 0.72);
 }
 </style>

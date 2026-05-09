@@ -46,9 +46,9 @@
   </v-dialog>
 
   <!-- Entity detail dialog — uses frozen entity ID so it survives dismiss() -->
-  <LightDetailDialog v-if="frozenEntityId && frozenEntityDomain === 'light'" v-model="entityDialogOpen"
+  <LazyLightDetailDialog v-if="frozenEntityId && frozenEntityDomain === 'light'" v-model="entityDialogOpen"
     :entity-id="frozenEntityId" />
-  <EntityDetailDialog v-else-if="frozenEntityId" v-model="entityDialogOpen"
+  <LazyEntityDetailDialog v-else-if="frozenEntityId" v-model="entityDialogOpen"
     :entity-id="frozenEntityId" />
 </template>
 

@@ -121,10 +121,10 @@
   </div>
 
   <!-- Status entity detail dialogs -->
-  <LightDetailDialog v-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'light'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
-  <UpdateDetailDialog v-else-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'update'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
-  <MediaPlayerDetailDialog v-else-if="statusDialogOpen && statusEntityId && isStatusMediaPlayer" v-model="statusDialogOpen" :entity-id="statusEntityId" />
-  <EntityDetailDialog v-else-if="statusDialogOpen && statusEntityId" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <LazyLightDetailDialog v-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'light'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <LazyUpdateDetailDialog v-else-if="statusDialogOpen && statusEntityId && statusDialogDomain === 'update'" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <LazyMediaPlayerDetailDialog v-else-if="statusDialogOpen && statusEntityId && isStatusMediaPlayer" v-model="statusDialogOpen" :entity-id="statusEntityId" />
+  <LazyEntityDetailDialog v-else-if="statusDialogOpen && statusEntityId" v-model="statusDialogOpen" :entity-id="statusEntityId" />
 
   <!-- Fullscreen dialog -->
   <v-dialog v-model="fullscreen" max-width="100vw" max-height="100vh" :scrim="true">

@@ -1,6 +1,10 @@
 export type WidgetType =
   | 'sensor'
+  | 'gauge'
+  | 'template'
   | 'switch'
+  | 'button'
+  | 'select'
   | 'light'
   | 'chart'
   | 'camera'
@@ -20,6 +24,7 @@ export type WidgetType =
   | 'energy'
   | 'appliance'
   | 'alarm'
+  | 'problem_overview'
   | 'status_bar'
 
 export interface WidgetLayout {
@@ -41,6 +46,28 @@ export interface SensorWidgetConfig {
   show_trend?: boolean
 }
 
+export interface GaugeWidgetConfig {
+  entity_id: string
+  name?: string
+  unit?: string
+  decimal_places?: number
+  value_position?: 'top' | 'right' | 'bottom' | 'left' | 'center'
+  severity_direction?: 'high_bad' | 'low_bad'
+  min?: number
+  max?: number
+  yellow_from?: number
+  red_from?: number
+  green_color?: string
+  yellow_color?: string
+  red_color?: string
+}
+
+export interface TemplateWidgetConfig {
+  name?: string
+  template: string
+  refresh_interval?: number
+}
+
 export interface SwitchWidgetConfig {
   entity_id: string
   name?: string
@@ -49,16 +76,26 @@ export interface SwitchWidgetConfig {
   show_sensor_trend?: boolean
 }
 
+export interface ButtonWidgetConfig {
+  entity_id: string
+  name?: string
+  icon?: string
+}
+
+export interface SelectWidgetConfig {
+  entity_id: string
+  name?: string
+  icon?: string
+}
+
 export interface LightWidgetConfig {
   entity_id: string
   name?: string
   show_brightness?: boolean
   card_click_action?: 'toggle' | 'open_detail' | 'none'
   card_double_click_action?: 'toggle' | 'open_detail' | 'none'
-  card_hold_action?: 'toggle' | 'open_detail' | 'none'
   tap_action?: 'toggle' | 'open_detail' | 'none'
   double_tap_action?: 'toggle' | 'open_detail' | 'none'
-  hold_action?: 'toggle' | 'open_detail' | 'none'
 }
 
 export interface ChartWidgetConfig {
@@ -133,6 +170,8 @@ export interface WeatherWidgetConfig {
   detail_pressure?: boolean
   detail_wind?: boolean
   detail_visibility?: boolean
+  warning_entity_id?: string
+  warning_name?: string
 }
 
 export interface ClockWidgetConfig {
@@ -189,7 +228,6 @@ export interface RoomCardWidgetConfig {
   auto_status_entities?: boolean
   card_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
   card_double_click_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
-  card_hold_action?: 'none' | 'toggle_light' | 'open_light_detail' | 'open_climate_detail'
 }
 
 export interface PersonEntry {
@@ -261,12 +299,23 @@ export interface StatusBarRoomEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
+export interface StatusBarProblemEntry extends ProblemOverviewWidgetConfig {
+  entry_type: 'problem'
+  icon?: string
+  inactive_icon?: string
+  label?: string
+  active_color?: string
+  inactive_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
+  show_badge?: boolean
+}
+
 export interface StatusBarDividerEntry {
   entry_type: 'divider'
 }
 
 export interface StatusBarWidgetConfig {
-  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarDividerEntry)[]
+  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarProblemEntry | StatusBarDividerEntry)[]
   show_labels?: boolean
   orientation?: 'horizontal' | 'vertical'
   nav_position?: 'start' | 'end'
@@ -307,9 +356,24 @@ export interface AlarmWidgetConfig {
   actions_align?: 'start' | 'center' | 'end'
 }
 
+export interface ProblemOverviewWidgetConfig {
+  name?: string
+  battery_threshold?: number
+  max_items?: number
+  show_batteries?: boolean
+  show_unavailable?: boolean
+  show_openings?: boolean
+  show_updates?: boolean
+  show_alerts?: boolean
+}
+
 export type WidgetConfig =
   | SensorWidgetConfig
+  | GaugeWidgetConfig
+  | TemplateWidgetConfig
   | SwitchWidgetConfig
+  | ButtonWidgetConfig
+  | SelectWidgetConfig
   | LightWidgetConfig
   | ChartWidgetConfig
   | CameraWidgetConfig
@@ -327,6 +391,7 @@ export type WidgetConfig =
   | EnergyWidgetConfig
   | ApplianceWidgetConfig
   | AlarmWidgetConfig
+  | ProblemOverviewWidgetConfig
   | StatusBarWidgetConfig
 
 export interface WidgetAppearance {

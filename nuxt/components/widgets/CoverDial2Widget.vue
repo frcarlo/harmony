@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <CoverDetailDialog v-if="props.config.entity_id" v-model="dialogOpen" :entity-id="props.config.entity_id" />
+  <LazyCoverDetailDialog v-if="dialogOpen && props.config.entity_id" v-model="dialogOpen" :entity-id="props.config.entity_id" />
 </template>
 
 <script setup lang="ts">

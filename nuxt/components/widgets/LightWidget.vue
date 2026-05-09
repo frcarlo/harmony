@@ -4,8 +4,6 @@
     :class="{ 'cursor-pointer': hasAnyAction }"
     @click="handleCardClick"
     @dblclick="handleCardDoubleClick"
-    @mousedown="startLongPress" @mouseup="cancelLongPress" @mouseleave="cancelLongPress"
-    @touchstart.passive="startLongPress" @touchend="cancelLongPress" @touchmove="cancelLongPress"
   >
     <div class="d-flex align-center ga-3 flex-grow-1 overflow-hidden">
       <v-icon icon="mdi-lightbulb"
@@ -25,7 +23,7 @@
     </div>
   </div>
 
-  <LightDetailDialog v-model="detailOpen" :entity-id="props.config.entity_id" />
+  <LazyLightDetailDialog v-if="detailOpen" v-model="detailOpen" :entity-id="props.config.entity_id" />
 </template>
 
 <script setup lang="ts">
@@ -45,13 +43,10 @@ const showBrightness = computed(() => props.config.show_brightness !== false && 
 
 const clickAction = computed(() => props.config.card_click_action ?? props.config.tap_action ?? 'none')
 const doubleClickAction = computed(() => props.config.card_double_click_action ?? props.config.double_tap_action ?? 'none')
-const holdAction = computed(() => props.config.card_hold_action ?? props.config.hold_action ?? 'none')
-const hasAnyAction = computed(() => clickAction.value !== 'none' || doubleClickAction.value !== 'none' || holdAction.value !== 'none')
+const hasAnyAction = computed(() => clickAction.value !== 'none' || doubleClickAction.value !== 'none')
 
 const detailOpen = ref(false)
 let clickTimer: ReturnType<typeof setTimeout> | null = null
-let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let longPressTriggered = false
 
 function runAction(action: string) {
   if (action === 'toggle') toggle()
@@ -63,7 +58,6 @@ function handleCardClick() {
   if (clickTimer) clearTimeout(clickTimer)
   clickTimer = setTimeout(() => {
     clickTimer = null
-    if (longPressTriggered) { longPressTriggered = false; return }
     runAction(clickAction.value)
   }, 220)
 }
@@ -72,21 +66,6 @@ function handleCardDoubleClick() {
   if (clickTimer) { clearTimeout(clickTimer); clickTimer = null }
   if (doubleClickAction.value === 'none') return
   runAction(doubleClickAction.value)
-}
-
-function startLongPress() {
-  if (holdAction.value === 'none') return
-  longPressTriggered = false
-  longPressTimer = setTimeout(() => {
-    longPressTriggered = true
-    longPressTimer = null
-    if (clickTimer) { clearTimeout(clickTimer); clickTimer = null }
-    runAction(holdAction.value)
-  }, 500)
-}
-
-function cancelLongPress() {
-  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
 }
 
 async function toggle() {

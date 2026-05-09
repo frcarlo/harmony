@@ -125,6 +125,21 @@
         </div>
 
         <v-divider class="mt-2 mb-2" />
+        <div class="d-flex justify-space-between align-center ga-3 py-1">
+          <span class="text-caption text-medium-emphasis">{{ t('common.entity_id') }}</span>
+          <div class="d-flex align-center ga-1 min-w-0">
+            <span class="text-caption text-medium-emphasis text-truncate entity-id-text">{{ props.entityId }}</span>
+            <v-btn
+              :icon="copied ? 'mdi-check' : 'mdi-content-copy'"
+              size="x-small"
+              variant="text"
+              density="comfortable"
+              :title="copied ? t('common.copied') : t('common.copy')"
+              @click="copyEntityId"
+            />
+          </div>
+        </div>
+        <v-divider class="mt-2 mb-2" />
         <div class="d-flex justify-space-between">
           <span class="text-caption text-medium-emphasis">{{ t('common.last_updated') }}</span>
           <span class="text-caption text-medium-emphasis">{{ lastUpdated }}</span>
@@ -150,6 +165,7 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const entityStore = useEntityStore()
 const client = useHAClient()
+const copied = ref(false)
 const entity = computed(() => entityStore.entities[props.entityId])
 const domain = computed(() => props.entityId.split('.')[0])
 const isToggleable = computed(() => ['light', 'switch', 'fan'].includes(domain.value))
@@ -221,6 +237,14 @@ async function adjustTemp(delta: number) {
   await client.callService({ domain: 'climate', service: 'set_temperature', target: { entity_id: props.entityId }, service_data: { temperature: next } })
 }
 
+async function copyEntityId() {
+  await navigator.clipboard?.writeText(props.entityId)
+  copied.value = true
+  window.setTimeout(() => {
+    copied.value = false
+  }, 1200)
+}
+
 function formatVal(v: unknown): string {
   if (v === null || v === undefined) return '–'
   if (Array.isArray(v)) { const p = v.slice(0, 3).join(', '); return v.length > 3 ? `${p} +${v.length - 3}` : p }
@@ -229,3 +253,10 @@ function formatVal(v: unknown): string {
   const s = String(v); return s.length > 40 ? s.slice(0, 38) + '…' : s
 }
 </script>
+
+<style scoped>
+.entity-id-text {
+  max-width: 190px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+</style>

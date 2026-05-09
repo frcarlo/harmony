@@ -156,7 +156,7 @@
 
   </div>
 
-  <MediaBrowserSheet :open="browserOpen" :entity-id="config.entity_id" @close="browserOpen = false" />
+  <LazyMediaBrowserSheet v-if="browserOpen" :open="browserOpen" :entity-id="config.entity_id" @close="browserOpen = false" />
 </template>
 
 <script setup lang="ts">

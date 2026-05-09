@@ -2,18 +2,19 @@
   <v-dialog :model-value="modelValue" max-width="420" scrollable @update:model-value="v => emit('update:modelValue', v)">
     <v-card rounded="xl" :class="{ 'dialog-glass': glass }">
       <v-card-title class="d-flex align-center ga-2 pt-4 px-4">
-        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : draft.entry_type === 'room' ? 'mdi-sofa-outline' : 'mdi-eye-outline'" size="18" />
+        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : draft.entry_type === 'room' ? 'mdi-sofa-outline' : draft.entry_type === 'problem' ? 'mdi-home-alert-outline' : 'mdi-eye-outline'" size="18" />
         <span class="text-body-1 font-weight-bold flex-grow-1">
-          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : draft.entry_type === 'room' ? t('config.entry_type_room') : t('config.entry_type_single') }}
+          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : draft.entry_type === 'room' ? t('config.entry_type_room') : draft.entry_type === 'problem' ? t('config.entry_type_problem') : t('config.entry_type_single') }}
         </span>
         <v-btn-toggle
-          :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : draft.entry_type === 'room' ? 'room' : 'single'"
+          :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : draft.entry_type === 'room' ? 'room' : draft.entry_type === 'problem' ? 'problem' : 'single'"
           density="compact" rounded="lg" variant="outlined" mandatory
           @update:model-value="switchType"
         >
           <v-btn value="single" size="small">{{ t('config.entry_type_single') }}</v-btn>
           <v-btn value="group" size="small" color="primary">{{ t('config.entry_type_group') }}</v-btn>
           <v-btn value="room" size="small" color="warning">{{ t('config.entry_type_room') }}</v-btn>
+          <v-btn value="problem" size="small" color="error">{{ t('config.entry_type_problem') }}</v-btn>
           <v-btn value="nav" size="small" color="secondary">{{ t('config.entry_type_nav') }}</v-btn>
         </v-btn-toggle>
       </v-card-title>
@@ -104,6 +105,27 @@
           </v-window>
         </template>
 
+        <template v-else-if="draft.entry_type === 'problem'">
+          <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-home-alert-outline" />
+          <UiIconPicker v-model="draft.inactive_icon" :label="t('config.inactive_icon')" placeholder="mdi-shield-check-outline" />
+          <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
+            <v-btn value="sm" size="small">S</v-btn>
+            <v-btn value="md" size="small">M</v-btn>
+            <v-btn value="lg" size="small">L</v-btn>
+          </v-btn-toggle>
+          <v-text-field v-model="draft.label" :label="t('config.display_name')" density="compact" hide-details clearable />
+          <v-text-field v-model.number="draft.battery_threshold" :label="t('config.problem_battery_threshold')"
+            type="number" min="1" max="100" suffix="%" density="compact" hide-details="auto" />
+          <v-checkbox v-model="draft.show_badge" :label="t('config.show_badge')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_batteries" :label="t('config.problem_show_batteries')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_openings" :label="t('config.problem_show_openings')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_updates" :label="t('config.problem_show_updates')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_alerts" :label="t('config.problem_show_alerts')" hide-details density="compact" />
+          <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
+          <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />
+        </template>
+
         <!-- Single entity -->
         <template v-else-if="draft.entry_type !== 'group'">
           <EntityPicker v-model="draft.entity_id" />
@@ -176,22 +198,36 @@ const entityStore = useEntityStore()
 
 const props = defineProps<{
   modelValue: boolean
-  entry: Record<string, unknown>
+  entry: Record<string, any>
 }>()
 const emit = defineEmits<{
   'update:modelValue': [boolean]
-  save: [Record<string, unknown>]
+  save: [Record<string, any>]
 }>()
 
-const draft = ref<Record<string, unknown>>({})
+const draft = ref<Record<string, any>>({})
 const roomTab = ref<'main' | 'sensors'>('main')
 
 watch(() => props.modelValue, (v) => {
   if (v) {
     draft.value = JSON.parse(JSON.stringify(props.entry))
+    if (draft.value.entry_type === 'problem') applyProblemDefaults()
     roomTab.value = 'main'
   }
 }, { immediate: true })
+
+function applyProblemDefaults() {
+  draft.value.icon ??= 'mdi-home-alert-outline'
+  draft.value.inactive_icon ??= 'mdi-shield-check-outline'
+  draft.value.battery_threshold ??= 20
+  draft.value.max_items ??= 8
+  draft.value.show_badge ??= true
+  draft.value.show_batteries ??= true
+  draft.value.show_unavailable ??= true
+  draft.value.show_openings ??= true
+  draft.value.show_updates ??= true
+  draft.value.show_alerts ??= true
+}
 
 function switchType(type: string) {
   if (type === 'group') {
@@ -211,6 +247,21 @@ function switchType(type: string) {
     }
   } else if (type === 'nav') {
     draft.value = { entry_type: 'nav', icon: draft.value.icon ?? 'mdi-arrow-right-circle-outline', label: draft.value.label ?? '', dashboard_id: '' }
+  } else if (type === 'problem') {
+    draft.value = {
+      entry_type: 'problem',
+      icon: draft.value.icon ?? 'mdi-home-alert-outline',
+      inactive_icon: 'mdi-shield-check-outline',
+      label: draft.value.label ?? '',
+      battery_threshold: 20,
+      max_items: 8,
+      show_badge: true,
+      show_batteries: true,
+      show_unavailable: true,
+      show_openings: true,
+      show_updates: true,
+      show_alerts: true,
+    }
   } else {
     draft.value = { entity_id: '', label: draft.value.label }
   }

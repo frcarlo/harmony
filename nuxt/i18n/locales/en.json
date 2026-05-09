@@ -35,7 +35,10 @@
     "name": "Name",
     "all": "All",
     "dashboards": "Dashboards",
-    "undo": "Undo"
+    "undo": "Undo",
+    "entity_id": "Entity",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "dashboard": {
     "title": "My Dashboards",
@@ -142,9 +145,25 @@
       "label": "Sensor",
       "description": "Display sensor value"
     },
+    "gauge": {
+      "label": "Gauge",
+      "description": "Display a numeric sensor as a gauge"
+    },
+    "template": {
+      "label": "Template",
+      "description": "Home Assistant template as a Markdown card"
+    },
     "switch": {
       "label": "Switch",
       "description": "On/Off toggle"
+    },
+    "button": {
+      "label": "Button",
+      "description": "Press a Home Assistant button"
+    },
+    "select": {
+      "label": "Select",
+      "description": "Choose a select entity option"
     },
     "light": {
       "label": "Light",
@@ -218,6 +237,10 @@
       "label": "Alarm",
       "description": "Arm or disarm your security system"
     },
+    "problem_overview": {
+      "label": "Problems",
+      "description": "Batteries, open windows, updates and errors"
+    },
     "status_bar": {
       "label": "Status Bar",
       "description": "Status icons in one row"
@@ -236,6 +259,24 @@
     "calendars": "Calendars",
     "add_calendar": "Add calendar",
     "all_day": "All day"
+  },
+  "problem_overview": {
+    "all_clear": "All clear",
+    "count": "{n} issue(s)",
+    "empty_hint": "No problems detected",
+    "more": "+ {n} more",
+    "unavailable": "Unavailable",
+    "update": "Update available",
+    "update_running": "Update running",
+    "update_running_progress": "Update running ({n}%)",
+    "low_battery": "Low battery",
+    "low_battery_value": "Battery {n}%",
+    "tab_all": "All",
+    "tab_updates": "Updates",
+    "tab_batteries": "Batteries",
+    "tab_unavailable": "Offline",
+    "tab_openings": "Open",
+    "tab_alerts": "Alerts"
   },
   "door": {
     "label": "Door",
@@ -282,6 +323,25 @@
     "unit_auto": "Auto",
     "decimal_places": "Decimal places",
     "show_trend": "Show trend at the bottom",
+    "template": "Template",
+    "gauge_min": "Minimum",
+    "gauge_max": "Maximum",
+    "gauge_yellow_from": "Yellow from",
+    "gauge_red_from": "Red from",
+    "gauge_yellow_below": "Yellow below",
+    "gauge_red_below": "Red below",
+    "gauge_severity_direction": "Severity",
+    "gauge_high_bad": "High value is bad",
+    "gauge_low_bad": "Low value is bad",
+    "gauge_value_position": "Value position",
+    "gauge_value_top": "Above",
+    "gauge_value_right": "Right side",
+    "gauge_value_bottom": "Below",
+    "gauge_value_left": "Left side",
+    "gauge_value_center": "Centered",
+    "gauge_green": "Green",
+    "gauge_yellow": "Yellow",
+    "gauge_red": "Red",
     "show_sensor_trend": "Show sensor trend",
     "show_brightness": "Show brightness slider",
     "period": "Period",
@@ -332,6 +392,13 @@
     "alarm_code_keypad_mobile": "Always show keypad on mobile",
     "alarm_code_keypad_mobile_hint": "Forces the keypad on small screens even when free text input is enabled",
     "alarm_code_length": "Number of digits",
+    "problem_battery_threshold": "Low battery below",
+    "problem_max_items": "Maximum items",
+    "problem_show_batteries": "Show low batteries",
+    "problem_show_unavailable": "Show unavailable entities",
+    "problem_show_openings": "Show open doors/windows",
+    "problem_show_updates": "Show updates",
+    "problem_show_alerts": "Show error and alarm states",
     "running_state": "Running state value",
     "text": "Text",
     "text_placeholder": "Heading...",
@@ -342,6 +409,10 @@
     "weather_detail_pressure": "Pressure",
     "weather_detail_wind": "Wind",
     "weather_detail_visibility": "Visibility",
+    "weather_warning_entity": "Weather warning",
+    "weather_warning_entity_placeholder": "Select NINA warning",
+    "weather_warning_name": "Warning name",
+    "weather_warning_name_placeholder": "NINA or template",
     "ma_player_id": "Music Assistant player (optional)",
     "days": "Show days",
     "show_time": "Show time",
@@ -375,6 +446,8 @@
     "action_service_data_invalid": "Service data is not a valid JSON object",
     "entry_type_room": "Room",
     "add_room": "Add room",
+    "entry_type_problem": "Problems",
+    "add_problem": "Add problems",
     "room_active_source": "Active source",
     "room_active_source_light": "Light",
     "room_active_source_climate": "Climate",
@@ -533,6 +606,9 @@
     "mode_auto": "Auto",
     "mode_off": "Off"
   },
+  "template": {
+    "render_error": "Template could not be rendered"
+  },
   "climate_detail": {
     "current_temp": "Current Temperature",
     "humidity": "Humidity",
@@ -563,7 +639,9 @@
     "snowy_rainy": "Sleet",
     "windy": "Windy",
     "windy_variant": "Windy",
-    "exceptional": "Extreme"
+    "exceptional": "Extreme",
+    "warning_none": "No warning",
+    "warning_unavailable": "Warning unavailable"
   },
   "cover": {
     "open": "Open",
@@ -600,6 +678,9 @@
     "turn_on": "Turn on",
     "turn_off": "Turn off",
     "tap_to_toggle": "Tap to toggle"
+  },
+  "button": {
+    "never_pressed": "Never pressed"
   },
   "alarm": {
     "state": {

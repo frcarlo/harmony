@@ -35,7 +35,10 @@
     "name": "Name",
     "all": "Alle",
     "dashboards": "Dashboards",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "entity_id": "Entity",
+    "copy": "Kopieren",
+    "copied": "Kopiert"
   },
   "dashboard": {
     "title": "Meine Dashboards",
@@ -142,9 +145,25 @@
       "label": "Sensor",
       "description": "Sensorwert anzeigen"
     },
+    "gauge": {
+      "label": "Gauge",
+      "description": "Numerischen Sensor als Tacho anzeigen"
+    },
+    "template": {
+      "label": "Template",
+      "description": "Home Assistant Template als Markdown-Karte"
+    },
     "switch": {
       "label": "Schalter",
       "description": "Ein/Aus Toggle"
+    },
+    "button": {
+      "label": "Button",
+      "description": "Home Assistant Button ausführen"
+    },
+    "select": {
+      "label": "Auswahl",
+      "description": "Select-Entity direkt auswählen"
     },
     "light": {
       "label": "Licht",
@@ -222,6 +241,10 @@
       "label": "Alarm",
       "description": "Alarmanlage scharf oder unscharf schalten"
     },
+    "problem_overview": {
+      "label": "Probleme",
+      "description": "Batterien, offene Fenster, Updates und Fehler"
+    },
     "status_bar": {
       "label": "Statusleiste",
       "description": "Status-Icons in einer Zeile"
@@ -236,6 +259,24 @@
     "calendars": "Kalender",
     "add_calendar": "Kalender hinzufügen",
     "all_day": "Ganztägig"
+  },
+  "problem_overview": {
+    "all_clear": "Alles in Ordnung",
+    "count": "{n} Hinweis(e)",
+    "empty_hint": "Keine Probleme erkannt",
+    "more": "+ {n} weitere",
+    "unavailable": "Nicht verfügbar",
+    "update": "Update verfügbar",
+    "update_running": "Update läuft",
+    "update_running_progress": "Update läuft ({n}%)",
+    "low_battery": "Batterie niedrig",
+    "low_battery_value": "Batterie {n}%",
+    "tab_all": "Alle",
+    "tab_updates": "Updates",
+    "tab_batteries": "Batterien",
+    "tab_unavailable": "Offline",
+    "tab_openings": "Offen",
+    "tab_alerts": "Alarme"
   },
   "door": {
     "label": "Tür",
@@ -282,6 +323,25 @@
     "unit_auto": "Auto",
     "decimal_places": "Dezimalstellen",
     "show_trend": "Verlauf unten anzeigen",
+    "template": "Template",
+    "gauge_min": "Minimum",
+    "gauge_max": "Maximum",
+    "gauge_yellow_from": "Gelb ab",
+    "gauge_red_from": "Rot ab",
+    "gauge_yellow_below": "Gelb unter",
+    "gauge_red_below": "Rot unter",
+    "gauge_severity_direction": "Bewertung",
+    "gauge_high_bad": "Hoher Wert schlecht",
+    "gauge_low_bad": "Niedriger Wert schlecht",
+    "gauge_value_position": "Wertposition",
+    "gauge_value_top": "Drüber",
+    "gauge_value_right": "Rechts daneben",
+    "gauge_value_bottom": "Darunter",
+    "gauge_value_left": "Links daneben",
+    "gauge_value_center": "Zentriert",
+    "gauge_green": "Grün",
+    "gauge_yellow": "Gelb",
+    "gauge_red": "Rot",
     "show_sensor_trend": "Sensorverlauf anzeigen",
     "show_brightness": "Helligkeitsregler anzeigen",
     "period": "Zeitraum",
@@ -332,6 +392,13 @@
     "alarm_code_keypad_mobile": "Nummernblock auf Mobile immer anzeigen",
     "alarm_code_keypad_mobile_hint": "Erzwingt den Tastenblock auf kleinen Displays auch dann, wenn freie Eingabe aktiv ist",
     "alarm_code_length": "Anzahl Stellen",
+    "problem_battery_threshold": "Batterie niedrig unter",
+    "problem_max_items": "Maximale Einträge",
+    "problem_show_batteries": "Niedrige Batterien anzeigen",
+    "problem_show_unavailable": "Nicht verfügbare Entities anzeigen",
+    "problem_show_openings": "Offene Türen/Fenster anzeigen",
+    "problem_show_updates": "Updates anzeigen",
+    "problem_show_alerts": "Fehler- und Alarmzustände anzeigen",
     "running_state": "Statuswert für laufend",
     "text": "Text",
     "text_placeholder": "Überschrift...",
@@ -342,6 +409,10 @@
     "weather_detail_pressure": "Luftdruck",
     "weather_detail_wind": "Wind",
     "weather_detail_visibility": "Sichtweite",
+    "weather_warning_entity": "Wetterwarnung",
+    "weather_warning_entity_placeholder": "NINA Warnung auswählen",
+    "weather_warning_name": "Warnungsname",
+    "weather_warning_name_placeholder": "NINA oder Template",
     "ma_player_id": "Music Assistant Player (optional)",
     "days": "Tage anzeigen",
     "show_time": "Uhrzeit anzeigen",
@@ -375,6 +446,8 @@
     "action_service_data_invalid": "Service-Daten sind kein gültiges JSON-Objekt",
     "entry_type_room": "Raum",
     "add_room": "Raum hinzufügen",
+    "entry_type_problem": "Probleme",
+    "add_problem": "Probleme hinzufügen",
     "room_active_source": "Aktivquelle",
     "room_active_source_light": "Licht",
     "room_active_source_climate": "Klima",
@@ -533,6 +606,9 @@
     "mode_auto": "Auto",
     "mode_off": "Aus"
   },
+  "template": {
+    "render_error": "Template konnte nicht gerendert werden"
+  },
   "climate_detail": {
     "current_temp": "Ist-Temperatur",
     "humidity": "Luftfeuchtigkeit",
@@ -563,7 +639,9 @@
     "snowy_rainy": "Schneeregen",
     "windy": "Windig",
     "windy_variant": "Windig",
-    "exceptional": "Extrem"
+    "exceptional": "Extrem",
+    "warning_none": "Keine Warnung",
+    "warning_unavailable": "Warnung nicht verfügbar"
   },
   "cover": {
     "open": "Geöffnet",
@@ -600,6 +678,9 @@
     "turn_on": "Einschalten",
     "turn_off": "Ausschalten",
     "tap_to_toggle": "Tippen zum Umschalten"
+  },
+  "button": {
+    "never_pressed": "Nie betätigt"
   },
   "alarm": {
     "state": {

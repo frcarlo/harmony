@@ -22,7 +22,11 @@ const dashboardStore = useDashboardStore()
 
 const widgetTypes = computed(() => ([
   { key: 'sensor', type: 'sensor' as WidgetType, label: t('widget.sensor.label'), icon: 'mdi-pulse', description: t('widget.sensor.description'), defaultW: 4, defaultH: 3 },
+  { key: 'gauge', type: 'gauge' as WidgetType, label: t('widget.gauge.label'), icon: 'mdi-gauge', description: t('widget.gauge.description'), defaultW: 5, defaultH: 3 },
+  { key: 'template', type: 'template' as WidgetType, label: t('widget.template.label'), icon: 'mdi-code-braces', description: t('widget.template.description'), defaultW: 6, defaultH: 4 },
   { key: 'switch', type: 'switch' as WidgetType, label: t('widget.switch.label'), icon: 'mdi-toggle-switch', description: t('widget.switch.description'), defaultW: 4, defaultH: 3 },
+  { key: 'button', type: 'button' as WidgetType, label: t('widget.button.label'), icon: 'mdi-gesture-tap-button', description: t('widget.button.description'), defaultW: 4, defaultH: 3 },
+  { key: 'select', type: 'select' as WidgetType, label: t('widget.select.label'), icon: 'mdi-form-dropdown', description: t('widget.select.description'), defaultW: 4, defaultH: 3 },
   { key: 'light', type: 'light' as WidgetType, label: t('widget.light.label'), icon: 'mdi-lightbulb', description: t('widget.light.description'), defaultW: 4, defaultH: 3 },
   { key: 'chart', type: 'chart' as WidgetType, label: t('widget.chart.label'), icon: 'mdi-chart-line', description: t('widget.chart.description'), defaultW: 8, defaultH: 6 },
   { key: 'camera', type: 'camera' as WidgetType, label: t('widget.camera.label'), icon: 'mdi-camera', description: t('widget.camera.description'), defaultW: 8, defaultH: 6 },
@@ -42,24 +46,40 @@ const widgetTypes = computed(() => ([
   { key: 'appliance-dryer', type: 'appliance' as WidgetType, label: 'Dryer', icon: 'mdi-tumble-dryer', description: t('widget.appliance.description'), defaultW: 6, defaultH: 3, preset: 'dryer' as const },
   { key: 'appliance-washing-machine', type: 'appliance' as WidgetType, label: 'Washing Machine', icon: 'mdi-washing-machine', description: t('widget.appliance.description'), defaultW: 6, defaultH: 3, preset: 'washing_machine' as const },
   { key: 'alarm', type: 'alarm' as WidgetType, label: t('widget.alarm.label'), icon: 'mdi-shield-home-outline', description: t('widget.alarm.description'), defaultW: 6, defaultH: 2 },
+  { key: 'problem_overview', type: 'problem_overview' as WidgetType, label: t('widget.problem_overview.label'), icon: 'mdi-home-alert-outline', description: t('widget.problem_overview.description'), defaultW: 6, defaultH: 4 },
   { key: 'status_bar', type: 'status_bar' as WidgetType, label: t('widget.status_bar.label'), icon: 'mdi-view-dashboard-variant', description: t('widget.status_bar.description'), defaultW: 6, defaultH: 1, minH: 1 },
 ]).sort((a, b) => a.key.localeCompare(b.key)))
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
   sensor: { entity_id: '' }, switch: { entity_id: '', icon: '', sensor_entity_id: '', show_sensor_trend: false },
+  button: { entity_id: '', icon: 'mdi-gesture-tap-button' },
+  select: { entity_id: '', icon: 'mdi-form-dropdown' },
+  gauge: { entity_id: '', min: 0, max: 100, yellow_from: 70, red_from: 90, decimal_places: 0, value_position: 'top', severity_direction: 'high_bad', card_click_action: 'open_detail' },
+  template: {
+    name: 'Template Beispiel',
+    refresh_interval: 30,
+    template: `{% set lights_on = states.light | selectattr('state', 'eq', 'on') | list | count %}
+{% set unavailable = states | selectattr('state', 'eq', 'unavailable') | list | count %}
+
+| Wert | Status |
+| --- | --- |
+| Lichter an | **{{ lights_on }}** |
+| Nicht verfügbar | **{{ unavailable }}** |
+
+Aktualisiert: **{{ now().strftime('%H:%M') }}**`,
+  },
   light: {
     entity_id: '',
     show_brightness: true,
     border_width: 3,
     card_click_action: 'none',
     card_double_click_action: 'toggle',
-    card_hold_action: 'open_detail',
   },
   chart: { entity_id: '', period: '24h', chart_type: 'area' },
   camera: { entity_id: '', refresh_interval: 5 },
   thermostat: { entity_id: '' }, media_player: { entity_id: '', show_album_art: true },
   cover: { entity_id: '' }, lock: { entity_id: '', require_confirmation: true },
-  weather: { entity_id: '', show_forecast: true, forecast_rows: 3 },
+  weather: { entity_id: '', show_forecast: true, forecast_rows: 3, warning_entity_id: '' },
   clock: { format_24h: true, show_seconds: true, show_date: true },
   label: { text: 'Überschrift', font_size: 'lg' },
   room_card: {
@@ -71,7 +91,6 @@ const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
     auto_status_entities: true,
     card_click_action: 'none',
     card_double_click_action: 'toggle_light',
-    card_hold_action: 'open_climate_detail',
   },
   calendar: { entity_id: '', show_time: true },
   calendar_v2: { calendars: [], view: 'month' },
@@ -101,6 +120,16 @@ const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
     use_keypad_on_mobile: true,
     code_length: 4,
     actions_align: 'start',
+  },
+  problem_overview: {
+    name: 'Probleme',
+    battery_threshold: 20,
+    max_items: 8,
+    show_batteries: true,
+    show_unavailable: true,
+    show_openings: true,
+    show_updates: true,
+    show_alerts: true,
   },
   status_bar: { entries: [], show_labels: false },
 }

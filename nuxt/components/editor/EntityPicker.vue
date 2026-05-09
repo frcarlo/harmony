@@ -45,6 +45,7 @@ const props = defineProps<{
   domainFilter?: string | string[]
   placeholder?: string
   platform?: string
+  numericOnly?: boolean
 }>()
 defineEmits<{ 'update:modelValue': [v: string | undefined] }>()
 
@@ -76,6 +77,7 @@ const options = computed(() => {
     ? all.filter((e) => domainFilters.value.some((domain) => e.entity_id.startsWith(domain + '.')))
     : all
   if (props.platform) filtered = filtered.filter((e) => entityStore.entityPlatformMap[e.entity_id] === props.platform)
+  if (props.numericOnly) filtered = filtered.filter((e) => isNumericEntity(e))
 
   // Apply area filter: specific selected area, or full allowed-areas restriction
   const effectiveAreas = selectedArea.value ? [selectedArea.value] : allowedAreaIds.value
@@ -90,6 +92,12 @@ const options = computed(() => {
     platform: entityStore.entityPlatformMap[e.entity_id] ?? '',
   }))
 })
+
+function isNumericEntity(entity: { state: string }) {
+  if (entity.state === 'unknown' || entity.state === 'unavailable') return false
+  const value = Number(entity.state)
+  return Number.isFinite(value)
+}
 
 watch(
   () => [props.modelValue, entityStore.entityAreaMap] as const,
