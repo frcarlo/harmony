@@ -98,9 +98,9 @@ export const useDashboardStore = defineStore('dashboard', {
         ...original,
         id: crypto.randomUUID(),
         layout: { ...original.layout, x: original.layout.x + original.layout.w, y: original.layout.y },
-        config: JSON.parse(JSON.stringify(original.config)),
-        ...(original.appearance ? { appearance: JSON.parse(JSON.stringify(original.appearance)) } : {}),
-        ...(original.visibility ? { visibility: JSON.parse(JSON.stringify(original.visibility)) } : {}),
+        config: structuredClone(original.config),
+        ...(original.appearance ? { appearance: structuredClone(original.appearance) } : {}),
+        ...(original.visibility ? { visibility: structuredClone(original.visibility) } : {}),
       }
       this.dashboard.widgets.push(clone)
     },

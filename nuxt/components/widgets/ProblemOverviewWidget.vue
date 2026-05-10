@@ -109,8 +109,6 @@ const client = useHAClient()
 
 type ProblemKind = 'unavailable' | 'battery' | 'opening' | 'update' | 'alert' | 'repair' | 'system'
 type ProblemTab = 'all' | ProblemKind
-const DEFAULT_IGNORED_OFFLINE_PLATFORMS = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
-const DEFAULT_IGNORED_OFFLINE_DOMAINS = ['button']
 
 interface ProblemItem {
   entityId: string

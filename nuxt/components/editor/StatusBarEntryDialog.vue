@@ -119,10 +119,10 @@
           <v-checkbox v-model="draft.show_badge" :label="t('config.show_badge')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_batteries" :label="t('config.problem_show_batteries')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details density="compact" />
-          <v-combobox v-model="draft.ignored_offline_platforms" :items="defaultIgnoredOfflinePlatforms"
+          <v-combobox v-model="draft.ignored_offline_platforms" :items="DEFAULT_IGNORED_OFFLINE_PLATFORMS"
             :label="t('config.problem_ignored_offline_platforms')" multiple chips closable-chips clearable
             density="compact" hide-details="auto" />
-          <v-combobox v-model="draft.ignored_offline_domains" :items="defaultIgnoredOfflineDomains"
+          <v-combobox v-model="draft.ignored_offline_domains" :items="DEFAULT_IGNORED_OFFLINE_DOMAINS"
             :label="t('config.problem_ignored_offline_domains')" multiple chips closable-chips clearable
             density="compact" hide-details="auto" />
           <v-checkbox v-model="draft.show_openings" :label="t('config.problem_show_openings')" hide-details density="compact" />
@@ -238,8 +238,6 @@
 const { t } = useI18n()
 const { glass } = useGlassEffect()
 const entityStore = useEntityStore()
-const defaultIgnoredOfflinePlatforms = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
-const defaultIgnoredOfflineDomains = ['button']
 
 const props = defineProps<{
   modelValue: boolean
@@ -274,8 +272,8 @@ function applyProblemDefaults() {
   draft.value.show_alerts ??= true
   draft.value.show_repairs ??= true
   draft.value.show_system ??= true
-  draft.value.ignored_offline_platforms ??= [...defaultIgnoredOfflinePlatforms]
-  draft.value.ignored_offline_domains ??= [...defaultIgnoredOfflineDomains]
+  draft.value.ignored_offline_platforms ??= [...DEFAULT_IGNORED_OFFLINE_PLATFORMS]
+  draft.value.ignored_offline_domains ??= [...DEFAULT_IGNORED_OFFLINE_DOMAINS]
 }
 
 function switchType(type: string) {
@@ -312,8 +310,8 @@ function switchType(type: string) {
       show_alerts: true,
       show_repairs: true,
       show_system: true,
-      ignored_offline_platforms: [...defaultIgnoredOfflinePlatforms],
-      ignored_offline_domains: [...defaultIgnoredOfflineDomains],
+      ignored_offline_platforms: [...DEFAULT_IGNORED_OFFLINE_PLATFORMS],
+      ignored_offline_domains: [...DEFAULT_IGNORED_OFFLINE_DOMAINS],
     }
   } else {
     draft.value = { entity_id: '', label: draft.value.label }

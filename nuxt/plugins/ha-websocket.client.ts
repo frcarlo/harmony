@@ -284,6 +284,6 @@ export default defineNuxtPlugin(() => {
   watch(
     () => [dashboardStore.dashboard?.id, dashboardStore.dashboard?.updated_at, dashboardStore.dashboard?.widgets, dashboardStore.editMode, entityStore.entityAreaMap, entityStore.entityLabelsMap, notificationRules.value] as const,
     applyDashboardEntityFilter,
-    { deep: true, flush: 'post' },
+    { flush: 'post' },
   )
 })

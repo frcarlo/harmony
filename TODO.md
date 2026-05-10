@@ -22,9 +22,9 @@
 
 ### Code Quality
 
-- [ ] **`structuredClone` statt `JSON.parse(JSON.stringify(...))`** — Widget wird in `dashboard.ts` 3× tief geklont, `structuredClone` ist nativer und schneller
-- [ ] **Widget-Domain-Registry zentralisieren** — Entity-Domain-Filter für den Picker sind in `WidgetConfigPanel` und `StatusBarEntryDialog` dupliziert
-- [ ] **Teure `deep: true` Watch im WebSocket-Plugin** — Watched die gesamte Widgets-Array deep, obwohl Vue 3 Array-Referenzen selbst trackt → `deep: true` entfernen
+- [x] **`structuredClone` statt `JSON.parse(JSON.stringify(...))`** — Widget wird in `dashboard.ts` 3× tief geklont, `structuredClone` ist nativer und schneller
+- [x] **Widget-Domain-Registry zentralisieren** — Entity-Domain-Filter für den Picker sind in `WidgetConfigPanel` und `StatusBarEntryDialog` dupliziert
+- [x] **Teure `deep: true` Watch im WebSocket-Plugin** — Watched die gesamte Widgets-Array deep, obwohl Vue 3 Array-Referenzen selbst trackt → `deep: true` entfernen
 
 ## Ideen / Nice-to-have
 

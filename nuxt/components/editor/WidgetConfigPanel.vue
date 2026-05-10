@@ -27,7 +27,7 @@
               <p class="text-caption text-medium-emphasis mb-1 text-uppercase font-weight-medium">{{ t('config.entity')
               }}
               </p>
-              <EntityPicker v-model="cfg.entity_id" :domain-filter="ENTITY_DOMAINS[widget.type]"
+              <EntityPicker v-model="cfg.entity_id" :domain-filter="WIDGET_ENTITY_DOMAINS[widget.type]"
                 :numeric-only="widget.type === 'gauge'" />
             </div>
 
@@ -231,10 +231,10 @@
                   density="compact" />
                 <v-checkbox v-model="cfg.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details
                   density="compact" />
-                <v-combobox v-model="ignoredOfflinePlatformsModel" :items="defaultIgnoredOfflinePlatforms"
+                <v-combobox v-model="ignoredOfflinePlatformsModel" :items="DEFAULT_IGNORED_OFFLINE_PLATFORMS"
                   :label="t('config.problem_ignored_offline_platforms')" multiple chips closable-chips clearable
                   density="compact" hide-details="auto" />
-                <v-combobox v-model="ignoredOfflineDomainsModel" :items="defaultIgnoredOfflineDomains"
+                <v-combobox v-model="ignoredOfflineDomainsModel" :items="DEFAULT_IGNORED_OFFLINE_DOMAINS"
                   :label="t('config.problem_ignored_offline_domains')" multiple chips closable-chips clearable
                   density="compact" hide-details="auto" />
                 <v-checkbox v-model="cfg.show_openings" :label="t('config.problem_show_openings')" hide-details
@@ -697,8 +697,6 @@ const entityStore = useEntityStore()
 const { t } = useI18n()
 defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
-const defaultIgnoredOfflinePlatforms = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
-const defaultIgnoredOfflineDomains = ['button']
 
 const dashboardStore = useDashboardStore()
 const widget = computed(() => dashboardStore.dashboard?.widgets.find((w) => w.id === dashboardStore.selectedWidgetId))
@@ -757,8 +755,8 @@ watch(widget, (w) => {
   }
   if (w.type === 'problem_overview') {
     const config = w.config as Record<string, unknown>
-    config.ignored_offline_platforms ??= [...defaultIgnoredOfflinePlatforms]
-    config.ignored_offline_domains ??= [...defaultIgnoredOfflineDomains]
+    config.ignored_offline_platforms ??= [...DEFAULT_IGNORED_OFFLINE_PLATFORMS]
+    config.ignored_offline_domains ??= [...DEFAULT_IGNORED_OFFLINE_DOMAINS]
     config.show_repairs ??= true
     config.show_system ??= true
   }
@@ -806,11 +804,6 @@ const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   problem_overview: 'mdi-home-alert-outline', status_bar: 'mdi-view-list-outline',
 }
 
-const ENTITY_DOMAINS: Partial<Record<WidgetType, string | string[]>> = {
-  sensor: ['sensor', 'binary_sensor'], gauge: ['sensor', 'number', 'input_number'], switch: ['switch'], button: 'button', select: 'select', light: 'light', camera: 'camera',
-  thermostat: 'climate', media_player: 'media_player', cover: 'cover', cover_dial: 'cover', cover_dial2: 'cover',
-  lock: 'lock', weather: 'weather',
-}
 
 const periodItems = computed(() => [
   { title: t('config.period_1h'), value: '1h' }, { title: t('config.period_6h'), value: '6h' },
@@ -1042,8 +1035,8 @@ function addStatusBarProblemEntry() {
     show_alerts: true,
     show_repairs: true,
     show_system: true,
-    ignored_offline_platforms: [...defaultIgnoredOfflinePlatforms],
-    ignored_offline_domains: [...defaultIgnoredOfflineDomains],
+    ignored_offline_platforms: [...DEFAULT_IGNORED_OFFLINE_PLATFORMS],
+    ignored_offline_domains: [...DEFAULT_IGNORED_OFFLINE_DOMAINS],
   })
   cfg.value.entries = list
   openEntryDialog(list.length - 1)
