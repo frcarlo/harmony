@@ -36,35 +36,40 @@
     </div>
 
     <!-- Widget content -->
-    <div class="h-100" :style="{ pointerEvents: editMode ? 'none' : undefined }">
-      <LazySensorWidget v-if="widget.type === 'sensor'" :config="widget.config as any" :appearance="widget.appearance" />
-      <LazyGaugeWidget v-else-if="widget.type === 'gauge'" :config="widget.config as any" />
-      <LazyTemplateWidget v-else-if="widget.type === 'template'" :config="widget.config as any" />
-      <LazySwitchWidget v-else-if="widget.type === 'switch'" :config="widget.config as any"
-        :appearance="widget.appearance" />
-      <LazyButtonWidget v-else-if="widget.type === 'button'" :config="widget.config as any" />
-      <LazySelectWidget v-else-if="widget.type === 'select'" :config="widget.config as any" />
-      <LazyLightWidget v-else-if="widget.type === 'light'" :config="widget.config as any" :appearance="widget.appearance" />
-      <LazyChartWidget v-else-if="widget.type === 'chart'" :config="widget.config as any" />
-      <LazyCameraWidget v-else-if="widget.type === 'camera'" :config="widget.config as any" />
-      <LazyThermostatWidget v-else-if="widget.type === 'thermostat'" :config="widget.config as any"
-        :appearance="widget.appearance" />
-      <LazyMediaPlayerWidget v-else-if="widget.type === 'media_player'" :config="widget.config as any" />
-      <LazyCoverDial2Widget v-else-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'" :config="widget.config as any" />
-      <LazyLockWidget v-else-if="widget.type === 'lock'" :config="widget.config as any" :appearance="widget.appearance" />
-      <LazyWeatherWidget v-else-if="widget.type === 'weather'" :config="widget.config as any" />
-      <LazyClockWidget v-else-if="widget.type === 'clock'" :config="widget.config as any" />
-      <LazyLabelWidget v-else-if="widget.type === 'label'" :config="widget.config as any" />
-      <LazyRoomCardWidget v-else-if="widget.type === 'room_card'" :config="widget.config as any" />
-      <LazyCalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
-      <LazyCalendarV2Widget v-else-if="widget.type === 'calendar_v2'" :config="widget.config as any" />
-      <LazyPersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
-      <LazyEnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
-      <LazyApplianceWidget v-else-if="widget.type === 'appliance'" :config="widget.config as any" />
-      <LazyAlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
-      <LazyProblemOverviewWidget v-else-if="widget.type === 'problem_overview'" :config="widget.config as any" />
-      <LazyStatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
-      <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
+    <div ref="contentEl" class="h-100" :style="{ pointerEvents: editMode ? 'none' : undefined }">
+      <div v-if="!shouldRender" class="h-100 d-flex align-center justify-center">
+        <v-progress-circular indeterminate size="24" color="medium-emphasis" />
+      </div>
+      <template v-else>
+        <LazySensorWidget v-if="widget.type === 'sensor'" :config="widget.config as any" :appearance="widget.appearance" />
+        <LazyGaugeWidget v-else-if="widget.type === 'gauge'" :config="widget.config as any" />
+        <LazyTemplateWidget v-else-if="widget.type === 'template'" :config="widget.config as any" />
+        <LazySwitchWidget v-else-if="widget.type === 'switch'" :config="widget.config as any"
+          :appearance="widget.appearance" />
+        <LazyButtonWidget v-else-if="widget.type === 'button'" :config="widget.config as any" />
+        <LazySelectWidget v-else-if="widget.type === 'select'" :config="widget.config as any" />
+        <LazyLightWidget v-else-if="widget.type === 'light'" :config="widget.config as any" :appearance="widget.appearance" />
+        <LazyChartWidget v-else-if="widget.type === 'chart'" :config="widget.config as any" />
+        <LazyCameraWidget v-else-if="widget.type === 'camera'" :config="widget.config as any" />
+        <LazyThermostatWidget v-else-if="widget.type === 'thermostat'" :config="widget.config as any"
+          :appearance="widget.appearance" />
+        <LazyMediaPlayerWidget v-else-if="widget.type === 'media_player'" :config="widget.config as any" />
+        <LazyCoverDial2Widget v-else-if="widget.type === 'cover' || widget.type === 'cover_dial' || widget.type === 'cover_dial2'" :config="widget.config as any" />
+        <LazyLockWidget v-else-if="widget.type === 'lock'" :config="widget.config as any" :appearance="widget.appearance" />
+        <LazyWeatherWidget v-else-if="widget.type === 'weather'" :config="widget.config as any" />
+        <LazyClockWidget v-else-if="widget.type === 'clock'" :config="widget.config as any" />
+        <LazyLabelWidget v-else-if="widget.type === 'label'" :config="widget.config as any" />
+        <LazyRoomCardWidget v-else-if="widget.type === 'room_card'" :config="widget.config as any" />
+        <LazyCalendarWidget v-else-if="widget.type === 'calendar'" :config="widget.config as any" />
+        <LazyCalendarV2Widget v-else-if="widget.type === 'calendar_v2'" :config="widget.config as any" />
+        <LazyPersonWidget v-else-if="widget.type === 'person'" :config="widget.config as any" />
+        <LazyEnergyWidget v-else-if="widget.type === 'energy'" :config="widget.config as any" />
+        <LazyApplianceWidget v-else-if="widget.type === 'appliance'" :config="widget.config as any" />
+        <LazyAlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
+        <LazyProblemOverviewWidget v-else-if="widget.type === 'problem_overview'" :config="widget.config as any" />
+        <LazyStatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
+        <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
+      </template>
     </div>
   </v-card>
 
@@ -75,6 +80,7 @@
 </template>
 
 <script setup lang="ts">
+import { useIntersectionObserver } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { useTheme } from 'vuetify'
 import type { Widget } from '~/types/dashboard'
@@ -82,6 +88,25 @@ import type { Widget } from '~/types/dashboard'
 const { t } = useI18n()
 const props = defineProps<{ widget: Widget; editMode: boolean; quickEdit?: boolean }>()
 const emit = defineEmits<{ quickEdit: [widgetId: string] }>()
+
+const LAZY_RENDER_TYPES = new Set(['gauge', 'chart', 'camera', 'calendar', 'calendar_v2', 'energy'])
+const isHeavyWidget = LAZY_RENDER_TYPES.has(props.widget.type)
+const contentEl = useTemplateRef<HTMLElement>('contentEl')
+const isVisible = ref(!isHeavyWidget)
+const shouldRender = computed(() => isVisible.value || props.editMode)
+
+if (import.meta.client && isHeavyWidget) {
+  const { stop } = useIntersectionObserver(
+    contentEl,
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        isVisible.value = true
+        stop()
+      }
+    },
+    { rootMargin: '200px' },
+  )
+}
 
 const dashboardStore = useDashboardStore()
 const entityStore = useEntityStore()
