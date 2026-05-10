@@ -4,6 +4,7 @@ export function useDashboardDisplayMode() {
   const storage = useUserPreferenceStorage()
   const { user } = useUserSession()
   const forcedKioskMode = computed(() => user.value?.force_kiosk === true)
+  const forcedPerformanceMode = computed(() => user.value?.force_performance_mode ?? null)
   const forcedDeviceType = computed(() => (user.value?.force_device_type as DeviceOverride | null | undefined) ?? null)
   const wakeLock = useState<any | null>('dashboard-kiosk-wake-lock', () => null)
   const wakeLockActive = useState('dashboard-kiosk-wake-lock-active', () => false)
@@ -19,8 +20,8 @@ export function useDashboardDisplayMode() {
     (storage.read('ha-device-type') as DeviceOverride | null) ?? 'auto'
   )
 
-  watch([() => storage.currentUserId.value, forcedKioskMode], () => {
-    performanceMode.value = storage.read('ha-performance-mode') === 'true'
+  watch([() => storage.currentUserId.value, forcedKioskMode, forcedPerformanceMode], () => {
+    performanceMode.value = forcedPerformanceMode.value ?? (storage.read('ha-performance-mode') === 'true')
     kioskMode.value = forcedKioskMode.value || storage.read('ha-kiosk-mode') === 'true'
     deviceOverride.value = (storage.read('ha-device-type') as DeviceOverride | null) ?? 'auto'
   }, { immediate: true })
@@ -109,6 +110,7 @@ export function useDashboardDisplayMode() {
   }
 
   function togglePerformanceMode() {
+    if (forcedPerformanceMode.value != null) return
     performanceMode.value = !performanceMode.value
     storage.write('ha-performance-mode', String(performanceMode.value))
   }
@@ -144,6 +146,7 @@ export function useDashboardDisplayMode() {
     performanceMode,
     kioskMode,
     forcedKioskMode,
+    forcedPerformanceMode,
     wakeLockActive,
     wakeLockSupported,
     fullscreenActive,

@@ -21,8 +21,10 @@
           :title="t('toolbar.widget_borders')" :active="borders" :color="borders ? 'primary' : undefined"
           rounded="lg" @click="toggleBorders" />
         <v-list-item :prepend-icon="performanceMode ? 'mdi-speedometer' : 'mdi-speedometer-slow'"
-          :title="t('toolbar.performance_mode')" :subtitle="t('toolbar.performance_mode_hint')"
+          :title="t('toolbar.performance_mode')"
+          :subtitle="forcedPerformanceMode != null ? t('toolbar.performance_mode_forced') : t('toolbar.performance_mode_hint')"
           :active="performanceMode" :color="performanceMode ? 'primary' : undefined"
+          :disabled="forcedPerformanceMode != null"
           rounded="lg" @click="togglePerformanceMode" />
         <v-list-item v-if="!forcedKioskMode" :prepend-icon="kioskMode ? 'mdi-fullscreen' : 'mdi-fullscreen-exit'"
           :title="t('toolbar.kiosk_mode')" :subtitle="t('toolbar.kiosk_mode_hint')"
@@ -99,7 +101,7 @@ type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
-const { performanceMode, kioskMode, forcedKioskMode, deviceOverride, forcedDeviceType, togglePerformanceMode, toggleKioskMode, setKioskMode, setDeviceOverride } = useDashboardDisplayMode()
+const { performanceMode, kioskMode, forcedKioskMode, forcedPerformanceMode, deviceOverride, forcedDeviceType, togglePerformanceMode, toggleKioskMode, setKioskMode, setDeviceOverride } = useDashboardDisplayMode()
 
 const deviceTypeOptions: { value: DeviceOverride; label: string }[] = [
   { value: 'auto', label: t('toolbar.device_auto') },
@@ -131,7 +133,7 @@ function resetLocalSettings() {
 
   glass.value = false
   borders.value = true
-  performanceMode.value = false
+  if (forcedPerformanceMode.value == null) performanceMode.value = false
   setDeviceOverride('auto')
   void setKioskMode(forcedKioskMode.value, { fullscreen: false })
 

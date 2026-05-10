@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       username: user.username,
       role: user.role,
       force_kiosk: user.force_kiosk,
+      force_performance_mode: user.force_performance_mode,
       force_device_type: user.force_device_type,
       allowed_areas: user.allowed_areas ?? undefined,
     },

@@ -56,6 +56,9 @@
                   <v-chip v-if="u.force_kiosk" color="warning" size="small" variant="tonal">
                     {{ t('users.kiosk_forced_chip') }}
                   </v-chip>
+                  <v-chip v-if="u.force_performance_mode != null" color="secondary" size="small" variant="tonal">
+                    {{ t('toolbar.performance_mode') }}
+                  </v-chip>
                   <v-chip v-if="u.force_device_type" color="info" size="small" variant="tonal">
                     {{ t(`toolbar.device_${u.force_device_type}`) }}
                   </v-chip>
@@ -112,6 +115,25 @@
                     >
                       {{ accessUser.force_kiosk ? t('users.force_kiosk_disable') : t('users.force_kiosk_enable') }}
                     </v-btn>
+                  </div>
+                </v-card>
+                <v-card variant="tonal" rounded="lg" class="pa-3 mb-3">
+                  <div class="d-flex align-center ga-3 flex-wrap">
+                    <v-icon icon="mdi-speedometer" size="20" />
+                    <div class="flex-grow-1" style="min-width: 0">
+                      <div class="text-body-2 font-weight-bold">{{ t('users.force_performance_mode_label') }}</div>
+                      <div class="text-caption text-medium-emphasis">{{ t('users.force_performance_mode_hint') }}</div>
+                    </div>
+                    <div class="d-flex ga-1">
+                      <v-chip
+                        v-for="pm in [{ value: null, label: t('users.device_auto') }, { value: true, label: t('common.on') }, { value: false, label: t('common.off') }]"
+                        :key="String(pm.value)"
+                        size="small"
+                        :color="accessUser.force_performance_mode === pm.value ? 'primary' : undefined"
+                        :variant="accessUser.force_performance_mode === pm.value ? 'flat' : 'outlined'"
+                        @click="setForcePerformanceMode(accessUser, pm.value)"
+                      >{{ pm.label }}</v-chip>
+                    </div>
                   </div>
                 </v-card>
                 <v-card variant="tonal" rounded="lg" class="pa-3 mb-3">
@@ -327,6 +349,7 @@ interface UserRow {
   allowed_areas: string[] | null
   provider: string | null
   force_kiosk: boolean
+  force_performance_mode: boolean | null
   force_device_type: string | null
   default_dashboard_id?: string | null
   user_default_dashboard_id?: string | null
@@ -436,6 +459,15 @@ async function toggleForceKiosk(u: UserRow) {
   }
 }
 
+async function setForcePerformanceMode(u: UserRow, value: boolean | null) {
+  try {
+    await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_performance_mode: value } })
+    u.force_performance_mode = value
+  } catch (e: any) {
+    alert(e?.data?.statusMessage ?? t('users.error_default'))
+  }
+}
+
 async function setForceDeviceType(u: UserRow, deviceType: string | null) {
   try {
     await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_device_type: deviceType } })
@@ -507,6 +539,7 @@ function auditLabel(action: string) {
     'user.delete': t('users.audit_user_delete'),
     'user.role_change': t('users.audit_user_role_change'),
     'user.force_kiosk_change': t('users.audit_user_force_kiosk_change'),
+    'user.force_performance_mode_change': t('users.audit_user_force_performance_mode_change'),
     'user.force_device_type_change': t('users.audit_user_force_device_type_change'),
     'user.default_dashboard_change': t('users.audit_user_default_dashboard_change'),
     'user.self_default_dashboard_change': t('users.audit_user_self_default_dashboard_change'),

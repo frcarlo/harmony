@@ -4,6 +4,7 @@ declare module '#auth-utils' {
     username: string
     role: 'admin' | 'editor' | 'user'
     force_kiosk?: boolean
+    force_performance_mode?: boolean | null
     force_device_type?: string | null
     allowed_areas?: string[]
   }

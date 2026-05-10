@@ -32,6 +32,9 @@
           <v-chip v-if="u.force_kiosk" color="warning" size="x-small" variant="tonal">
             Kiosk
           </v-chip>
+          <v-chip v-if="u.force_performance_mode != null" color="secondary" size="x-small" variant="tonal">
+            Perf
+          </v-chip>
           <v-chip v-if="u.force_device_type" color="info" size="x-small" variant="tonal">
             {{ u.force_device_type === 'desktop' ? 'Desktop' : u.force_device_type === 'tablet' ? 'Tablet' : 'Mobil' }}
           </v-chip>
@@ -103,6 +106,25 @@
           >
             {{ accessUser.force_kiosk ? 'Deaktivieren' : 'Aktivieren' }}
           </v-btn>
+        </div>
+      </v-card>
+      <v-card variant="tonal" rounded="lg" class="pa-3 mb-3">
+        <div class="d-flex align-center ga-3 flex-wrap">
+          <v-icon icon="mdi-speedometer" size="20" />
+          <div class="flex-grow-1" style="min-width: 0">
+            <div class="text-body-2 font-weight-bold">Performance-Modus</div>
+            <div class="text-caption text-medium-emphasis">Überschreibt die eigene Einstellung des Benutzers.</div>
+          </div>
+          <div class="d-flex ga-1">
+            <v-chip
+              v-for="pm in [{ value: null, label: 'Auto' }, { value: true, label: 'An' }, { value: false, label: 'Aus' }]"
+              :key="String(pm.value)"
+              size="small"
+              :color="accessUser.force_performance_mode === pm.value ? 'primary' : undefined"
+              :variant="accessUser.force_performance_mode === pm.value ? 'flat' : 'outlined'"
+              @click="setForcePerformanceMode(accessUser, pm.value)"
+            >{{ pm.label }}</v-chip>
+          </div>
         </div>
       </v-card>
       <v-card variant="tonal" rounded="lg" class="pa-3 mb-3">
@@ -187,6 +209,7 @@ interface UserRow {
   email: string | null
   role: 'admin' | 'editor' | 'user'
   force_kiosk: boolean
+  force_performance_mode: boolean | null
   force_device_type: string | null
   provider: string | null
 }
@@ -323,6 +346,15 @@ async function toggleForceKiosk(u: UserRow) {
   try {
     await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_kiosk: next } })
     u.force_kiosk = next
+  } catch (e: any) {
+    alert(e?.data?.statusMessage ?? 'Fehler')
+  }
+}
+
+async function setForcePerformanceMode(u: UserRow, value: boolean | null) {
+  try {
+    await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_performance_mode: value } })
+    u.force_performance_mode = value
   } catch (e: any) {
     alert(e?.data?.statusMessage ?? 'Fehler')
   }
