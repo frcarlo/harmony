@@ -32,6 +32,9 @@
           <v-chip v-if="u.force_kiosk" color="warning" size="x-small" variant="tonal">
             Kiosk
           </v-chip>
+          <v-chip v-if="u.force_device_type" color="info" size="x-small" variant="tonal">
+            {{ u.force_device_type === 'desktop' ? 'Desktop' : u.force_device_type === 'tablet' ? 'Tablet' : 'Mobil' }}
+          </v-chip>
           <v-menu>
             <template #activator="{ props: mp }">
               <v-btn icon="mdi-dots-vertical" size="x-small" variant="text" v-bind="mp" />

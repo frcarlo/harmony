@@ -56,6 +56,9 @@
                   <v-chip v-if="u.force_kiosk" color="warning" size="small" variant="tonal">
                     {{ t('users.kiosk_forced_chip') }}
                   </v-chip>
+                  <v-chip v-if="u.force_device_type" color="info" size="small" variant="tonal">
+                    {{ t(`toolbar.device_${u.force_device_type}`) }}
+                  </v-chip>
                   <v-btn
                     v-if="u.role !== 'admin'"
                     icon="mdi-view-dashboard-outline"

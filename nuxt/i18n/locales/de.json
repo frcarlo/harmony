@@ -132,6 +132,7 @@
     "edit_mode_on": "Bearbeiten aktivieren",
     "edit_mode_off": "Bearbeiten beenden",
     "device_type": "Gerätetyp",
+    "device_type_forced": "Vom Admin vorgegeben",
     "device_auto": "Auto",
     "device_desktop": "Desktop",
     "device_tablet": "Tablet",
