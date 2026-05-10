@@ -82,6 +82,9 @@
     "import": "Importar panel",
     "import_error": "Error al importar – ¿archivo inválido?",
     "import_exists": "El panel \"{name}\" ya existe – importando como copia",
+    "saved": "Panel guardado",
+    "save_failed": "No se pudo guardar el panel",
+    "unsaved_changes_confirm": "Tienes cambios sin guardar. ¿Salir sin guardar?",
     "imported": "Panel \"{name}\" importado"
   },
   "updates": {
@@ -144,6 +147,7 @@
     "clone": "Duplicar",
     "saved": "Widget guardado",
     "save_failed": "No se pudo guardar el widget",
+    "entity_unavailable": "Entidad no disponible",
     "sensor": {
       "label": "Sensor",
       "description": "Mostrar valor del sensor"

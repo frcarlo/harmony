@@ -29,6 +29,12 @@
         :title="t('widget.remove')" @click="removeWithUndo" />
     </div>
 
+    <!-- Unavailable entity indicator -->
+    <div v-if="editMode && isEntityUnavailable" class="widget-entity-warning" :title="t('widget.entity_unavailable')">
+      <v-icon icon="mdi-alert-circle-outline" size="12" />
+      <span>{{ t('widget.entity_unavailable') }}</span>
+    </div>
+
     <!-- Widget content -->
     <div class="h-100" :style="{ pointerEvents: editMode ? 'none' : undefined }">
       <LazySensorWidget v-if="widget.type === 'sensor'" :config="widget.config as any" :appearance="widget.appearance" />
@@ -110,6 +116,12 @@ const entityId = computed(() => {
   return c?.entity_id as string | undefined
 })
 const entityState = computed(() => entityId.value ? entityStore.entities[entityId.value]?.state : undefined)
+const isEntityUnavailable = computed(() => {
+  if (!entityId.value) return false
+  const entity = entityStore.entities[entityId.value]
+  if (!entity) return true
+  return entity.state === 'unavailable' || entity.state === 'unknown'
+})
 const detailDomain = computed(() => detailEntityId.value?.split('.')[0] ?? '')
 const isActive = computed(() => {
   const s = entityState.value
@@ -327,4 +339,21 @@ const cardStyle = computed(() => {
   outline-offset: 0;
 }
 
+.widget-entity-warning {
+  position: absolute;
+  bottom: 7px;
+  left: 9px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(var(--v-theme-error), 0.12);
+  border: 1px solid rgba(var(--v-theme-error), 0.28);
+  color: rgb(var(--v-theme-error));
+  font-size: 0.65rem;
+  font-weight: 600;
+  pointer-events: none;
+}
 </style>

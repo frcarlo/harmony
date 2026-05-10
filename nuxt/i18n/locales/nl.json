@@ -82,6 +82,9 @@
     "import": "Dashboard importeren",
     "import_error": "Importeren mislukt – ongeldig bestand?",
     "import_exists": "Dashboard \"{name}\" bestaat al – geïmporteerd als kopie",
+    "saved": "Dashboard opgeslagen",
+    "save_failed": "Dashboard kon niet worden opgeslagen",
+    "unsaved_changes_confirm": "Je hebt niet-opgeslagen wijzigingen. Verlaten zonder opslaan?",
     "imported": "Dashboard \"{name}\" geïmporteerd"
   },
   "updates": {
@@ -144,6 +147,7 @@
     "clone": "Dupliceren",
     "saved": "Widget opgeslagen",
     "save_failed": "Widget kon niet worden opgeslagen",
+    "entity_unavailable": "Entiteit niet beschikbaar",
     "sensor": {
       "label": "Sensor",
       "description": "Sensorwaarde weergeven"

@@ -10,8 +10,8 @@
 
 ### UX-Verbesserungen
 
-- [ ] **Unsaved-Changes-Warning im Edit-Modus** — Kein Hinweis wenn man Edit-Modus verlässt oder navigiert ohne zu speichern → `onBeforeRouteLeave` Guard
-- [ ] **Unavailable-Entity-Indicator im Edit-Modus** — Widgets die auf nicht-existente/unavailable Entities zeigen werden nicht markiert → Badge oder gedimmter Overlay
+- [x] **Unsaved-Changes-Warning im Edit-Modus** — Kein Hinweis wenn man Edit-Modus verlässt oder navigiert ohne zu speichern → `onBeforeRouteLeave` Guard
+- [x] **Unavailable-Entity-Indicator im Edit-Modus** — Widgets die auf nicht-existente/unavailable Entities zeigen werden nicht markiert → Badge oder gedimmter Overlay
 
 ### Features
 

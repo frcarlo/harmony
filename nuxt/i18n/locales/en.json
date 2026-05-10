@@ -82,7 +82,10 @@
     "import": "Import dashboard",
     "imported": "Dashboard \"{name}\" imported",
     "import_error": "Import failed – invalid file?",
-    "import_exists": "Dashboard \"{name}\" already exists – importing as copy"
+    "import_exists": "Dashboard \"{name}\" already exists – importing as copy",
+    "saved": "Dashboard saved",
+    "save_failed": "Could not save dashboard",
+    "unsaved_changes_confirm": "You have unsaved changes. Leave without saving?"
   },
   "updates": {
     "server_redeployed": "Server was updated — reload to apply changes",
@@ -144,6 +147,7 @@
     "clone": "Duplicate",
     "saved": "Widget saved",
     "save_failed": "Could not save widget",
+    "entity_unavailable": "Entity unavailable",
     "sensor": {
       "label": "Sensor",
       "description": "Display sensor value"

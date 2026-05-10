@@ -82,6 +82,9 @@
     "import": "Importer un tableau de bord",
     "import_error": "Erreur d'importation – fichier invalide ?",
     "import_exists": "Le tableau de bord \"{name}\" existe déjà – importé comme copie",
+    "saved": "Tableau de bord enregistré",
+    "save_failed": "Impossible d'enregistrer le tableau de bord",
+    "unsaved_changes_confirm": "Vous avez des modifications non enregistrées. Quitter sans enregistrer ?",
     "imported": "Tableau de bord \"{name}\" importé"
   },
   "updates": {
@@ -144,6 +147,7 @@
     "clone": "Dupliquer",
     "saved": "Widget enregistré",
     "save_failed": "Impossible d'enregistrer le widget",
+    "entity_unavailable": "Entité indisponible",
     "sensor": {
       "label": "Capteur",
       "description": "Afficher la valeur du capteur"

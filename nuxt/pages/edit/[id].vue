@@ -43,6 +43,7 @@ import { toast } from 'vue-sonner'
 import { useTheme } from 'vuetify'
 import type { Dashboard } from '~/types/dashboard'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const dashboardStore = useDashboardStore()
@@ -55,6 +56,9 @@ const selectedWidgetId = computed(() => dashboardStore.selectedWidgetId)
 const pickerOpen = ref(false)
 const saving = ref(false)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
+
+let savedSnapshot = ''
+const isDirty = computed(() => !!dashboard.value && JSON.stringify(dashboard.value) !== savedSnapshot)
 
 const bgBase = computed(() => {
   const bg = dashboard.value?.background
@@ -93,6 +97,7 @@ onMounted(async () => {
   const data = await $fetch<Dashboard>(`/api/dashboards/${route.params.id}`)
   if (!data) throw createError({ statusCode: 404 })
   dashboardStore.setDashboard(data)
+  savedSnapshot = JSON.stringify(data)
   dashboardStore.setEditMode(true)
 })
 
@@ -101,8 +106,11 @@ watch(() => dashboard.value?.theme_override, (override) => {
 }, { immediate: true })
 
 onBeforeRouteLeave((to) => {
-  if (typeof to.path === 'string' && (to.path.startsWith('/dashboard/') || to.path.startsWith('/edit/'))) {
+  if (typeof to.path === 'string' && to.path.startsWith('/edit/')) {
     return
+  }
+  if (isDirty.value && !window.confirm(t('dashboard.unsaved_changes_confirm'))) {
+    return false
   }
   theme.change(globalTheme.value)
 })
@@ -122,9 +130,10 @@ async function handleSave() {
         theme_override: dashboard.value.theme_override ?? null,
       },
     })
-    toast.success('Dashboard gespeichert')
+    savedSnapshot = JSON.stringify(dashboard.value)
+    toast.success(t('dashboard.saved'))
   } catch {
-    toast.error('Speichern fehlgeschlagen')
+    toast.error(t('dashboard.save_failed'))
   } finally {
     saving.value = false
   }

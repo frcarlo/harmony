@@ -82,6 +82,9 @@
     "import": "Importa dashboard",
     "import_error": "Importazione fallita – file non valido?",
     "import_exists": "Dashboard \"{name}\" già esistente – importato come copia",
+    "saved": "Dashboard salvato",
+    "save_failed": "Impossibile salvare il dashboard",
+    "unsaved_changes_confirm": "Hai modifiche non salvate. Uscire senza salvare?",
     "imported": "Dashboard \"{name}\" importato"
   },
   "updates": {
@@ -144,6 +147,7 @@
     "clone": "Duplica",
     "saved": "Widget salvato",
     "save_failed": "Impossibile salvare il widget",
+    "entity_unavailable": "Entità non disponibile",
     "sensor": {
       "label": "Sensore",
       "description": "Visualizza valore del sensore"

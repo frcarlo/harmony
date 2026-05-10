@@ -82,7 +82,10 @@
     "import": "Dashboard importieren",
     "imported": "Dashboard \"{name}\" importiert",
     "import_error": "Import fehlgeschlagen – ungültige Datei?",
-    "import_exists": "Dashboard \"{name}\" existiert bereits – wird als Kopie importiert"
+    "import_exists": "Dashboard \"{name}\" existiert bereits – wird als Kopie importiert",
+    "saved": "Dashboard gespeichert",
+    "save_failed": "Speichern fehlgeschlagen",
+    "unsaved_changes_confirm": "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?"
   },
   "updates": {
     "server_redeployed": "Server wurde aktualisiert — Seite neu laden um Änderungen zu übernehmen",
@@ -144,6 +147,7 @@
     "clone": "Duplizieren",
     "saved": "Widget gespeichert",
     "save_failed": "Speichern fehlgeschlagen",
+    "entity_unavailable": "Entity nicht verfügbar",
     "sensor": {
       "label": "Sensor",
       "description": "Sensorwert anzeigen"
