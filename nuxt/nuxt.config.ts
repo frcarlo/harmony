@@ -84,14 +84,18 @@ export default defineNuxtConfig({
       template: { transformAssetUrls },
     },
     build: {
+      target: 'esnext',
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 1200,
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (!id.includes('node_modules')) return
             if (id.includes('node_modules/vuetify') || id.includes('@mdi/font')) return 'vendor-ui'
-            if (id.includes('node_modules/gridstack')) return 'vendor-grid'
+            if (id.includes('node_modules/gridstack') || id.includes('node_modules/vuedraggable') || id.includes('node_modules/sortablejs')) return 'vendor-grid'
             if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender')) return 'vendor-charts'
-            if (id.includes('node_modules/pinia') || id.includes('node_modules/vue-sonner') || id.includes('node_modules/ws')) return 'vendor-app'
+            if (id.includes('node_modules/dayjs') || id.includes('node_modules/@vueuse')) return 'vendor-utils'
+            if (id.includes('node_modules/pinia') || id.includes('node_modules/vue-demi') || id.includes('node_modules/vue-sonner') || id.includes('node_modules/ws')) return 'vendor-app'
           },
         },
       },

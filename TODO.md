@@ -18,7 +18,7 @@
 - [ ] **Batterie-/Problem-Übersicht als Status-Bar-Gruppe** — Kompakte Status-Bar-Variante für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
 - [ ] **Adaptive Themes** — Automatisch hell/dunkel/dim nach Tageszeit, Sonnenstand oder Dashboard-Einstellung wechseln
 - [ ] **Lazy Loading für schwere Widgets** — Kamera, Charts, Kalender und Detaildaten erst laden, wenn sichtbar oder geöffnet
-- [ ] **Code-Splitting verbessern** — Große Nuxt/Vite-Chunks aufteilen, um Tablet-Startzeit und Cache-Verhalten zu verbessern
+- [x] **Code-Splitting verbessern** — Große Nuxt/Vite-Chunks aufteilen, um Tablet-Startzeit und Cache-Verhalten zu verbessern
 
 ### Code Quality
 
