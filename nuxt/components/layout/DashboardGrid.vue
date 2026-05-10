@@ -1,7 +1,9 @@
 <template>
   <div :style="maxWidthStyle">
     <div ref="gridEl" class="grid-stack">
-      <div v-for="widget in widgets" :key="widget.id" class="grid-stack-item" :gs-id="widget.id" :gs-x="widget.layout.x"
+      <div v-for="widget in widgets" :key="widget.id" class="grid-stack-item"
+        :class="{ 'grid-stack-item--hidden-on-device': editMode && widget.visibility?.[currentDevice] === false }"
+        :gs-id="widget.id" :gs-x="widget.layout.x"
         :gs-y="widget.layout.y" :gs-w="widget.layout.w" :gs-h="widget.layout.h" :gs-min-w="widget.layout.minW ?? (widget.type === 'status_bar' ? 1 : 2)"
         :gs-min-h="widget.layout.minH ?? (['label', 'status_bar'].includes(widget.type) ? 1 : 2)"
         :style="widget.appearance?.min_width ? { minWidth: widget.appearance.min_width + 'px' } : undefined">
@@ -27,12 +29,23 @@
 
 <script setup lang="ts">
 import { GridStack } from 'gridstack'
+import { useDisplay } from 'vuetify'
 
 const props = defineProps<{ editMode?: boolean; quickEdit?: boolean }>()
 defineEmits<{ quickEdit: [widgetId: string] }>()
 
 const dashboardStore = useDashboardStore()
-const widgets = computed(() => dashboardStore.dashboard?.widgets ?? [])
+const { smAndDown, md } = useDisplay()
+const currentDevice = computed<'desktop' | 'tablet' | 'mobile'>(() => {
+  if (smAndDown.value) return 'mobile'
+  if (md.value) return 'tablet'
+  return 'desktop'
+})
+const allWidgets = computed(() => dashboardStore.dashboard?.widgets ?? [])
+const widgets = computed(() => {
+  if (props.editMode) return allWidgets.value
+  return allWidgets.value.filter((widget) => widget.visibility?.[currentDevice.value] !== false)
+})
 const maxWidthStyle = computed(() => {
   const mw = dashboardStore.dashboard?.grid_config?.max_width
   return mw ? { maxWidth: `${mw}px`, margin: '0 auto' } : {}
@@ -131,8 +144,22 @@ watch(() => props.editMode, (v) => { if (!grid) return; v ? grid.enable() : grid
 
 watch(() => dashboardStore.dashboard?.grid_config, async () => { await reinitGrid() }, { deep: true })
 
+watch(currentDevice, async () => { await reinitGrid() })
+
+watch(() => allWidgets.value.map(w => `${w.id}:${w.visibility?.desktop !== false}:${w.visibility?.tablet !== false}:${w.visibility?.mobile !== false}`).join('|'), async () => {
+  await reinitGrid()
+})
+
 onUnmounted(() => {
   grid?.destroy(false)
   grid = null
 })
 </script>
+
+<style scoped>
+.grid-stack-item--hidden-on-device :deep(.grid-stack-item-content) {
+  opacity: 0.42;
+  outline: 1px dashed rgba(var(--v-theme-warning), 0.7);
+  outline-offset: -1px;
+}
+</style>

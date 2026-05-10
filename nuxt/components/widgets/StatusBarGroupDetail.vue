@@ -22,7 +22,7 @@
           <v-icon
             :icon="entityIcon(entity)"
             size="18"
-            :color="isActive(entity) ? (props.activeColor || 'primary') : 'medium-emphasis'"
+            :color="entityColor(entity)"
           />
           <div class="flex-grow-1" style="min-width: 0">
             <div class="text-body-2 text-truncate">{{ friendlyName(entity) }}</div>
@@ -108,6 +108,7 @@ const entityStore = useEntityStore()
 const client = useHAClient()
 const { useFilteredEntities } = useEntityGroupFilter()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon, entityIsActive, entityStateColor } = useEntityPresentation()
 
 const filterRef = computed(() => props.filter)
 const entities = useFilteredEntities(filterRef)
@@ -131,10 +132,7 @@ async function coverAction(entity: HAState, service: string) {
 }
 
 function isActive(entity: HAState) {
-  const domain = entity.entity_id.split('.')[0]
-  if (domain === 'cover') return entity.state === 'open' || entity.state === 'opening'
-  if (domain === 'climate') return entity.state !== 'off' && entity.state !== 'unavailable'
-  return entity.state === 'on'
+  return entityIsActive(entity)
 }
 
 const activeCount = computed(() => entities.value.filter(isActive).length)
@@ -170,15 +168,12 @@ function entitySubtitle(entity: HAState): string {
 }
 
 function entityIcon(entity: HAState) {
-  const domain = entity.entity_id.split('.')[0]
-  if (domain === 'light') return isActive(entity) ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
-  if (domain === 'switch') return isActive(entity) ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
-  if (domain === 'fan') return 'mdi-fan'
-  if (domain === 'climate') return 'mdi-thermostat'
-  if (domain === 'cover') return 'mdi-window-shutter'
-  if (domain === 'sensor') return 'mdi-eye-outline'
-  if (domain === 'binary_sensor') return isActive(entity) ? 'mdi-circle' : 'mdi-circle-outline'
-  return 'mdi-devices'
+  return autoEntityIcon(entity, isActive(entity))
+}
+
+function entityColor(entity: HAState) {
+  if (isActive(entity)) return props.activeColor || entityStateColor(entity, true)
+  return props.inactiveColor || entityStateColor(entity, false)
 }
 
 function climateTargetTemp(entity: HAState): number | undefined {

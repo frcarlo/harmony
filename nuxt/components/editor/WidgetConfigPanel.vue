@@ -231,11 +231,21 @@
                   density="compact" />
                 <v-checkbox v-model="cfg.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details
                   density="compact" />
+                <v-combobox v-model="ignoredOfflinePlatformsModel" :items="defaultIgnoredOfflinePlatforms"
+                  :label="t('config.problem_ignored_offline_platforms')" multiple chips closable-chips clearable
+                  density="compact" hide-details="auto" />
+                <v-combobox v-model="ignoredOfflineDomainsModel" :items="defaultIgnoredOfflineDomains"
+                  :label="t('config.problem_ignored_offline_domains')" multiple chips closable-chips clearable
+                  density="compact" hide-details="auto" />
                 <v-checkbox v-model="cfg.show_openings" :label="t('config.problem_show_openings')" hide-details
                   density="compact" />
                 <v-checkbox v-model="cfg.show_updates" :label="t('config.problem_show_updates')" hide-details
                   density="compact" />
                 <v-checkbox v-model="cfg.show_alerts" :label="t('config.problem_show_alerts')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_repairs" :label="t('config.problem_show_repairs')" hide-details
+                  density="compact" />
+                <v-checkbox v-model="cfg.show_system" :label="t('config.problem_show_system')" hide-details
                   density="compact" />
               </div>
             </template>
@@ -659,6 +669,18 @@
             <v-text-field v-model.number="appearance.min_width" :label="t('config.min_width')"
               :hint="currentWidgetWidth ? t('config.min_width_hint', { n: currentWidgetWidth }) : undefined"
               persistent-hint type="number" min="0" placeholder="–" clearable />
+
+            <div>
+              <p class="text-caption text-medium-emphasis mb-2">{{ t('config.widget_visibility') }}</p>
+              <div class="d-flex flex-column ga-1">
+                <v-checkbox v-model="visibility.desktop" :label="t('config.visibility_desktop')"
+                  density="compact" hide-details />
+                <v-checkbox v-model="visibility.tablet" :label="t('config.visibility_tablet')"
+                  density="compact" hide-details />
+                <v-checkbox v-model="visibility.mobile" :label="t('config.visibility_mobile')"
+                  density="compact" hide-details />
+              </div>
+            </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -669,12 +691,14 @@
 </template>
 
 <script setup lang="ts">
-import type { WidgetType, WidgetAppearance } from '~/types/dashboard'
+import type { WidgetType, WidgetAppearance, WidgetVisibility } from '~/types/dashboard'
 
 const entityStore = useEntityStore()
 const { t } = useI18n()
 defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
+const defaultIgnoredOfflinePlatforms = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
+const defaultIgnoredOfflineDomains = ['button']
 
 const dashboardStore = useDashboardStore()
 const widget = computed(() => dashboardStore.dashboard?.widgets.find((w) => w.id === dashboardStore.selectedWidgetId))
@@ -698,9 +722,20 @@ function stringConfigModel(key: string) {
   })
 }
 
+function stringArrayConfigModel(key: string) {
+  return computed<string[]>({
+    get: () => Array.isArray(cfg.value[key]) ? (cfg.value[key] as unknown[]).filter((item): item is string => typeof item === 'string') : [],
+    set: (value) => {
+      cfg.value[key] = value
+    },
+  })
+}
+
 const gaugeGreenColor = stringConfigModel('green_color')
 const gaugeYellowColor = stringConfigModel('yellow_color')
 const gaugeRedColor = stringConfigModel('red_color')
+const ignoredOfflinePlatformsModel = stringArrayConfigModel('ignored_offline_platforms')
+const ignoredOfflineDomainsModel = stringArrayConfigModel('ignored_offline_domains')
 const iconModel = computed({
   get: () => (typeof cfg.value.icon === 'string' ? cfg.value.icon : ''),
   set: (value: string) => {
@@ -711,13 +746,25 @@ const iconModel = computed({
 watch(widget, (w) => {
   if (!w) return
   if (!w.appearance) w.appearance = {}
+  if (!w.visibility) w.visibility = { desktop: true, tablet: true, mobile: true }
+  w.visibility.desktop ??= true
+  w.visibility.tablet ??= true
+  w.visibility.mobile ??= true
   if (w.type === 'light') {
     const config = w.config as Record<string, unknown>
     config.card_click_action ??= config.tap_action ?? 'none'
     config.card_double_click_action ??= config.double_tap_action ?? 'none'
   }
+  if (w.type === 'problem_overview') {
+    const config = w.config as Record<string, unknown>
+    config.ignored_offline_platforms ??= [...defaultIgnoredOfflinePlatforms]
+    config.ignored_offline_domains ??= [...defaultIgnoredOfflineDomains]
+    config.show_repairs ??= true
+    config.show_system ??= true
+  }
 }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
+const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
 const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
@@ -993,6 +1040,10 @@ function addStatusBarProblemEntry() {
     show_openings: true,
     show_updates: true,
     show_alerts: true,
+    show_repairs: true,
+    show_system: true,
+    ignored_offline_platforms: [...defaultIgnoredOfflinePlatforms],
+    ignored_offline_domains: [...defaultIgnoredOfflineDomains],
   })
   cfg.value.entries = list
   openEntryDialog(list.length - 1)

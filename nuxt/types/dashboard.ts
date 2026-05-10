@@ -203,7 +203,7 @@ export interface CalendarV2WidgetConfig {
 
 export interface RoomCardStatusEntity {
   entity_id: string
-  icon: string
+  icon?: string
   active_state?: string
   active_color?: string
   inactive_color?: string
@@ -249,10 +249,27 @@ export interface EntityGroupFilter {
   exclude_groups?: boolean
 }
 
-export interface StatusBarEntry {
+export type StatusBarEntryAction = 'default' | 'none' | 'open_detail' | 'toggle' | 'call_service'
+
+export interface StatusBarActionFields {
+  click_action?: StatusBarEntryAction
+  double_click_action?: StatusBarEntryAction
+  hold_action?: StatusBarEntryAction
+  click_service?: string
+  click_target_entity?: string
+  click_service_data?: string
+  double_click_service?: string
+  double_click_target_entity?: string
+  double_click_service_data?: string
+  hold_service?: string
+  hold_target_entity?: string
+  hold_service_data?: string
+}
+
+export interface StatusBarEntry extends StatusBarActionFields {
   entry_type?: 'single'
   entity_id: string
-  icon: string
+  icon?: string
   inactive_icon?: string
   label?: string
   active_state?: string
@@ -261,7 +278,7 @@ export interface StatusBarEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
-export interface StatusBarGroupEntry {
+export interface StatusBarGroupEntry extends StatusBarActionFields {
   entry_type: 'group'
   icon: string
   label?: string
@@ -272,7 +289,7 @@ export interface StatusBarGroupEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
-export interface StatusBarNavEntry {
+export interface StatusBarNavEntry extends StatusBarActionFields {
   entry_type: 'nav'
   icon: string
   label?: string
@@ -281,7 +298,7 @@ export interface StatusBarNavEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
-export interface StatusBarRoomEntry {
+export interface StatusBarRoomEntry extends StatusBarActionFields {
   entry_type: 'room'
   icon: string
   label?: string
@@ -299,7 +316,7 @@ export interface StatusBarRoomEntry {
   icon_size?: 'sm' | 'md' | 'lg'
 }
 
-export interface StatusBarProblemEntry extends ProblemOverviewWidgetConfig {
+export interface StatusBarProblemEntry extends ProblemOverviewWidgetConfig, StatusBarActionFields {
   entry_type: 'problem'
   icon?: string
   inactive_icon?: string
@@ -365,6 +382,10 @@ export interface ProblemOverviewWidgetConfig {
   show_openings?: boolean
   show_updates?: boolean
   show_alerts?: boolean
+  show_repairs?: boolean
+  show_system?: boolean
+  ignored_offline_platforms?: string[]
+  ignored_offline_domains?: string[]
 }
 
 export type WidgetConfig =
@@ -405,12 +426,19 @@ export interface WidgetAppearance {
   disable_glass?: boolean  // Disable glass effect for this widget even when enabled globally
 }
 
+export interface WidgetVisibility {
+  desktop?: boolean
+  tablet?: boolean
+  mobile?: boolean
+}
+
 export interface Widget {
   id: string
   type: WidgetType
   layout: WidgetLayout
   config: WidgetConfig
   appearance?: WidgetAppearance
+  visibility?: WidgetVisibility
 }
 
 export interface GridConfig {

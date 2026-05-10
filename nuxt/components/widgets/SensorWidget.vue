@@ -40,11 +40,11 @@ const props = defineProps<{ config: SensorWidgetConfig }>()
 const dialogOpen = ref(false)
 const entityStore = useEntityStore()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon, entityIsActive, entityStateColor } = useEntityPresentation()
 const cardEl = ref<HTMLDivElement | null>(null)
 const cardSize = ref({ width: 0, height: 0 })
 const entity = computed(() => entityStore.entities[props.config.entity_id])
 const domain = computed(() => props.config.entity_id.split('.')[0] ?? '')
-const deviceClass = computed(() => entity.value?.attributes?.device_class as string | undefined)
 const name = computed(() => props.config.name ?? (entity.value?.attributes?.friendly_name as string) ?? props.config.entity_id)
 const state = computed(() => entity.value?.state ?? '—')
 const isBinarySensor = computed(() => domain.value === 'binary_sensor')
@@ -138,19 +138,13 @@ async function loadTrend() {
 const stateColor = computed(() => {
   if (!entity.value) return undefined
   if (alertColor.value) return alertColor.value
-  if (isBinarySensor.value && state.value === 'on') return 'rgb(var(--v-theme-primary))'
+  if (isBinarySensor.value && entityIsActive(entity.value)) return `rgb(var(--v-theme-${entityStateColor(entity.value, true)}))`
   return undefined
 })
 
 const iconName = computed(() => {
-  if (!isBinarySensor.value) return 'mdi-pulse'
-  if (deviceClass.value === 'motion') return state.value === 'on' ? 'mdi-motion-sensor' : 'mdi-motion-sensor-off'
-  if (deviceClass.value === 'door') return state.value === 'on' ? 'mdi-door-open' : 'mdi-door-closed'
-  if (deviceClass.value === 'window') return state.value === 'on' ? 'mdi-window-open' : 'mdi-window-closed'
-  if (deviceClass.value === 'presence') return state.value === 'on' ? 'mdi-home-account' : 'mdi-home-outline'
-  if (deviceClass.value === 'smoke') return state.value === 'on' ? 'mdi-smoke-detector-alert' : 'mdi-smoke-detector-outline'
-  if (deviceClass.value === 'battery') return state.value === 'on' ? 'mdi-battery-alert' : 'mdi-battery'
-  return state.value === 'on' ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
+  if (!entity.value) return 'mdi-gauge'
+  return autoEntityIcon(entity.value, entityIsActive(entity.value))
 })
 
 onMounted(() => {

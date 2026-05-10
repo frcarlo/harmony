@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
-import type { HAState, HAArea, HALabel } from '~/types/ha'
+import type { HAState, HAArea, HALabel, HARepairIssue } from '~/types/ha'
 
 export const useEntityStore = defineStore('entity', {
   state: () => ({
@@ -9,13 +9,17 @@ export const useEntityStore = defineStore('entity', {
     hasConnectedOnce: false,
     areas: [] as HAArea[],
     labels: [] as HALabel[],
+    repairIssues: [] as HARepairIssue[],
     entityAreaMap: {} as Record<string, string>,   // entity_id → area_id
+    entityDeviceMap: {} as Record<string, string>, // entity_id → device_id
     entityLabelsMap: {} as Record<string, string[]>, // entity_id → label_ids
     entityPlatformMap: {} as Record<string, string>,  // entity_id → platform/integration
+    activeEntityFilter: null as Set<string> | null, // null → process all live updates
   }),
 
   actions: {
     setEntity(state: HAState) {
+      if (!this.shouldProcessLiveUpdate(state.entity_id)) return
       const existing = this.entities[state.entity_id]
       if (existing?.state === state.state && existing?.last_updated === state.last_updated) return
       this.entities[state.entity_id] = markRaw(state)
@@ -27,6 +31,7 @@ export const useEntityStore = defineStore('entity', {
 
     batchSetEntities(states: HAState[]) {
       for (const state of states) {
+        if (!this.shouldProcessLiveUpdate(state.entity_id)) continue
         const existing = this.entities[state.entity_id]
         if (existing?.state === state.state && existing?.last_updated === state.last_updated) continue
         this.entities[state.entity_id] = markRaw(state)
@@ -46,8 +51,16 @@ export const useEntityStore = defineStore('entity', {
       this.labels = labels
     },
 
+    setRepairIssues(issues: HARepairIssue[]) {
+      this.repairIssues = issues
+    },
+
     setEntityAreaMap(map: Record<string, string>) {
       this.entityAreaMap = map
+    },
+
+    setEntityDeviceMap(map: Record<string, string>) {
+      this.entityDeviceMap = map
     },
 
     setEntityLabelsMap(map: Record<string, string[]>) {
@@ -56,6 +69,14 @@ export const useEntityStore = defineStore('entity', {
 
     setEntityPlatformMap(map: Record<string, string>) {
       this.entityPlatformMap = map
+    },
+
+    setActiveEntityFilter(entityIds: Iterable<string> | null) {
+      this.activeEntityFilter = entityIds ? new Set(entityIds) : null
+    },
+
+    shouldProcessLiveUpdate(entityId: string) {
+      return !this.activeEntityFilter || this.activeEntityFilter.has(entityId)
     },
   },
 

@@ -241,6 +241,7 @@ let stopSnapshotWatcher: (() => void) | null = null
 
 const client = useHAClient()
 const entityStore = useEntityStore()
+const { autoEntityIcon, autoEntityLabel, entityIsActive, entityStateColor } = useEntityPresentation()
 
 const lightOn = computed(() => {
   const id = props.config.light_entity_id
@@ -277,41 +278,17 @@ function openStatusDialog(entityId: string) {
   statusDialogOpen.value = true
 }
 
-function defaultActiveStateForEntity(entityId: string): string {
-  const domain = entityId.split('.')[0]
-  if (domain === 'lock') return 'locked'
-  if (domain === 'cover' || domain === 'media_player') return 'open'
-  return 'on'
-}
-
 function autoStatusIcon(entry: CameraStatusEntry, active: boolean): string {
-  const domain = entry.entity_id.split('.')[0]
-  const deviceClass = entityStore.entities[entry.entity_id]?.attributes?.device_class as string | undefined
-  if (domain === 'light') return active ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
-  if (domain === 'switch') return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
-  if (domain === 'lock') return active ? 'mdi-lock' : 'mdi-lock-open-outline'
-  if (domain === 'cover') return active ? 'mdi-window-shutter-open' : 'mdi-window-shutter'
-  if (domain === 'media_player') return active ? 'mdi-play-circle' : 'mdi-pause-circle-outline'
-  if (domain === 'update') return active ? 'mdi-package-up' : 'mdi-package-check'
-  if (domain === 'fan') return active ? 'mdi-fan' : 'mdi-fan-off'
-  if (domain === 'climate') return active ? 'mdi-thermometer' : 'mdi-thermometer-off'
-  if (domain === 'alarm_control_panel') return active ? 'mdi-shield-alert' : 'mdi-shield-home-outline'
-  if (domain === 'binary_sensor') {
-    if (deviceClass === 'motion') return active ? 'mdi-motion-sensor' : 'mdi-motion-sensor-off'
-    if (deviceClass === 'door') return active ? 'mdi-door-open' : 'mdi-door-closed'
-    if (deviceClass === 'window') return active ? 'mdi-window-open' : 'mdi-window-closed'
-    if (deviceClass === 'smoke') return active ? 'mdi-smoke-detector-alert' : 'mdi-smoke-detector-outline'
-    return active ? 'mdi-circle' : 'mdi-circle-outline'
-  }
   if (entry.icon) return active ? entry.icon : (entry.inactive_icon || entry.icon)
-  return active ? 'mdi-circle' : 'mdi-circle-outline'
+  const entity = entityStore.entities[entry.entity_id]
+  return autoEntityIcon(entity ?? entry.entity_id, active)
 }
 
 const resolvedStatusBadges = computed(() => {
   return (props.config.status_entities ?? []).map(entry => {
-    const state = entityStore.entities[entry.entity_id]?.state ?? 'unknown'
-    const activeState = entry.active_state || defaultActiveStateForEntity(entry.entity_id)
-    const active = state === activeState
+    const entity = entityStore.entities[entry.entity_id]
+    const state = entity?.state ?? 'unknown'
+    const active = entityIsActive(entity ?? entry.entity_id, entry.active_state)
     const icon = entry.icon
       ? (active ? entry.icon : (entry.inactive_icon || entry.icon))
       : autoStatusIcon(entry, active)
@@ -320,8 +297,8 @@ const resolvedStatusBadges = computed(() => {
       active,
       state,
       icon,
-      color: active ? (entry.active_color || 'primary') : (entry.inactive_color || 'medium-emphasis'),
-      tooltip: entry.label || entry.entity_id,
+      color: active ? (entry.active_color || entityStateColor(entity ?? entry.entity_id, true)) : (entry.inactive_color || entityStateColor(entity ?? entry.entity_id, false)),
+      tooltip: entry.label || autoEntityLabel(entity, entry.entity_id),
     }
   })
 })

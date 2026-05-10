@@ -119,9 +119,17 @@
           <v-checkbox v-model="draft.show_badge" :label="t('config.show_badge')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_batteries" :label="t('config.problem_show_batteries')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_unavailable" :label="t('config.problem_show_unavailable')" hide-details density="compact" />
+          <v-combobox v-model="draft.ignored_offline_platforms" :items="defaultIgnoredOfflinePlatforms"
+            :label="t('config.problem_ignored_offline_platforms')" multiple chips closable-chips clearable
+            density="compact" hide-details="auto" />
+          <v-combobox v-model="draft.ignored_offline_domains" :items="defaultIgnoredOfflineDomains"
+            :label="t('config.problem_ignored_offline_domains')" multiple chips closable-chips clearable
+            density="compact" hide-details="auto" />
           <v-checkbox v-model="draft.show_openings" :label="t('config.problem_show_openings')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_updates" :label="t('config.problem_show_updates')" hide-details density="compact" />
           <v-checkbox v-model="draft.show_alerts" :label="t('config.problem_show_alerts')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_repairs" :label="t('config.problem_show_repairs')" hide-details density="compact" />
+          <v-checkbox v-model="draft.show_system" :label="t('config.problem_show_system')" hide-details density="compact" />
           <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />
         </template>
@@ -180,6 +188,41 @@
           <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />
         </template>
+
+        <template v-if="draft.entry_type !== 'divider'">
+          <v-divider />
+          <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('config.section_actions') }}</p>
+          <div v-for="action in statusBarActionConfigs" :key="action.model" class="d-flex flex-column ga-2">
+            <v-select
+              v-model="draft[action.model]"
+              :label="t(action.label)"
+              :items="statusBarActionItems"
+              item-title="title"
+              item-value="value"
+              density="compact"
+              hide-details="auto"
+            />
+            <template v-if="draft[action.model] === 'call_service'">
+              <v-text-field
+                v-model="draft[action.service]"
+                :label="t('config.action_service')"
+                placeholder="script.turn_on"
+                density="compact"
+                hide-details="auto"
+              />
+              <EntityPicker v-model="draft[action.target]" :placeholder="t('config.action_service_target_optional')" />
+              <v-textarea
+                v-model="draft[action.data]"
+                :label="t('config.action_service_data')"
+                :placeholder="`{ ${t('config.action_service_data_placeholder')} }`"
+                rows="3"
+                auto-grow
+                density="compact"
+                hide-details="auto"
+              />
+            </template>
+          </div>
+        </template>
       </v-card-text>
 
       <v-card-actions class="px-4 pb-4">
@@ -195,6 +238,8 @@
 const { t } = useI18n()
 const { glass } = useGlassEffect()
 const entityStore = useEntityStore()
+const defaultIgnoredOfflinePlatforms = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
+const defaultIgnoredOfflineDomains = ['button']
 
 const props = defineProps<{
   modelValue: boolean
@@ -227,6 +272,10 @@ function applyProblemDefaults() {
   draft.value.show_openings ??= true
   draft.value.show_updates ??= true
   draft.value.show_alerts ??= true
+  draft.value.show_repairs ??= true
+  draft.value.show_system ??= true
+  draft.value.ignored_offline_platforms ??= [...defaultIgnoredOfflinePlatforms]
+  draft.value.ignored_offline_domains ??= [...defaultIgnoredOfflineDomains]
 }
 
 function switchType(type: string) {
@@ -261,6 +310,10 @@ function switchType(type: string) {
       show_openings: true,
       show_updates: true,
       show_alerts: true,
+      show_repairs: true,
+      show_system: true,
+      ignored_offline_platforms: [...defaultIgnoredOfflinePlatforms],
+      ignored_offline_domains: [...defaultIgnoredOfflineDomains],
     }
   } else {
     draft.value = { entity_id: '', label: draft.value.label }
@@ -295,6 +348,36 @@ const roomActiveSourceItems = computed(() => [
   { title: t('config.room_active_source_climate'), value: 'climate' },
   { title: t('config.room_active_source_custom'), value: 'custom' },
 ])
+const statusBarActionItems = computed(() => [
+  { title: t('config.action_default'), value: 'default' },
+  { title: t('config.action_none'), value: 'none' },
+  { title: t('config.action_open_entity_detail'), value: 'open_detail' },
+  { title: t('config.action_toggle_entity'), value: 'toggle' },
+  { title: t('config.action_call_service'), value: 'call_service' },
+])
+const statusBarActionConfigs = [
+  {
+    label: 'config.card_click_action',
+    model: 'click_action',
+    service: 'click_service',
+    target: 'click_target_entity',
+    data: 'click_service_data',
+  },
+  {
+    label: 'config.card_double_click_action',
+    model: 'double_click_action',
+    service: 'double_click_service',
+    target: 'double_click_target_entity',
+    data: 'double_click_service_data',
+  },
+  {
+    label: 'config.card_hold_action',
+    model: 'hold_action',
+    service: 'hold_service',
+    target: 'hold_target_entity',
+    data: 'hold_service_data',
+  },
+] as const
 
 function addRoomSensor() {
   roomSensors.value.push({ entity_id: '', icon: '' })
@@ -323,6 +406,11 @@ watch(draft, (d) => {
     }
     if (!Array.isArray(d.status_entities as unknown[] | undefined)) d.status_entities = []
     if (!d.active_source) d.active_source = 'light'
+  }
+  if (d.entry_type !== 'divider') {
+    d.click_action ??= 'default'
+    d.double_click_action ??= 'none'
+    d.hold_action ??= 'none'
   }
 }, { deep: true, immediate: true })
 </script>

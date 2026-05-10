@@ -23,12 +23,14 @@
         <v-btn
           v-if="kioskMode && !forcedKioskMode"
           class="kiosk-exit-btn"
-          icon="mdi-fullscreen-exit"
-          size="small"
+          prepend-icon="mdi-fullscreen-exit"
+          size="default"
           variant="tonal"
           :title="t('toolbar.kiosk_mode_exit')"
-          @click="toggleKioskMode"
-        />
+          @click="exitKioskMode"
+        >
+          {{ t('toolbar.kiosk_mode_exit') }}
+        </v-btn>
         <div v-if="!dashboard" class="d-flex align-center justify-center" style="min-height:80vh">
           <div class="d-flex flex-column align-center ga-4">
             <v-progress-circular indeterminate color="primary" size="48" />
@@ -74,7 +76,7 @@ function goBack() {
 const dashboardStore = useDashboardStore()
 const theme = useTheme()
 const storage = useUserPreferenceStorage()
-const { kioskMode, forcedKioskMode, toggleKioskMode } = useDashboardDisplayMode()
+const { kioskMode, forcedKioskMode, setKioskMode } = useDashboardDisplayMode()
 const dashboard = computed(() => dashboardStore.dashboard)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 const myDefaultDashboardId = ref<string | null>(null)
@@ -122,6 +124,11 @@ onMounted(async () => {
   dashboardStore.setDashboard(data)
   const preference = await $fetch<{ dashboardId: string | null }>('/api/users/me/default-dashboard')
   myDefaultDashboardId.value = preference.dashboardId
+  window.addEventListener('keydown', handleKioskKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKioskKeydown)
 })
 
 watch(() => dashboard.value?.theme_override, (override) => {
@@ -180,6 +187,18 @@ async function closeQuickEdit() {
     quickEditSaving.value = false
   }
 }
+
+function exitKioskMode() {
+  void setKioskMode(false)
+}
+
+function handleKioskKeydown(event: KeyboardEvent) {
+  if (!kioskMode.value || forcedKioskMode.value) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    exitKioskMode()
+  }
+}
 </script>
 
 <style scoped>
@@ -188,12 +207,27 @@ async function closeQuickEdit() {
   top: max(10px, env(safe-area-inset-top));
   right: max(10px, env(safe-area-inset-right));
   z-index: 20;
-  opacity: 0.38;
+  opacity: 0.64;
   backdrop-filter: blur(8px);
+  min-width: 0;
+  max-width: min(220px, calc(100vw - 24px));
+  padding-inline: 10px 14px;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.14);
 }
 
 .kiosk-exit-btn:hover,
 .kiosk-exit-btn:focus-visible {
   opacity: 1;
+}
+
+@media (max-width: 520px) {
+  .kiosk-exit-btn {
+    max-width: 44px;
+    padding-inline: 0;
+  }
+
+  .kiosk-exit-btn :deep(.v-btn__content) {
+    display: none;
+  }
 }
 </style>

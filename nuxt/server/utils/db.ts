@@ -82,6 +82,7 @@ function getDb(): DatabaseSync {
       layout TEXT NOT NULL,
       config TEXT NOT NULL,
       appearance TEXT,
+      visibility TEXT,
       position INTEGER NOT NULL DEFAULT 0
     );
 
@@ -120,6 +121,9 @@ function getDb(): DatabaseSync {
   const widgetCols = _db.prepare('PRAGMA table_info(widgets)').all() as Array<{ name: string }>
   if (!widgetCols.some((c) => c.name === 'appearance')) {
     _db.exec('ALTER TABLE widgets ADD COLUMN appearance TEXT')
+  }
+  if (!widgetCols.some((c) => c.name === 'visibility')) {
+    _db.exec('ALTER TABLE widgets ADD COLUMN visibility TEXT')
   }
   const dashCols = _db.prepare('PRAGMA table_info(dashboards)').all() as Array<{ name: string }>
   const userCols = _db.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>
@@ -227,7 +231,7 @@ export function getDashboard(id: string): Dashboard | null {
 
   const widgetRows = db
     .prepare('SELECT * FROM widgets WHERE dashboard_id = ? ORDER BY position')
-    .all(id) as Array<{ id: string; type: string; layout: string; config: string; appearance: string | null }>
+    .all(id) as Array<{ id: string; type: string; layout: string; config: string; appearance: string | null; visibility: string | null }>
 
   const widgets: Widget[] = widgetRows.map((w) => ({
     id: w.id,
@@ -235,6 +239,7 @@ export function getDashboard(id: string): Dashboard | null {
     layout: JSON.parse(w.layout),
     config: JSON.parse(w.config),
     ...(w.appearance ? { appearance: JSON.parse(w.appearance) } : {}),
+    ...(w.visibility ? { visibility: JSON.parse(w.visibility) } : {}),
   }))
 
   return {
@@ -299,7 +304,7 @@ export function saveDashboard(dashboard: Dashboard): void {
     db.prepare('DELETE FROM widgets WHERE dashboard_id = ?').run(dashboard.id)
 
     const insert = db.prepare(`
-      INSERT INTO widgets (id, dashboard_id, type, layout, config, appearance, position) VALUES (?,?,?,?,?,?,?)
+      INSERT INTO widgets (id, dashboard_id, type, layout, config, appearance, visibility, position) VALUES (?,?,?,?,?,?,?,?)
     `)
 
     dashboard.widgets.forEach((w, i) => {
@@ -308,6 +313,7 @@ export function saveDashboard(dashboard: Dashboard): void {
         JSON.stringify(w.layout),
         JSON.stringify(w.config),
         w.appearance && Object.keys(w.appearance).length > 0 ? JSON.stringify(w.appearance) : null,
+        w.visibility && Object.keys(w.visibility).length > 0 ? JSON.stringify(w.visibility) : null,
         i,
       )
     })

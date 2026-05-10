@@ -57,12 +57,39 @@
       </v-app-bar>
 
       <v-main>
-        <v-container fluid class="pa-6">
+        <v-container fluid class="dashboard-home px-4 px-sm-6 py-5">
+          <section class="dashboard-home__header">
+            <div class="dashboard-home__heading">
+              <div class="dashboard-home__eyebrow">{{ t('dashboard.count_other', { n: dashboards.length }) }}</div>
+              <h1 class="dashboard-home__title">{{ t('dashboard.title') }}</h1>
+              <p class="dashboard-home__subtitle">
+                {{ listEditMode ? t('dashboard.editing_hint') : currentDefaultHint }}
+              </p>
+            </div>
+            <div class="dashboard-home__header-actions">
+              <v-btn
+                v-if="isAdmin"
+                :prepend-icon="listEditMode ? 'mdi-check' : 'mdi-pencil-outline'"
+                :color="listEditMode ? 'primary' : undefined"
+                :variant="listEditMode ? 'flat' : 'tonal'"
+                class="text-none"
+                @click="listEditMode = !listEditMode"
+              >
+                {{ listEditMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on') }}
+              </v-btn>
+            </div>
+          </section>
+
+          <div v-if="listEditMode" class="dashboard-home__edit-banner">
+            <v-icon icon="mdi-drag-vertical" size="18" />
+            <span>{{ t('dashboard.editing_hint') }}</span>
+          </div>
+
           <draggable v-if="dashboards.length > 0" v-model="dashboards" item-key="id"
             handle=".drag-handle" :animation="150" :disabled="!isAdmin || !listEditMode"
-            class="v-row" @end="saveOrder">
+            class="dashboard-home__grid" @end="saveOrder">
             <template #item="{ element }">
-              <v-col cols="12" sm="6" lg="4" xl="3">
+              <div class="dashboard-home__grid-item">
                 <DashboardCard
                   :dashboard="element"
                   :is-admin="isAdmin"
@@ -70,7 +97,7 @@
                   :current-default-label="element.id === resolvedDefault.dashboardId ? currentDefaultLabel : null"
                   @deleted="loadDashboards"
                 />
-              </v-col>
+              </div>
             </template>
           </draggable>
 
@@ -226,6 +253,11 @@ const currentDefaultLabel = computed(() => {
     default: return null
   }
 })
+const currentDefaultHint = computed(() => {
+  const dashboard = dashboards.value.find((item) => item.id === resolvedDefault.value.dashboardId)
+  if (!dashboard) return t('dashboard.empty_hint')
+  return `${currentDefaultLabel.value ?? t('dashboard.default_badge')}: ${dashboard.name}`
+})
 
 async function loadDashboards() {
   const [items, defaultInfo] = await Promise.all([
@@ -297,3 +329,97 @@ async function saveOrder() {
   })
 }
 </script>
+
+<style scoped>
+.dashboard-home {
+  max-width: 1780px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard-home__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.dashboard-home__heading {
+  min-width: 0;
+}
+
+.dashboard-home__eyebrow {
+  font-size: 0.72rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-weight: 800;
+  color: rgb(var(--v-theme-primary));
+  margin-bottom: 8px;
+}
+
+.dashboard-home__title {
+  font-size: 2.25rem;
+  line-height: 1.05;
+  font-weight: 850;
+  margin: 0;
+}
+
+.dashboard-home__subtitle {
+  margin: 8px 0 0;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-size: 0.95rem;
+}
+
+.dashboard-home__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dashboard-home__edit-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  color: rgb(var(--v-theme-on-surface));
+  background: rgba(var(--v-theme-primary), 0.14);
+  border: 1px solid rgba(var(--v-theme-primary), 0.26);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.dashboard-home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.dashboard-home__grid-item {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .dashboard-home__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-home__header-actions {
+    justify-content: flex-start;
+  }
+
+  .dashboard-home__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-home__title {
+    font-size: 1.8rem;
+  }
+}
+</style>

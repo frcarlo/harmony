@@ -46,9 +46,11 @@
           </template>
         </v-list-item>
         <v-list-item
-          v-if="canEdit && !editMode"
-          prepend-icon="mdi-pencil-outline"
-          :title="t('toolbar.edit_mode_on')"
+          v-if="canEdit"
+          :prepend-icon="editMode ? 'mdi-pencil-off-outline' : 'mdi-pencil-outline'"
+          :title="editMode ? t('toolbar.edit_mode_off') : t('toolbar.edit_mode_on')"
+          :active="editMode"
+          :color="editMode ? 'primary' : undefined"
           rounded="lg"
           @click="emit('toggle-edit')"
         />
@@ -82,7 +84,7 @@ type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
-const { performanceMode, kioskMode, forcedKioskMode, togglePerformanceMode, toggleKioskMode } = useDashboardDisplayMode()
+const { performanceMode, kioskMode, forcedKioskMode, togglePerformanceMode, toggleKioskMode, setKioskMode } = useDashboardDisplayMode()
 const availableLocales = computed(() => (locales.value as { code: LocaleCode; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
 const theme = useTheme()
@@ -107,7 +109,7 @@ function resetLocalSettings() {
   glass.value = false
   borders.value = true
   performanceMode.value = false
-  kioskMode.value = forcedKioskMode.value
+  void setKioskMode(forcedKioskMode.value, { fullscreen: false })
 
   const effectiveTheme = dashboardStore.dashboard?.theme_override ?? storage.read('ha-theme', 'dark') ?? 'dark'
   theme.change(effectiveTheme)

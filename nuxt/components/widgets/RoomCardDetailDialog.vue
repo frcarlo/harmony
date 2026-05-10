@@ -111,7 +111,7 @@
           >
             <div class="d-flex justify-space-between align-center mb-2">
               <span class="text-body-2 font-weight-medium">{{ t('widget.sensor.label') }}</span>
-              <v-icon :icon="config.sensor_icon || 'mdi-eye'" size="18" color="medium-emphasis" />
+              <v-icon :icon="config.sensor_icon || autoEntityIcon(sensorEntity)" size="18" color="medium-emphasis" />
             </div>
             <div class="text-h5 font-weight-bold">{{ sensorDisplay }}</div>
             <div class="text-caption text-medium-emphasis text-truncate">
@@ -127,7 +127,7 @@
           >
             <div class="d-flex justify-space-between align-center mb-2">
               <span class="text-body-2 font-weight-medium">{{ t('widget.sensor.label') }}</span>
-              <v-icon :icon="sensor.icon || 'mdi-eye'" size="18" color="medium-emphasis" />
+              <v-icon :icon="sensor.icon || autoEntityIcon(sensorEntityState(sensor))" size="18" color="medium-emphasis" />
             </div>
             <div class="text-h5 font-weight-bold">{{ sensorDisplayFor(sensor) }}</div>
             <div class="text-caption text-medium-emphasis text-truncate">
@@ -142,10 +142,10 @@
             <v-btn
               v-for="(status, idx) in visibleStatusEntities"
               :key="`${status.entity_id}-${idx}`"
-              :prepend-icon="status.icon"
+              :prepend-icon="statusIcon(status)"
               variant="tonal"
               size="small"
-              :color="isStatusActive(status) ? (status.active_color ?? 'primary') : (status.inactive_color ?? 'medium-emphasis')"
+              :color="statusColor(status)"
               @click="openStatusDetail(status)"
             >
               {{ statusLabel(status) }}
@@ -192,6 +192,7 @@ import type { RoomCardSensorEntity, RoomCardStatusEntity, RoomCardWidgetConfig }
 const { t } = useI18n()
 const { glass } = useGlassEffect()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon, autoEntityLabel, entityIsActive, entityStateColor } = useEntityPresentation()
 
 const props = defineProps<{
   modelValue: boolean
@@ -241,7 +242,6 @@ const autoStatusEntities = computed<RoomCardStatusEntity[]>(() => {
     .slice(0, 10)
     .map(entity => ({
       entity_id: entity.entity_id,
-      icon: autoStatusIcon(String(entity.attributes?.device_class ?? '')),
       active_state: 'on',
       active_color: 'warning',
     }))
@@ -255,9 +255,7 @@ const currentTemp = computed(() => climateEntity.value?.attributes?.current_temp
 const targetTemp = computed(() => climateEntity.value?.attributes?.temperature as number | undefined)
 const canAdjustTemp = computed(() => targetTemp.value !== undefined && climateEntity.value?.state !== 'unavailable')
 
-const sensorFriendlyName = computed(() => (
-  sensorEntity.value?.attributes?.friendly_name as string | undefined
-) ?? props.config.sensor_entity ?? '')
+const sensorFriendlyName = computed(() => autoEntityLabel(sensorEntity.value, props.config.sensor_entity ?? ''))
 const sensorDisplay = computed(() => {
   if (!sensorEntity.value) return '—'
   return formatEntityState(sensorEntity.value)
@@ -307,29 +305,27 @@ const statusDialogEntity = ref<string | null>(null)
 const statusDialogConfig = ref<RoomCardStatusEntity | null>(null)
 const statusDialogDomain = computed(() => statusDialogEntity.value?.split('.')[0] ?? '')
 
-function defaultActiveState(entityId: string): string {
-  const domain = entityId.split('.')[0]
-  if (domain === 'lock') return 'locked'
-  if (domain === 'cover') return 'open'
-  if (domain === 'media_player') return 'playing'
-  if (domain === 'binary_sensor') return 'on'
-  return 'on'
-}
-
-function autoStatusIcon(deviceClass: string) {
-  if (deviceClass === 'window') return 'mdi-window-open-variant'
-  if (deviceClass === 'garage_door') return 'mdi-garage-open-variant'
-  return 'mdi-door-open'
-}
-
 function isStatusActive(status: RoomCardStatusEntity) {
   const entity = entityStore.entities[status.entity_id]
-  return entity?.state === (status.active_state || defaultActiveState(status.entity_id))
+  return entityIsActive(entity ?? status.entity_id, status.active_state)
+}
+
+function statusIcon(status: RoomCardStatusEntity) {
+  const entity = entityStore.entities[status.entity_id]
+  const active = isStatusActive(status)
+  return status.icon || autoEntityIcon(entity ?? status.entity_id, active)
+}
+
+function statusColor(status: RoomCardStatusEntity) {
+  const entity = entityStore.entities[status.entity_id]
+  const active = isStatusActive(status)
+  if (active) return status.active_color ?? entityStateColor(entity ?? status.entity_id, true)
+  return status.inactive_color ?? entityStateColor(entity ?? status.entity_id, false)
 }
 
 function statusLabel(status: RoomCardStatusEntity) {
   const entity = entityStore.entities[status.entity_id]
-  const name = (entity?.attributes?.friendly_name as string | undefined) ?? status.entity_id
+  const name = autoEntityLabel(entity, status.entity_id)
   return `${name}: ${formatEntityState(entity)}`
 }
 
@@ -351,7 +347,7 @@ function sensorEntityState(sensor: RoomCardSensorEntity) {
 }
 
 function sensorFriendlyNameFor(sensor: RoomCardSensorEntity) {
-  return (sensorEntityState(sensor)?.attributes?.friendly_name as string | undefined) ?? sensor.entity_id
+  return autoEntityLabel(sensorEntityState(sensor), sensor.entity_id)
 }
 
 function sensorDisplayFor(sensor: RoomCardSensorEntity) {
@@ -365,7 +361,7 @@ function openExtraSensorDetail(sensor: RoomCardSensorEntity) {
 }
 
 function entityName(entityId: string) {
-  return (entityStore.entities[entityId]?.attributes?.friendly_name as string | undefined) ?? entityId
+  return autoEntityLabel(entityStore.entities[entityId], entityId)
 }
 
 function openLightDetail(entityId: string) {

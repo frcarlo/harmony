@@ -27,10 +27,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LightWidgetConfig } from '~/types/dashboard'
+import type { LightWidgetConfig, WidgetAppearance } from '~/types/dashboard'
 
 const { t } = useI18n()
-const props = defineProps<{ config: LightWidgetConfig }>()
+const props = defineProps<{ config: LightWidgetConfig; appearance?: WidgetAppearance }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
 const entity = computed(() => entityStore.entities[props.config.entity_id])

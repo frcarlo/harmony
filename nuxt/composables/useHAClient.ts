@@ -1,4 +1,4 @@
-import type { HAState, HAWSMessage, HAServiceCall, BrowseMediaNode, HAArea, HAEntityRegistryEntry, HADeviceRegistryEntry, HALabel } from '~/types/ha'
+import type { HAState, HAWSMessage, HAServiceCall, BrowseMediaNode, HAArea, HAEntityRegistryEntry, HADeviceRegistryEntry, HALabel, HARepairIssue } from '~/types/ha'
 
 type StateCallback = (state: HAState) => void
 type VoidCallback = () => void
@@ -176,6 +176,11 @@ class HAWebSocketClient {
 
   async getLabelRegistry(): Promise<HALabel[]> {
     return this._call({ type: 'config/label_registry/list' }) as Promise<HALabel[]>
+  }
+
+  async getRepairIssues(): Promise<HARepairIssue[]> {
+    const result = await this._call({ type: 'repairs/list_issues' }) as HARepairIssue[] | { issues?: HARepairIssue[] }
+    return Array.isArray(result) ? result : (result.issues ?? [])
   }
 
   async callService(call: HAServiceCall): Promise<void> {

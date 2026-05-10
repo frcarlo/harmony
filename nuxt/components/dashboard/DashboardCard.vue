@@ -1,31 +1,30 @@
 <template>
-  <v-card :to="`/dashboard/${dashboard.id}`" :class="{ 'widget-glass': glass }"
-    class="rounded-xl dashboard-card" :style="cardPreviewStyle">
+  <v-card :to="`/dashboard/${dashboard.id}`" :class="{ 'widget-glass': glass, 'dashboard-card--edit': editMode }"
+    class="dashboard-card" :style="cardPreviewStyle">
 
-    <!-- Header preview with dashboard background -->
     <div class="dashboard-card__header" :style="headerStyle">
       <div class="dashboard-card__header-overlay" />
-      <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'"
-        class="dashboard-card__header-icon" />
+      <div class="dashboard-card__icon-badge">
+        <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" class="dashboard-card__header-icon" />
+      </div>
       <v-icon v-if="isAdmin && editMode"
         class="drag-handle dashboard-card__drag"
         icon="mdi-drag-vertical" size="18"
         @click.prevent />
+      <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="flat" class="dashboard-card__default-chip">
+        {{ currentDefaultLabel }}
+      </v-chip>
+      <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="tonal" class="dashboard-card__default-chip">
+        {{ t('dashboard.global_default_badge') }}
+      </v-chip>
     </div>
 
-    <!-- Card body -->
-    <v-card-item class="pt-3 pb-1">
-      <v-card-title class="text-body-1 font-weight-bold d-flex align-center ga-2 flex-wrap">
+    <v-card-item class="dashboard-card__body">
+      <v-card-title class="dashboard-card__title">
         {{ dashboard.name }}
-        <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="tonal">
-          {{ currentDefaultLabel }}
-        </v-chip>
-        <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="outlined">
-          {{ t('dashboard.global_default_badge') }}
-        </v-chip>
       </v-card-title>
-      <v-card-subtitle class="d-flex align-center ga-2 flex-wrap mt-1">
-        <span>{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
+      <v-card-subtitle class="dashboard-card__meta">
+        <span class="dashboard-card__edited">{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
         <v-chip v-if="themeMeta" size="x-small" rounded="pill" variant="outlined" class="dashboard-theme-chip">
           <span class="dashboard-theme-chip__swatch" />
           {{ themeMeta.name }}
@@ -33,10 +32,9 @@
       </v-card-subtitle>
     </v-card-item>
 
-    <!-- Edit actions -->
-    <div v-if="isAdmin && editMode" class="d-flex justify-end ga-1 px-2 pb-2">
+    <div v-if="isAdmin" class="dashboard-card__actions" :class="{ 'dashboard-card__actions--edit': editMode }">
       <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" :to="`/edit/${dashboard.id}`"
-        @click.stop />
+        :title="t('common.edit')" @click.stop />
       <v-btn icon="mdi-content-copy" size="x-small" variant="text" :loading="cloning"
         :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
       <v-btn icon="mdi-export-variant" size="x-small" variant="text" :loading="exporting"
@@ -207,20 +205,30 @@ async function handleDelete() {
 .dashboard-card {
   position: relative;
   overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border-radius: 8px;
+  min-height: 164px;
+  background: rgba(var(--v-theme-surface), 0.72);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
 .dashboard-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24) !important;
+  border-color: rgba(var(--v-theme-primary), 0.32);
+}
+
+.dashboard-card--edit {
+  border-color: rgba(var(--v-theme-primary), 0.22);
 }
 
 .dashboard-card__header {
   position: relative;
-  height: 72px;
+  height: 68px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 14px 16px;
   overflow: hidden;
 }
 
@@ -230,10 +238,22 @@ async function handleDelete() {
   background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.28) 100%);
 }
 
-.dashboard-card__header-icon {
-  font-size: 36px;
+.dashboard-card__icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 1;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-card__header-icon {
+  font-size: 26px;
   color: rgba(255, 255, 255, 0.92) !important;
   filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
 }
@@ -247,8 +267,67 @@ async function handleDelete() {
   color: rgba(255,255,255,0.7) !important;
 }
 
+.dashboard-card__default-chip {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 2;
+  font-weight: 700;
+}
+
+.dashboard-card__body {
+  padding: 14px 16px 42px;
+}
+
+.dashboard-card__title {
+  font-size: 1rem;
+  line-height: 1.25;
+  font-weight: 800;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 24px;
+  margin-top: 6px;
+  padding: 0;
+}
+
+.dashboard-card__edited {
+  color: rgba(var(--v-theme-on-surface), 0.62);
+}
+
+.dashboard-card__actions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  padding: 2px;
+  border-radius: 8px;
+  background: rgba(var(--v-theme-surface), 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-card:hover .dashboard-card__actions,
+.dashboard-card__actions--edit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .dashboard-theme-chip {
   backdrop-filter: blur(10px);
+  background: rgba(var(--v-theme-surface), 0.34);
 }
 
 .dashboard-theme-chip__swatch {

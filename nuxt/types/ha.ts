@@ -93,6 +93,21 @@ export interface HADeviceRegistryEntry {
   labels?: string[]
 }
 
+export interface HARepairIssue {
+  breaks_in_ha_version?: string | null
+  created?: string | null
+  dismissed_version?: string | null
+  ignored?: boolean
+  domain?: string | null
+  is_fixable?: boolean
+  issue_domain?: string | null
+  issue_id: string
+  learn_more_url?: string | null
+  severity?: 'error' | 'warning' | 'critical' | string
+  translation_key?: string | null
+  translation_placeholders?: Record<string, string | number | boolean | null>
+}
+
 export interface HAServiceCall {
   domain: string
   service: string

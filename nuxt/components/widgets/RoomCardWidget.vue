@@ -21,9 +21,9 @@
               density="comfortable" @mousedown.stop @click.stop="climateDialogOpen = true" />
           </template>
         </v-tooltip>
-        <v-btn v-for="(s, i) in visibleStatusEntities" :key="`${s.entity_id}-${i}`" :icon="s.icon" size="x-small" rounded="circle"
+        <v-btn v-for="(s, i) in visibleStatusEntities" :key="`${s.entity_id}-${i}`" :icon="statusIcon(s)" size="x-small" rounded="circle"
           :variant="isActive(s) ? 'flat' : 'tonal'"
-          :color="isActive(s) ? (s.active_color ?? 'primary') : (s.inactive_color ?? 'medium-emphasis')"
+          :color="statusColor(s)"
           density="comfortable" :title="statusTitle(s)" @mousedown.stop @click.stop="openDetail(s)" />
       </div>
 
@@ -35,12 +35,12 @@
           <span v-else class="text-body-2 text-medium-emphasis">–</span>
         </template>
         <template v-else-if="props.config.sensor_entity && sensorEntity">
-          <v-icon :icon="props.config.sensor_icon || 'mdi-eye'" size="20" color="medium-emphasis" />
+          <v-icon :icon="props.config.sensor_icon || autoEntityIcon(sensorEntity)" size="20" color="medium-emphasis" />
           <span class="text-h5 font-weight-bold">{{ sensorDisplay }}</span>
         </template>
         <template v-for="sensor in compactExtraSensors" :key="sensor.entity_id">
           <v-chip size="x-small" variant="tonal" class="room-card__sensor-chip" @mousedown.stop @click.stop="openSensorEntity(sensor.entity_id)">
-            <v-icon :icon="sensor.icon || 'mdi-gauge'" size="14" start />
+            <v-icon :icon="sensor.icon || autoEntityIcon(sensorEntityState(sensor))" size="14" start />
             {{ sensorDisplayFor(sensor) }}
           </v-chip>
         </template>
@@ -80,6 +80,7 @@ const props = defineProps<{ config: RoomCardWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon, autoEntityLabel, entityIsActive, entityStateColor } = useEntityPresentation()
 
 const climateEntity = computed(() =>
   props.config.climate_entity ? entityStore.entities[props.config.climate_entity] : undefined
@@ -124,7 +125,6 @@ const autoStatusEntities = computed<RoomCardStatusEntity[]>(() => {
     .slice(0, 6)
     .map(entity => ({
       entity_id: entity.entity_id,
-      icon: autoStatusIcon(String(entity.attributes?.device_class ?? '')),
       active_state: 'on',
       active_color: 'warning',
     }))
@@ -146,29 +146,27 @@ const hvacModeColor = computed(() => {
 })
 const hvacModeLabel = computed(() => hvacMode.value.replace(/_/g, ' '))
 
-function defaultActiveState(entityId: string): string {
-  const domain = entityId.split('.')[0]
-  if (domain === 'lock') return 'locked'
-  if (domain === 'cover') return 'open'
-  if (domain === 'media_player') return 'playing'
-  if (domain === 'binary_sensor') return 'on'
-  return 'on'
-}
-
-function autoStatusIcon(deviceClass: string) {
-  if (deviceClass === 'window') return 'mdi-window-open-variant'
-  if (deviceClass === 'garage_door') return 'mdi-garage-open-variant'
-  return 'mdi-door-open'
-}
-
 function isActive(s: { entity_id: string; active_state?: string }) {
   const e = entityStore.entities[s.entity_id]
-  return e?.state === (s.active_state || defaultActiveState(s.entity_id))
+  return entityIsActive(e ?? s.entity_id, s.active_state)
+}
+
+function statusColor(s: RoomCardStatusEntity) {
+  const entity = entityStore.entities[s.entity_id]
+  const active = isActive(s)
+  if (active) return s.active_color ?? entityStateColor(entity ?? s.entity_id, true)
+  return s.inactive_color ?? entityStateColor(entity ?? s.entity_id, false)
+}
+
+function statusIcon(s: RoomCardStatusEntity) {
+  const entity = entityStore.entities[s.entity_id]
+  const active = isActive(s)
+  return s.icon || autoEntityIcon(entity ?? s.entity_id, active)
 }
 
 function statusTitle(s: RoomCardStatusEntity) {
   const entity = entityStore.entities[s.entity_id]
-  const name = (entity?.attributes?.friendly_name as string | undefined) ?? s.entity_id
+  const name = autoEntityLabel(entity, s.entity_id)
   return `${name}: ${formatEntityState(entity)}`
 }
 

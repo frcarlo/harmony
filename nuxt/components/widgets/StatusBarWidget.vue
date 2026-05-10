@@ -19,7 +19,18 @@
     >
       <v-tooltip v-for="(badge, i) in navBadges" :key="'ns' + i" location="bottom">
         <template #activator="{ props: tp }">
-          <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
+          <div
+            v-bind="tp"
+            class="badge d-flex flex-column align-center ga-1"
+            @click="handleBadgeClick($event, badge)"
+            @dblclick="handleBadgeDoubleClick($event, badge)"
+            @mousedown="startBadgeHold($event, badge)"
+            @mouseup="cancelBadgeHold"
+            @mouseleave="cancelBadgeHold"
+            @touchstart.passive="startBadgeHold($event, badge)"
+            @touchend="cancelBadgeHold"
+            @touchmove="cancelBadgeHold"
+          >
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
               :color="badge.entry.icon_color || 'medium-emphasis'" :size="iconSize(badge.entry)" />
             <span v-if="showLabels" class="badge-label">{{ badge.entry.label || '' }}</span>
@@ -43,11 +54,22 @@
         />
         <v-tooltip v-else location="bottom">
           <template #activator="{ props: tp }">
-            <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
+            <div
+              v-bind="tp"
+              class="badge d-flex flex-column align-center ga-1"
+              @click="handleBadgeClick($event, badge)"
+              @dblclick="handleBadgeDoubleClick($event, badge)"
+              @mousedown="startBadgeHold($event, badge)"
+              @mouseup="cancelBadgeHold"
+              @mouseleave="cancelBadgeHold"
+              @touchstart.passive="startBadgeHold($event, badge)"
+              @touchend="cancelBadgeHold"
+              @touchmove="cancelBadgeHold"
+            >
               <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
                 <v-icon
                   :icon="badge.type === 'single' ? resolveIcon(badge) : badge.type === 'problem' ? problemIcon(badge) : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
-                  :color="badge.type === 'problem' ? problemColor(badge) : badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
+                  :color="badge.type === 'problem' ? problemColor(badge) : badge.type === 'single' ? singleColor(badge) : badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
                   :size="iconSize(badge.entry)"
                 />
                 <span v-if="(badge.type === 'group' && badge.entry.show_badge && badge.activeCount > 0) || (badge.type === 'problem' && badge.entry.show_badge !== false && badge.problemCount > 0)" class="status-badge">
@@ -56,7 +78,7 @@
               </div>
               <span v-if="showLabels" class="badge-label"
                 :style="{ color: badge.type === 'problem' ? (badge.active ? (badge.entry.active_color || undefined) : undefined) : badge.active ? (badge.entry.active_color || undefined) : undefined }">
-                {{ badge.type === 'problem' ? problemLabel(badge) : (badge.entry.label || (badge.type === 'single' ? shortState(badge.entry.entity_id) : '')) }}
+                {{ badge.type === 'problem' ? problemLabel(badge) : badge.type === 'single' ? singleLabel(badge) : badge.entry.label || '' }}
               </span>
             </div>
           </template>
@@ -73,7 +95,18 @@
     >
       <v-tooltip v-for="(badge, i) in navBadges" :key="'ne' + i" location="bottom">
         <template #activator="{ props: tp }">
-          <div v-bind="tp" class="badge d-flex flex-column align-center ga-1" @click="handleClick(badge)">
+          <div
+            v-bind="tp"
+            class="badge d-flex flex-column align-center ga-1"
+            @click="handleBadgeClick($event, badge)"
+            @dblclick="handleBadgeDoubleClick($event, badge)"
+            @mousedown="startBadgeHold($event, badge)"
+            @mouseup="cancelBadgeHold"
+            @mouseleave="cancelBadgeHold"
+            @touchstart.passive="startBadgeHold($event, badge)"
+            @touchend="cancelBadgeHold"
+            @touchmove="cancelBadgeHold"
+          >
             <v-icon :icon="badge.entry.icon || 'mdi-arrow-right-circle-outline'"
               :color="badge.entry.icon_color || 'medium-emphasis'" :size="iconSize(badge.entry)" />
             <span v-if="showLabels" class="badge-label">{{ badge.entry.label || '' }}</span>
@@ -134,7 +167,8 @@
 </template>
 
 <script setup lang="ts">
-import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry } from '~/types/dashboard'
+import { toast } from 'vue-sonner'
+import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry, StatusBarEntryAction } from '~/types/dashboard'
 import type { HAState } from '~/types/ha'
 
 defineOptions({ inheritAttrs: false })
@@ -149,7 +183,9 @@ const containerHeight = ref(0)
 const entityStore = useEntityStore()
 const { getFilteredEntities } = useEntityGroupFilter()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon, autoEntityLabel, entityIsActive, entityStateColor } = useEntityPresentation()
 const router = useRouter()
+const client = useHAClient()
 const isNarrowMobile = computed(() => !isVertical.value && containerWidth.value > 0 && containerWidth.value < 420)
 const shouldStackRows = computed(() => isNarrowMobile.value && containerHeight.value >= 84)
 const isCompactMobile = computed(() => isNarrowMobile.value && !shouldStackRows.value)
@@ -204,14 +240,14 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomB
     const e = entry as StatusBarEntry
     const entity = entityStore.entities[e.entity_id]
     const state = entity?.state ?? 'unknown'
-    const domain = e.entity_id.split('.')[0]
-    const activeState = AUTO_DOMAINS.has(domain) ? defaultActiveState(e.entity_id) : (e.active_state || defaultActiveState(e.entity_id))
+    const activeState = e.active_state || undefined
+    const label = e.label || autoEntityLabel(entity, e.entity_id)
     return {
       type: 'single' as const,
       entry: e,
-      active: state === activeState,
+      active: entityIsActive(entity ?? e.entity_id, activeState),
       state,
-      tooltipText: e.label || e.entity_id,
+      tooltipText: entity ? `${label}: ${formatEntityState(entity)}` : label,
     }
   })
 })
@@ -230,6 +266,9 @@ const roomEntry = ref<StatusBarRoomEntry | null>(null)
 const problemDialogOpen = ref(false)
 const problemEntry = ref<StatusBarProblemEntry | null>(null)
 const problemDialogConfig = computed(() => problemEntry.value ? { ...problemEntry.value, max_items: 9999 } : null)
+let clickTimer: ReturnType<typeof setTimeout> | null = null
+let holdTimer: ReturnType<typeof setTimeout> | null = null
+let holdTriggered = false
 
 onMounted(() => {
   if (!rootEl.value) return
@@ -244,7 +283,17 @@ onMounted(() => {
   onUnmounted(() => observer.disconnect())
 })
 
-function handleClick(badge: SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge) {
+onUnmounted(() => {
+  if (clickTimer) clearTimeout(clickTimer)
+  if (holdTimer) clearTimeout(holdTimer)
+})
+
+type ActionBadge = SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge
+type StatusBarActionKind = 'click' | 'double_click' | 'hold'
+const DEFAULT_IGNORED_OFFLINE_PLATFORMS = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
+const DEFAULT_IGNORED_OFFLINE_DOMAINS = ['button']
+
+function runDefaultAction(badge: ActionBadge) {
   if (badge.type === 'nav') {
     router.push(`/dashboard/${badge.entry.dashboard_id}`)
   } else if (badge.type === 'divider') {
@@ -264,46 +313,159 @@ function handleClick(badge: SingleBadge | GroupBadge | NavBadge | RoomBadge | Pr
   }
 }
 
-function autoIcon(entityId: string, active: boolean): string {
-  const domain = entityId.split('.')[0]
-  const entity = entityStore.entities[entityId]
-  const deviceClass = entity?.attributes?.device_class as string | undefined
-  if (domain === 'media_player') return active ? 'mdi-play-circle' : 'mdi-pause-circle-outline'
-  if (domain === 'light') return active ? 'mdi-lightbulb' : 'mdi-lightbulb-outline'
-  if (domain === 'switch') return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
-  if (domain === 'lock') return active ? 'mdi-lock' : 'mdi-lock-open-outline'
-  if (domain === 'cover') return active ? 'mdi-window-shutter-open' : 'mdi-window-shutter'
-  if (domain === 'binary_sensor') {
-    if (deviceClass === 'motion') return active ? 'mdi-motion-sensor' : 'mdi-motion-sensor-off'
-    if (deviceClass === 'door') return active ? 'mdi-door-open' : 'mdi-door-closed'
-    if (deviceClass === 'window') return active ? 'mdi-window-open' : 'mdi-window-closed'
-    if (deviceClass === 'presence') return active ? 'mdi-home-account' : 'mdi-home-outline'
-    if (deviceClass === 'smoke') return active ? 'mdi-smoke-detector-alert' : 'mdi-smoke-detector-outline'
-    return active ? 'mdi-circle' : 'mdi-circle-outline'
-  }
-  if (domain === 'person') return active ? 'mdi-account' : 'mdi-account-outline'
-  if (domain === 'climate') return active ? 'mdi-thermometer' : 'mdi-thermometer-off'
-  if (domain === 'fan') return active ? 'mdi-fan' : 'mdi-fan-off'
-  if (domain === 'alarm_control_panel') return active ? 'mdi-shield-alert' : 'mdi-shield-home-outline'
-  return active ? 'mdi-circle' : 'mdi-circle-outline'
+function resolveBadgeAction(badge: ActionBadge, kind: StatusBarActionKind): StatusBarEntryAction {
+  if (badge.type === 'divider') return 'none'
+  const entry = badge.entry as StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarProblemEntry
+  if (kind === 'click') return entry.click_action ?? 'default'
+  if (kind === 'double_click') return entry.double_click_action ?? 'none'
+  return entry.hold_action ?? 'none'
 }
 
-const AUTO_DOMAINS = new Set(['media_player', 'light', 'switch', 'lock', 'cover', 'binary_sensor', 'fan', 'climate', 'alarm_control_panel', 'person'])
+function badgeActionConfig(badge: ActionBadge, kind: StatusBarActionKind) {
+  if (badge.type === 'divider') return { serviceName: undefined, targetEntityId: undefined, serviceData: undefined }
+  const entry = badge.entry as unknown as Record<string, unknown>
+  const prefix = kind
+  return {
+    serviceName: entry[`${prefix}_service`] as string | undefined,
+    targetEntityId: entry[`${prefix}_target_entity`] as string | undefined,
+    serviceData: entry[`${prefix}_service_data`] as string | undefined,
+  }
+}
+
+function toggleEntityIdsForBadge(badge: ActionBadge) {
+  if (badge.type === 'single') return [badge.entry.entity_id]
+  if (badge.type === 'room') {
+    const entityId = badge.entry.light_entity || badge.entry.climate_entity || badge.entry.sensor_entity
+    return entityId ? [entityId] : []
+  }
+  if (badge.type === 'group') {
+    return getFilteredEntities(badge.entry.filter)
+      .filter((entity) => entity.state !== 'unavailable' && entity.state !== 'unknown')
+      .map((entity) => entity.entity_id)
+  }
+  return []
+}
+
+function parseServiceData(raw: string | undefined) {
+  if (!raw?.trim()) return undefined
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : undefined
+  } catch {
+    toast.error(t('config.action_service_data_invalid'))
+    return null
+  }
+}
+
+async function runBadgeAction(badge: ActionBadge, kind: StatusBarActionKind) {
+  const action = resolveBadgeAction(badge, kind)
+  if (action === 'none') return
+  if (action === 'default') {
+    runDefaultAction(badge)
+    return
+  }
+  if (action === 'open_detail') {
+    runDefaultAction(badge)
+    return
+  }
+  if (action === 'call_service') {
+    const { serviceName, targetEntityId, serviceData } = badgeActionConfig(badge, kind)
+    const [domain, service] = (serviceName ?? '').split('.')
+    if (!domain || !service) {
+      toast.error(t('config.action_service_missing'))
+      return
+    }
+    const parsedData = parseServiceData(serviceData)
+    if (parsedData === null) return
+    await client.callService({
+      domain,
+      service,
+      target: targetEntityId ? { entity_id: targetEntityId } : undefined,
+      service_data: parsedData,
+    })
+    return
+  }
+  if (action === 'toggle') {
+    const entityIds = toggleEntityIdsForBadge(badge)
+    if (!entityIds.length) return
+    await client.callService({
+      domain: 'homeassistant',
+      service: 'toggle',
+      target: { entity_id: entityIds.length === 1 ? entityIds[0] : entityIds },
+    })
+  }
+}
+
+function handleBadgeClick(event: MouseEvent, badge: ActionBadge) {
+  if (holdTriggered) {
+    event.stopPropagation()
+    holdTriggered = false
+    return
+  }
+  const action = resolveBadgeAction(badge, 'click')
+  if (action === 'none') return
+
+  event.stopPropagation()
+  if (clickTimer) clearTimeout(clickTimer)
+  clickTimer = setTimeout(() => {
+    clickTimer = null
+    void runBadgeAction(badge, 'click')
+  }, 220)
+}
+
+function handleBadgeDoubleClick(event: MouseEvent, badge: ActionBadge) {
+  const action = resolveBadgeAction(badge, 'double_click')
+  if (action === 'none') return
+
+  event.stopPropagation()
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+  }
+  void runBadgeAction(badge, 'double_click')
+}
+
+function startBadgeHold(event: MouseEvent | TouchEvent, badge: ActionBadge) {
+  const action = resolveBadgeAction(badge, 'hold')
+  if (action === 'none') return
+
+  event.stopPropagation()
+  holdTriggered = false
+  if (holdTimer) clearTimeout(holdTimer)
+  holdTimer = setTimeout(() => {
+    holdTriggered = true
+    holdTimer = null
+    if (clickTimer) {
+      clearTimeout(clickTimer)
+      clickTimer = null
+    }
+    void runBadgeAction(badge, 'hold')
+  }, 650)
+}
+
+function cancelBadgeHold() {
+  if (holdTimer) {
+    clearTimeout(holdTimer)
+    holdTimer = null
+  }
+}
 
 function resolveIcon(badge: SingleBadge): string {
   const entry = badge.entry
-  const domain = entry.entity_id.split('.')[0]
-  if (AUTO_DOMAINS.has(domain)) return autoIcon(entry.entity_id, badge.active)
+  const entity = entityStore.entities[entry.entity_id]
   if (entry.icon) return badge.active ? entry.icon : ((entry as any).inactive_icon || entry.icon)
-  return autoIcon(entry.entity_id, badge.active)
+  return autoEntityIcon(entity ?? entry.entity_id, badge.active)
 }
 
-function defaultActiveState(entityId: string): string {
-  const domain = entityId.split('.')[0]
-  if (domain === 'lock') return 'locked'
-  if (domain === 'cover') return 'open'
-  if (domain === 'media_player') return 'playing'
-  return 'on'
+function singleLabel(badge: SingleBadge) {
+  const entity = entityStore.entities[badge.entry.entity_id]
+  return badge.entry.label || autoEntityLabel(entity, shortState(badge.entry.entity_id))
+}
+
+function singleColor(badge: SingleBadge) {
+  const entity = entityStore.entities[badge.entry.entity_id]
+  if (badge.active) return badge.entry.active_color || entityStateColor(entity ?? badge.entry.entity_id, true)
+  return badge.entry.inactive_color || entityStateColor(entity ?? badge.entry.entity_id, false)
 }
 
 function iconSize(entry: { icon_size?: string }) {
@@ -323,23 +485,52 @@ function isRoomEntryActive(entry: StatusBarRoomEntry) {
     return !!state && state !== 'off' && state !== 'unavailable'
   }
   if (activeSource === 'custom' && entry.active_entity_id) {
-    const state = entityStore.entities[entry.active_entity_id]?.state
-    return state === (entry.active_state || defaultActiveState(entry.active_entity_id))
+    const entity = entityStore.entities[entry.active_entity_id]
+    return entityIsActive(entity ?? entry.active_entity_id, entry.active_state)
   }
   return false
 }
 
 function countProblems(entry: StatusBarProblemEntry) {
   let count = 0
+  if (entry.show_system !== false && entityStore.hasConnectedOnce && !entityStore.connected) count++
+  if (entry.show_repairs !== false) count += entityStore.repairIssues.filter(issue => !issue.ignored).length
+  const ignoredOfflinePlatforms = ignoredOfflinePlatformsFor(entry)
+  const ignoredOfflineDomains = ignoredOfflineDomainsFor(entry)
+  const unavailableDeviceKeys = new Set<string>()
+  const batteryDeviceKeys = new Set<string>()
   for (const entity of Object.values(entityStore.entities)) {
     if (!entity?.entity_id) continue
-    if (entry.show_unavailable !== false && isUnavailable(entity)) count++
+    if (entry.show_unavailable !== false && isUnavailable(entity, ignoredOfflinePlatforms, ignoredOfflineDomains)) {
+      const key = problemGroupKey(entity, 'unavailable')
+      if (!unavailableDeviceKeys.has(key)) {
+        unavailableDeviceKeys.add(key)
+        count++
+      }
+    }
     else if (entry.show_updates !== false && isPendingUpdate(entity)) count++
     else if (entry.show_alerts !== false && isAlert(entity)) count++
-    else if (entry.show_batteries !== false && isLowBattery(entity, Number(entry.battery_threshold ?? 20))) count++
+    else if (entry.show_batteries !== false && isLowBattery(entity, Number(entry.battery_threshold ?? 20))) {
+      const key = problemGroupKey(entity, 'battery')
+      if (!batteryDeviceKeys.has(key)) {
+        batteryDeviceKeys.add(key)
+        count++
+      }
+    }
     else if (entry.show_openings !== false && isOpen(entity)) count++
   }
   return count
+}
+
+function problemGroupKey(entity: HAState, kind: 'unavailable' | 'battery') {
+  const name = friendlyName(entity).trim().toLowerCase()
+  if (kind === 'unavailable') return `${kind}:fallback:${name}`
+
+  const deviceId = entityStore.entityDeviceMap[entity.entity_id]
+  if (deviceId) return `device:${deviceId}`
+
+  const areaId = entityStore.entityAreaMap[entity.entity_id] ?? 'no-area'
+  return `${kind}:fallback:${areaId}:${name}`
 }
 
 function problemTooltip(entry: StatusBarProblemEntry, count: number) {
@@ -373,8 +564,30 @@ function friendlyName(entity: HAState) {
   return (entity.attributes.friendly_name as string | undefined) ?? entity.entity_id
 }
 
-function isUnavailable(entity: HAState) {
+function isUnavailable(
+  entity: HAState,
+  ignoredOfflinePlatforms = ignoredOfflinePlatformsFor(),
+  ignoredOfflineDomains = ignoredOfflineDomainsFor(),
+) {
+  if (ignoredOfflineDomains.has(domainOf(entity))) return false
+  if (ignoredOfflinePlatforms.has(entityStore.entityPlatformMap[entity.entity_id] ?? '')) return false
   return entity.state === 'unavailable' || entity.state === 'unknown'
+}
+
+function ignoredOfflinePlatformsFor(entry?: StatusBarProblemEntry) {
+  return new Set(
+    (entry?.ignored_offline_platforms ?? DEFAULT_IGNORED_OFFLINE_PLATFORMS)
+      .map(platform => platform.trim())
+      .filter(Boolean),
+  )
+}
+
+function ignoredOfflineDomainsFor(entry?: StatusBarProblemEntry) {
+  return new Set(
+    (entry?.ignored_offline_domains ?? DEFAULT_IGNORED_OFFLINE_DOMAINS)
+      .map(platform => platform.trim())
+      .filter(Boolean),
+  )
 }
 
 function isPendingUpdate(entity: HAState) {
@@ -403,11 +616,7 @@ function isLowBattery(entity: HAState, threshold: number) {
   if (domain === 'binary_sensor' && deviceClass === 'battery') return entity.state === 'on'
   if (domain !== 'sensor') return false
 
-  const unit = entity.attributes.unit_of_measurement as string | undefined
-  const name = `${entity.entity_id} ${friendlyName(entity)}`.toLowerCase()
-  const looksLikeBattery = deviceClass === 'battery' || unit === '%' || /battery|batterie|akku/.test(name)
-  if (!looksLikeBattery) return false
-  if (deviceClass !== 'battery' && unit !== '%' && !isPlainNumericState(entity.state)) return false
+  if (deviceClass !== 'battery' || !isPlainNumericState(entity.state)) return false
 
   const value = Number.parseFloat(entity.state)
   return Number.isFinite(value) && value <= threshold
@@ -417,7 +626,7 @@ function isOpen(entity: HAState) {
   const domain = domainOf(entity)
   const deviceClass = deviceClassOf(entity)
   if (domain === 'binary_sensor') {
-    return entity.state === 'on' && ['door', 'window', 'garage_door', 'opening'].includes(deviceClass ?? '')
+    return entity.state === 'on' && ['door', 'window', 'garage_door'].includes(deviceClass ?? '')
   }
   if (domain === 'cover') return ['open', 'opening'].includes(entity.state)
   return false
@@ -428,9 +637,7 @@ function isPlainNumericState(state: string) {
 }
 
 function isEntityActive(entity: { entity_id: string; state: string }): boolean {
-  const domain = entity.entity_id.split('.')[0]
-  if (domain === 'cover') return entity.state === 'open' || entity.state === 'opening'
-  return entity.state === 'on'
+  return entityIsActive({ ...entity, attributes: {} })
 }
 
 function shortState(entityId: string) {

@@ -32,7 +32,7 @@
         :key="`${problem.kind}:${problem.entityId}`"
         class="problem-overview__item"
         type="button"
-        @click="openDetail(problem.entityId)"
+        @click="openProblemDetail(problem)"
       >
         <v-icon :icon="problem.icon" :color="problem.color" size="22" class="flex-shrink-0" />
         <span class="problem-overview__item-text">
@@ -55,10 +55,47 @@
 
   <LazyUpdateDetailDialog v-if="detailOpen && detailEntityId?.startsWith('update.')" v-model="detailOpen" :entity-id="detailEntityId" />
   <LazyEntityDetailDialog v-else-if="detailOpen && detailEntityId" v-model="detailOpen" :entity-id="detailEntityId" />
+
+  <v-dialog v-model="repairDialogOpen" max-width="460">
+    <v-card v-if="selectedRepairIssue" rounded="lg">
+      <v-card-title class="d-flex align-center ga-2">
+        <v-icon :icon="selectedRepairIssue.translation_key === 'restart_required' ? 'mdi-restart-alert' : 'mdi-wrench-clock'" color="warning" />
+        <span>{{ repairName(selectedRepairIssue) }}</span>
+      </v-card-title>
+      <v-card-text class="d-flex flex-column ga-3">
+        <div>
+          <div class="text-body-2 font-weight-medium">
+            {{ selectedRepairIssue.translation_key === 'restart_required' ? t('problem_overview.restart_required') : t('problem_overview.repair') }}
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            {{ repairDetail(selectedRepairIssue) }}
+          </div>
+        </div>
+
+        <v-alert v-if="selectedRepairIssue.translation_key === 'restart_required'" type="warning" variant="tonal" density="compact">
+          {{ t('problem_overview.restart_hint') }}
+        </v-alert>
+      </v-card-text>
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer />
+        <v-btn variant="text" @click="repairDialogOpen = false">{{ t('common.close') }}</v-btn>
+        <v-btn
+          v-if="selectedRepairIssue.translation_key === 'restart_required'"
+          color="warning"
+          variant="flat"
+          :loading="restartBusy"
+          prepend-icon="mdi-restart"
+          @click="restartHomeAssistant"
+        >
+          {{ t('problem_overview.restart_homeassistant') }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import type { HAState } from '~/types/ha'
+import type { HARepairIssue, HAState } from '~/types/ha'
 import type { ProblemOverviewWidgetConfig } from '~/types/dashboard'
 
 defineOptions({ inheritAttrs: false })
@@ -66,10 +103,14 @@ defineOptions({ inheritAttrs: false })
 const props = defineProps<{ config: ProblemOverviewWidgetConfig }>()
 const { t } = useI18n()
 const { formatEntityState } = useLocalizedEntityState()
+const { autoEntityIcon } = useEntityPresentation()
 const entityStore = useEntityStore()
+const client = useHAClient()
 
-type ProblemKind = 'unavailable' | 'battery' | 'opening' | 'update' | 'alert'
+type ProblemKind = 'unavailable' | 'battery' | 'opening' | 'update' | 'alert' | 'repair' | 'system'
 type ProblemTab = 'all' | ProblemKind
+const DEFAULT_IGNORED_OFFLINE_PLATFORMS = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
+const DEFAULT_IGNORED_OFFLINE_DOMAINS = ['button']
 
 interface ProblemItem {
   entityId: string
@@ -84,26 +125,35 @@ interface ProblemItem {
 
 const detailOpen = ref(false)
 const detailEntityId = ref<string | null>(null)
+const repairDialogOpen = ref(false)
+const selectedRepairEntityId = ref<string | null>(null)
+const restartBusy = ref(false)
 const tabsEl = ref<HTMLElement | null>(null)
 const activeTab = ref<ProblemTab>('all')
 const title = computed(() => props.config.name || t('widget.problem_overview.label'))
 const threshold = computed(() => Number(props.config.battery_threshold ?? 20))
 const maxItems = computed(() => Math.max(1, Number(props.config.max_items ?? 8)))
 
-const problemCount = computed(() => problems.value.length)
+const allProblems = computed(() => dedupeAllProblems(problems.value))
+const problemCount = computed(() => allProblems.value.length)
 const filteredProblems = computed(() =>
   activeTab.value === 'all'
-    ? problems.value
+    ? allProblems.value
     : problems.value.filter(problem => problem.kind === activeTab.value),
 )
 const visibleProblems = computed(() => filteredProblems.value.slice(0, maxItems.value))
 const hiddenCount = computed(() => Math.max(0, filteredProblems.value.length - visibleProblems.value.length))
+const selectedRepairIssue = computed(() => selectedRepairEntityId.value
+  ? entityStore.repairIssues.find(issue => repairEntityId(issue) === selectedRepairEntityId.value) ?? null
+  : null)
 const tabs = computed(() => {
   const counts = {
-    all: problems.value.length,
+    all: allProblems.value.length,
     update: countKind('update'),
     battery: countKind('battery'),
     unavailable: countKind('unavailable'),
+    repair: countKind('repair'),
+    system: countKind('system'),
     opening: countKind('opening'),
     alert: countKind('alert'),
   }
@@ -113,6 +163,8 @@ const tabs = computed(() => {
     { key: 'update' as const, label: t('problem_overview.tab_updates'), icon: 'mdi-update', count: counts.update },
     { key: 'battery' as const, label: t('problem_overview.tab_batteries'), icon: 'mdi-battery-alert-variant-outline', count: counts.battery },
     { key: 'unavailable' as const, label: t('problem_overview.tab_unavailable'), icon: 'mdi-cloud-alert-outline', count: counts.unavailable },
+    { key: 'system' as const, label: t('problem_overview.tab_system'), icon: 'mdi-home-assistant', count: counts.system },
+    { key: 'repair' as const, label: t('problem_overview.tab_repairs'), icon: 'mdi-wrench-clock', count: counts.repair },
     { key: 'opening' as const, label: t('problem_overview.tab_openings'), icon: 'mdi-door-open', count: counts.opening },
     { key: 'alert' as const, label: t('problem_overview.tab_alerts'), icon: 'mdi-alert-circle-outline', count: counts.alert },
   ].filter(tab => tab.key === 'all' || tab.count > 0)
@@ -120,12 +172,22 @@ const tabs = computed(() => {
 
 const problems = computed(() => {
   const items: ProblemItem[] = []
+  const unavailableByDevice = new Map<string, { item: ProblemItem; entity: HAState }>()
+  const batteriesByDevice = new Map<string, { item: ProblemItem; entity: HAState }>()
+
+  if (props.config.show_system !== false && entityStore.hasConnectedOnce && !entityStore.connected) {
+    items.push(toSystemProblem())
+  }
+
+  if (props.config.show_repairs !== false) {
+    items.push(...entityStore.repairIssues.filter(issue => !issue.ignored).map(toRepairProblem))
+  }
 
   for (const entity of Object.values(entityStore.entities)) {
     if (!entity?.entity_id) continue
 
     if (props.config.show_unavailable !== false && isUnavailable(entity)) {
-      items.push(toProblem(entity, 'unavailable'))
+      addDeviceProblem(unavailableByDevice, entity, 'unavailable', unavailableEntityRank)
       continue
     }
 
@@ -140,7 +202,7 @@ const problems = computed(() => {
     }
 
     if (props.config.show_batteries !== false && isLowBattery(entity)) {
-      items.push(toProblem(entity, 'battery'))
+      addBatteryProblem(batteriesByDevice, entity)
       continue
     }
 
@@ -149,6 +211,8 @@ const problems = computed(() => {
     }
   }
 
+  items.push(...Array.from(unavailableByDevice.values()).map(entry => entry.item))
+  items.push(...Array.from(batteriesByDevice.values()).map(entry => entry.item))
   return items.sort((a, b) => a.priority - b.priority || a.name.localeCompare(b.name))
 })
 
@@ -160,13 +224,36 @@ function countKind(kind: ProblemKind) {
   return problems.value.filter(problem => problem.kind === kind).length
 }
 
+function dedupeAllProblems(items: ProblemItem[]) {
+  const byDisplayKey = new Map<string, ProblemItem>()
+  for (const item of items) {
+    const key = problemDisplayKey(item)
+    const current = byDisplayKey.get(key)
+    if (!current || item.priority < current.priority) byDisplayKey.set(key, item)
+  }
+  return Array.from(byDisplayKey.values())
+}
+
+function problemDisplayKey(item: ProblemItem) {
+  const deviceId = entityStore.entityDeviceMap[item.entityId]
+  const areaId = entityStore.entityAreaMap[item.entityId]
+  const scope = deviceId ? `device:${deviceId}` : areaId ? `area:${areaId}` : 'global'
+  return `${item.kind}:${scope}:${item.name.toLowerCase()}:${item.label.toLowerCase()}`
+}
+
 function handleTabsWheel(event: WheelEvent) {
   if (!tabsEl.value || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return
   tabsEl.value.scrollLeft += event.deltaY
 }
 
-function openDetail(entityId: string) {
-  detailEntityId.value = entityId
+function openProblemDetail(problem: ProblemItem) {
+  if (problem.kind === 'repair') {
+    selectedRepairEntityId.value = problem.entityId
+    repairDialogOpen.value = true
+    return
+  }
+  if (!problem.entityId.includes('.')) return
+  detailEntityId.value = problem.entityId
   detailOpen.value = true
 }
 
@@ -183,7 +270,56 @@ function friendlyName(entity: HAState) {
 }
 
 function isUnavailable(entity: HAState) {
+  if (ignoredOfflineDomains.value.has(domainOf(entity))) return false
+  if (ignoredOfflinePlatforms.value.has(entityStore.entityPlatformMap[entity.entity_id] ?? '')) return false
   return entity.state === 'unavailable' || entity.state === 'unknown'
+}
+
+const ignoredOfflinePlatforms = computed(() => new Set(
+  (props.config.ignored_offline_platforms ?? DEFAULT_IGNORED_OFFLINE_PLATFORMS)
+    .map(platform => platform.trim())
+    .filter(Boolean),
+))
+
+const ignoredOfflineDomains = computed(() => new Set(
+  (props.config.ignored_offline_domains ?? DEFAULT_IGNORED_OFFLINE_DOMAINS)
+    .map(domain => domain.trim())
+    .filter(Boolean),
+))
+
+function addDeviceProblem(
+  target: Map<string, { item: ProblemItem; entity: HAState }>,
+  entity: HAState,
+  kind: ProblemKind,
+  rank: (entity: HAState) => number,
+) {
+  const key = problemGroupKey(entity, kind)
+  const current = target.get(key)
+  if (!current || rank(entity) < rank(current.entity)) {
+    target.set(key, { item: toProblem(entity, kind), entity })
+  }
+}
+
+function problemGroupKey(entity: HAState, kind: ProblemKind) {
+  const name = friendlyName(entity).trim().toLowerCase()
+  if (kind === 'unavailable') return `${kind}:fallback:${name}`
+
+  const deviceId = entityStore.entityDeviceMap[entity.entity_id]
+  if (deviceId) return `device:${deviceId}`
+
+  const areaId = entityStore.entityAreaMap[entity.entity_id] ?? 'no-area'
+  return `${kind}:fallback:${areaId}:${name}`
+}
+
+function unavailableEntityRank(entity: HAState) {
+  const domain = domainOf(entity)
+  if (domain === 'device_tracker') return 0
+  if (domain === 'media_player') return 1
+  if (domain === 'climate') return 2
+  if (domain === 'light') return 3
+  if (domain === 'switch') return 4
+  if (domain === 'sensor' || domain === 'binary_sensor') return 6
+  return 5
 }
 
 function isPendingUpdate(entity: HAState) {
@@ -204,21 +340,31 @@ function isLowBattery(entity: HAState) {
   if (domain === 'binary_sensor' && deviceClass === 'battery') return entity.state === 'on'
   if (domain !== 'sensor') return false
 
-  const unit = entity.attributes.unit_of_measurement as string | undefined
-  const name = `${entity.entity_id} ${friendlyName(entity)}`.toLowerCase()
-  const looksLikeBattery = deviceClass === 'battery' || unit === '%' || /battery|batterie|akku/.test(name)
-  if (!looksLikeBattery) return false
-  if (deviceClass !== 'battery' && unit !== '%' && !isPlainNumericState(entity.state)) return false
+  if (deviceClass !== 'battery' || !isPlainNumericState(entity.state)) return false
 
   const value = Number.parseFloat(entity.state)
   return Number.isFinite(value) && value <= threshold.value
+}
+
+function addBatteryProblem(target: Map<string, { item: ProblemItem; entity: HAState }>, entity: HAState) {
+  addDeviceProblem(target, entity, 'battery', batteryEntityRank)
+}
+
+function batteryEntityRank(entity: HAState) {
+  const domain = domainOf(entity)
+  const unit = entity.attributes.unit_of_measurement as string | undefined
+  const entityName = `${entity.entity_id} ${friendlyName(entity)}`.toLowerCase()
+  if (domain === 'sensor' && unit === '%' && /battery_level|batterie_level|ladestand|battery level/.test(entityName)) return 0
+  if (domain === 'sensor' && unit === '%') return 1
+  if (domain === 'sensor') return 2
+  return 3
 }
 
 function isOpen(entity: HAState) {
   const domain = domainOf(entity)
   const deviceClass = deviceClassOf(entity)
   if (domain === 'binary_sensor') {
-    return entity.state === 'on' && ['door', 'window', 'garage_door', 'opening'].includes(deviceClass ?? '')
+    return entity.state === 'on' && ['door', 'window', 'garage_door'].includes(deviceClass ?? '')
   }
   if (domain === 'cover') return ['open', 'opening'].includes(entity.state)
   return false
@@ -238,6 +384,60 @@ function toProblem(entity: HAState, kind: ProblemKind): ProblemItem {
   }
 }
 
+function toRepairProblem(issue: HARepairIssue): ProblemItem {
+  const name = repairName(issue)
+  return {
+    entityId: repairEntityId(issue),
+    kind: 'repair',
+    name,
+    label: issue.translation_key === 'restart_required'
+      ? t('problem_overview.restart_required')
+      : t('problem_overview.repair'),
+    detail: repairDetail(issue),
+    icon: issue.translation_key === 'restart_required' ? 'mdi-restart-alert' : 'mdi-wrench-clock',
+    color: issue.severity === 'error' || issue.severity === 'critical' ? 'error' : 'warning',
+    priority: 20,
+  }
+}
+
+function repairEntityId(issue: HARepairIssue) {
+  return `repair:${issue.domain ?? 'homeassistant'}:${issue.issue_id}`
+}
+
+function toSystemProblem(): ProblemItem {
+  return {
+    entityId: 'system:homeassistant:connection',
+    kind: 'system',
+    name: 'Home Assistant',
+    label: t('problem_overview.ha_reconnecting'),
+    detail: t('problem_overview.ha_reconnecting_detail'),
+    icon: 'mdi-home-assistant',
+    color: 'warning',
+    priority: 5,
+  }
+}
+
+function repairName(issue: HARepairIssue) {
+  const placeholders = issue.translation_placeholders ?? {}
+  return String(placeholders.name || placeholders.title || issue.issue_domain || issue.domain || issue.issue_id)
+}
+
+function repairDetail(issue: HARepairIssue) {
+  if (issue.issue_domain && issue.domain && issue.issue_domain !== issue.domain) return issue.domain
+  return issue.issue_domain ?? issue.domain ?? undefined
+}
+
+async function restartHomeAssistant() {
+  if (restartBusy.value) return
+  restartBusy.value = true
+  try {
+    await client.callService({ domain: 'homeassistant', service: 'restart' })
+    repairDialogOpen.value = false
+  } finally {
+    restartBusy.value = false
+  }
+}
+
 function problemMeta(kind: ProblemKind, entity: HAState) {
   if (kind === 'unavailable') {
     return { label: t('problem_overview.unavailable'), icon: 'mdi-cloud-alert-outline', color: 'error', priority: 10 }
@@ -251,12 +451,12 @@ function problemMeta(kind: ProblemKind, entity: HAState) {
     }
   }
   if (kind === 'alert') {
-    return { label: formatEntityState(entity), icon: alertIcon(entity), color: 'error', priority: 30 }
+    return { label: formatEntityState(entity), icon: autoEntityIcon(entity, true), color: 'error', priority: 30 }
   }
   if (kind === 'battery') {
     return { label: batteryLabel(entity), icon: 'mdi-battery-alert-variant-outline', color: 'warning', priority: 40 }
   }
-  return { label: formatEntityState(entity), icon: openingIcon(entity), color: 'warning', priority: 50 }
+  return { label: formatEntityState(entity), icon: autoEntityIcon(entity, true), color: 'warning', priority: 50 }
 }
 
 function batteryLabel(entity: HAState) {
@@ -299,22 +499,6 @@ function isPlainNumericState(state: string) {
   return /^-?\d+(\.\d+)?$/.test(state.trim())
 }
 
-function alertIcon(entity: HAState) {
-  const deviceClass = deviceClassOf(entity)
-  if (deviceClass === 'smoke') return 'mdi-smoke-detector-alert'
-  if (deviceClass === 'moisture') return 'mdi-water-alert-outline'
-  if (deviceClass === 'gas') return 'mdi-gas-cylinder'
-  if (deviceClass === 'tamper') return 'mdi-shield-alert-outline'
-  return 'mdi-alert-circle-outline'
-}
-
-function openingIcon(entity: HAState) {
-  const deviceClass = deviceClassOf(entity)
-  if (deviceClass === 'door' || deviceClass === 'garage_door') return 'mdi-door-open'
-  if (deviceClass === 'window') return 'mdi-window-open'
-  if (domainOf(entity) === 'cover') return 'mdi-window-shutter-open'
-  return 'mdi-checkbox-blank-circle-outline'
-}
 </script>
 
 <style scoped>

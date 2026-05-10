@@ -47,11 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import type { SwitchWidgetConfig } from '~/types/dashboard'
+import type { SwitchWidgetConfig, WidgetAppearance } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
 
-const props = defineProps<{ config: SwitchWidgetConfig }>()
+const props = defineProps<{ config: SwitchWidgetConfig; appearance?: WidgetAppearance }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
 const entity = computed(() => entityStore.entities[props.config.entity_id])
