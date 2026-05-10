@@ -34,7 +34,6 @@ export const useDashboardStore = defineStore('dashboard', {
     updateWidgetLayout(id: string, layout: Widget['layout']) {
       if (!this.dashboard) return
       const w = this.dashboard.widgets.find((w) => w.id === id)
-      console.log('Updated layout for widget', id, layout)
       if (w) w.layout = { ...w.layout, ...layout }
 
     },
@@ -42,7 +41,6 @@ export const useDashboardStore = defineStore('dashboard', {
     updateWidgetConfig(id: string, config: Widget['config']) {
       if (!this.dashboard) return
       const w = this.dashboard.widgets.find((w) => w.id === id)
-      console.log('Updated layout for widget', id, config)
       if (w) w.config = config
     },
 

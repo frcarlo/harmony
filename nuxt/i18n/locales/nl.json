@@ -142,6 +142,8 @@
     "remove": "Verwijderen",
     "configure": "Configureren",
     "clone": "Dupliceren",
+    "saved": "Widget opgeslagen",
+    "save_failed": "Widget kon niet worden opgeslagen",
     "sensor": {
       "label": "Sensor",
       "description": "Sensorwaarde weergeven"

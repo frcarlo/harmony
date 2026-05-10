@@ -2,10 +2,29 @@
 
 ## Offen
 
+### Bugs / Quick Wins
+
+- [x] **`console.log` aus `dashboard.ts` entfernen** — Zwei Debug-Logs in Produktion; zweite Meldung sagt fälschlich "layout" obwohl config geloggt wird
+- [x] **Hardcodierte deutsche Strings in `dashboard/[id].vue`** — `toast.success('Widget gespeichert')` / `toast.error('Speichern fehlgeschlagen')` → i18n-Keys
+- [x] **Falsches Event in `DashboardCard.vue`** — Clone und SetGlobalDefault emittieren `'deleted'` statt `'updated'`; funktioniert nur zufällig weil der Parent `loadDashboards` beim `deleted`-Event aufruft
+
+### UX-Verbesserungen
+
+- [ ] **Unsaved-Changes-Warning im Edit-Modus** — Kein Hinweis wenn man Edit-Modus verlässt oder navigiert ohne zu speichern → `onBeforeRouteLeave` Guard
+- [ ] **Unavailable-Entity-Indicator im Edit-Modus** — Widgets die auf nicht-existente/unavailable Entities zeigen werden nicht markiert → Badge oder gedimmter Overlay
+
+### Features
+
 - [ ] **Batterie-/Problem-Übersicht als Status-Bar-Gruppe** — Kompakte Status-Bar-Variante für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
 - [ ] **Adaptive Themes** — Automatisch hell/dunkel/dim nach Tageszeit, Sonnenstand oder Dashboard-Einstellung wechseln
 - [ ] **Lazy Loading für schwere Widgets** — Kamera, Charts, Kalender und Detaildaten erst laden, wenn sichtbar oder geöffnet
 - [ ] **Code-Splitting verbessern** — Große Nuxt/Vite-Chunks aufteilen, um Tablet-Startzeit und Cache-Verhalten zu verbessern
+
+### Code Quality
+
+- [ ] **`structuredClone` statt `JSON.parse(JSON.stringify(...))`** — Widget wird in `dashboard.ts` 3× tief geklont, `structuredClone` ist nativer und schneller
+- [ ] **Widget-Domain-Registry zentralisieren** — Entity-Domain-Filter für den Picker sind in `WidgetConfigPanel` und `StatusBarEntryDialog` dupliziert
+- [ ] **Teure `deep: true` Watch im WebSocket-Plugin** — Watched die gesamte Widgets-Array deep, obwohl Vue 3 Array-Referenzen selbst trackt → `deep: true` entfernen
 
 ## Ideen / Nice-to-have
 

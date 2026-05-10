@@ -142,6 +142,8 @@
     "remove": "Supprimer",
     "configure": "Configurer",
     "clone": "Dupliquer",
+    "saved": "Widget enregistré",
+    "save_failed": "Impossible d'enregistrer le widget",
     "sensor": {
       "label": "Capteur",
       "description": "Afficher la valeur du capteur"

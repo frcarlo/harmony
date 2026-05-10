@@ -134,6 +134,18 @@ const title = computed(() => props.config.name || t('widget.problem_overview.lab
 const threshold = computed(() => Number(props.config.battery_threshold ?? 20))
 const maxItems = computed(() => Math.max(1, Number(props.config.max_items ?? 8)))
 
+const ignoredOfflinePlatforms = computed(() => new Set(
+  (props.config.ignored_offline_platforms ?? DEFAULT_IGNORED_OFFLINE_PLATFORMS)
+    .map(platform => platform.trim())
+    .filter(Boolean),
+))
+
+const ignoredOfflineDomains = computed(() => new Set(
+  (props.config.ignored_offline_domains ?? DEFAULT_IGNORED_OFFLINE_DOMAINS)
+    .map(domain => domain.trim())
+    .filter(Boolean),
+))
+
 const allProblems = computed(() => dedupeAllProblems(problems.value))
 const problemCount = computed(() => allProblems.value.length)
 const filteredProblems = computed(() =>
@@ -274,18 +286,6 @@ function isUnavailable(entity: HAState) {
   if (ignoredOfflinePlatforms.value.has(entityStore.entityPlatformMap[entity.entity_id] ?? '')) return false
   return entity.state === 'unavailable' || entity.state === 'unknown'
 }
-
-const ignoredOfflinePlatforms = computed(() => new Set(
-  (props.config.ignored_offline_platforms ?? DEFAULT_IGNORED_OFFLINE_PLATFORMS)
-    .map(platform => platform.trim())
-    .filter(Boolean),
-))
-
-const ignoredOfflineDomains = computed(() => new Set(
-  (props.config.ignored_offline_domains ?? DEFAULT_IGNORED_OFFLINE_DOMAINS)
-    .map(domain => domain.trim())
-    .filter(Boolean),
-))
 
 function addDeviceProblem(
   target: Map<string, { item: ProblemItem; entity: HAState }>,

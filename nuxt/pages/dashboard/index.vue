@@ -96,6 +96,7 @@
                   :edit-mode="listEditMode"
                   :current-default-label="element.id === resolvedDefault.dashboardId ? currentDefaultLabel : null"
                   @deleted="loadDashboards"
+                  @updated="loadDashboards"
                 />
               </div>
             </template>

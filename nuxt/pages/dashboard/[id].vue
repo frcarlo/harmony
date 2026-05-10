@@ -180,9 +180,9 @@ async function closeQuickEdit() {
         theme_override: dashboard.value.theme_override ?? null,
       },
     })
-    toast.success('Widget gespeichert')
+    toast.success(t('widget.saved'))
   } catch {
-    toast.error('Speichern fehlgeschlagen')
+    toast.error(t('widget.save_failed'))
   } finally {
     quickEditSaving.value = false
   }

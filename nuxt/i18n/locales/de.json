@@ -142,6 +142,8 @@
     "remove": "Entfernen",
     "configure": "Konfigurieren",
     "clone": "Duplizieren",
+    "saved": "Widget gespeichert",
+    "save_failed": "Speichern fehlgeschlagen",
     "sensor": {
       "label": "Sensor",
       "description": "Sensorwert anzeigen"

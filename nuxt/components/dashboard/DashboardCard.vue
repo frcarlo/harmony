@@ -89,7 +89,7 @@ const props = defineProps<{
   editMode?: boolean
   currentDefaultLabel?: string | null
 }>()
-const emit = defineEmits<{ deleted: [] }>()
+const emit = defineEmits<{ deleted: [], updated: [] }>()
 
 const now = useNow({ interval: 60_000 })
 const confirmOpen = ref(false)
@@ -140,7 +140,7 @@ async function handleClone() {
       body: { ...full, id: created.id, name: cloneName, widgets },
     })
     toast.success(t('dashboard.cloned', { name: cloneName }))
-    emit('deleted')
+    emit('updated')
   } catch {
     toast.error(t('dashboard.clone_error'))
   } finally {
@@ -173,7 +173,7 @@ async function handleSetGlobalDefault() {
       body: { dashboardId: props.dashboard.is_default ? null : props.dashboard.id },
     })
     toast.success(props.dashboard.is_default ? t('dashboard.global_default_cleared') : t('dashboard.global_default_set'))
-    emit('deleted')
+    emit('updated')
   } catch {
     toast.error(t('dashboard.global_default_error'))
   }
