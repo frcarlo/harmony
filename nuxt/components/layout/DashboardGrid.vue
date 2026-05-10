@@ -36,7 +36,10 @@ defineEmits<{ quickEdit: [widgetId: string] }>()
 
 const dashboardStore = useDashboardStore()
 const { smAndDown, md } = useDisplay()
+const { deviceOverride, forcedDeviceType } = useDashboardDisplayMode()
 const currentDevice = computed<'desktop' | 'tablet' | 'mobile'>(() => {
+  if (forcedDeviceType.value) return forcedDeviceType.value
+  if (deviceOverride.value !== 'auto') return deviceOverride.value
   if (smAndDown.value) return 'mobile'
   if (md.value) return 'tablet'
   return 'desktop'

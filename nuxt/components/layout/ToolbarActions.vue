@@ -28,6 +28,20 @@
           :title="t('toolbar.kiosk_mode')" :subtitle="t('toolbar.kiosk_mode_hint')"
           :active="kioskMode" :color="kioskMode ? 'primary' : undefined"
           rounded="lg" @click="toggleKioskMode" />
+        <v-list-item prepend-icon="mdi-monitor-cellphone" :title="t('toolbar.device_type')"
+          :subtitle="forcedDeviceType ? t('toolbar.device_type_forced') : undefined" rounded="lg">
+          <template #append>
+            <div class="d-flex ga-1">
+              <v-chip v-for="dt in deviceTypeOptions" :key="dt.value" size="x-small"
+                :color="effectiveDeviceOverride === dt.value ? 'primary' : undefined"
+                :variant="effectiveDeviceOverride === dt.value ? 'flat' : 'outlined'"
+                :disabled="!!forcedDeviceType && dt.value !== 'auto'"
+                @click.stop="!forcedDeviceType && setDeviceOverride(dt.value)">
+                {{ dt.label }}
+              </v-chip>
+            </div>
+          </template>
+        </v-list-item>
         <v-list-item prepend-icon="mdi-palette" :title="t('toolbar.theme')" rounded="lg">
           <template #append>
             <ThemeToggle button-icon="mdi-chevron-down" :button-title="t('toolbar.theme')" />
@@ -78,13 +92,22 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
 import { useTheme } from 'vuetify'
+import type { DeviceOverride } from '~/composables/useDashboardDisplayMode'
 
 const { t, locale, setLocale, locales } = useI18n()
 type LocaleCode = 'de' | 'en' | 'es' | 'fr' | 'it' | 'nl'
 const config = useRuntimeConfig()
 const { glass, toggle: toggleGlass } = useGlassEffect()
 const { borders, toggle: toggleBorders } = useWidgetBorders()
-const { performanceMode, kioskMode, forcedKioskMode, togglePerformanceMode, toggleKioskMode, setKioskMode } = useDashboardDisplayMode()
+const { performanceMode, kioskMode, forcedKioskMode, deviceOverride, forcedDeviceType, togglePerformanceMode, toggleKioskMode, setKioskMode, setDeviceOverride } = useDashboardDisplayMode()
+
+const deviceTypeOptions: { value: DeviceOverride; label: string }[] = [
+  { value: 'auto', label: t('toolbar.device_auto') },
+  { value: 'desktop', label: t('toolbar.device_desktop') },
+  { value: 'tablet', label: t('toolbar.device_tablet') },
+  { value: 'mobile', label: t('toolbar.device_mobile') },
+]
+const effectiveDeviceOverride = computed(() => forcedDeviceType.value ?? deviceOverride.value)
 const availableLocales = computed(() => (locales.value as { code: LocaleCode; name: string }[]))
 const { openDialog } = useNotificationRulesDialog()
 const theme = useTheme()
@@ -109,6 +132,7 @@ function resetLocalSettings() {
   glass.value = false
   borders.value = true
   performanceMode.value = false
+  setDeviceOverride('auto')
   void setKioskMode(forcedKioskMode.value, { fullscreen: false })
 
   const effectiveTheme = dashboardStore.dashboard?.theme_override ?? storage.read('ha-theme', 'dark') ?? 'dark'

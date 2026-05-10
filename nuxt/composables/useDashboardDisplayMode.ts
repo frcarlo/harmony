@@ -1,7 +1,10 @@
+export type DeviceOverride = 'auto' | 'desktop' | 'tablet' | 'mobile'
+
 export function useDashboardDisplayMode() {
   const storage = useUserPreferenceStorage()
   const { user } = useUserSession()
   const forcedKioskMode = computed(() => user.value?.force_kiosk === true)
+  const forcedDeviceType = computed(() => (user.value?.force_device_type as DeviceOverride | null | undefined) ?? null)
   const wakeLock = useState<any | null>('dashboard-kiosk-wake-lock', () => null)
   const wakeLockActive = useState('dashboard-kiosk-wake-lock-active', () => false)
   const fullscreenActive = useState('dashboard-kiosk-fullscreen-active', () => false)
@@ -12,10 +15,14 @@ export function useDashboardDisplayMode() {
   const kioskMode = useState('dashboard-kiosk-mode', () =>
     forcedKioskMode.value || storage.read('ha-kiosk-mode') === 'true'
   )
+  const deviceOverride = useState<DeviceOverride>('dashboard-device-override', () =>
+    (storage.read('ha-device-type') as DeviceOverride | null) ?? 'auto'
+  )
 
   watch([() => storage.currentUserId.value, forcedKioskMode], () => {
     performanceMode.value = storage.read('ha-performance-mode') === 'true'
     kioskMode.value = forcedKioskMode.value || storage.read('ha-kiosk-mode') === 'true'
+    deviceOverride.value = (storage.read('ha-device-type') as DeviceOverride | null) ?? 'auto'
   }, { immediate: true })
 
   const wakeLockSupported = computed(() => import.meta.client && 'wakeLock' in navigator)
@@ -110,6 +117,12 @@ export function useDashboardDisplayMode() {
     void setKioskMode(!kioskMode.value, options)
   }
 
+  function setDeviceOverride(value: DeviceOverride) {
+    deviceOverride.value = value
+    if (value === 'auto') storage.remove('ha-device-type')
+    else storage.write('ha-device-type', value)
+  }
+
   if (import.meta.client && !listenersReady.value) {
     listenersReady.value = true
     document.addEventListener('fullscreenchange', () => {
@@ -135,8 +148,11 @@ export function useDashboardDisplayMode() {
     wakeLockSupported,
     fullscreenActive,
     fullscreenSupported,
+    deviceOverride,
+    forcedDeviceType,
     setKioskMode,
     togglePerformanceMode,
     toggleKioskMode,
+    setDeviceOverride,
   }
 }

@@ -102,6 +102,25 @@
           </v-btn>
         </div>
       </v-card>
+      <v-card variant="tonal" rounded="lg" class="pa-3 mb-3">
+        <div class="d-flex align-center ga-3 flex-wrap">
+          <v-icon icon="mdi-monitor-cellphone" size="20" />
+          <div class="flex-grow-1" style="min-width: 0">
+            <div class="text-body-2 font-weight-bold">Gerätetyp-Vorgabe</div>
+            <div class="text-caption text-medium-emphasis">Überschreibt die selbst gewählte Einstellung des Benutzers.</div>
+          </div>
+          <div class="d-flex ga-1">
+            <v-chip
+              v-for="dt in [{ value: null, label: 'Auto' }, { value: 'desktop', label: 'Desktop' }, { value: 'tablet', label: 'Tablet' }, { value: 'mobile', label: 'Mobil' }]"
+              :key="String(dt.value)"
+              size="small"
+              :color="accessUser.force_device_type === dt.value ? 'primary' : undefined"
+              :variant="accessUser.force_device_type === dt.value ? 'flat' : 'outlined'"
+              @click="setForceDeviceType(accessUser, dt.value)"
+            >{{ dt.label }}</v-chip>
+          </div>
+        </div>
+      </v-card>
       <div v-if="loadingAccess" class="text-center py-6">
         <v-progress-circular indeterminate size="24" />
       </div>
@@ -165,6 +184,7 @@ interface UserRow {
   email: string | null
   role: 'admin' | 'editor' | 'user'
   force_kiosk: boolean
+  force_device_type: string | null
   provider: string | null
 }
 interface DashboardRow { id: string; name: string; icon?: string }
@@ -300,6 +320,15 @@ async function toggleForceKiosk(u: UserRow) {
   try {
     await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_kiosk: next } })
     u.force_kiosk = next
+  } catch (e: any) {
+    alert(e?.data?.statusMessage ?? 'Fehler')
+  }
+}
+
+async function setForceDeviceType(u: UserRow, deviceType: string | null) {
+  try {
+    await $fetch(`/api/users/${u.id}`, { method: 'PATCH', body: { force_device_type: deviceType } })
+    u.force_device_type = deviceType
   } catch (e: any) {
     alert(e?.data?.statusMessage ?? 'Fehler')
   }

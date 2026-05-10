@@ -1,4 +1,4 @@
-import { updateUserRole, updateUserAllowedAreas, updateUserForceKiosk, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
+import { updateUserRole, updateUserAllowedAreas, updateUserForceKiosk, updateUserForceDeviceType, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{
     role?: 'admin' | 'editor' | 'user'
     force_kiosk?: boolean
+    force_device_type?: string | null
     allowed_areas?: string[] | null
     default_dashboard_id?: string | null
   }>(event)
@@ -45,6 +46,7 @@ export default defineEventHandler(async (event) => {
           username: target.username,
           role: target.role,
           force_kiosk: target.force_kiosk,
+          force_device_type: target.force_device_type,
           allowed_areas: target.allowed_areas ?? undefined,
         },
       })
@@ -55,6 +57,34 @@ export default defineEventHandler(async (event) => {
       action: 'user.force_kiosk_change',
       target: target?.username,
       detail: body.force_kiosk ? 'enabled' : 'disabled',
+    })
+  }
+
+  if ('force_device_type' in body) {
+    const allowed = ['desktop', 'tablet', 'mobile', null]
+    if (!allowed.includes(body.force_device_type ?? null)) throw createError({ statusCode: 400, statusMessage: 'Invalid device type' })
+    if (!updateUserForceDeviceType(id, body.force_device_type ?? null)) throw createError({ statusCode: 404, statusMessage: 'User not found' })
+    const target = getUserById(id)
+    if (user.id === id && target) {
+      const currentSession = await getUserSession(event) as Record<string, unknown>
+      await setUserSession(event, {
+        ...currentSession,
+        user: {
+          id: target.id,
+          username: target.username,
+          role: target.role,
+          force_kiosk: target.force_kiosk,
+          force_device_type: target.force_device_type,
+          allowed_areas: target.allowed_areas ?? undefined,
+        },
+      })
+    }
+    addAuditLog({
+      user_id: user.id,
+      username: user.username,
+      action: 'user.force_device_type_change',
+      target: target?.username,
+      detail: body.force_device_type ?? 'auto',
     })
   }
 

@@ -3,6 +3,8 @@ declare module '#auth-utils' {
     id: string
     username: string
     role: 'admin' | 'editor' | 'user'
+    force_kiosk?: boolean
+    force_device_type?: string | null
     allowed_areas?: string[]
   }
   interface UserSession {

@@ -10,6 +10,7 @@ export interface DbUser {
   password_hash: string | null
   role: 'admin' | 'editor' | 'user'
   force_kiosk: boolean
+  force_device_type: string | null
   allowed_areas: string[] | null
   provider: string | null
   provider_id: string | null
@@ -46,6 +47,7 @@ function getDb(): DatabaseSync {
       password_hash TEXT,
       role TEXT NOT NULL DEFAULT 'user',
       force_kiosk INTEGER NOT NULL DEFAULT 0,
+      force_device_type TEXT,
       provider TEXT,
       provider_id TEXT,
       default_dashboard_id TEXT,
@@ -138,6 +140,9 @@ function getDb(): DatabaseSync {
   }
   if (!userCols.some((c) => c.name === 'force_kiosk')) {
     _db.exec('ALTER TABLE users ADD COLUMN force_kiosk INTEGER NOT NULL DEFAULT 0')
+  }
+  if (!userCols.some((c) => c.name === 'force_device_type')) {
+    _db.exec('ALTER TABLE users ADD COLUMN force_device_type TEXT')
   }
   if (!dashCols.some((c) => c.name === 'sort_order')) {
     _db.exec('ALTER TABLE dashboards ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0')
@@ -448,6 +453,7 @@ function parseDbUser(row: Record<string, unknown>): DbUser {
   return {
     ...(row as DbUser),
     force_kiosk: row.force_kiosk === 1 || row.force_kiosk === true,
+    force_device_type: (row.force_device_type as string | null) ?? null,
     allowed_areas: row.allowed_areas ? JSON.parse(row.allowed_areas as string) : null,
   }
 }
@@ -472,7 +478,7 @@ export function getUserById(id: string): DbUser | null {
 
 export function listUsers(): Omit<DbUser, 'password_hash'>[] {
   const db = getDb()
-  const rows = db.prepare('SELECT id, username, email, role, force_kiosk, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
+  const rows = db.prepare('SELECT id, username, email, role, force_kiosk, force_device_type, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
   return rows.map(r => parseDbUser(r) as Omit<DbUser, 'password_hash'>)
 }
 
@@ -480,8 +486,8 @@ export function createUser(data: { username: string; email?: string; passwordHas
   const db = getDb()
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
-  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, force_kiosk, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, 0, null, data.provider ?? null, data.providerId ?? null, null, null, now)
+  db.prepare(`INSERT INTO users (id, username, email, password_hash, role, force_kiosk, force_device_type, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, data.username, data.email ?? null, data.passwordHash ?? null, data.role, 0, null, null, data.provider ?? null, data.providerId ?? null, null, null, now)
   return {
     id,
     username: data.username,
@@ -489,6 +495,7 @@ export function createUser(data: { username: string; email?: string; passwordHas
     password_hash: data.passwordHash ?? null,
     role: data.role,
     force_kiosk: false,
+    force_device_type: null,
     allowed_areas: null,
     provider: data.provider ?? null,
     provider_id: data.providerId ?? null,
@@ -511,6 +518,11 @@ export function updateUserRole(id: string, role: 'admin' | 'editor' | 'user'): b
 export function updateUserForceKiosk(id: string, forceKiosk: boolean): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET force_kiosk = ? WHERE id = ?').run(forceKiosk ? 1 : 0, id).changes > 0
+}
+
+export function updateUserForceDeviceType(id: string, deviceType: string | null): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET force_device_type = ? WHERE id = ?').run(deviceType, id).changes > 0
 }
 
 export function updateUserAllowedAreas(id: string, areas: string[] | null): boolean {
