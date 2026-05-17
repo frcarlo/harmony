@@ -1,26 +1,14 @@
 <template>
   <v-menu :close-on-content-click="false" offset="8">
     <template #activator="{ props: menuProps }">
-      <v-btn
-        v-if="props.activatorMode === 'button'"
-        v-bind="menuProps"
-        :prepend-icon="props.buttonIcon || 'mdi-palette'"
-        :append-icon="props.buttonAppendIcon ?? 'mdi-chevron-down'"
-        :variant="props.buttonVariant || 'outlined'"
-        :block="props.buttonBlock"
-        :class="props.buttonClass"
-        :title="props.buttonTitle || t('toolbar.theme')"
-      >
+      <v-btn v-if="props.activatorMode === 'button'" v-bind="menuProps"
+        :prepend-icon="props.buttonIcon || 'mdi-palette'" :append-icon="props.buttonAppendIcon ?? 'mdi-chevron-down'"
+        :variant="props.buttonVariant || 'outlined'" :block="props.buttonBlock" :class="props.buttonClass"
+        :title="props.buttonTitle || t('toolbar.theme')">
         {{ props.buttonText || t('toolbar.theme') }}
       </v-btn>
-      <v-btn
-        v-else
-        v-bind="menuProps"
-        :icon="props.buttonIcon || 'mdi-palette'"
-        size="small"
-        variant="text"
-        :title="props.buttonTitle || t('toolbar.theme')"
-      />
+      <v-btn v-else v-bind="menuProps" :icon="props.buttonIcon || 'mdi-palette'" size="small" variant="text"
+        :title="props.buttonTitle || t('toolbar.theme')" />
     </template>
 
     <v-card width="232" rounded="lg" :class="{ 'theme-card-glass': glass }">
@@ -28,29 +16,18 @@
         {{ t('toolbar.theme') }}
       </div>
       <div v-if="props.allowDefault" class="px-2 pt-1">
-        <v-btn
-          block
-          variant="text"
-          size="small"
-          class="justify-start"
-          :color="currentTheme === null ? 'primary' : undefined"
-          prepend-icon="mdi-monitor-dashboard"
-          @click="setTheme(null)"
-        >
+        <v-btn block variant="text" size="small" class="justify-start"
+          :color="currentTheme === null ? 'primary' : undefined" prepend-icon="mdi-monitor-dashboard"
+          @click="setTheme(null)">
           {{ t('toolbar.theme_dashboard_default') }}
         </v-btn>
       </div>
       <div class="theme-grid pa-2">
         <v-tooltip v-for="th in themes" :key="th.id" :text="th.name" location="top" :open-delay="300">
           <template #activator="{ props: tp }">
-            <button
-              v-bind="tp"
-              class="theme-swatch"
-              :class="{ 'theme-swatch--active': currentTheme === th.id }"
-              :style="{ '--swatch-bg': th.bg, '--swatch-primary': th.primary }"
-              :aria-label="th.name"
-              @click="setTheme(th.id)"
-            >
+            <button v-bind="tp" class="theme-swatch" :class="{ 'theme-swatch--active': currentTheme === th.id }"
+              :style="{ '--swatch-bg': th.bg, '--swatch-primary': th.primary }" :aria-label="th.name"
+              @click="setTheme(th.id)">
               <span class="swatch-bg" />
               <span class="swatch-primary" />
               <span v-if="currentTheme === th.id" class="swatch-check">
@@ -113,6 +90,7 @@ function setTheme(id: string | null) {
 .theme-card-glass .v-list-item {
   background: transparent !important;
 }
+
 .theme-card-glass {
   backdrop-filter: blur(20px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
@@ -133,21 +111,23 @@ function setTheme(id: string | null) {
   height: 36px;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: 0;
+  appearance: none;
+  background: none;
   cursor: pointer;
   outline: none;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
   display: flex;
 }
 
 .theme-swatch:hover {
   transform: scale(1.12);
-  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
 }
 
 .theme-swatch--active {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 2px rgb(var(--v-theme-primary)), 0 0 8px rgb(var(--v-theme-primary) / 0.6);
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgb(var(--v-theme-primary)), 0 0 8px rgb(var(--v-theme-primary) / 0.6);
   transform: scale(1.1);
 }
 

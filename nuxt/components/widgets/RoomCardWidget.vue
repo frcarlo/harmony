@@ -31,12 +31,12 @@
       <div class="d-flex align-center ga-2 room-card__values">
         <template v-if="props.config.climate_entity">
           <v-icon icon="mdi-thermometer" size="20" color="medium-emphasis" />
-          <span v-if="currentTemp !== undefined" class="text-h5 font-weight-bold">{{ currentTemp.toFixed(1) }}°C</span>
+          <span v-if="currentTemp !== undefined" class="room-card__temp">{{ currentTemp.toFixed(1) }}°C</span>
           <span v-else class="text-body-2 text-medium-emphasis">–</span>
         </template>
         <template v-else-if="props.config.sensor_entity && sensorEntity">
           <v-icon :icon="props.config.sensor_icon || autoEntityIcon(sensorEntity)" size="20" color="medium-emphasis" />
-          <span class="text-h5 font-weight-bold">{{ sensorDisplay }}</span>
+          <span class="room-card__temp">{{ sensorDisplay }}</span>
         </template>
         <template v-for="sensor in compactExtraSensors" :key="sensor.entity_id">
           <v-chip size="x-small" variant="tonal" class="room-card__sensor-chip" @mousedown.stop @click.stop="openSensorEntity(sensor.entity_id)">
@@ -273,6 +273,13 @@ async function adjustTemp(delta: number) {
 .room-card__values {
   min-width: 0;
   flex-wrap: wrap;
+}
+
+.room-card__temp {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .room-card__sensor-chip {

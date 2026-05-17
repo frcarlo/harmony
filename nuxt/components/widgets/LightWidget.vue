@@ -111,13 +111,13 @@ async function setBrightness(pct: number) {
 .light-ambient {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 90% 80% at 50% 48%, rgba(var(--v-theme-warning), 0) 0%, transparent 70%);
+  background: transparent;
   pointer-events: none;
   z-index: 0;
   transition: background 0.6s ease;
 }
 .light-on .light-ambient {
-  background: radial-gradient(ellipse 90% 80% at 50% 48%, rgba(var(--v-theme-warning), 0.10) 0%, transparent 70%);
+  background: radial-gradient(ellipse 120% 90% at 50% 0%, rgba(var(--v-theme-warning), 0.40) 0%, transparent 72%);
 }
 
 /* ── Header ─────────────────────────────────── */

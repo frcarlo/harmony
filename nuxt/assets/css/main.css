@@ -1,6 +1,10 @@
 /* GridStack */
 @import 'gridstack/dist/gridstack.min.css';
 
+html {
+  font-size: 87.5%; /* 16px → 14px base, scales all rem-based Vuetify typography */
+}
+
 .grid-stack-item-content {
   position: absolute;
   inset: 4px;
