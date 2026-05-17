@@ -57,10 +57,14 @@
       </v-app-bar>
 
       <v-main>
+        <div class="dashboard-home__bg-glow" />
         <v-container fluid class="dashboard-home px-4 px-sm-6 py-5">
           <section class="dashboard-home__header">
             <div class="dashboard-home__heading">
-              <div class="dashboard-home__eyebrow">{{ t('dashboard.count_other', { n: dashboards.length }) }}</div>
+              <div class="dashboard-home__eyebrow">
+                <span class="dashboard-home__eyebrow-dot" />
+                {{ t('dashboard.count_other', { n: dashboards.length }) }}
+              </div>
               <h1 class="dashboard-home__title">{{ t('dashboard.title') }}</h1>
               <p class="dashboard-home__subtitle">
                 {{ listEditMode ? t('dashboard.editing_hint') : currentDefaultHint }}
@@ -72,6 +76,7 @@
                 :prepend-icon="listEditMode ? 'mdi-check' : 'mdi-pencil-outline'"
                 :color="listEditMode ? 'primary' : undefined"
                 :variant="listEditMode ? 'flat' : 'tonal'"
+                rounded="lg"
                 class="text-none"
                 @click="listEditMode = !listEditMode"
               >
@@ -79,6 +84,8 @@
               </v-btn>
             </div>
           </section>
+
+          <div class="dashboard-home__divider" />
 
           <div v-if="listEditMode" class="dashboard-home__edit-banner">
             <v-icon icon="mdi-drag-vertical" size="18" />
@@ -88,8 +95,8 @@
           <draggable v-if="dashboards.length > 0" v-model="dashboards" item-key="id"
             handle=".drag-handle" :animation="150" :disabled="!isAdmin || !listEditMode"
             class="dashboard-home__grid" @end="saveOrder">
-            <template #item="{ element }">
-              <div class="dashboard-home__grid-item">
+            <template #item="{ element, index }">
+              <div class="dashboard-home__grid-item" :style="{ animationDelay: `${index * 55}ms` }">
                 <DashboardCard
                   :dashboard="element"
                   :is-admin="isAdmin"
@@ -102,11 +109,9 @@
             </template>
           </draggable>
 
-          <v-row v-else-if="!listLoaded">
-            <v-col v-for="n in 4" :key="n" cols="12" sm="6" lg="4" xl="3">
-              <v-skeleton-loader type="card" rounded="xl" />
-            </v-col>
-          </v-row>
+          <div v-else-if="!listLoaded" class="dashboard-home__grid">
+            <v-skeleton-loader v-for="n in 4" :key="n" type="card" rounded="xl" />
+          </div>
 
           <div v-else class="d-flex flex-column align-center justify-center py-16 text-center">
             <v-icon icon="mdi-view-grid-outline" size="64" color="medium-emphasis" class="mb-4" style="opacity:0.3" />
@@ -343,7 +348,7 @@ async function saveOrder() {
   align-items: flex-end;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .dashboard-home__heading {
@@ -351,13 +356,28 @@ async function saveOrder() {
 }
 
 .dashboard-home__eyebrow {
-  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.7rem;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0;
-  font-weight: 800;
+  letter-spacing: 0.1em;
+  font-weight: 700;
   color: rgb(var(--v-theme-primary));
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.28);
+  background: rgba(var(--v-theme-primary), 0.07);
+}
+
+.dashboard-home__eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--v-theme-primary));
+  flex-shrink: 0;
 }
 
 .dashboard-home__title {
@@ -365,12 +385,13 @@ async function saveOrder() {
   line-height: 1.05;
   font-weight: 850;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .dashboard-home__subtitle {
   margin: 8px 0 0;
-  color: rgba(var(--v-theme-on-surface), 0.62);
-  font-size: 0.95rem;
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  font-size: 0.9rem;
 }
 
 .dashboard-home__header-actions {
@@ -380,29 +401,55 @@ async function saveOrder() {
   flex-shrink: 0;
 }
 
+.dashboard-home__divider {
+  height: 1px;
+  background: rgba(var(--v-theme-on-surface), 0.06);
+  margin-bottom: 20px;
+}
+
 .dashboard-home__edit-banner {
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 38px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  margin-bottom: 14px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
   color: rgb(var(--v-theme-on-surface));
-  background: rgba(var(--v-theme-primary), 0.14);
-  border: 1px solid rgba(var(--v-theme-primary), 0.26);
-  font-size: 0.88rem;
+  background: rgba(var(--v-theme-primary), 0.1);
+  border: 1px solid rgba(var(--v-theme-primary), 0.22);
+  font-size: 0.85rem;
   font-weight: 600;
+}
+
+.dashboard-home__bg-glow {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 300px;
+  background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(var(--v-theme-primary), 0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .dashboard-home__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-home__grid-item {
   min-width: 0;
+  animation: card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 720px) {

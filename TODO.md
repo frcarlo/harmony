@@ -15,7 +15,7 @@
 
 ### Features
 
-- [ ] **Batterie-/Problem-Übersicht als Status-Bar-Gruppe** — Kompakte Status-Bar-Variante für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
+- [x] **Batterie-/Problem-Übersicht als Status-Bar-Gruppe** — Kompakte Status-Bar-Variante für niedrige Batterien, offline Geräte, offene Fenster/Türen, verfügbare Updates und Fehlerzustände
 - [ ] **Adaptive Themes** — Automatisch hell/dunkel/dim nach Tageszeit, Sonnenstand oder Dashboard-Einstellung wechseln
 - [x] **Lazy Loading für schwere Widgets** — Kamera, Charts, Kalender und Detaildaten erst laden, wenn sichtbar oder geöffnet
 - [x] **Code-Splitting verbessern** — Große Nuxt/Vite-Chunks aufteilen, um Tablet-Startzeit und Cache-Verhalten zu verbessern
@@ -28,7 +28,7 @@
 
 ## Ideen / Nice-to-have
 
-- [ ] **Migration auf Vuetify 4** — Vuetify 4 ist seit Feb 2026 stabil (MD3, CSS Layers, Elevation 0–5). Eigener Branch, `eslint-plugin-vuetify` für automatisches Flaggen der Breaking Changes nutzen
+- [x] **Migration auf Vuetify 4** — Vuetify 4 ist seit Feb 2026 stabil (MD3, CSS Layers, Elevation 0–5). Eigener Branch, `eslint-plugin-vuetify` für automatisches Flaggen der Breaking Changes nutzen
 
 - [x] **Lock-Widget Redesign** — Aktuelles Design zu klobig (großer State-Button + separater "Tür Öffnen"-Button). Ziel: kompakteres Layout, State und Aktion besser integriert, weniger vertikaler Platz
 - [x] **Cover-Dial2-Widget Redesign** — Großer Kreis-Dial nimmt zu viel Platz ein, Steuerknöpfe (↑ □ ↓) wirken verloren. Ziel: moderneres kompakteres Layout, bessere Proportionen zwischen Steuerung und Statusanzeige

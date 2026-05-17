@@ -4,26 +4,24 @@
     :class="{
       'switch-card--off': !isOn,
       'switch-card--pending': isPending,
+      'switch-card--on': isOn,
     }"
   >
-    <div class="d-flex align-start justify-space-between ga-3">
-      <div class="overflow-hidden flex-grow-1">
-        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
-        <div class="d-flex align-center ga-2 mt-1 flex-wrap">
-          <v-chip
-            size="small"
-            rounded="pill"
-            variant="tonal"
-            class="switch-card__state-chip"
-            :color="isUnavailable ? undefined : (isOn ? 'success' : 'medium-emphasis')"
-          >
-            {{ isUnavailable ? 'N/A' : isOn ? t('common.on') : t('common.off') }}
-          </v-chip>
-          <span v-if="powerLabel" class="text-caption text-medium-emphasis">{{ powerLabel }}</span>
-        </div>
-      </div>
-      <div class="switch-card__icon-wrap" :class="{ 'switch-card__icon-wrap--active': isOn }">
-        <v-icon :icon="iconName" size="24" />
+    <div class="switch-card__ambient" />
+    <div class="d-flex align-center justify-space-between ga-3 switch-card__header">
+      <v-icon :icon="iconName" size="12" style="opacity:0.45; flex-shrink:0" />
+      <span class="switch-card__name">{{ name }}</span>
+      <div class="d-flex align-center ga-2 flex-shrink-0">
+        <span v-if="powerLabel" class="text-caption text-medium-emphasis">{{ powerLabel }}</span>
+        <v-chip
+          size="x-small"
+          rounded="pill"
+          variant="tonal"
+          class="switch-card__state-chip"
+          :color="isUnavailable ? undefined : (isOn ? 'success' : 'medium-emphasis')"
+        >
+          {{ isUnavailable ? 'N/A' : isOn ? t('common.on') : t('common.off') }}
+        </v-chip>
       </div>
     </div>
 
@@ -50,6 +48,7 @@
 import type { SwitchWidgetConfig, WidgetAppearance } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
+const { glass } = useGlassEffect()
 
 const props = defineProps<{ config: SwitchWidgetConfig; appearance?: WidgetAppearance }>()
 const entityStore = useEntityStore()
@@ -138,27 +137,36 @@ watch(() => [props.config.sensor_entity_id, props.config.show_sensor_trend] as c
 <style scoped>
 .switch-card {
   position: relative;
+  overflow: hidden;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.switch-card__icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(var(--v-theme-on-surface), 0.62);
-  background: rgba(var(--v-theme-on-surface), 0.06);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  transition: transform 0.22s ease, color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+/* Ambient glow when on */
+.switch-card__ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 92% 12%, rgba(var(--v-theme-success), 0) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.6s ease;
+}
+.switch-card--on .switch-card__ambient {
+  background: radial-gradient(ellipse 80% 70% at 92% 12%, rgba(var(--v-theme-success), 0.09) 0%, transparent 70%);
 }
 
-.switch-card__icon-wrap--active {
-  color: rgb(var(--v-theme-success));
-  background: rgba(var(--v-theme-success), 0.14);
-  border-color: rgba(var(--v-theme-success), 0.22);
-  box-shadow: 0 8px 18px rgba(var(--v-theme-success), 0.12);
+.switch-card__header {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.switch-card__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  opacity: 0.6;
+  letter-spacing: 0.025em;
 }
 
 .switch-card__toggle {

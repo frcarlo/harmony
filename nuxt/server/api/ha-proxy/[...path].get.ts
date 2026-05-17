@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const haUrl = config.haUrl ?? 'http://localhost:8123'
   const haToken = config.haToken
 

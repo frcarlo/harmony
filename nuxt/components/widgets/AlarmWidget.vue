@@ -111,7 +111,7 @@ const busy = ref(false)
 const codeDialogOpen = ref(false)
 const dialogCode = ref('')
 const pendingAction = ref<AlarmAction | null>(null)
-const keypadKeys = [
+const keypadKeys: Array<{ value: string; icon?: string; text?: string }> = [
   { value: '1', text: '1' },
   { value: '2', text: '2' },
   { value: '3', text: '3' },
@@ -255,7 +255,7 @@ function closeCodeDialog() {
   pendingAction.value = null
 }
 
-function handleKeypadPress(value: typeof keypadKeys[number]['value']) {
+function handleKeypadPress(value: string) {
   if (value === 'clear') {
     dialogCode.value = ''
     return

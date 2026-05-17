@@ -514,6 +514,50 @@
               </v-btn>
             </template>
 
+            <!-- Vacuum -->
+            <template v-if="widget.type === 'vacuum'">
+              <p class="text-caption text-medium-emphasis">{{ t('widget.vacuum.description') }}</p>
+            </template>
+
+            <!-- Fan -->
+            <template v-if="widget.type === 'fan'">
+              <v-checkbox v-model="cfg.show_speed" :label="t('config.fan_show_speed')" hide-details density="compact" />
+            </template>
+
+            <!-- Scene -->
+            <template v-if="widget.type === 'scene'">
+              <v-text-field v-model="cfg.name" :label="t('config.display_name')" :placeholder="t('scene.default_name')" density="compact" hide-details="auto" />
+              <div>
+                <p class="text-caption text-medium-emphasis mb-1">{{ t('config.scene_columns') }}</p>
+                <v-btn-toggle :model-value="cfg.columns ?? 2" mandatory density="compact" color="primary" class="w-100" @update:model-value="cfg.columns = $event">
+                  <v-btn :value="1" size="small" class="flex-1-1">1</v-btn>
+                  <v-btn :value="2" size="small" class="flex-1-1">2</v-btn>
+                  <v-btn :value="3" size="small" class="flex-1-1">3</v-btn>
+                </v-btn-toggle>
+              </div>
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('scene.scenes') }}</p>
+              <div v-for="(entry, idx) in sceneEntries" :key="idx" class="d-flex flex-column ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
+                <div class="d-flex align-center ga-1">
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ idx + 1 }}.</span>
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeSceneEntry(idx)" />
+                </div>
+                <EntityPicker v-model="entry.entity_id" :domain-filter="['scene', 'script']" />
+                <v-text-field v-model="entry.name" :label="t('config.display_name')" :placeholder="t('config.display_name_hint')" density="compact" hide-details="auto" />
+                <div class="d-flex ga-2">
+                  <UiIconPicker v-model="entry.icon" :label="t('config.icon_field')" placeholder="mdi-play-circle-outline" class="flex-grow-1" density="compact" hide-details="auto" />
+                  <UiColorPicker v-model="entry.color" :label="t('config.active_color')" clearable class="flex-1-1" />
+                </div>
+              </div>
+              <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block @click="addSceneEntry">
+                {{ t('scene.add_scene') }}
+              </v-btn>
+            </template>
+
+            <!-- Timer -->
+            <template v-if="widget.type === 'timer'">
+              <p class="text-caption text-medium-emphasis">{{ t('widget.timer.description') }}</p>
+            </template>
+
             <!-- Status Bar -->
             <template v-if="widget.type === 'status_bar'">
               <v-checkbox v-model="cfg.show_labels" :label="t('config.show_labels')" hide-details density="compact" />
@@ -531,39 +575,43 @@
                 t('config.status_entities') }}</p>
 
               <!-- Compact entry list -->
-              <div class="d-flex flex-column ga-1">
-                <div v-for="(entry, idx) in statusBarEntries" :key="idx"
-                  class="d-flex align-center ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
-                  <v-icon
-                    :icon="entry.entry_type === 'divider' ? 'mdi-minus' : (entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : entry.entry_type === 'room' ? 'mdi-sofa-outline' : entry.entry_type === 'problem' ? 'mdi-home-alert-outline' : 'mdi-circle'))"
-                    size="18" class="flex-shrink-0" />
-                  <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
-                    {{ entry.entry_type === 'divider' ? t('config.entry_type_divider') : (entry.label || entry.entity_id
-                      || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ?
-                        entry.dashboard_id : entry.entry_type === 'room' ? (entry.light_entity || entry.climate_entity ||
-                          entry.sensor_entity || 'room') : entry.entry_type === 'problem' ? t('config.entry_type_problem') : '—')) }}
+              <draggable
+                :model-value="statusBarEntries"
+                :item-key="(e: Record<string, any>) => JSON.stringify(e)"
+                animation="180"
+                handle=".sb-drag-handle"
+                ghost-class="sb-drag-ghost"
+                chosen-class="sb-drag-chosen"
+                class="d-flex flex-column ga-1"
+                @update:model-value="(cfg as any).entries = $event"
+              >
+                <template #item="{ element: entry, index: idx }">
+                  <div class="d-flex align-center ga-2 pa-2 rounded-lg sb-entry-row" style="background: rgba(255,255,255,0.04)">
+                    <v-icon icon="mdi-drag-vertical" size="18" class="sb-drag-handle" />
+                    <v-icon
+                      :icon="entry.entry_type === 'divider' ? 'mdi-minus' : (entry.icon || (entry.entry_type === 'group' ? 'mdi-lightbulb-group-outline' : entry.entry_type === 'nav' ? 'mdi-arrow-right-circle' : entry.entry_type === 'room' ? 'mdi-sofa-outline' : entry.entry_type === 'problem' ? 'mdi-home-alert-outline' : 'mdi-circle'))"
+                      size="18" class="flex-shrink-0" />
+                    <div class="flex-grow-1 text-body-2 text-truncate" style="min-width:0">
+                      {{ entry.entry_type === 'divider' ? t('config.entry_type_divider') : (entry.label || entry.entity_id
+                        || (entry.entry_type === 'group' ? entryGroupSummary(entry) : entry.entry_type === 'nav' ?
+                          entry.dashboard_id : entry.entry_type === 'room' ? (entry.light_entity || entry.climate_entity ||
+                            entry.sensor_entity || 'room') : entry.entry_type === 'problem' ? t('config.entry_type_problem') : '—')) }}
+                    </div>
+                    <v-chip
+                      :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : entry.entry_type === 'room' ? 'warning' : entry.entry_type === 'problem' ? 'error' : entry.entry_type === 'divider' ? 'medium-emphasis' : undefined"
+                      size="x-small" variant="tonal" class="flex-shrink-0">
+                      {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ?
+                        t('config.entry_type_nav') : entry.entry_type === 'room' ? t('config.entry_type_room') :
+                          entry.entry_type === 'problem' ? t('config.entry_type_problem') :
+                            entry.entry_type === 'divider' ? t('config.entry_type_divider') : t('config.entry_type_single') }}
+                    </v-chip>
+                    <v-btn v-if="entry.entry_type !== 'divider'" icon="mdi-pencil-outline" size="x-small" variant="text"
+                      @click="openEntryDialog(idx)" />
+                    <v-btn icon="mdi-delete" size="x-small" variant="text" color="error"
+                      @click="removeStatusBarEntry(idx)" />
                   </div>
-                  <v-chip
-                    :color="entry.entry_type === 'group' ? 'primary' : entry.entry_type === 'nav' ? 'secondary' : entry.entry_type === 'room' ? 'warning' : entry.entry_type === 'problem' ? 'error' : entry.entry_type === 'divider' ? 'medium-emphasis' : undefined"
-                    size="x-small" variant="tonal" class="flex-shrink-0">
-                    {{ entry.entry_type === 'group' ? t('config.entry_type_group') : entry.entry_type === 'nav' ?
-                      t('config.entry_type_nav') : entry.entry_type === 'room' ? t('config.entry_type_room') :
-                        entry.entry_type === 'problem' ? t('config.entry_type_problem') :
-                          entry.entry_type === 'divider' ? t('config.entry_type_divider') : t('config.entry_type_single') }}
-                  </v-chip>
-                  <div class="d-flex align-center ga-1 flex-shrink-0">
-                    <v-btn icon="mdi-chevron-up" size="x-small" variant="text" :disabled="idx === 0"
-                      :title="t('config.move_up')" @click="moveStatusBarEntry(idx, -1)" />
-                    <v-btn icon="mdi-chevron-down" size="x-small" variant="text"
-                      :disabled="idx === statusBarEntries.length - 1" :title="t('config.move_down')"
-                      @click="moveStatusBarEntry(idx, 1)" />
-                  </div>
-                  <v-btn v-if="entry.entry_type !== 'divider'" icon="mdi-pencil-outline" size="x-small" variant="text"
-                    @click="openEntryDialog(idx)" />
-                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error"
-                    @click="removeStatusBarEntry(idx)" />
-                </div>
-              </div>
+                </template>
+              </draggable>
 
               <div class="d-flex flex-column ga-1 mt-2">
                 <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block
@@ -691,6 +739,7 @@
 </template>
 
 <script setup lang="ts">
+import draggable from 'vuedraggable'
 import type { WidgetType, WidgetAppearance, WidgetVisibility } from '~/types/dashboard'
 
 const entityStore = useEntityStore()
@@ -709,7 +758,7 @@ watch(() => dashboardStore.selectedWidgetId, async (id) => {
   const el = document.querySelector(`[gs-id="${id}"] .grid-stack-item-content`)
   currentWidgetWidth.value = el ? Math.round(el.getBoundingClientRect().width) : null
 }, { immediate: true })
-const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, unknown>)
+const cfg = computed(() => (widget.value?.config ?? {}) as Record<string, any>)
 
 function stringConfigModel(key: string) {
   return computed({
@@ -749,12 +798,12 @@ watch(widget, (w) => {
   w.visibility.tablet ??= true
   w.visibility.mobile ??= true
   if (w.type === 'light') {
-    const config = w.config as Record<string, unknown>
+    const config = w.config as Record<string, any>
     config.card_click_action ??= config.tap_action ?? 'none'
     config.card_double_click_action ??= config.double_tap_action ?? 'none'
   }
   if (w.type === 'problem_overview') {
-    const config = w.config as Record<string, unknown>
+    const config = w.config as Record<string, any>
     config.ignored_offline_platforms ??= [...DEFAULT_IGNORED_OFFLINE_PLATFORMS]
     config.ignored_offline_domains ??= [...DEFAULT_IGNORED_OFFLINE_DOMAINS]
     config.show_repairs ??= true
@@ -764,16 +813,16 @@ watch(widget, (w) => {
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview']
-const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene']
+const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
-  'room_card', 'status_bar', 'problem_overview',
+  'room_card', 'status_bar', 'problem_overview', 'vacuum', 'fan', 'scene', 'timer',
 ])
 const GENERIC_ACTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
-  'lock', 'weather', 'calendar',
+  'lock', 'weather', 'calendar', 'vacuum', 'fan', 'timer',
 ])
 
 const showEntityField = computed(() => !!widget.value && !ENTITY_FIELD_EXCLUDED_TYPES.includes(widget.value.type))
@@ -802,6 +851,7 @@ const WIDGET_ICONS: Partial<Record<WidgetType, string>> = {
   calendar: 'mdi-calendar-outline', calendar_v2: 'mdi-calendar-month-outline', person: 'mdi-account-group-outline',
   energy: 'mdi-lightning-bolt', appliance: 'mdi-dishwasher', alarm: 'mdi-shield-home-outline',
   problem_overview: 'mdi-home-alert-outline', status_bar: 'mdi-view-list-outline',
+  vacuum: 'mdi-robot-vacuum', fan: 'mdi-fan', scene: 'mdi-play-box-multiple-outline', timer: 'mdi-timer-outline',
 }
 
 
@@ -892,7 +942,7 @@ watch(() => [widget.value?.type, cfg.value.entity_id] as const, async ([type, en
   }
 }, { immediate: true })
 
-const roomStatusEntities = computed(() => (cfg.value.status_entities as Array<Record<string, unknown>>) ?? [])
+const roomStatusEntities = computed(() => (cfg.value.status_entities as Array<Record<string, any>>) ?? [])
 const roomLightEntities = computed({
   get: () => {
     if (!Array.isArray(cfg.value.light_entities)) cfg.value.light_entities = []
@@ -905,9 +955,9 @@ const roomLightEntities = computed({
 const roomSensorEntities = computed({
   get: () => {
     if (!Array.isArray(cfg.value.sensor_entities)) cfg.value.sensor_entities = []
-    return cfg.value.sensor_entities as Array<Record<string, unknown>>
+    return cfg.value.sensor_entities as Array<Record<string, any>>
   },
-  set: (value: Array<Record<string, unknown>>) => {
+  set: (value: Array<Record<string, any>>) => {
     cfg.value.sensor_entities = value
   },
 })
@@ -944,7 +994,7 @@ function removeStatusSlot(index: number) {
   cfg.value.status_entities = list
 }
 
-const statusBarEntries = computed(() => (cfg.value.entries as Array<Record<string, unknown>>) ?? [])
+const statusBarEntries = computed(() => (cfg.value.entries as Array<Record<string, any>>) ?? [])
 
 const entryDialogOpen = ref(false)
 const editingEntryIdx = ref<number | null>(null)
@@ -954,14 +1004,14 @@ function openEntryDialog(idx: number) {
   entryDialogOpen.value = true
 }
 
-function saveEntryDialog(updated: Record<string, unknown>) {
+function saveEntryDialog(updated: Record<string, any>) {
   const list = [...statusBarEntries.value]
   if (editingEntryIdx.value !== null) list[editingEntryIdx.value] = updated
   cfg.value.entries = list
 }
 
-function entryGroupSummary(entry: Record<string, unknown>) {
-  const filter = entry.filter as Record<string, unknown> | undefined
+function entryGroupSummary(entry: Record<string, any>) {
+  const filter = entry.filter as Record<string, any> | undefined
   if (!filter) return t('config.entry_type_group')
 
   const parts: string[] = []
@@ -1073,7 +1123,7 @@ function moveStatusBarEntry(index: number, direction: -1 | 1) {
 
 // ── Camera status entities ─────────────────────────────────────────────────
 
-const cameraStatusEntries = computed(() => (cfg.value.status_entities as Array<Record<string, unknown>>) ?? [])
+const cameraStatusEntries = computed(() => (cfg.value.status_entities as Array<Record<string, any>>) ?? [])
 const cameraStatusDialogOpen = ref(false)
 const editingCameraStatusIdx = ref<number | null>(null)
 
@@ -1082,7 +1132,7 @@ function openCameraStatusDialog(idx: number) {
   cameraStatusDialogOpen.value = true
 }
 
-function saveCameraStatusEntry(updated: Record<string, unknown>) {
+function saveCameraStatusEntry(updated: Record<string, any>) {
   const list = [...cameraStatusEntries.value]
   if (editingCameraStatusIdx.value !== null) list[editingCameraStatusIdx.value] = updated
   cfg.value.status_entities = list
@@ -1109,11 +1159,50 @@ function moveCameraStatusEntry(index: number, direction: -1 | 1) {
   list.splice(targetIndex, 0, entry)
   cfg.value.status_entities = list
 }
+
+// ── Scene entries ─────────────────────────────────────────────────────────────
+
+const sceneEntries = computed(() => (cfg.value.entries as Array<Record<string, any>>) ?? [])
+
+function addSceneEntry() {
+  const list = [...sceneEntries.value]
+  list.push({ entity_id: '', name: '', icon: '', color: '' })
+  cfg.value.entries = list
+}
+
+function removeSceneEntry(index: number) {
+  const list = [...sceneEntries.value]
+  list.splice(index, 1)
+  cfg.value.entries = list
+}
 </script>
 
 <style scoped>
 .config-panel {
   padding-bottom: 8px;
+}
+
+.sb-drag-handle {
+  cursor: grab;
+  opacity: 0.35;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.sb-drag-handle:hover {
+  opacity: 0.75;
+}
+.sb-drag-ghost {
+  opacity: 0.25;
+  background: rgba(var(--v-theme-primary), 0.12) !important;
+  border-radius: 8px;
+}
+.sb-drag-chosen {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  z-index: 10;
+}
+.sb-entry-row {
+  transition: box-shadow 0.15s;
 }
 
 .config-panel__badge {

@@ -23,9 +23,9 @@ export interface MAItem {
 }
 
 function getConfig() {
-  const config = useRuntimeConfig()
-  const explicit = config.maUrl as string
-  const token = config.maToken as string
+  const config = getServerConfig()
+  const explicit = config.maUrl
+  const token = config.maToken
   if (explicit) return { url: explicit, token, configured: true }
 
   // Derive MA URL from HA URL — same host, port 8095

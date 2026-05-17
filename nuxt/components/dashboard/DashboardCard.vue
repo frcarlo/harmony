@@ -2,35 +2,52 @@
   <v-card :to="`/dashboard/${dashboard.id}`" :class="{ 'widget-glass': glass, 'dashboard-card--edit': editMode }"
     class="dashboard-card" :style="cardPreviewStyle">
 
+    <!-- Shimmer sweep on hover -->
+    <div class="dashboard-card__shimmer" />
+
     <div class="dashboard-card__header" :style="headerStyle">
       <div class="dashboard-card__header-overlay" />
-      <div class="dashboard-card__icon-badge">
-        <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" class="dashboard-card__header-icon" />
-      </div>
-      <v-icon v-if="isAdmin && editMode"
-        class="drag-handle dashboard-card__drag"
-        icon="mdi-drag-vertical" size="18"
-        @click.prevent />
+      <!-- Dot grid pattern -->
+      <div class="dashboard-card__header-pattern" />
+
+      <!-- Default chip top-left -->
       <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="flat" class="dashboard-card__default-chip">
         {{ currentDefaultLabel }}
       </v-chip>
       <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="tonal" class="dashboard-card__default-chip">
         {{ t('dashboard.global_default_badge') }}
       </v-chip>
+
+      <!-- Drag handle -->
+      <v-icon v-if="isAdmin && editMode"
+        class="drag-handle dashboard-card__drag"
+        icon="mdi-drag-vertical" size="18"
+        @click.prevent />
+
+      <!-- Centered icon badge -->
+      <div class="dashboard-card__icon-badge">
+        <v-icon :icon="dashboard.icon || 'mdi-view-dashboard-outline'" class="dashboard-card__header-icon" />
+      </div>
     </div>
 
-    <v-card-item class="dashboard-card__body">
-      <v-card-title class="dashboard-card__title">
-        {{ dashboard.name }}
-      </v-card-title>
-      <v-card-subtitle class="dashboard-card__meta">
-        <span class="dashboard-card__edited">{{ t('dashboard.edited', { date: formatDate(dashboard.updated_at) }) }}</span>
+    <div class="dashboard-card__body">
+      <div class="dashboard-card__title">{{ dashboard.name }}</div>
+      <div class="dashboard-card__meta">
+        <span class="dashboard-card__edited">
+          <v-icon icon="mdi-clock-outline" size="10" style="opacity:0.45;margin-right:3px;vertical-align:middle" />
+          {{ formatDate(dashboard.updated_at) }}
+        </span>
         <v-chip v-if="themeMeta" size="x-small" rounded="pill" variant="outlined" class="dashboard-theme-chip">
           <span class="dashboard-theme-chip__swatch" />
           {{ themeMeta.name }}
         </v-chip>
-      </v-card-subtitle>
-    </v-card-item>
+      </div>
+    </div>
+
+    <!-- Hover arrow -->
+    <div class="dashboard-card__arrow">
+      <v-icon icon="mdi-arrow-right" size="14" />
+    </div>
 
     <div v-if="isAdmin" class="dashboard-card__actions" :class="{ 'dashboard-card__actions--edit': editMode }">
       <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" :to="`/edit/${dashboard.id}`"
@@ -113,9 +130,9 @@ const headerStyle = computed(() => {
   }
   if (bg) return { background: bg }
   if (themeMeta.value) {
-    return { background: `linear-gradient(135deg, ${themeMeta.value.bg} 0%, color-mix(in srgb, ${themeMeta.value.primary} 40%, ${themeMeta.value.bg}) 100%)` }
+    return { background: `linear-gradient(155deg, ${themeMeta.value.bg} 0%, color-mix(in srgb, ${themeMeta.value.primary} 55%, ${themeMeta.value.bg}) 100%)` }
   }
-  return { background: 'linear-gradient(135deg, rgba(var(--v-theme-primary), 0.18) 0%, rgba(var(--v-theme-surface-variant), 0.6) 100%)' }
+  return { background: 'linear-gradient(155deg, rgba(var(--v-theme-primary), 0.35) 0%, rgba(var(--v-theme-surface-variant), 0.7) 100%)' }
 })
 
 function formatDate(iso: string) {
@@ -195,98 +212,145 @@ async function handleDelete() {
 </script>
 
 <style scoped>
-.drag-handle {
-  cursor: grab;
-}
-.drag-handle:active {
-  cursor: grabbing;
-}
+.drag-handle { cursor: grab; }
+.drag-handle:active { cursor: grabbing; }
 
+/* ── Card shell ─────────────────────────────────── */
 .dashboard-card {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
-  min-height: 164px;
+  border-radius: 18px !important;
+  min-height: 196px;
   background: rgba(var(--v-theme-surface), 0.72);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.07) !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24) !important;
-  border-color: rgba(var(--v-theme-primary), 0.32);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(var(--v-theme-primary), 0.32) !important;
 }
 
 .dashboard-card--edit {
-  border-color: rgba(var(--v-theme-primary), 0.22);
+  border-color: rgba(var(--v-theme-primary), 0.22) !important;
 }
 
+/* ── Shimmer sweep ──────────────────────────────── */
+.dashboard-card__shimmer {
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 50%;
+  height: 110px; /* covers header */
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  z-index: 3;
+  pointer-events: none;
+  transition: left 0.65s ease;
+}
+.dashboard-card:hover .dashboard-card__shimmer {
+  left: 160%;
+}
+
+/* ── Header ─────────────────────────────────────── */
 .dashboard-card__header {
   position: relative;
-  height: 68px;
+  height: 110px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 14px 16px;
+  justify-content: center;
   overflow: hidden;
 }
 
 .dashboard-card__header-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.28) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
 }
 
-.dashboard-card__icon-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
-  backdrop-filter: blur(8px);
+/* Dot grid pattern overlay */
+.dashboard-card__header-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: 0.35;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 0%, transparent 85%);
 }
 
-.dashboard-card__header-icon {
-  font-size: 26px;
-  color: rgba(255, 255, 255, 0.92) !important;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+.dashboard-card__default-chip {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 2;
+  font-weight: 700;
 }
 
 .dashboard-card__drag {
   position: absolute;
-  left: 8px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
   color: rgba(255,255,255,0.7) !important;
 }
 
-.dashboard-card__default-chip {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  z-index: 2;
-  font-weight: 700;
+/* ── Centered circular icon badge ───────────────── */
+.dashboard-card__icon-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 6px 24px rgba(0, 0, 0, 0.32),
+    0 0 0 6px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
+.dashboard-card:hover .dashboard-card__icon-badge {
+  transform: scale(1.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.36),
+    0 10px 32px rgba(0, 0, 0, 0.38),
+    0 0 0 8px rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-card__header-icon {
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.95) !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* ── Body ───────────────────────────────────────── */
 .dashboard-card__body {
-  padding: 14px 16px 42px;
+  padding: 13px 16px 38px;
+  flex-grow: 1;
 }
 
 .dashboard-card__title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.25;
   font-weight: 800;
-  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.015em;
 }
 
 .dashboard-card__meta {
@@ -294,29 +358,49 @@ async function handleDelete() {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  min-height: 24px;
-  margin-top: 6px;
-  padding: 0;
+  min-height: 20px;
+  margin-top: 4px;
 }
 
 .dashboard-card__edited {
-  color: rgba(var(--v-theme-on-surface), 0.62);
+  font-size: 0.75rem;
+  color: rgba(var(--v-theme-on-surface), 0.42);
+  display: flex;
+  align-items: center;
 }
 
+/* ── Hover arrow ────────────────────────────────── */
+.dashboard-card__arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  color: rgba(var(--v-theme-on-surface), 0.35);
+}
+.dashboard-card:hover .dashboard-card__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Admin action buttons ───────────────────────── */
 .dashboard-card__actions {
   position: absolute;
   right: 8px;
   bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.16s ease, transform 0.16s ease;
-  padding: 2px;
-  border-radius: 8px;
-  background: rgba(var(--v-theme-surface), 0.72);
-  backdrop-filter: blur(10px);
+  transform: translateY(5px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(var(--v-theme-surface), 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.07);
+  z-index: 4;
 }
 
 .dashboard-card:hover .dashboard-card__actions,
@@ -325,17 +409,24 @@ async function handleDelete() {
   transform: translateY(0);
 }
 
+/* Hide hover arrow when actions are visible */
+.dashboard-card:hover .dashboard-card__arrow {
+  opacity: 0;
+}
+
+/* ── Theme chip ─────────────────────────────────── */
 .dashboard-theme-chip {
   backdrop-filter: blur(10px);
   background: rgba(var(--v-theme-surface), 0.34);
+  font-size: 0.68rem;
 }
 
 .dashboard-theme-chip__swatch {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
   background: var(--dashboard-theme-primary);
   display: inline-block;
-  margin-right: 6px;
+  margin-right: 5px;
 }
 </style>

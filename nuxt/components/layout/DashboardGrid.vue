@@ -10,8 +10,8 @@
         <div class="grid-stack-item-content">
           <WidgetWrapper
             :widget="widget"
-            :edit-mode="editMode"
-            :quick-edit="quickEdit"
+            :edit-mode="!!editMode"
+            :quick-edit="!!quickEdit"
             @quick-edit="$emit('quickEdit', $event)"
           />
         </div>
@@ -38,8 +38,8 @@ const dashboardStore = useDashboardStore()
 const { smAndDown, md } = useDisplay()
 const { deviceOverride, forcedDeviceType } = useDashboardDisplayMode()
 const currentDevice = computed<'desktop' | 'tablet' | 'mobile'>(() => {
-  if (forcedDeviceType.value) return forcedDeviceType.value
-  if (deviceOverride.value !== 'auto') return deviceOverride.value
+  if (forcedDeviceType.value) return forcedDeviceType.value as 'desktop' | 'tablet' | 'mobile'
+  if (deviceOverride.value !== 'auto') return deviceOverride.value as 'desktop' | 'tablet' | 'mobile'
   if (smAndDown.value) return 'mobile'
   if (md.value) return 'tablet'
   return 'desktop'
@@ -96,6 +96,8 @@ function initGrid() {
     gridEl.value,
   )
 
+  grid.on('dragstart resizestart', () => { dashboardStore.beginUndoGroup() })
+  grid.on('dragstop resizestop', () => { dashboardStore.commitUndoGroup() })
   grid.on('change', (_event, items) => {
     if (!props.editMode || !items) return
     for (const item of items as Array<{ id?: string; x: number; y: number; w: number; h: number }>) {

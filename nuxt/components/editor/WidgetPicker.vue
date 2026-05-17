@@ -48,6 +48,10 @@ const widgetTypes = computed(() => ([
   { key: 'alarm', type: 'alarm' as WidgetType, label: t('widget.alarm.label'), icon: 'mdi-shield-home-outline', description: t('widget.alarm.description'), defaultW: 6, defaultH: 2 },
   { key: 'problem_overview', type: 'problem_overview' as WidgetType, label: t('widget.problem_overview.label'), icon: 'mdi-home-alert-outline', description: t('widget.problem_overview.description'), defaultW: 6, defaultH: 4 },
   { key: 'status_bar', type: 'status_bar' as WidgetType, label: t('widget.status_bar.label'), icon: 'mdi-view-dashboard-variant', description: t('widget.status_bar.description'), defaultW: 6, defaultH: 1, minH: 1 },
+  { key: 'vacuum', type: 'vacuum' as WidgetType, label: t('widget.vacuum.label'), icon: 'mdi-robot-vacuum', description: t('widget.vacuum.description'), defaultW: 4, defaultH: 4 },
+  { key: 'fan', type: 'fan' as WidgetType, label: t('widget.fan.label'), icon: 'mdi-fan', description: t('widget.fan.description'), defaultW: 4, defaultH: 4 },
+  { key: 'scene', type: 'scene' as WidgetType, label: t('widget.scene.label'), icon: 'mdi-play-box-multiple-outline', description: t('widget.scene.description'), defaultW: 4, defaultH: 4 },
+  { key: 'timer', type: 'timer' as WidgetType, label: t('widget.timer.label'), icon: 'mdi-timer-outline', description: t('widget.timer.description'), defaultW: 4, defaultH: 3 },
 ]).sort((a, b) => a.key.localeCompare(b.key)))
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
@@ -136,6 +140,10 @@ Aktualisiert: **{{ now().strftime('%H:%M') }}**`,
     ignored_offline_domains: ['button'],
   },
   status_bar: { entries: [], show_labels: false },
+  vacuum: { entity_id: '' },
+  fan: { entity_id: '', show_speed: true },
+  scene: { entries: [], columns: 2 },
+  timer: { entity_id: '' },
 }
 
 const APPLIANCE_PRESETS = {

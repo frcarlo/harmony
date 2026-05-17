@@ -1,6 +1,10 @@
 /* GridStack */
 @import 'gridstack/dist/gridstack.min.css';
 
+html {
+  font-size: 87.5%; /* 16px → 14px base, scales all rem-based Vuetify typography */
+}
+
 .grid-stack-item-content {
   position: absolute;
   inset: 4px;
@@ -61,16 +65,16 @@
 .widget-glass.v-card {
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  background-color: rgba(var(--v-theme-surface), 0.38) !important;
+  background-color: rgba(var(--v-theme-surface), 0.62) !important;
   background-image: none !important;
   box-shadow:
-    0 10px 36px rgba(0, 0, 0, 0.28),
+    0 10px 36px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 .v-theme--dark .widget-glass.v-card {
-  background-color: rgba(var(--v-theme-surface), 0.38) !important;
+  background-color: rgba(var(--v-theme-surface), 0.62) !important;
 }
 
 .v-theme--light .widget-glass.v-card {

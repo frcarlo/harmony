@@ -14,6 +14,7 @@ export const useEntityStore = defineStore('entity', {
     entityDeviceMap: {} as Record<string, string>, // entity_id → device_id
     entityLabelsMap: {} as Record<string, string[]>, // entity_id → label_ids
     entityPlatformMap: {} as Record<string, string>,  // entity_id → platform/integration
+    deviceBatteryEntityMap: {} as Record<string, string>, // device_id → battery entity_id
     activeEntityFilter: null as Set<string> | null, // null → process all live updates
   }),
 
@@ -69,6 +70,10 @@ export const useEntityStore = defineStore('entity', {
 
     setEntityPlatformMap(map: Record<string, string>) {
       this.entityPlatformMap = map
+    },
+
+    setDeviceBatteryEntityMap(map: Record<string, string>) {
+      this.deviceBatteryEntityMap = map
     },
 
     setActiveEntityFilter(entityIds: Iterable<string> | null) {

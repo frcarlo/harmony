@@ -80,27 +80,21 @@
               </v-btn>
               <v-btn icon="mdi-tune-variant" variant="text" :title="t('notification.details')" @click="climateDialogOpen = true" />
             </div>
-            <div v-else class="d-flex align-center justify-center ga-4 room-detail-section__thermostat-row">
-              <div class="text-center">
+            <div v-else class="d-flex align-center ga-2 room-detail-section__thermostat-row">
+              <div class="text-center room-detail-section__thermostat-temp">
+                <div class="text-body-1 font-weight-bold">{{ currentTempDisplay }}</div>
                 <div class="text-caption text-medium-emphasis">{{ t('common.current') }}</div>
-                <div class="text-h5 font-weight-bold">{{ currentTempDisplay }}</div>
               </div>
-              <div class="d-flex align-center ga-2 room-detail-section__thermostat-controls">
+              <div class="d-flex align-center ga-1 flex-grow-1 justify-center">
                 <v-btn icon="mdi-minus" size="small" variant="tonal" :disabled="!canAdjustTemp" @click="adjustTemp(-0.5)" />
-                <div class="text-center" style="min-width: 52px;">
-                  <div class="text-caption text-medium-emphasis">{{ t('common.target') }}</div>
+                <div class="text-center" style="min-width: 48px;">
                   <div class="text-body-1 font-weight-bold">{{ targetTempDisplay }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ t('common.target') }}</div>
                 </div>
                 <v-btn icon="mdi-plus" size="small" variant="tonal" :disabled="!canAdjustTemp" @click="adjustTemp(0.5)" />
               </div>
-              <v-btn
-                icon="mdi-power"
-                variant="text"
-                :title="t('common.off')"
-                color="medium-emphasis"
-                @click="turnClimateOff"
-              />
-              <v-btn icon="mdi-tune-variant" variant="text" :title="t('notification.details')" @click="climateDialogOpen = true" />
+              <v-btn icon="mdi-power" size="small" variant="text" :title="t('common.off')" color="medium-emphasis" @click="turnClimateOff" />
+              <v-btn icon="mdi-tune-variant" size="small" variant="text" :title="t('notification.details')" @click="climateDialogOpen = true" />
             </div>
           </div>
 
@@ -469,11 +463,11 @@ const availableClimateOnMode = computed(() => {
 }
 
 .room-detail-section__thermostat-row {
-  min-height: 56px;
+  min-height: 52px;
 }
 
-.room-detail-section__thermostat-controls {
-  justify-content: center;
+.room-detail-section__thermostat-temp {
+  min-width: 52px;
 }
 
 @media (min-width: 520px) {

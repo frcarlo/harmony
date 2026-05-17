@@ -18,4 +18,7 @@ export const WIDGET_ENTITY_DOMAINS: Partial<Record<WidgetType, string | string[]
   cover_dial2: 'cover',
   lock: 'lock',
   weather: 'weather',
+  vacuum: 'vacuum',
+  fan: 'fan',
+  timer: 'timer',
 }

@@ -2,7 +2,7 @@ import { createReadStream, existsSync } from 'node:fs'
 import { join, basename } from 'node:path'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const filename = getRouterParam(event, 'filename')!
 
   // Prevent path traversal

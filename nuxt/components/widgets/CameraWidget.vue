@@ -46,6 +46,10 @@
         :title="t('camera.stop_stream')"
         @click="stopStream"
       />
+      <span v-if="batteryLevel !== null" class="cam-battery" :title="`${batteryLevel}%`">
+        <v-icon :icon="batteryIcon" :color="batteryColor" size="13" />
+        <span class="cam-battery__pct">{{ batteryLevel }}%</span>
+      </span>
       <v-btn
         icon="mdi-fullscreen"
         size="x-small" variant="text" density="compact"
@@ -127,8 +131,8 @@
   <LazyEntityDetailDialog v-else-if="statusDialogOpen && statusEntityId" v-model="statusDialogOpen" :entity-id="statusEntityId" />
 
   <!-- Fullscreen dialog -->
-  <v-dialog v-model="fullscreen" max-width="100vw" max-height="100vh" :scrim="true">
-    <v-card color="black" rounded="0" class="d-flex flex-column" style="width:100vw;height:100vh">
+  <v-dialog v-model="fullscreen" fullscreen :scrim="false">
+    <v-card color="black" rounded="0" class="d-flex flex-column" style="width:100%;height:100%">
       <div class="d-flex align-center px-3 py-2" style="background:rgba(0,0,0,0.7);position:absolute;top:0;left:0;right:0;z-index:2">
         <v-icon icon="mdi-camera" size="14" color="white" class="mr-2" />
         <span class="text-caption text-white flex-grow-1">{{ name }}</span>
@@ -157,12 +161,12 @@
           @click="fullscreen = false" />
       </div>
 
-      <div class="flex-grow-1 d-flex align-center justify-center" style="background:#000">
+      <div class="flex-grow-1 d-flex align-center justify-center" style="background:#000;min-height:0;overflow:hidden">
         <!-- MJPEG fullscreen -->
         <template v-if="streamMode === 'mjpeg'">
-          <img v-if="!mjpegPaused" :src="mjpegSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+          <img v-if="!mjpegPaused" :src="mjpegSrc" :alt="name" style="width:100%;height:100%;object-fit:contain" />
           <div v-else class="d-flex flex-column align-center ga-2">
-            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain;opacity:0.5" />
+            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="width:100%;height:100%;object-fit:contain;opacity:0.5" />
             <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary" style="position:absolute" @click="toggleMjpeg" />
           </div>
         </template>
@@ -170,13 +174,13 @@
         <!-- Snapshot fullscreen -->
         <template v-else-if="streamMode === 'snapshot'">
           <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name"
-            style="max-width:100%;max-height:100%;object-fit:contain" />
+            style="width:100%;height:100%;object-fit:contain" />
         </template>
 
         <!-- WebRTC fullscreen -->
         <template v-else>
           <template v-if="streamState === 'idle'">
-            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="max-width:100%;max-height:100%;object-fit:contain" />
+            <img v-if="snapshotSrc" :src="snapshotSrc" :alt="name" style="width:100%;height:100%;object-fit:contain" />
             <v-btn icon="mdi-play-circle" size="x-large" variant="flat" color="primary"
               style="position:absolute" @click="startStream" />
           </template>
@@ -184,7 +188,7 @@
             <v-progress-circular indeterminate color="primary" size="48" />
           </template>
           <video ref="videoElFs"
-            style="max-width:100%;max-height:100%;object-fit:contain"
+            style="width:100%;height:100%;object-fit:contain"
             :style="{ display: streamState === 'playing' ? 'block' : 'none' }"
             autoplay playsinline />
           <div v-if="streamState === 'error'" class="d-flex flex-column align-center ga-3 text-white">
@@ -242,6 +246,9 @@ let stopSnapshotWatcher: (() => void) | null = null
 const client = useHAClient()
 const entityStore = useEntityStore()
 const { autoEntityIcon, autoEntityLabel, entityIsActive, entityStateColor } = useEntityPresentation()
+
+const cameraEntityId = computed(() => props.config.entity_id)
+const { batteryLevel, batteryIcon, batteryColor } = useBatteryInfo(cameraEntityId)
 
 const lightOn = computed(() => {
   const id = props.config.light_entity_id
@@ -457,3 +464,17 @@ function stopStream() {
   snapshotSrc.value = `/api/camera/${props.config.entity_id}?t=${Date.now()}`
 }
 </script>
+
+<style scoped>
+.cam-battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.7;
+}
+.cam-battery__pct {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+</style>

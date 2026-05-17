@@ -61,16 +61,31 @@ const canEdit = computed(() => user.value?.role === 'admin' || user.value?.role 
 
 const dashboardNavStack = useState<string[]>('dashboardNavStack', () => [])
 const dashboardNavGoingBack = useState('dashboardNavGoingBack', () => false)
+const isNavigatingBack = ref(false)
 
-function goBack() {
-  const stack = dashboardNavStack.value
-  if (stack.length > 0) {
-    dashboardNavGoingBack.value = true
-    const target = stack[stack.length - 1]
-    dashboardNavStack.value = stack.slice(0, -1)
-    router.push(target)
-  } else {
-    router.push('/dashboard')
+async function goBack() {
+  if (isNavigatingBack.value) return
+  isNavigatingBack.value = true
+  try {
+    const stack = dashboardNavStack.value
+    if (stack.length > 0) {
+      const target = stack[stack.length - 1]
+      dashboardNavStack.value = stack.slice(0, -1)
+      // Skip target if it's the current page (stack out of sync)
+      if (target === route.fullPath) {
+        isNavigatingBack.value = false
+        goBack()
+        return
+      }
+      dashboardNavGoingBack.value = true
+      await router.push(target)
+    } else {
+      await router.push('/dashboard')
+    }
+  } catch {
+    dashboardNavGoingBack.value = false
+  } finally {
+    isNavigatingBack.value = false
   }
 }
 const dashboardStore = useDashboardStore()

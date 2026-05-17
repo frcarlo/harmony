@@ -6,7 +6,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'im
 const MAX_SIZE = 10 * 1024 * 1024 // 10 MB
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const bgDir = join(config.dataDir ?? '/app/data', 'backgrounds')
   mkdirSync(bgDir, { recursive: true })
 

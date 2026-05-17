@@ -91,7 +91,7 @@ const log = ref<Array<{ id: string; rule_name: string; entity_id: string; entity
 async function loadLog() {
   loadingLog.value = true
   try {
-    log.value = await $fetch('/api/notification-log')
+    log.value = await $fetch<typeof log.value>('/api/notification-log')
   } finally {
     loadingLog.value = false
   }

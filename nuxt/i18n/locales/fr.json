@@ -85,6 +85,10 @@
     "saved": "Tableau de bord enregistré",
     "save_failed": "Impossible d'enregistrer le tableau de bord",
     "unsaved_changes_confirm": "Vous avez des modifications non enregistrées. Quitter sans enregistrer ?",
+    "unsaved_changes_title": "Modifications non enregistrées",
+    "unsaved_changes_body": "Vos modifications seront perdues si vous quittez cette page.",
+    "unsaved_changes_leave": "Quitter sans enregistrer",
+    "unsaved_changes_stay": "Continuer l'édition",
     "imported": "Tableau de bord \"{name}\" importé"
   },
   "updates": {
@@ -114,6 +118,7 @@
     "bg_placeholder": "Couleur CSS ou URL...",
     "signed_in": "Connecté",
     "user_mgmt": "Gestion des utilisateurs",
+    "change_password": "Changer le mot de passe",
     "reset_local_settings": "Réinitialiser les réglages locaux",
     "reset_local_settings_hint": "Seulement pour ce navigateur et cet utilisateur",
     "local_settings_reset_done": "Les réglages locaux du navigateur ont été réinitialisés",
@@ -137,7 +142,9 @@
     "grid_preview_mobile": "Mobile (375px)",
     "grid_preview_tablet": "Tablette paysage (1024px)",
     "grid_preview_tablet_portrait": "Tablette portrait (768px)",
-    "grid_settings": "Paramètres de grille"
+    "grid_settings": "Paramètres de grille",
+    "undo": "Annuler (Ctrl+Z)",
+    "redo": "Rétablir (Ctrl+Y)"
   },
   "connection": {
     "connected": "Connecté",
@@ -149,6 +156,7 @@
     "config_title": "Configurer le widget",
     "none_selected": "Aucun widget sélectionné",
     "unknown_type": "Type de widget inconnu",
+    "render_error": "Le widget n'a pas pu être affiché",
     "remove": "Supprimer",
     "configure": "Configurer",
     "clone": "Dupliquer",
@@ -255,11 +263,36 @@
       "label": "Calendrier (Mois/Semaine/Jour)",
       "description": "Vue calendrier interactive avec plusieurs calendriers"
     },
+    "vacuum": {
+      "label": "Aspirateur robot",
+      "description": "Contrôlez votre aspirateur robot"
+    },
+    "fan": {
+      "label": "Ventilateur",
+      "description": "Contrôlez un ventilateur ou la ventilation"
+    },
+    "scene": {
+      "label": "Panneau de scènes",
+      "description": "Activer des scènes ou des scripts"
+    },
+    "timer": {
+      "label": "Minuterie",
+      "description": "Contrôlez une minuterie Home Assistant"
+    },
     "removed": "Widget supprimé",
     "appliance": {
       "description": "Carte de statut lave-vaisselle, lave-linge ou sèche-linge",
       "label": "Électroménager"
-    }
+    },
+    "alarm": {
+      "description": "Armer ou désarmer votre système d'alarme",
+      "label": "Alarme"
+    },
+    "copy_to_dashboard": "Copier vers le tableau de bord",
+    "copy_to_dashboard_hint": "Sélectionne un tableau de bord où copier ce widget.",
+    "copy_no_targets": "Aucun autre tableau de bord disponible.",
+    "copy_success": "Widget copié dans « {dashboard} »",
+    "copy_error": "Impossible de copier le widget"
   },
   "calendar_v2": {
     "day": "Jour",
@@ -323,7 +356,8 @@
       "open": "Ouvert",
       "opening": "Ouverture…",
       "moving": "En mouvement…",
-      "jammed": "Bloqué"
+      "jammed": "Bloqué",
+      "unavailable": "Indisponible"
     },
     "door_open": "Porte ouverte",
     "door_closed": "Porte fermée",
@@ -492,6 +526,7 @@
     "target_dashboard": "Dashboard cible",
     "icon_color": "Couleur de l'icône",
     "inactive_icon": "Icône inactive",
+    "icon_auto": "Auto (depuis l'entité)",
     "add_nav": "Ajouter navigation",
     "add_group": "Ajouter un groupe",
     "bg_transparent": "Transparent",
@@ -505,6 +540,7 @@
     "exclude_groups": "Exclure les groupes HA",
     "filter_areas": "Zones",
     "filter_domains": "Domaines",
+    "filter_device_classes": "Classes d'appareils",
     "filter_labels": "Étiquettes",
     "filter_name_contains": "L'ID d'entité contient",
     "filter_name_starts_with": "L'ID d'entité commence par",
@@ -544,7 +580,22 @@
     "show_badge": "Afficher le badge de comptage",
     "show_door_button": "Afficher le bouton de porte",
     "status_entity": "Entité statut",
-    "unlocked_icon": "Icône déverrouillé"
+    "unlocked_icon": "Icône déverrouillé",
+    "actions_align": "Alignement des boutons",
+    "align_center": "Centre",
+    "align_left": "Gauche",
+    "align_right": "Droite",
+    "bg_opacity": "Opacité du fond : {n} %",
+    "clock_style": "Style de l'horloge",
+    "clock_style_default": "Par défaut",
+    "clock_style_led": "LED",
+    "door_entity": "Entité porte",
+    "sensor_entity": "Entité capteur",
+    "show_seconds": "Afficher les secondes",
+    "show_sensor_trend": "Afficher la tendance du capteur",
+    "show_trend": "Afficher la tendance en bas",
+    "fan_show_speed": "Afficher les contrôles de vitesse",
+    "scene_columns": "Colonnes"
   },
   "entity_picker": {
     "placeholder": "Rechercher une entité...",
@@ -595,7 +646,10 @@
     "mode_heat": "Chauffage",
     "mode_cool": "Refroidissement",
     "mode_auto": "Auto",
-    "mode_off": "Éteint"
+    "mode_off": "Éteint",
+    "mode_heat_cool": "Chaud & froid",
+    "current": "actuelle",
+    "target": "cible"
   },
   "template": {
     "render_error": "Le modèle n'a pas pu être rendu"
@@ -668,6 +722,50 @@
   },
   "button": {
     "never_pressed": "Jamais appuyé"
+  },
+  "vacuum": {
+    "state": {
+      "cleaning": "Nettoyage",
+      "returning": "Retour",
+      "docked": "En station",
+      "idle": "Inactif",
+      "paused": "En pause",
+      "error": "Erreur",
+      "unavailable": "Indisponible"
+    },
+    "action": {
+      "start": "Démarrer",
+      "stop": "Arrêter",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "return": "Retour à la base"
+    }
+  },
+  "fan": {
+    "turn_on": "Allumer",
+    "turn_off": "Éteindre",
+    "speed": "Vitesse"
+  },
+  "scene": {
+    "activate": "Activer",
+    "no_scenes": "Aucune scène configurée",
+    "default_name": "Scènes",
+    "scenes": "Scènes",
+    "add_scene": "Ajouter une scène"
+  },
+  "timer": {
+    "state": {
+      "idle": "Inactif",
+      "active": "Actif",
+      "paused": "En pause"
+    },
+    "action": {
+      "start": "Démarrer",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "cancel": "Annuler"
+    },
+    "finishes_at": "Termine à {time}"
   },
   "notifications": {
     "title": "Notifications",
@@ -784,6 +882,12 @@
     "audit_user_force_device_type_change": "a modifié le type d'appareil forcé :",
     "audit_user_default_dashboard_change": "a changé le tableau de bord par défaut :",
     "audit_user_self_default_dashboard_change": "a changé son propre tableau de bord par défaut :",
+    "audit_user_password_change": "a changé le mot de passe de",
+    "change_password": "Changer le mot de passe",
+    "change_password_title": "Changer le mot de passe de {name}",
+    "new_password": "Nouveau mot de passe",
+    "current_password": "Mot de passe actuel",
+    "password_changed": "Mot de passe modifié",
     "error_default": "Erreur"
   },
   "appliance": {
@@ -804,10 +908,32 @@
       "starting": "Démarrage",
       "run": "En cours",
       "unavailable": "Indisponible"
-    }
+    },
+    "door_closed": "Porte fermée",
+    "door_open": "Porte ouverte",
+    "power_off": "Hors tension",
+    "power_on": "Sous tension"
   },
   "alarm": {
-    "enter_code": "Entrer le code d'alarme"
+    "enter_code": "Entrer le code d'alarme",
+    "action": {
+      "arm_away": "Armer absent",
+      "arm_home": "Armer présent",
+      "arm_night": "Armer nuit",
+      "disarm": "Désarmer",
+      "trigger": "Déclencher l'alarme"
+    },
+    "state": {
+      "armed_away": "Armé absent",
+      "armed_home": "Armé présent",
+      "armed_night": "Armé nuit",
+      "arming": "Armement…",
+      "disarmed": "Désarmé",
+      "disarming": "Désarmement…",
+      "pending": "En attente",
+      "triggered": "Déclenché",
+      "unavailable": "Indisponible"
+    }
   },
   "group": {
     "empty": "Aucune entité correspondante trouvée.",

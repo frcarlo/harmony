@@ -154,7 +154,10 @@ function domainIcon(entityOrId: MinimalEntity | string | undefined, active = fal
   if (domain === 'sensor') return sensorIcon(entity)
   if (domain === 'siren') return active ? 'mdi-bullhorn' : 'mdi-bullhorn-outline'
   if (domain === 'sun') return active ? 'mdi-weather-sunny' : 'mdi-weather-night'
-  if (domain === 'switch') return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
+  if (domain === 'switch') {
+    if (deviceClassOf(entity) === 'outlet') return active ? 'mdi-power-plug' : 'mdi-power-plug-off-outline'
+    return active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'
+  }
   if (domain === 'update') return active ? 'mdi-package-up' : 'mdi-package-check'
   if (domain === 'vacuum') return active ? 'mdi-robot-vacuum' : 'mdi-robot-vacuum-off'
   if (domain === 'weather') return 'mdi-weather-partly-cloudy'

@@ -85,6 +85,10 @@
     "saved": "Panel guardado",
     "save_failed": "No se pudo guardar el panel",
     "unsaved_changes_confirm": "Tienes cambios sin guardar. ¿Salir sin guardar?",
+    "unsaved_changes_title": "Cambios sin guardar",
+    "unsaved_changes_body": "Tienes cambios que se perderán si abandonas esta página.",
+    "unsaved_changes_leave": "Salir sin guardar",
+    "unsaved_changes_stay": "Seguir editando",
     "imported": "Panel \"{name}\" importado"
   },
   "updates": {
@@ -114,6 +118,7 @@
     "bg_placeholder": "Color CSS o URL...",
     "signed_in": "Conectado",
     "user_mgmt": "Gestión de usuarios",
+    "change_password": "Cambiar contraseña",
     "reset_local_settings": "Restablecer ajustes locales",
     "reset_local_settings_hint": "Solo para este navegador y este usuario",
     "local_settings_reset_done": "Se restablecieron los ajustes locales del navegador",
@@ -137,7 +142,9 @@
     "grid_preview_mobile": "Móvil (375px)",
     "grid_preview_tablet": "Tablet apaisada (1024px)",
     "grid_preview_tablet_portrait": "Tablet vertical (768px)",
-    "grid_settings": "Ajustes de cuadrícula"
+    "grid_settings": "Ajustes de cuadrícula",
+    "undo": "Deshacer (Ctrl+Z)",
+    "redo": "Rehacer (Ctrl+Y)"
   },
   "connection": {
     "connected": "Conectado",
@@ -149,6 +156,7 @@
     "config_title": "Configurar widget",
     "none_selected": "Ningún widget seleccionado",
     "unknown_type": "Tipo de widget desconocido",
+    "render_error": "No se pudo renderizar el widget",
     "remove": "Eliminar",
     "configure": "Configurar",
     "clone": "Duplicar",
@@ -255,11 +263,36 @@
       "label": "Calendario (Mes/Semana/Día)",
       "description": "Vista de calendario interactiva con múltiples calendarios"
     },
+    "vacuum": {
+      "label": "Robot aspirador",
+      "description": "Controla tu robot aspirador"
+    },
+    "fan": {
+      "label": "Ventilador",
+      "description": "Controla un ventilador o ventilación"
+    },
+    "scene": {
+      "label": "Panel de escenas",
+      "description": "Activa escenas o scripts"
+    },
+    "timer": {
+      "label": "Temporizador",
+      "description": "Controla un temporizador de Home Assistant"
+    },
     "removed": "Widget eliminado",
     "appliance": {
       "description": "Tarjeta de estado de lavavajillas, lavadora o secadora",
       "label": "Electrodoméstico"
-    }
+    },
+    "alarm": {
+      "description": "Armar o desarmar tu sistema de alarma",
+      "label": "Alarma"
+    },
+    "copy_to_dashboard": "Copiar a dashboard",
+    "copy_to_dashboard_hint": "Selecciona un dashboard al que copiar este widget.",
+    "copy_no_targets": "No hay otros dashboards disponibles.",
+    "copy_success": "Widget copiado a \"{dashboard}\"",
+    "copy_error": "No se pudo copiar el widget"
   },
   "calendar_v2": {
     "day": "Día",
@@ -323,7 +356,8 @@
       "open": "Abierto",
       "opening": "Abriendo…",
       "moving": "Moviendo…",
-      "jammed": "Atascado"
+      "jammed": "Atascado",
+      "unavailable": "No disponible"
     },
     "door_open": "Puerta abierta",
     "door_closed": "Puerta cerrada",
@@ -492,6 +526,7 @@
     "target_dashboard": "Dashboard destino",
     "icon_color": "Color del icono",
     "inactive_icon": "Icono inactivo",
+    "icon_auto": "Auto (de entidad)",
     "add_nav": "Agregar navegación",
     "add_group": "Agregar grupo",
     "bg_transparent": "Transparente",
@@ -505,6 +540,7 @@
     "exclude_groups": "Excluir grupos de HA",
     "filter_areas": "Áreas",
     "filter_domains": "Dominios",
+    "filter_device_classes": "Clases de dispositivo",
     "filter_labels": "Etiquetas",
     "filter_name_contains": "El ID de entidad contiene",
     "filter_name_starts_with": "El ID de entidad comienza con",
@@ -544,7 +580,22 @@
     "show_badge": "Mostrar insignia de conteo",
     "show_door_button": "Mostrar botón de puerta",
     "status_entity": "Entidad de estado",
-    "unlocked_icon": "Icono desbloqueado"
+    "unlocked_icon": "Icono desbloqueado",
+    "actions_align": "Alineación de botones",
+    "align_center": "Centro",
+    "align_left": "Izquierda",
+    "align_right": "Derecha",
+    "bg_opacity": "Opacidad del fondo: {n}%",
+    "clock_style": "Estilo de reloj",
+    "clock_style_default": "Predeterminado",
+    "clock_style_led": "LED",
+    "door_entity": "Entidad de puerta",
+    "sensor_entity": "Entidad de sensor",
+    "show_seconds": "Mostrar segundos",
+    "show_sensor_trend": "Mostrar tendencia del sensor",
+    "show_trend": "Mostrar tendencia abajo",
+    "fan_show_speed": "Mostrar controles de velocidad",
+    "scene_columns": "Columnas"
   },
   "entity_picker": {
     "placeholder": "Buscar entidad...",
@@ -595,7 +646,10 @@
     "mode_heat": "Calefacción",
     "mode_cool": "Refrigeración",
     "mode_auto": "Auto",
-    "mode_off": "Apagado"
+    "mode_off": "Apagado",
+    "mode_heat_cool": "Calor y frío",
+    "current": "actual",
+    "target": "objetivo"
   },
   "template": {
     "render_error": "No se pudo renderizar la plantilla"
@@ -668,6 +722,50 @@
   },
   "button": {
     "never_pressed": "Nunca pulsado"
+  },
+  "vacuum": {
+    "state": {
+      "cleaning": "Limpiando",
+      "returning": "Regresando",
+      "docked": "En base",
+      "idle": "Inactivo",
+      "paused": "Pausado",
+      "error": "Error",
+      "unavailable": "No disponible"
+    },
+    "action": {
+      "start": "Iniciar",
+      "stop": "Detener",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "return": "Volver a la base"
+    }
+  },
+  "fan": {
+    "turn_on": "Encender",
+    "turn_off": "Apagar",
+    "speed": "Velocidad"
+  },
+  "scene": {
+    "activate": "Activar",
+    "no_scenes": "No hay escenas configuradas",
+    "default_name": "Escenas",
+    "scenes": "Escenas",
+    "add_scene": "Agregar escena"
+  },
+  "timer": {
+    "state": {
+      "idle": "Inactivo",
+      "active": "Activo",
+      "paused": "Pausado"
+    },
+    "action": {
+      "start": "Iniciar",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "cancel": "Cancelar"
+    },
+    "finishes_at": "Termina a las {time}"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -784,6 +882,12 @@
     "audit_user_force_device_type_change": "cambió tipo de dispositivo forzado:",
     "audit_user_default_dashboard_change": "cambió el dashboard predeterminado:",
     "audit_user_self_default_dashboard_change": "cambió su propio dashboard predeterminado:",
+    "audit_user_password_change": "cambió la contraseña de",
+    "change_password": "Cambiar contraseña",
+    "change_password_title": "Cambiar contraseña de {name}",
+    "new_password": "Nueva contraseña",
+    "current_password": "Contraseña actual",
+    "password_changed": "Contraseña cambiada",
     "error_default": "Error"
   },
   "appliance": {
@@ -804,10 +908,32 @@
       "starting": "Iniciando",
       "run": "En funcionamiento",
       "unavailable": "No disponible"
-    }
+    },
+    "door_closed": "Puerta cerrada",
+    "door_open": "Puerta abierta",
+    "power_off": "Sin alimentación",
+    "power_on": "Con alimentación"
   },
   "alarm": {
-    "enter_code": "Introducir código de alarma"
+    "enter_code": "Introducir código de alarma",
+    "action": {
+      "arm_away": "Armar fuera",
+      "arm_home": "Armar en casa",
+      "arm_night": "Armar noche",
+      "disarm": "Desarmar",
+      "trigger": "Activar alarma"
+    },
+    "state": {
+      "armed_away": "Armado fuera",
+      "armed_home": "Armado en casa",
+      "armed_night": "Armado noche",
+      "arming": "Armando…",
+      "disarmed": "Desarmado",
+      "disarming": "Desarmando…",
+      "pending": "Pendiente",
+      "triggered": "Activado",
+      "unavailable": "No disponible"
+    }
   },
   "group": {
     "empty": "No se encontraron entidades coincidentes.",

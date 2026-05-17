@@ -31,7 +31,7 @@ function normalizeOptionalString(value: unknown): string | null {
 function getDb(): DatabaseSync {
   if (_db) return _db
 
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const dataDir = config.dataDir ?? path.join(process.cwd(), 'data')
   const dbPath = path.join(dataDir, 'dashboards.db')
 
@@ -193,7 +193,7 @@ export function addAuditLog(entry: Omit<AuditLogEntry, 'id' | 'created_at'>): vo
 
 export function listAuditLog(limit = 100): AuditLogEntry[] {
   const db = getDb()
-  return db.prepare('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT ?').all(limit) as AuditLogEntry[]
+  return db.prepare('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT ?').all(limit) as unknown as AuditLogEntry[]
 }
 
 // ── Dashboard Access ────────────────────────────────────────────────────────
@@ -214,7 +214,7 @@ export function setDashboardAccessForUser(userId: string, dashboardIds: string[]
 
 export function listDashboards(userId?: string, role?: string): DashboardListItem[] {
   const db = getDb()
-  const all = db.prepare('SELECT * FROM dashboards ORDER BY sort_order ASC, created_at ASC').all() as DashboardListItem[]
+  const all = db.prepare('SELECT * FROM dashboards ORDER BY sort_order ASC, created_at ASC').all() as unknown as DashboardListItem[]
   if (!userId || role === 'admin') return all
   const allowed = getDashboardAccessForUser(userId)
   if (allowed === null) return all // no restrictions set → show all
@@ -392,7 +392,7 @@ export function resolveDefaultDashboardForUser(userId?: string, role?: string): 
 
 export function listNotificationRules(): NotificationRule[] {
   const db = getDb()
-  return db.prepare('SELECT * FROM notification_rules ORDER BY created_at ASC').all() as NotificationRule[]
+  return db.prepare('SELECT * FROM notification_rules ORDER BY created_at ASC').all() as unknown as NotificationRule[]
 }
 
 export function createNotificationRule(data: Omit<NotificationRule, 'id' | 'created_at'>): NotificationRule {
@@ -439,7 +439,7 @@ export function addNotificationLog(entry: Omit<NotificationLogEntry, 'id'>): voi
 
 export function listNotificationLog(limit = 50): NotificationLogEntry[] {
   const db = getDb()
-  return db.prepare('SELECT * FROM notification_log ORDER BY triggered_at DESC LIMIT ?').all(limit) as NotificationLogEntry[]
+  return db.prepare('SELECT * FROM notification_log ORDER BY triggered_at DESC LIMIT ?').all(limit) as unknown as NotificationLogEntry[]
 }
 
 export function clearNotificationLog(): void {
@@ -456,7 +456,7 @@ export function countUsers(): number {
 
 function parseDbUser(row: Record<string, unknown>): DbUser {
   return {
-    ...(row as DbUser),
+    ...(row as unknown as DbUser),
     force_kiosk: row.force_kiosk === 1 || row.force_kiosk === true,
     force_performance_mode: row.force_performance_mode == null ? null : (row.force_performance_mode === 1 || row.force_performance_mode === true),
     force_device_type: (row.force_device_type as string | null) ?? null,
@@ -550,6 +550,11 @@ export function updateUserDefaultDashboard(id: string, defaultDashboardId: strin
 export function updateUserPersonalDefaultDashboard(id: string, defaultDashboardId: string | null): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET user_default_dashboard_id = ? WHERE id = ?').run(defaultDashboardId, id).changes > 0
+}
+
+export function updateUserPassword(id: string, passwordHash: string): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(passwordHash, id).changes > 0
 }
 
 export function deleteUser(id: string): boolean {
