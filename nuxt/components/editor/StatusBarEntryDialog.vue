@@ -137,6 +137,8 @@
         <!-- Single entity -->
         <template v-else-if="draft.entry_type !== 'group'">
           <EntityPicker v-model="draft.entity_id" />
+          <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" :placeholder="t('config.icon_auto')" clearable />
+          <UiIconPicker v-if="draft.icon" v-model="draft.inactive_icon" :label="t('config.inactive_icon')" :placeholder="t('config.icon_auto')" clearable />
           <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
             <v-btn value="sm" size="small">S</v-btn>
             <v-btn value="md" size="small">M</v-btn>
@@ -163,6 +165,12 @@
             :items="availableDomains"
             :label="t('config.filter_domains')"
             density="compact" hide-details multiple chips closable-chips
+          />
+          <v-combobox
+            v-model="draft.filter.device_classes"
+            :items="availableDeviceClasses"
+            :label="t('config.filter_device_classes')"
+            density="compact" hide-details multiple chips closable-chips clearable
           />
           <v-text-field v-model="draft.filter.name_contains" :label="t('config.filter_name_contains')"
             density="compact" hide-details clearable placeholder="kueche" />
@@ -333,6 +341,15 @@ const availableDomains = computed(() => {
   return [...domains].sort()
 })
 
+const availableDeviceClasses = computed(() => {
+  const classes = new Set<string>()
+  for (const entity of Object.values(entityStore.entities)) {
+    const dc = entity.attributes?.device_class as string | undefined
+    if (dc) classes.add(dc)
+  }
+  return [...classes].sort()
+})
+
 const areaItems = computed(() => entityStore.areas)
 const labelItems = computed(() => entityStore.labels)
 const roomSensors = computed(() => {
@@ -394,6 +411,7 @@ watch(draft, (d) => {
     if (!Array.isArray(f.labels)) f.labels = []
     if (!Array.isArray(f.areas)) f.areas = []
     if (!Array.isArray(f.domains)) f.domains = []
+    if (!Array.isArray(f.device_classes)) f.device_classes = []
   } else if (d.entry_type === 'room') {
     if (typeof d.icon !== 'string') d.icon = 'mdi-sofa-outline'
     if (typeof d.sensor_icon !== 'string') d.sensor_icon = ''

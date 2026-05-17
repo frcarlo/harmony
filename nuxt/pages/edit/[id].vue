@@ -1,5 +1,6 @@
 <template>
-  <div v-if="dashboard" :style="bgBase" style="min-height:100vh;position:relative">
+  <div :style="dashboard ? bgBase : undefined" style="min-height:100vh;position:relative">
+    <template v-if="dashboard">
     <div v-if="bgImage" :style="bgImageStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
     <div v-if="bgImage" :style="bgOverlayStyle" style="position:absolute;inset:0;z-index:0;pointer-events:none" />
     <div class="d-flex flex-column dashboard-bg" style="position:relative;z-index:1;min-height:100vh">
@@ -14,10 +15,14 @@
       :dashboard-grid-config="dashboard.grid_config"
       :edit-mode="editMode"
       :saving="saving"
+      :can-undo="dashboardStore.canUndo"
+      :can-redo="dashboardStore.canRedo"
       @back="router.push(`/dashboard/${route.params.id}`)"
       @toggle-edit="handleToggleEdit"
       @add-widget="pickerOpen = true"
       @save="handleSave"
+      @undo="dashboardStore.undo()"
+      @redo="dashboardStore.redo()"
       @rename="dashboardStore.updateDashboardName($event)"
       @reicon="dashboardStore.updateDashboardIcon($event)"
       @rebackground="dashboardStore.updateDashboardBackground($event)"
@@ -33,8 +38,30 @@
     </v-main>
 
     <LazyWidgetPicker v-if="pickerOpen" :open="pickerOpen" @close="pickerOpen = false" />
-    <LazyWidgetConfigPanel v-if="selectedWidgetId" :open="!!selectedWidgetId" @close="dashboardStore.setSelectedWidget(null)" />
+    <LazyWidgetConfigPanel v-if="selectedWidgetId" :open="!!selectedWidgetId"
+      @close="dashboardStore.commitUndoGroup(); dashboardStore.setSelectedWidget(null)" />
+
+    <v-dialog v-model="leaveDialogOpen" max-width="380" persistent>
+      <v-card rounded="lg">
+        <v-card-text class="pt-5 pb-2">
+          <div class="d-flex align-center ga-3 mb-3">
+            <v-icon icon="mdi-alert-circle-outline" color="warning" size="28" />
+            <span class="text-subtitle-1 font-weight-bold">{{ t('dashboard.unsaved_changes_title') }}</span>
+          </div>
+          <div class="text-body-2 text-medium-emphasis">{{ t('dashboard.unsaved_changes_body') }}</div>
+        </v-card-text>
+        <v-card-actions class="px-4 pb-4 ga-2">
+          <v-btn variant="tonal" class="flex-grow-1" @click="leaveDialogOpen = false">
+            {{ t('dashboard.unsaved_changes_stay') }}
+          </v-btn>
+          <v-btn color="warning" variant="flat" class="flex-grow-1" @click="confirmLeave">
+            {{ t('dashboard.unsaved_changes_leave') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     </div>
+    </template>
   </div>
 </template>
 
@@ -55,6 +82,8 @@ const selectedWidgetId = computed(() => dashboardStore.selectedWidgetId)
 
 const pickerOpen = ref(false)
 const saving = ref(false)
+const leaveDialogOpen = ref(false)
+const pendingNavTarget = ref<string | null>(null)
 const globalTheme = computed(() => storage.read('ha-theme', 'dark') ?? 'dark')
 
 let savedSnapshot = ''
@@ -109,11 +138,20 @@ onBeforeRouteLeave((to) => {
   if (typeof to.path === 'string' && to.path.startsWith('/edit/')) {
     return
   }
-  if (isDirty.value && !window.confirm(t('dashboard.unsaved_changes_confirm'))) {
+  if (isDirty.value) {
+    pendingNavTarget.value = to.fullPath
+    leaveDialogOpen.value = true
     return false
   }
   theme.change(globalTheme.value)
 })
+
+function confirmLeave() {
+  leaveDialogOpen.value = false
+  theme.change(globalTheme.value)
+  savedSnapshot = JSON.stringify(dashboard.value)
+  if (pendingNavTarget.value) router.push(pendingNavTarget.value)
+}
 
 async function handleSave() {
   if (!dashboard.value) return
@@ -149,9 +187,15 @@ async function handleToggleEdit() {
   }
 }
 
+watch(selectedWidgetId, (newId, oldId) => {
+  if (newId !== null && oldId === null) dashboardStore.beginUndoGroup()
+})
+
 onMounted(() => {
   const onKey = (e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave() }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); dashboardStore.undo() }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); dashboardStore.redo() }
   }
   window.addEventListener('keydown', onKey)
   onUnmounted(() => window.removeEventListener('keydown', onKey))

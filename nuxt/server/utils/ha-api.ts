@@ -1,5 +1,5 @@
 function haHeaders(): HeadersInit {
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   return {
     Authorization: `Bearer ${config.haToken}`,
     'Content-Type': 'application/json',
@@ -7,7 +7,7 @@ function haHeaders(): HeadersInit {
 }
 
 function haUrl(): string {
-  return useRuntimeConfig().haUrl ?? 'http://localhost:8123'
+  return getServerConfig().haUrl ?? 'http://localhost:8123'
 }
 
 export async function getHAHistory(entityId: string, startTime: string): Promise<unknown> {

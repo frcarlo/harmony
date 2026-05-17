@@ -1,7 +1,7 @@
 let _cache: { haReachable: boolean; expiresAt: number } | null = null
 
 export default defineEventHandler(async () => {
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const issuer = config.oidc?.issuer
     || process.env.NUXT_OIDC_ISSUER
     || process.env.NUXT_KEYCLOAK_ISSUER

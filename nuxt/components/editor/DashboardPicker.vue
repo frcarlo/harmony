@@ -9,15 +9,15 @@
     variant="outlined"
     hide-details
     clearable
-    @update:model-value="emit('update:modelValue', $event)"
+    @update:model-value="emit('update:modelValue', $event as string)"
   >
     <template #item="{ props: ip, item }">
-      <v-list-item v-bind="ip" :prepend-icon="item.raw.icon || 'mdi-view-dashboard-outline'" />
+      <v-list-item v-bind="ip" :prepend-icon="(item as DashboardListItem).icon || 'mdi-view-dashboard-outline'" />
     </template>
     <template #selection="{ item }">
       <div class="d-flex align-center ga-2">
-        <v-icon :icon="item.raw.icon || 'mdi-view-dashboard-outline'" size="16" />
-        <span>{{ item.raw.name }}</span>
+        <v-icon :icon="(item as DashboardListItem).icon || 'mdi-view-dashboard-outline'" size="16" />
+        <span>{{ (item as DashboardListItem).name }}</span>
       </div>
     </template>
   </v-select>

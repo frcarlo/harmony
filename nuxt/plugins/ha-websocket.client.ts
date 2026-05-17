@@ -52,6 +52,7 @@ export default defineNuxtPlugin(() => {
     if (!entity) return false
     if (filter.exclude_groups && domainOf(entityId) === 'group') return false
     if (filter.domains?.length && !filter.domains.includes(domainOf(entityId))) return false
+    if (filter.device_classes?.length && !filter.device_classes.includes(deviceClassOf(entity) ?? '')) return false
 
     const name = `${entityId} ${friendlyNameOf(entity)}`.toLowerCase()
     if (filter.name_contains && !name.includes(filter.name_contains.toLowerCase())) return false
@@ -183,6 +184,19 @@ export default defineNuxtPlugin(() => {
     }
   }
 
+  function buildDeviceBatteryMap() {
+    const batteryMap: Record<string, string> = {}
+    for (const [entityId, state] of Object.entries(entityStore.entities)) {
+      const deviceId = entityStore.entityDeviceMap[entityId]
+      if (!deviceId) continue
+      const domain = entityId.split('.')[0]
+      if (state.attributes?.device_class !== 'battery') continue
+      if (domain === 'sensor') batteryMap[deviceId] = entityId
+      else if (domain === 'binary_sensor' && !batteryMap[deviceId]) batteryMap[deviceId] = entityId
+    }
+    entityStore.setDeviceBatteryEntityMap(batteryMap)
+  }
+
   async function refreshRepairIssues() {
     if (!client.isConnected) return
     try {
@@ -231,6 +245,7 @@ export default defineNuxtPlugin(() => {
 
       if (initialized) {
         entityStore.batchSetEntities(states)
+        buildDeviceBatteryMap()
         client.getRepairIssues().then((issues) => entityStore.setRepairIssues(issues)).catch(() => undefined)
         return
       }
@@ -267,6 +282,7 @@ export default defineNuxtPlugin(() => {
       entityStore.setEntityDeviceMap(entityDeviceMap)
       entityStore.setEntityLabelsMap(entityLabelsMap)
       entityStore.setEntityPlatformMap(entityPlatformMap)
+      buildDeviceBatteryMap()
       initialized = true
       applyDashboardEntityFilter()
     } catch (e) {

@@ -85,7 +85,11 @@
     "import_exists": "Dashboard \"{name}\" existiert bereits – wird als Kopie importiert",
     "saved": "Dashboard gespeichert",
     "save_failed": "Speichern fehlgeschlagen",
-    "unsaved_changes_confirm": "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?"
+    "unsaved_changes_confirm": "Du hast ungespeicherte Änderungen. Ohne Speichern verlassen?",
+    "unsaved_changes_title": "Ungespeicherte Änderungen",
+    "unsaved_changes_body": "Du hast Änderungen, die verloren gehen, wenn du die Seite verlässt.",
+    "unsaved_changes_leave": "Ohne Speichern verlassen",
+    "unsaved_changes_stay": "Weiter bearbeiten"
   },
   "updates": {
     "server_redeployed": "Server wurde aktualisiert — Seite neu laden um Änderungen zu übernehmen",
@@ -125,6 +129,9 @@
     "grid_preview_mobile": "Handy (375px)",
     "signed_in": "Angemeldet",
     "user_mgmt": "Benutzerverwaltung",
+    "change_password": "Passwort ändern",
+    "undo": "Rückgängig (Strg+Z)",
+    "redo": "Wiederholen (Strg+Y)",
     "reset_local_settings": "Lokale Einstellungen zurücksetzen",
     "reset_local_settings_hint": "Nur für diesen Browser und diesen Benutzer",
     "local_settings_reset_done": "Lokale Browser-Einstellungen wurden zurückgesetzt",
@@ -149,6 +156,7 @@
     "config_title": "Widget konfigurieren",
     "none_selected": "Kein Widget ausgewählt",
     "unknown_type": "Unbekannter Widget-Typ",
+    "render_error": "Widget konnte nicht gerendert werden",
     "remove": "Entfernen",
     "configure": "Konfigurieren",
     "clone": "Duplizieren",
@@ -263,7 +271,28 @@
       "label": "Statusleiste",
       "description": "Status-Icons in einer Zeile"
     },
-    "removed": "Widget entfernt"
+    "vacuum": {
+      "label": "Saugroboter",
+      "description": "Saugroboter steuern"
+    },
+    "fan": {
+      "label": "Lüfter",
+      "description": "Lüfter oder Ventilation steuern"
+    },
+    "scene": {
+      "label": "Szenen-Panel",
+      "description": "Szenen oder Skripte aktivieren"
+    },
+    "timer": {
+      "label": "Timer",
+      "description": "Home Assistant Timer steuern"
+    },
+    "removed": "Widget entfernt",
+    "copy_to_dashboard": "In Dashboard kopieren",
+    "copy_to_dashboard_hint": "Waehle ein Dashboard, in das dieses Widget kopiert werden soll.",
+    "copy_no_targets": "Keine anderen Dashboards verfuegbar.",
+    "copy_success": "Widget in „{dashboard}“ kopiert",
+    "copy_error": "Widget konnte nicht kopiert werden"
   },
   "calendar_v2": {
     "day": "Tag",
@@ -331,7 +360,8 @@
       "open": "Geöffnet",
       "opening": "Wird geöffnet…",
       "moving": "Fährt…",
-      "jammed": "Blockiert"
+      "jammed": "Blockiert",
+      "unavailable": "Nicht verfügbar"
     },
     "door_open": "Tür geöffnet",
     "door_closed": "Tür geschlossen",
@@ -540,6 +570,7 @@
     "move_down": "Nach unten",
     "group_filter": "Filter",
     "filter_domains": "Domains",
+    "filter_device_classes": "Geräteklassen",
     "filter_name_contains": "Entity-ID enthält",
     "filter_name_starts_with": "Entity-ID beginnt mit",
     "filter_areas": "Bereiche",
@@ -560,7 +591,10 @@
     "target_dashboard": "Ziel-Dashboard",
     "icon_color": "Icon-Farbe",
     "inactive_icon": "Inaktives Icon",
-    "add_nav": "Navigation hinzufügen"
+    "icon_auto": "Auto (von Entity)",
+    "add_nav": "Navigation hinzufügen",
+    "fan_show_speed": "Geschwindigkeitssteuerung anzeigen",
+    "scene_columns": "Spalten"
   },
   "entity_picker": {
     "placeholder": "Entity suchen...",
@@ -635,7 +669,10 @@
     "mode_heat": "Heizen",
     "mode_cool": "Kühlen",
     "mode_auto": "Auto",
-    "mode_off": "Aus"
+    "mode_off": "Aus",
+    "mode_heat_cool": "Heizen & Kühlen",
+    "current": "Ist",
+    "target": "Soll"
   },
   "template": {
     "render_error": "Template konnte nicht gerendert werden"
@@ -722,7 +759,8 @@
       "pending": "Verzögert",
       "arming": "Scharfschalten…",
       "disarming": "Unscharf schalten…",
-      "triggered": "Alarm ausgelöst"
+      "triggered": "Alarm ausgelöst",
+      "unavailable": "Nicht verfügbar"
     },
     "action": {
       "arm_home": "Zuhause scharf",
@@ -732,6 +770,50 @@
       "trigger": "Alarm auslösen"
     },
     "enter_code": "Alarm-Code eingeben"
+  },
+  "vacuum": {
+    "state": {
+      "cleaning": "Saugt",
+      "returning": "Kehrt zurück",
+      "docked": "Angedockt",
+      "idle": "Bereit",
+      "paused": "Pausiert",
+      "error": "Fehler",
+      "unavailable": "Nicht verfügbar"
+    },
+    "action": {
+      "start": "Starten",
+      "stop": "Stoppen",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "return": "Zur Basis"
+    }
+  },
+  "fan": {
+    "turn_on": "Einschalten",
+    "turn_off": "Ausschalten",
+    "speed": "Geschwindigkeit"
+  },
+  "scene": {
+    "activate": "Aktivieren",
+    "no_scenes": "Keine Szenen konfiguriert",
+    "default_name": "Szenen",
+    "scenes": "Szenen",
+    "add_scene": "Szene hinzufügen"
+  },
+  "timer": {
+    "state": {
+      "idle": "Bereit",
+      "active": "Aktiv",
+      "paused": "Pausiert"
+    },
+    "action": {
+      "start": "Starten",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "cancel": "Abbrechen"
+    },
+    "finishes_at": "Endet um {time}"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -848,6 +930,12 @@
     "audit_user_force_device_type_change": "hat Gerätetyp-Vorgabe geändert:",
     "audit_user_default_dashboard_change": "hat Standard-Dashboard geändert:",
     "audit_user_self_default_dashboard_change": "hat eigenes Standard-Dashboard geändert:",
+    "audit_user_password_change": "hat Passwort geändert von",
+    "change_password": "Passwort ändern",
+    "change_password_title": "Passwort ändern für {name}",
+    "new_password": "Neues Passwort",
+    "current_password": "Aktuelles Passwort",
+    "password_changed": "Passwort geändert",
     "error_default": "Fehler"
   }
 }

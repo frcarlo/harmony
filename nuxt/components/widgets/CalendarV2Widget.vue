@@ -81,7 +81,7 @@ const { glass } = useGlassEffect()
 // --- View & navigation ---
 type CalType = 'day' | 'week' | 'month'
 const currentType = ref<CalType>(props.config.view ?? 'month')
-const calRef = ref<InstanceType<typeof VCalendar> | null>(null)
+const calRef = ref<{ prev: () => void; next: () => void; scrollToTime: (t: string) => void; title?: string } | null>(null)
 
 function toDateStr(d: Date) {
   return d.toISOString().slice(0, 10)

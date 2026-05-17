@@ -26,6 +26,10 @@ export type WidgetType =
   | 'alarm'
   | 'problem_overview'
   | 'status_bar'
+  | 'vacuum'
+  | 'fan'
+  | 'scene'
+  | 'timer'
 
 export interface WidgetLayout {
   x: number
@@ -242,6 +246,7 @@ export interface PersonWidgetConfig {
 
 export interface EntityGroupFilter {
   domains?: string[]
+  device_classes?: string[]
   name_contains?: string
   name_starts_with?: string
   areas?: string[]
@@ -373,6 +378,35 @@ export interface AlarmWidgetConfig {
   actions_align?: 'start' | 'center' | 'end'
 }
 
+export interface VacuumWidgetConfig {
+  entity_id: string
+  name?: string
+}
+
+export interface FanWidgetConfig {
+  entity_id: string
+  name?: string
+  show_speed?: boolean
+}
+
+export interface SceneEntry {
+  entity_id: string
+  name?: string
+  icon?: string
+  color?: string
+}
+
+export interface SceneWidgetConfig {
+  entries: SceneEntry[]
+  name?: string
+  columns?: number
+}
+
+export interface TimerWidgetConfig {
+  entity_id: string
+  name?: string
+}
+
 export interface ProblemOverviewWidgetConfig {
   name?: string
   battery_threshold?: number
@@ -414,6 +448,10 @@ export type WidgetConfig =
   | AlarmWidgetConfig
   | ProblemOverviewWidgetConfig
   | StatusBarWidgetConfig
+  | VacuumWidgetConfig
+  | FanWidgetConfig
+  | SceneWidgetConfig
+  | TimerWidgetConfig
 
 export interface WidgetAppearance {
   bg_color?: string        // Hintergrundfarbe der Karte

@@ -9,24 +9,26 @@
     @keydown.enter.prevent="press"
     @keydown.space.prevent="press"
   >
-    <div class="d-flex align-center justify-space-between ga-3">
-      <div class="overflow-hidden flex-grow-1">
-        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
-        <div class="d-flex align-center ga-2 mt-1 flex-wrap">
-          <v-chip
-            size="small"
-            rounded="pill"
-            variant="tonal"
-            class="button-card__state-chip"
-            :color="lastPressedDate ? 'primary' : undefined"
-          >
-            {{ lastPressedLabel }}
-          </v-chip>
-        </div>
-      </div>
+    <!-- Header -->
+    <div class="d-flex align-center ga-2 button-card__header">
+      <v-icon :icon="iconName" size="12" style="opacity:0.45; flex-shrink:0" />
+      <span class="button-card__name">{{ name }}</span>
+    </div>
+
+    <!-- Icon + last-pressed centered -->
+    <div class="flex-grow-1 d-flex flex-column align-center justify-center ga-2">
       <div class="button-card__icon-wrap">
-        <v-icon :icon="iconName" size="24" />
+        <v-icon :icon="iconName" size="28" />
       </div>
+      <v-chip
+        size="x-small"
+        rounded="pill"
+        variant="tonal"
+        class="button-card__state-chip"
+        :color="lastPressedDate ? 'primary' : undefined"
+      >
+        {{ lastPressedLabel }}
+      </v-chip>
     </div>
   </div>
 </template>
@@ -35,6 +37,7 @@
 import type { ButtonWidgetConfig } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
+const { glass } = useGlassEffect()
 
 const props = defineProps<{ config: ButtonWidgetConfig }>()
 const entityStore = useEntityStore()
@@ -102,9 +105,21 @@ onMounted(() => {
 <style scoped>
 .button-card {
   position: relative;
-  justify-content: center;
+  justify-content: flex-start;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.button-card__header {
+  flex-shrink: 0;
+}
+.button-card__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  opacity: 0.6;
+  letter-spacing: 0.025em;
 }
 
 .button-card:hover {

@@ -5,7 +5,7 @@ const haConnections = new Map<string, WebSocket>()
 
 export default defineWebSocketHandler({
   open(peer) {
-    const config = useRuntimeConfig()
+    const config = getServerConfig()
     const haUrl = config.haUrl ?? 'http://localhost:8123'
     const haWsUrl = haUrl.replace(/^http/, 'ws') + '/api/websocket'
     const haToken = config.haToken ?? ''

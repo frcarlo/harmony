@@ -1,13 +1,10 @@
 <template>
   <div class="h-100 d-flex flex-column pa-3 ga-3 select-card" :class="{ 'select-card--pending': isPending }">
-    <div class="d-flex align-center justify-space-between ga-3">
-      <div class="overflow-hidden flex-grow-1">
-        <div class="text-body-2 font-weight-medium text-truncate">{{ name }}</div>
-        <div class="text-caption text-medium-emphasis text-truncate">{{ stateLabel }}</div>
-      </div>
-      <div class="select-card__icon-wrap">
-        <v-icon :icon="iconName" size="24" />
-      </div>
+    <!-- Header -->
+    <div class="d-flex align-center ga-2 select-card__header">
+      <v-icon :icon="iconName" size="12" style="opacity:0.45; flex-shrink:0" />
+      <span class="select-card__name">{{ name }}</span>
+      <span class="select-card__state">{{ stateLabel }}</span>
     </div>
 
     <div class="d-flex justify-center align-center flex-grow-1">
@@ -31,6 +28,7 @@
 <script setup lang="ts">
 import type { SelectWidgetConfig } from '~/types/dashboard'
 
+const { glass } = useGlassEffect()
 const props = defineProps<{ config: SelectWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
@@ -69,20 +67,28 @@ async function setOption(option: string | null) {
 <style scoped>
 .select-card {
   position: relative;
-  justify-content: center;
+  justify-content: flex-start;
 }
-
-.select-card__icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-primary), 0.14);
-  border: 1px solid rgba(var(--v-theme-primary), 0.22);
-  box-shadow: 0 8px 18px rgba(var(--v-theme-primary), 0.1);
+.select-card__header { flex-shrink: 0; }
+.select-card__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  opacity: 0.6;
+  letter-spacing: 0.025em;
+}
+.select-card__state {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  opacity: 0.7;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 50%;
 }
 
 .select-card__select {

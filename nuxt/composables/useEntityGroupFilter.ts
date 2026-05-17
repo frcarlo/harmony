@@ -14,6 +14,7 @@ export function useEntityGroupFilter() {
       const haystacks = [id.toLowerCase(), objectId.toLowerCase()]
 
       if (filter.domains?.length && !filter.domains.includes(domain)) return false
+      if (filter.device_classes?.length && !filter.device_classes.includes((entity.attributes?.device_class as string | undefined) ?? '')) return false
       if (containsNeedle && !haystacks.some((value) => value.includes(containsNeedle))) return false
       if (startsNeedle && !haystacks.some((value) => value.startsWith(startsNeedle))) return false
 

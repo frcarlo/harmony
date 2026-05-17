@@ -85,7 +85,11 @@
     "import_exists": "Dashboard \"{name}\" already exists – importing as copy",
     "saved": "Dashboard saved",
     "save_failed": "Could not save dashboard",
-    "unsaved_changes_confirm": "You have unsaved changes. Leave without saving?"
+    "unsaved_changes_confirm": "You have unsaved changes. Leave without saving?",
+    "unsaved_changes_title": "Unsaved changes",
+    "unsaved_changes_body": "You have unsaved changes that will be lost if you leave this page.",
+    "unsaved_changes_leave": "Leave without saving",
+    "unsaved_changes_stay": "Keep editing"
   },
   "updates": {
     "server_redeployed": "Server was updated — reload to apply changes",
@@ -125,6 +129,9 @@
     "grid_preview_mobile": "Mobile (375px)",
     "signed_in": "Signed in",
     "user_mgmt": "User management",
+    "change_password": "Change password",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)",
     "reset_local_settings": "Reset local settings",
     "reset_local_settings_hint": "Only for this browser and this user",
     "local_settings_reset_done": "Local browser settings were reset",
@@ -149,6 +156,7 @@
     "config_title": "Configure Widget",
     "none_selected": "No widget selected",
     "unknown_type": "Unknown widget type",
+    "render_error": "Widget could not be rendered",
     "remove": "Remove",
     "configure": "Configure",
     "clone": "Duplicate",
@@ -263,7 +271,28 @@
       "label": "Calendar (Month/Week/Day)",
       "description": "Interactive calendar with multiple calendars"
     },
-    "removed": "Widget removed"
+    "vacuum": {
+      "label": "Vacuum",
+      "description": "Control your robot vacuum cleaner"
+    },
+    "fan": {
+      "label": "Fan",
+      "description": "Control a fan or ventilation"
+    },
+    "scene": {
+      "label": "Scene Panel",
+      "description": "Activate scenes or scripts"
+    },
+    "timer": {
+      "label": "Timer",
+      "description": "Control a Home Assistant timer"
+    },
+    "removed": "Widget removed",
+    "copy_to_dashboard": "Copy to dashboard",
+    "copy_to_dashboard_hint": "Select a dashboard to copy this widget to.",
+    "copy_no_targets": "No other dashboards available.",
+    "copy_success": "Widget copied to \"{dashboard}\"",
+    "copy_error": "Could not copy widget"
   },
   "calendar_v2": {
     "day": "Day",
@@ -334,7 +363,8 @@
       "open": "Open",
       "opening": "Opening…",
       "moving": "Moving…",
-      "jammed": "Jammed"
+      "jammed": "Jammed",
+      "unavailable": "Unavailable"
     }
   },
   "config": {
@@ -540,6 +570,7 @@
     "move_down": "Move down",
     "group_filter": "Filter",
     "filter_domains": "Domains",
+    "filter_device_classes": "Device classes",
     "filter_name_contains": "Entity ID contains",
     "filter_name_starts_with": "Entity ID starts with",
     "filter_areas": "Areas",
@@ -560,7 +591,10 @@
     "target_dashboard": "Target dashboard",
     "icon_color": "Icon color",
     "inactive_icon": "Inactive icon",
-    "add_nav": "Add navigation"
+    "icon_auto": "Auto (from entity)",
+    "add_nav": "Add navigation",
+    "fan_show_speed": "Show speed controls",
+    "scene_columns": "Columns"
   },
   "entity_picker": {
     "placeholder": "Search entity...",
@@ -635,7 +669,10 @@
     "mode_heat": "Heating",
     "mode_cool": "Cooling",
     "mode_auto": "Auto",
-    "mode_off": "Off"
+    "mode_off": "Off",
+    "mode_heat_cool": "Heat & Cool",
+    "current": "current",
+    "target": "target"
   },
   "template": {
     "render_error": "Template could not be rendered"
@@ -722,7 +759,8 @@
       "pending": "Pending",
       "arming": "Arming…",
       "disarming": "Disarming…",
-      "triggered": "Triggered"
+      "triggered": "Triggered",
+      "unavailable": "Unavailable"
     },
     "action": {
       "arm_home": "Arm home",
@@ -732,6 +770,50 @@
       "trigger": "Trigger alarm"
     },
     "enter_code": "Enter alarm code"
+  },
+  "vacuum": {
+    "state": {
+      "cleaning": "Cleaning",
+      "returning": "Returning",
+      "docked": "Docked",
+      "idle": "Idle",
+      "paused": "Paused",
+      "error": "Error",
+      "unavailable": "Unavailable"
+    },
+    "action": {
+      "start": "Start",
+      "stop": "Stop",
+      "pause": "Pause",
+      "resume": "Resume",
+      "return": "Return to base"
+    }
+  },
+  "fan": {
+    "turn_on": "Turn on",
+    "turn_off": "Turn off",
+    "speed": "Speed"
+  },
+  "scene": {
+    "activate": "Activate",
+    "no_scenes": "No scenes configured",
+    "default_name": "Scenes",
+    "scenes": "Scenes",
+    "add_scene": "Add scene"
+  },
+  "timer": {
+    "state": {
+      "idle": "Idle",
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "action": {
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel"
+    },
+    "finishes_at": "Ends at {time}"
   },
   "notifications": {
     "title": "Notifications",
@@ -848,6 +930,12 @@
     "audit_user_force_device_type_change": "changed forced device type:",
     "audit_user_default_dashboard_change": "changed default dashboard:",
     "audit_user_self_default_dashboard_change": "changed own default dashboard:",
+    "audit_user_password_change": "changed password of",
+    "change_password": "Change password",
+    "change_password_title": "Change password for {name}",
+    "new_password": "New password",
+    "current_password": "Current password",
+    "password_changed": "Password changed",
     "error_default": "Error"
   }
 }

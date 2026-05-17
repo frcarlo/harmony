@@ -12,7 +12,7 @@ async function getEndSessionEndpoint(issuer: string): Promise<string | null> {
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const config = getServerConfig()
   const session = await getUserSession(event) as any
   const idToken = session?.keycloak_id_token as string | undefined
 

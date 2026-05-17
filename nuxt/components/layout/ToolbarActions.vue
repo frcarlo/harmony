@@ -75,6 +75,12 @@
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
           :title="t('toolbar.user_mgmt')" rounded="lg" to="/admin/users" />
         <v-list-item
+          prepend-icon="mdi-lock-reset"
+          :title="t('toolbar.change_password')"
+          rounded="lg"
+          @click="openChangePassword"
+        />
+        <v-list-item
           prepend-icon="mdi-broom"
           :title="t('toolbar.reset_local_settings')"
           :subtitle="t('toolbar.reset_local_settings_hint')"
@@ -88,6 +94,46 @@
       </v-list>
     </v-card>
   </v-menu>
+
+  <!-- Self-service password change dialog -->
+  <v-dialog v-model="changePwDialog" max-width="380">
+    <v-card rounded="xl" :class="{ 'theme-card-glass': glass }">
+      <v-card-text class="pa-6">
+        <div class="text-subtitle-1 font-weight-bold mb-4">{{ t('toolbar.change_password') }}</div>
+        <div class="d-flex flex-column ga-3">
+          <v-text-field
+            v-model="changePwForm.current_password"
+            :label="t('users.current_password')"
+            type="password"
+            density="compact"
+            variant="outlined"
+            hide-details
+            autofocus
+          />
+          <v-text-field
+            v-model="changePwForm.new_password"
+            :label="t('users.new_password')"
+            type="password"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            :rules="[v => v.length >= 8 || t('login.error_min_length')]"
+          />
+          <v-alert v-if="changePwError" type="error" density="compact" :text="changePwError" />
+        </div>
+      </v-card-text>
+      <v-card-actions class="px-6 pb-5">
+        <v-spacer />
+        <v-btn variant="text" @click="changePwDialog = false">{{ t('common.cancel') }}</v-btn>
+        <v-btn
+          color="primary" variant="flat"
+          :loading="changePwSaving"
+          :disabled="!changePwForm.current_password || changePwForm.new_password.length < 8"
+          @click="handleChangePassword"
+        >{{ t('users.change_password') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
 </template>
 
@@ -154,6 +200,35 @@ async function logout() {
     window.location.href = keycloakLogoutUrl
   } else {
     await navigateTo('/login')
+  }
+}
+
+const changePwDialog = ref(false)
+const changePwForm = reactive({ current_password: '', new_password: '' })
+const changePwError = ref('')
+const changePwSaving = ref(false)
+
+function openChangePassword() {
+  changePwForm.current_password = ''
+  changePwForm.new_password = ''
+  changePwError.value = ''
+  changePwDialog.value = true
+}
+
+async function handleChangePassword() {
+  changePwError.value = ''
+  changePwSaving.value = true
+  try {
+    await $fetch('/api/users/me/password', {
+      method: 'PUT',
+      body: { current_password: changePwForm.current_password, new_password: changePwForm.new_password },
+    })
+    changePwDialog.value = false
+    toast.success(t('users.password_changed'))
+  } catch (e: any) {
+    changePwError.value = e?.data?.statusMessage ?? t('users.error_default')
+  } finally {
+    changePwSaving.value = false
   }
 }
 </script>

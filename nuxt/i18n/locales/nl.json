@@ -85,6 +85,10 @@
     "saved": "Dashboard opgeslagen",
     "save_failed": "Dashboard kon niet worden opgeslagen",
     "unsaved_changes_confirm": "Je hebt niet-opgeslagen wijzigingen. Verlaten zonder opslaan?",
+    "unsaved_changes_title": "Niet-opgeslagen wijzigingen",
+    "unsaved_changes_body": "Je wijzigingen gaan verloren als je deze pagina verlaat.",
+    "unsaved_changes_leave": "Verlaten zonder opslaan",
+    "unsaved_changes_stay": "Blijven bewerken",
     "imported": "Dashboard \"{name}\" geïmporteerd"
   },
   "updates": {
@@ -114,6 +118,7 @@
     "bg_placeholder": "CSS-kleur of URL...",
     "signed_in": "Aangemeld",
     "user_mgmt": "Gebruikersbeheer",
+    "change_password": "Wachtwoord wijzigen",
     "reset_local_settings": "Lokale instellingen resetten",
     "reset_local_settings_hint": "Alleen voor deze browser en deze gebruiker",
     "local_settings_reset_done": "Lokale browserinstellingen zijn gereset",
@@ -137,7 +142,9 @@
     "grid_preview_mobile": "Mobiel (375px)",
     "grid_preview_tablet": "Tablet liggend (1024px)",
     "grid_preview_tablet_portrait": "Tablet staand (768px)",
-    "grid_settings": "Rasterinstellingen"
+    "grid_settings": "Rasterinstellingen",
+    "undo": "Ongedaan maken (Ctrl+Z)",
+    "redo": "Opnieuw uitvoeren (Ctrl+Y)"
   },
   "connection": {
     "connected": "Verbonden",
@@ -149,6 +156,7 @@
     "config_title": "Widget configureren",
     "none_selected": "Geen widget geselecteerd",
     "unknown_type": "Onbekend widgettype",
+    "render_error": "Widget kon niet worden weergegeven",
     "remove": "Verwijderen",
     "configure": "Configureren",
     "clone": "Dupliceren",
@@ -255,11 +263,36 @@
       "label": "Kalender (Maand/Week/Dag)",
       "description": "Interactieve kalenderweergave met meerdere kalenders"
     },
+    "vacuum": {
+      "label": "Robotstofzuiger",
+      "description": "Bedien je robotstofzuiger"
+    },
+    "fan": {
+      "label": "Ventilator",
+      "description": "Bedien een ventilator of ventilatie"
+    },
+    "scene": {
+      "label": "Scènepaneel",
+      "description": "Activeer scènes of scripts"
+    },
+    "timer": {
+      "label": "Timer",
+      "description": "Bedien een Home Assistant timer"
+    },
     "removed": "Widget verwijderd",
     "appliance": {
       "description": "Statuskaart voor vaatwasser, wasmachine of droger",
       "label": "Apparaat"
-    }
+    },
+    "alarm": {
+      "description": "Schakel je alarmsysteem in of uit",
+      "label": "Alarm"
+    },
+    "copy_to_dashboard": "Kopiëren naar dashboard",
+    "copy_to_dashboard_hint": "Selecteer een dashboard waarnaar je dit widget wilt kopiëren.",
+    "copy_no_targets": "Geen andere dashboards beschikbaar.",
+    "copy_success": "Widget gekopiëerd naar \"{dashboard}\"",
+    "copy_error": "Widget kon niet worden gekopiëerd"
   },
   "calendar_v2": {
     "day": "Dag",
@@ -323,7 +356,8 @@
       "open": "Open",
       "opening": "Openen…",
       "moving": "Beweegt…",
-      "jammed": "Vastgelopen"
+      "jammed": "Vastgelopen",
+      "unavailable": "Niet beschikbaar"
     },
     "door_open": "Deur open",
     "door_closed": "Deur gesloten",
@@ -492,6 +526,7 @@
     "target_dashboard": "Doel-dashboard",
     "icon_color": "Icofonkleur",
     "inactive_icon": "Inactief icoon",
+    "icon_auto": "Auto (van entiteit)",
     "add_nav": "Navigatie toevoegen",
     "add_group": "Groep toevoegen",
     "bg_transparent": "Transparant",
@@ -505,6 +540,7 @@
     "exclude_groups": "HA-groepen uitsluiten",
     "filter_areas": "Zones",
     "filter_domains": "Domeinen",
+    "filter_device_classes": "Apparaatklassen",
     "filter_labels": "Labels",
     "filter_name_contains": "Entiteit-ID bevat",
     "filter_name_starts_with": "Entiteit-ID begint met",
@@ -544,7 +580,22 @@
     "show_badge": "Badge met teller tonen",
     "show_door_button": "Deurknop tonen",
     "status_entity": "Status entiteit",
-    "unlocked_icon": "Ontgrendeld icoon"
+    "unlocked_icon": "Ontgrendeld icoon",
+    "actions_align": "Uitlijning knoppen",
+    "align_center": "Midden",
+    "align_left": "Links",
+    "align_right": "Rechts",
+    "bg_opacity": "Achtergrond dekking: {n}%",
+    "clock_style": "Klokstijl",
+    "clock_style_default": "Standaard",
+    "clock_style_led": "LED",
+    "door_entity": "Deur entiteit",
+    "sensor_entity": "Sensor entiteit",
+    "show_seconds": "Seconden tonen",
+    "show_sensor_trend": "Sensortrend tonen",
+    "show_trend": "Trend onderaan tonen",
+    "fan_show_speed": "Snelheidsregeling tonen",
+    "scene_columns": "Kolommen"
   },
   "entity_picker": {
     "placeholder": "Entiteit zoeken...",
@@ -595,7 +646,10 @@
     "mode_heat": "Verwarming",
     "mode_cool": "Koeling",
     "mode_auto": "Auto",
-    "mode_off": "Uit"
+    "mode_off": "Uit",
+    "mode_heat_cool": "Warm & koel",
+    "current": "huidig",
+    "target": "doel"
   },
   "template": {
     "render_error": "Template kon niet worden gerenderd"
@@ -668,6 +722,50 @@
   },
   "button": {
     "never_pressed": "Nooit ingedrukt"
+  },
+  "vacuum": {
+    "state": {
+      "cleaning": "Stofzuigen",
+      "returning": "Terugkeren",
+      "docked": "Gedockt",
+      "idle": "Inactief",
+      "paused": "Gepauzeerd",
+      "error": "Fout",
+      "unavailable": "Niet beschikbaar"
+    },
+    "action": {
+      "start": "Starten",
+      "stop": "Stoppen",
+      "pause": "Pauzeren",
+      "resume": "Hervatten",
+      "return": "Terug naar basis"
+    }
+  },
+  "fan": {
+    "turn_on": "Aanzetten",
+    "turn_off": "Uitzetten",
+    "speed": "Snelheid"
+  },
+  "scene": {
+    "activate": "Activeren",
+    "no_scenes": "Geen scènes geconfigureerd",
+    "default_name": "Scènes",
+    "scenes": "Scènes",
+    "add_scene": "Scène toevoegen"
+  },
+  "timer": {
+    "state": {
+      "idle": "Inactief",
+      "active": "Actief",
+      "paused": "Gepauzeerd"
+    },
+    "action": {
+      "start": "Starten",
+      "pause": "Pauzeren",
+      "resume": "Hervatten",
+      "cancel": "Annuleren"
+    },
+    "finishes_at": "Eindigt om {time}"
   },
   "notifications": {
     "title": "Meldingen",
@@ -784,6 +882,12 @@
     "audit_user_force_device_type_change": "heeft geforceerd apparaattype gewijzigd:",
     "audit_user_default_dashboard_change": "heeft standaarddashboard gewijzigd:",
     "audit_user_self_default_dashboard_change": "heeft eigen standaarddashboard gewijzigd:",
+    "audit_user_password_change": "heeft wachtwoord gewijzigd van",
+    "change_password": "Wachtwoord wijzigen",
+    "change_password_title": "Wachtwoord wijzigen voor {name}",
+    "new_password": "Nieuw wachtwoord",
+    "current_password": "Huidig wachtwoord",
+    "password_changed": "Wachtwoord gewijzigd",
     "error_default": "Fout"
   },
   "appliance": {
@@ -804,10 +908,32 @@
       "starting": "Starten",
       "run": "Actief",
       "unavailable": "Niet beschikbaar"
-    }
+    },
+    "door_closed": "Deur gesloten",
+    "door_open": "Deur open",
+    "power_off": "Uitgeschakeld",
+    "power_on": "Ingeschakeld"
   },
   "alarm": {
-    "enter_code": "Alarmcode invoeren"
+    "enter_code": "Alarmcode invoeren",
+    "action": {
+      "arm_away": "Inschakelen afwezig",
+      "arm_home": "Inschakelen thuis",
+      "arm_night": "Inschakelen nacht",
+      "disarm": "Uitschakelen",
+      "trigger": "Alarm activeren"
+    },
+    "state": {
+      "armed_away": "Ingeschakeld afwezig",
+      "armed_home": "Ingeschakeld thuis",
+      "armed_night": "Ingeschakeld nacht",
+      "arming": "Inschakelen…",
+      "disarmed": "Uitgeschakeld",
+      "disarming": "Uitschakelen…",
+      "pending": "In afwachting",
+      "triggered": "Geactiveerd",
+      "unavailable": "Niet beschikbaar"
+    }
   },
   "group": {
     "empty": "Geen overeenkomende entiteiten gevonden.",

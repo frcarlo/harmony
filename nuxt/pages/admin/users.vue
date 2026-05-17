@@ -70,6 +70,13 @@
                     @click="openAccess(u)"
                   />
                   <v-btn
+                    v-if="!u.provider"
+                    icon="mdi-lock-reset"
+                    size="small" variant="text"
+                    :title="t('users.change_password')"
+                    @click="openPasswordDialog(u)"
+                  />
+                  <v-btn
                     :icon="u.role === 'admin' ? 'mdi-account-arrow-down' : 'mdi-account-arrow-up'"
                     size="small" variant="text"
                     :title="u.role === 'admin' ? t('users.demote') : t('users.promote')"
@@ -307,6 +314,40 @@
       </v-card>
     </v-dialog>
 
+    <!-- Password reset dialog -->
+    <v-dialog v-model="passwordDialog" max-width="380">
+      <v-card rounded="xl" :class="{ 'widget-glass': glass }">
+        <v-card-text class="pa-6">
+          <div class="text-subtitle-1 font-weight-bold mb-4">
+            {{ t('users.change_password_title', { name: passwordTarget?.username }) }}
+          </div>
+          <div class="d-flex flex-column ga-3">
+            <v-text-field
+              v-model="passwordForm.new_password"
+              :label="t('users.new_password')"
+              type="password"
+              density="compact"
+              variant="outlined"
+              hide-details="auto"
+              :rules="[v => v.length >= 8 || t('login.error_min_length')]"
+              autofocus
+            />
+            <v-alert v-if="passwordError" type="error" density="compact" :text="passwordError" />
+          </div>
+        </v-card-text>
+        <v-card-actions class="px-6 pb-5">
+          <v-spacer />
+          <v-btn variant="text" @click="passwordDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn
+            color="primary" variant="flat"
+            :loading="passwordSaving"
+            :disabled="passwordForm.new_password.length < 8"
+            @click="handlePasswordReset"
+          >{{ t('users.change_password') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete confirm dialog -->
     <v-dialog v-model="deleteDialog" max-width="360">
       <v-card rounded="xl" :class="{ 'widget-glass': glass }">
@@ -367,6 +408,12 @@ const form = reactive({ username: '', password: '', role: 'user' as 'admin' | 'e
 const deleteDialog = ref(false)
 const deleteTarget = ref<UserRow | null>(null)
 const deleting = ref(false)
+
+const passwordDialog = ref(false)
+const passwordTarget = ref<UserRow | null>(null)
+const passwordForm = reactive({ new_password: '' })
+const passwordError = ref('')
+const passwordSaving = ref(false)
 
 // Dashboard access
 const accessUser = ref<UserRow | null>(null)
@@ -439,6 +486,30 @@ async function handleDelete() {
     alert(e?.data?.statusMessage ?? t('users.error_default'))
   } finally {
     deleting.value = false
+  }
+}
+
+function openPasswordDialog(u: UserRow) {
+  passwordTarget.value = u
+  passwordForm.new_password = ''
+  passwordError.value = ''
+  passwordDialog.value = true
+}
+
+async function handlePasswordReset() {
+  if (!passwordTarget.value) return
+  passwordError.value = ''
+  passwordSaving.value = true
+  try {
+    await $fetch(`/api/users/${passwordTarget.value.id}/password`, {
+      method: 'PUT',
+      body: { new_password: passwordForm.new_password },
+    })
+    passwordDialog.value = false
+  } catch (e: any) {
+    passwordError.value = e?.data?.statusMessage ?? t('users.error_default')
+  } finally {
+    passwordSaving.value = false
   }
 }
 
@@ -543,6 +614,7 @@ function auditLabel(action: string) {
     'user.force_device_type_change': t('users.audit_user_force_device_type_change'),
     'user.default_dashboard_change': t('users.audit_user_default_dashboard_change'),
     'user.self_default_dashboard_change': t('users.audit_user_self_default_dashboard_change'),
+    'user.password_change': t('users.audit_user_password_change'),
   }
   return map[action] ?? action
 }

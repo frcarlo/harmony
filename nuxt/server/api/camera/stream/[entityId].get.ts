@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const entityId = getRouterParam(event, 'entityId')!
-  const config = useRuntimeConfig()
+  const config = getServerConfig()
   const haUrl = config.haUrl ?? 'http://localhost:8123'
   const haToken = config.haToken
 

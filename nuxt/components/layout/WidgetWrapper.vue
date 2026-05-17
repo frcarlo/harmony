@@ -25,6 +25,8 @@
         @click="dashboardStore.setSelectedWidget(isSelected ? null : widget.id)" />
       <v-btn icon="mdi-content-copy" size="x-small" variant="tonal" density="comfortable" :title="t('widget.clone')"
         @click="dashboardStore.cloneWidget(widget.id)" />
+      <v-btn icon="mdi-arrow-right-bold-box-outline" size="x-small" variant="tonal" density="comfortable"
+        :title="t('widget.copy_to_dashboard')" @click="openCopyDialog" />
       <v-btn icon="mdi-close" size="x-small" variant="tonal" density="comfortable" color="error"
         :title="t('widget.remove')" @click="removeWithUndo" />
     </div>
@@ -35,9 +37,22 @@
       <span>{{ t('widget.entity_unavailable') }}</span>
     </div>
 
+    <!-- Battery indicator -->
+    <div v-if="!editMode && showBatteryIndicator" class="widget-battery-indicator" :title="`${batteryLevel}%`">
+      <v-icon :icon="batteryIcon" :color="batteryColor" size="14" />
+      <span v-if="showBatteryText" class="widget-battery-level">{{ batteryLevel }}%</span>
+    </div>
+
     <!-- Widget content -->
     <div ref="contentEl" class="h-100" :style="{ pointerEvents: editMode ? 'none' : undefined }">
-      <div v-if="!shouldRender" class="h-100 d-flex align-center justify-center">
+      <div v-if="widgetError" class="h-100 d-flex flex-column align-center justify-center pa-3 text-center">
+        <v-icon icon="mdi-alert-circle-outline" size="28" color="error" class="mb-2" style="opacity:0.7" />
+        <span class="text-caption text-medium-emphasis" style="opacity:0.8">{{ t('widget.render_error') }}</span>
+        <v-btn v-if="editMode" size="x-small" variant="text" class="mt-2" @click="widgetError = false">
+          {{ t('common.retry') }}
+        </v-btn>
+      </div>
+      <div v-else-if="!shouldRender" class="h-100 d-flex align-center justify-center">
         <v-progress-circular indeterminate size="24" color="medium-emphasis" />
       </div>
       <template v-else>
@@ -68,6 +83,10 @@
         <LazyAlarmWidget v-else-if="widget.type === 'alarm'" :config="widget.config as any" />
         <LazyProblemOverviewWidget v-else-if="widget.type === 'problem_overview'" :config="widget.config as any" />
         <LazyStatusBarWidget v-else-if="widget.type === 'status_bar'" :config="widget.config as any" />
+        <LazyVacuumWidget v-else-if="widget.type === 'vacuum'" :config="widget.config as any" />
+        <LazyFanWidget v-else-if="widget.type === 'fan'" :config="widget.config as any" />
+        <LazySceneWidget v-else-if="widget.type === 'scene'" :config="widget.config as any" />
+        <LazyTimerWidget v-else-if="widget.type === 'timer'" :config="widget.config as any" />
         <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
       </template>
     </div>
@@ -77,6 +96,43 @@
   <LazyUpdateDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'update'" v-model="detailOpen" :entity-id="detailEntityId" />
   <LazyMediaPlayerDetailDialog v-else-if="detailOpen && detailEntityId && detailDomain === 'media_player'" v-model="detailOpen" :entity-id="detailEntityId" />
   <LazyEntityDetailDialog v-else-if="detailOpen && detailEntityId" v-model="detailOpen" :entity-id="detailEntityId" />
+
+  <!-- Copy widget to another dashboard -->
+  <v-dialog v-model="copyDialogOpen" max-width="400">
+    <v-card rounded="xl">
+      <v-card-text class="pa-5">
+        <div class="text-subtitle-1 font-weight-bold mb-1">{{ t('widget.copy_to_dashboard') }}</div>
+        <div class="text-body-2 text-medium-emphasis mb-4">{{ t('widget.copy_to_dashboard_hint') }}</div>
+        <div v-if="copyDashboardsLoading" class="d-flex justify-center py-4">
+          <v-progress-circular indeterminate size="28" />
+        </div>
+        <div v-else-if="copyDashboards.length === 0" class="text-body-2 text-medium-emphasis text-center py-4">
+          {{ t('widget.copy_no_targets') }}
+        </div>
+        <v-list v-else density="compact" rounded="lg" class="pa-0" border>
+          <template v-for="(db, i) in copyDashboards" :key="db.id">
+            <v-divider v-if="i > 0" />
+            <v-list-item
+              :prepend-icon="db.icon || 'mdi-view-dashboard-outline'"
+              :title="db.name"
+              :active="copyTargetId === db.id"
+              active-color="primary"
+              rounded="lg"
+              @click="copyTargetId = db.id"
+            />
+          </template>
+        </v-list>
+      </v-card-text>
+      <v-card-actions class="px-5 pb-5">
+        <v-spacer />
+        <v-btn variant="text" @click="copyDialogOpen = false">{{ t('common.cancel') }}</v-btn>
+        <v-btn color="primary" variant="flat" :loading="copyingWidget" :disabled="!copyTargetId"
+          @click="confirmCopyWidget">
+          {{ t('common.copy') }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -117,8 +173,74 @@ const theme = useTheme()
 const isDark = computed(() => theme.current.value.dark)
 const detailOpen = ref(false)
 const detailEntityId = ref<string | null>(null)
+const widgetError = ref(false)
+
+// Copy-to-dashboard state
+const copyDialogOpen = ref(false)
+const copyDashboards = ref<{ id: string; name: string; icon?: string }[]>([])
+const copyDashboardsLoading = ref(false)
+const copyTargetId = ref<string | null>(null)
+const copyingWidget = ref(false)
+
+async function openCopyDialog() {
+  copyTargetId.value = null
+  copyDialogOpen.value = true
+  copyDashboardsLoading.value = true
+  try {
+    const all = await $fetch<{ id: string; name: string; icon?: string }[]>('/api/dashboards')
+    copyDashboards.value = all.filter(db => db.id !== dashboardStore.dashboard?.id)
+  } finally {
+    copyDashboardsLoading.value = false
+  }
+}
+
+async function confirmCopyWidget() {
+  if (!copyTargetId.value) return
+  copyingWidget.value = true
+  try {
+    const target = await $fetch<{ widgets: typeof props.widget[] }>(`/api/dashboards/${copyTargetId.value}`)
+    const widgetCopy = {
+      ...props.widget,
+      id: crypto.randomUUID(),
+      config: JSON.parse(JSON.stringify(props.widget.config)),
+      ...(props.widget.appearance ? { appearance: JSON.parse(JSON.stringify(props.widget.appearance)) } : {}),
+      ...(props.widget.visibility ? { visibility: JSON.parse(JSON.stringify(props.widget.visibility)) } : {}),
+    }
+    await $fetch(`/api/dashboards/${copyTargetId.value}`, {
+      method: 'PUT',
+      body: { ...target, widgets: [...(target.widgets ?? []), widgetCopy] },
+    })
+    copyDialogOpen.value = false
+    const targetName = copyDashboards.value.find(db => db.id === copyTargetId.value)?.name ?? ''
+    toast.success(t('widget.copy_success', { dashboard: targetName }))
+  } catch {
+    toast.error(t('widget.copy_error'))
+  } finally {
+    copyingWidget.value = false
+  }
+}
+
+onErrorCaptured((err) => {
+  console.error(`[WidgetWrapper] widget "${props.widget.type}" crashed:`, err)
+  widgetError.value = true
+  return false
+})
 
 const GENERIC_ACTION_EXCLUDED_TYPES = new Set(['light', 'room_card', 'status_bar'])
+const BATTERY_EXCLUDED_TYPES = new Set(['status_bar', 'problem_overview', 'label', 'clock', 'template', 'camera'])
+
+const batterySourceEntityId = computed(() =>
+  BATTERY_EXCLUDED_TYPES.has(props.widget.type) ? null : entityId.value,
+)
+const { batteryLevel, batteryIsNumeric, batteryIcon, batteryColor } = useBatteryInfo(batterySourceEntityId)
+
+// Only show the % text for widget types whose header has enough room for it
+const BATTERY_TEXT_TYPES = new Set(['sensor', 'gauge', 'chart'])
+const showBatteryText = computed(() => batteryIsNumeric.value && BATTERY_TEXT_TYPES.has(props.widget.type))
+
+const showBatteryIndicator = computed(() =>
+  batteryLevel.value !== null && (batteryIsNumeric.value || batteryLevel.value === 0),
+)
 type GenericWidgetAction = 'none' | 'toggle' | 'open_detail' | 'call_service'
 
 const isSelected = computed(() => dashboardStore.selectedWidgetId === props.widget.id)
@@ -320,8 +442,8 @@ const cardStyle = computed(() => {
   const a = appearance.value
   const style: Record<string, string> = {}
   const isPlainTransparentCard = a.bg_color === 'transparent' && !glassEnabled.value
-  const transparentGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.18)' : 'rgba(var(--v-theme-surface), 0.24)'
-  const neutralGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.32)' : 'rgba(var(--v-theme-surface), 0.38)'
+  const transparentGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.42)' : 'rgba(var(--v-theme-surface), 0.50)'
+  const neutralGlassBg = isCompactWidget.value ? 'rgba(var(--v-theme-surface), 0.55)' : 'rgba(var(--v-theme-surface), 0.62)'
 
   if (a.bg_color === 'transparent') style.backgroundColor = glassEnabled.value ? transparentGlassBg : 'transparent'
   else if (a.bg_color) {
@@ -329,9 +451,19 @@ const cardStyle = computed(() => {
     style.backgroundColor = toSemiTransparent(a.bg_color, bgOpacity)
   }
   else if (isActive.value) {
-    const activeColor = a.active_color ?? (props.widget.type === 'room_card' || props.widget.type === 'light' ? '#f59e0b' : undefined)
+    const isImplicitActive = props.widget.type === 'room_card' || props.widget.type === 'light'
+    const activeColor = a.active_color ?? (isImplicitActive ? '#f59e0b' : undefined)
     if (activeColor) {
-      style.backgroundColor = glassEnabled.value ? toSemiTransparent(activeColor, 0.72) : toSemiTransparent(activeColor, 0.88)
+      if (isImplicitActive && !a.active_color) {
+        // Ambient glow: warm fan from top-center
+        // widget-glass class is suppressed (hasActiveBackground=true) so we inject backdropFilter manually
+        const glowAlpha = glassEnabled.value ? 0.52 : 0.60
+        const base = glassEnabled.value ? neutralGlassBg : 'rgba(var(--v-theme-surface), 0.88)'
+        style.background = `radial-gradient(ellipse 120% 90% at 50% 0%, ${toSemiTransparent(activeColor, glowAlpha)} 0%, transparent 72%), ${base}`
+        if (glassEnabled.value) style.backdropFilter = 'blur(16px) saturate(160%)'
+      } else {
+        style.backgroundColor = glassEnabled.value ? toSemiTransparent(activeColor, 0.72) : toSemiTransparent(activeColor, 0.88)
+      }
     }
   } else if (glassEnabled.value) {
     style.backgroundColor = neutralGlassBg
@@ -347,18 +479,30 @@ const cardStyle = computed(() => {
   } else {
     style.border = 'none'
   }
-  const ring = isDark.value
-    ? '0 0 0 1px rgba(255,255,255,0.12)'
-    : glassEnabled.value ? '0 0 0 1px rgba(255,255,255,0.32)' : '0 0 0 1px rgba(0,0,0,0.08)'
+  const isImplicitActiveState = isActive.value
+    && (props.widget.type === 'room_card' || props.widget.type === 'light')
+    && !appearance.value.active_color
+    && !appearance.value.border_width
+  const ring = isImplicitActiveState
+    ? `0 0 0 1px ${toSemiTransparent('#f59e0b', 0.60)}, 0 0 18px ${toSemiTransparent('#f59e0b', 0.18)}`
+    : isDark.value
+      ? '0 0 0 1px rgba(255,255,255,0.12)'
+      : glassEnabled.value ? '0 0 0 1px rgba(255,255,255,0.32)' : '0 0 0 1px rgba(0,0,0,0.08)'
   style.boxShadow = isPlainTransparentCard
     ? 'none'
-    : (glassEnabled.value && isDark.value) ? `0 8px 32px rgba(0,0,0,0.35), ${ring}` : ring
+    : (glassEnabled.value && isDark.value)
+      ? `0 8px 32px rgba(0,0,0,0.35), ${ring}`
+      : ring
   if (isSelected.value) style.outline = '2px solid rgb(var(--v-theme-primary))'
   return style
 })
 </script>
 
 <style scoped>
+.widget-card {
+  transition: background 0.5s ease, background-color 0.5s ease, box-shadow 0.3s ease;
+}
+
 .ring-selected {
   outline: 2px solid rgb(var(--v-theme-primary));
   outline-offset: 0;
@@ -380,5 +524,27 @@ const cardStyle = computed(() => {
   font-size: 0.65rem;
   font-weight: 600;
   pointer-events: none;
+}
+
+.widget-battery-indicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 5px 2px 3px;
+  border-radius: 6px;
+  background: rgba(var(--v-theme-surface), 0.55);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.widget-battery-level {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: 0.85;
 }
 </style>

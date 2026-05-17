@@ -131,7 +131,14 @@
           </v-card>
         </v-menu>
 
-        <!-- Group 2: Primary actions -->
+        <!-- Group 2: Undo / Redo -->
+        <v-divider vertical class="mx-2 my-2" />
+        <v-btn icon="mdi-undo" size="small" variant="text" :disabled="!canUndo"
+          :title="t('toolbar.undo')" @click="$emit('undo')" />
+        <v-btn icon="mdi-redo" size="small" variant="text" :disabled="!canRedo"
+          :title="t('toolbar.redo')" @click="$emit('redo')" />
+
+        <!-- Group 3: Primary actions -->
         <v-divider vertical class="mx-2 my-2" />
 
         <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" size="small" class="mr-1"
@@ -164,6 +171,8 @@ const props = defineProps<{
   editMode?: boolean
   saving?: boolean
   hideEdit?: boolean
+  canUndo?: boolean
+  canRedo?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -172,6 +181,8 @@ const emit = defineEmits<{
   'toggle-my-default': []
   'add-widget': []
   'save': []
+  'undo': []
+  'redo': []
   'rename': [name: string]
   'reicon': [icon: string]
   'rebackground': [bg: string | undefined]

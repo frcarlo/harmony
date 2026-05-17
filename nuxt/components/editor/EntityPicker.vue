@@ -24,11 +24,11 @@
       @update:model-value="$emit('update:modelValue', $event ?? undefined)"
     >
       <template #item="{ item, props: itemProps }">
-        <v-list-item v-bind="itemProps" :subtitle="item.raw.entity_id">
+        <v-list-item v-bind="itemProps" :subtitle="(item as any).entity_id">
           <template #append>
             <div class="d-flex flex-column align-end ga-1">
-              <v-chip size="x-small" label color="secondary" class="text-capitalize">{{ item.raw.domain }}</v-chip>
-              <v-chip v-if="item.raw.platform" size="x-small" label color="primary" class="text-capitalize">{{ item.raw.platform }}</v-chip>
+              <v-chip size="x-small" label color="secondary" class="text-capitalize">{{ (item as any).domain }}</v-chip>
+              <v-chip v-if="(item as any).platform" size="x-small" label color="primary" class="text-capitalize">{{ (item as any).platform }}</v-chip>
             </div>
           </template>
         </v-list-item>

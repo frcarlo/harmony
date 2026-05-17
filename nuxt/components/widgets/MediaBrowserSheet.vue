@@ -84,7 +84,7 @@
                 <v-chip size="x-small" density="compact">{{ section.items.length }}</v-chip>
               </div>
               <div class="spotify-row-shell">
-                <div class="spotify-row" @wheel.prevent="e => e.currentTarget.scrollLeft += e.deltaY">
+                <div class="spotify-row" @wheel.prevent="(e: WheelEvent) => (e.currentTarget as HTMLElement)!.scrollLeft += e.deltaY">
                   <button v-for="item in section.items" :key="item.media_content_id" type="button" class="spotify-card"
                     @click="playSpotifyItem(item)">
                     <div v-if="item.thumbnail" class="spotify-card__art spotify-card__art--image">
@@ -124,7 +124,7 @@
                 <v-chip size="x-small" density="compact">{{ section.items.length }}</v-chip>
               </div>
               <div class="spotify-row-shell">
-                <div class="spotify-row" @wheel.prevent="e => e.currentTarget.scrollLeft += e.deltaY">
+                <div class="spotify-row" @wheel.prevent="(e: WheelEvent) => (e.currentTarget as HTMLElement)!.scrollLeft += e.deltaY">
                   <button v-for="item in section.items" :key="item.uri" type="button" class="spotify-card"
                     @click="playMA(item)">
                     <div v-if="maImageUrl(item)" class="spotify-card__art spotify-card__art--image">
