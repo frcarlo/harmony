@@ -93,7 +93,7 @@
           </div>
 
           <draggable v-if="dashboards.length > 0" v-model="dashboards" item-key="id"
-            handle=".drag-handle" :animation="150" :disabled="!isAdmin || !listEditMode"
+            handle=".dashboard-card__drag" :animation="150" :disabled="!isAdmin || !listEditMode"
             class="dashboard-home__grid" @end="saveOrder">
             <template #item="{ element, index }">
               <div class="dashboard-home__grid-item" :style="{ animationDelay: `${index * 55}ms` }">

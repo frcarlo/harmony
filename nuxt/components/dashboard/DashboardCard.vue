@@ -11,18 +11,20 @@
       <div class="dashboard-card__header-pattern" />
 
       <!-- Default chip top-left -->
-      <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="flat" class="dashboard-card__default-chip">
+      <v-chip v-if="currentDefaultLabel" size="x-small" color="warning" variant="flat"
+        class="dashboard-card__default-chip">
         {{ currentDefaultLabel }}
       </v-chip>
-      <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="tonal" class="dashboard-card__default-chip">
+      <v-chip v-else-if="dashboard.is_default" size="x-small" color="warning" variant="tonal"
+        class="dashboard-card__default-chip">
         {{ t('dashboard.global_default_badge') }}
       </v-chip>
 
       <!-- Drag handle -->
-      <v-icon v-if="isAdmin && editMode"
-        class="drag-handle dashboard-card__drag"
-        icon="mdi-drag-vertical" size="18"
-        @click.prevent />
+      <div v-if="isAdmin && editMode" class="dashboard-card__drag" @click.prevent @mousedown.stop>
+        <v-icon icon="mdi-drag-vertical" size="18" style="color: rgba(255,255,255,0.7);" />
+      </div>
+
 
       <!-- Centered icon badge -->
       <div class="dashboard-card__icon-badge">
@@ -52,16 +54,12 @@
     <div v-if="isAdmin" class="dashboard-card__actions" :class="{ 'dashboard-card__actions--edit': editMode }">
       <v-btn icon="mdi-pencil-outline" size="x-small" variant="text" :to="`/edit/${dashboard.id}`"
         :title="t('common.edit')" @click.stop />
-      <v-btn icon="mdi-content-copy" size="x-small" variant="text" :loading="cloning"
-        :title="t('dashboard.clone')" @click.stop.prevent="handleClone" />
-      <v-btn icon="mdi-export-variant" size="x-small" variant="text" :loading="exporting"
-        :title="t('dashboard.export')" @click.stop.prevent="handleExport" />
-      <v-btn
-        :icon="dashboard.is_default ? 'mdi-star' : 'mdi-star-outline'"
-        size="x-small" variant="text" color="warning"
-        :title="t('dashboard.set_global_default')"
-        @click.stop.prevent="handleSetGlobalDefault"
-      />
+      <v-btn icon="mdi-content-copy" size="x-small" variant="text" :loading="cloning" :title="t('dashboard.clone')"
+        @click.stop.prevent="handleClone" />
+      <v-btn icon="mdi-export-variant" size="x-small" variant="text" :loading="exporting" :title="t('dashboard.export')"
+        @click.stop.prevent="handleExport" />
+      <v-btn :icon="dashboard.is_default ? 'mdi-star' : 'mdi-star-outline'" size="x-small" variant="text"
+        color="warning" :title="t('dashboard.set_global_default')" @click.stop.prevent="handleSetGlobalDefault" />
       <v-btn icon="mdi-trash-can-outline" size="x-small" variant="text" color="error"
         @click.stop.prevent="confirmOpen = true" />
     </div>
@@ -70,7 +68,8 @@
   <v-dialog v-model="confirmOpen" max-width="340">
     <v-card rounded="lg">
       <v-card-text class="pt-5 pb-2">
-        <div class="text-subtitle-1 font-weight-bold mb-1">{{ t('dashboard.delete_title', { name: dashboard.name }) }}</div>
+        <div class="text-subtitle-1 font-weight-bold mb-1">{{ t('dashboard.delete_title', { name: dashboard.name }) }}
+        </div>
         <div class="text-body-2 text-medium-emphasis">{{ t('dashboard.delete_confirm') }}</div>
       </v-card-text>
       <v-card-actions class="px-4 pb-4">
@@ -212,8 +211,13 @@ async function handleDelete() {
 </script>
 
 <style scoped>
-.drag-handle { cursor: grab; }
-.drag-handle:active { cursor: grabbing; }
+.dashboard-card__drag {
+  cursor: grab;
+}
+
+.dashboard-card__drag:active {
+  cursor: grabbing;
+}
 
 /* ── Card shell ─────────────────────────────────── */
 .dashboard-card {
@@ -245,12 +249,14 @@ async function handleDelete() {
   top: 0;
   left: -80%;
   width: 50%;
-  height: 110px; /* covers header */
+  height: 110px;
+  /* covers header */
   background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
   z-index: 3;
   pointer-events: none;
   transition: left 0.65s ease;
 }
+
 .dashboard-card:hover .dashboard-card__shimmer {
   left: 160%;
 }
@@ -269,11 +275,9 @@ async function handleDelete() {
 .dashboard-card__header-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.04) 0%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.04) 0%,
+      rgba(0, 0, 0, 0.5) 100%);
 }
 
 /* Dot grid pattern overlay */
@@ -300,8 +304,13 @@ async function handleDelete() {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 2;
-  color: rgba(255,255,255,0.7) !important;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.7) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  opacity: 1 !important;
 }
 
 /* ── Centered circular icon badge ───────────────── */
@@ -379,6 +388,7 @@ async function handleDelete() {
   transition: opacity 0.2s ease, transform 0.2s ease;
   color: rgba(var(--v-theme-on-surface), 0.35);
 }
+
 .dashboard-card:hover .dashboard-card__arrow {
   opacity: 1;
   transform: translateX(0);

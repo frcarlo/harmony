@@ -649,7 +649,15 @@ function shortState(entityId: string) {
 <style scoped>
 .statusbar-root {
   gap: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.statusbar-root::-webkit-scrollbar {
+  display: none;
 }
 
 .statusbar-root--compact {
@@ -660,6 +668,7 @@ function shortState(entityId: string) {
   flex-wrap: wrap;
   align-content: flex-start;
   overflow: visible;
+  touch-action: auto;
 }
 
 .statusbar-root--stacked .nav-group,
@@ -676,7 +685,7 @@ function shortState(entityId: string) {
 .status-group {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   row-gap: 4px;
 }

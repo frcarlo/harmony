@@ -813,7 +813,13 @@
       "resume": "Fortsetzen",
       "cancel": "Abbrechen"
     },
-    "finishes_at": "Endet um {time}"
+    "finishes_at": "Endet um {time}",
+    "config": {
+      "finish_title": "Benachrichtigung bei Ablauf",
+      "finish_blink": "Karte blinken lassen",
+      "finish_sound": "Ton abspielen",
+      "finish_sound_volume": "Lautstärke"
+    }
   },
   "notifications": {
     "title": "Benachrichtigungen",

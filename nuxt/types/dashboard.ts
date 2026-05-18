@@ -405,6 +405,9 @@ export interface SceneWidgetConfig {
 export interface TimerWidgetConfig {
   entity_id: string
   name?: string
+  finish_sound?: boolean
+  finish_sound_volume?: number
+  finish_blink?: boolean
 }
 
 export interface ProblemOverviewWidgetConfig {

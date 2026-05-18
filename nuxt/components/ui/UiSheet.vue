@@ -162,3 +162,24 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 </style>
+
+<style>
+/* Solid background for UiSheet drawer — overrides Vuetify 4 defaults globally */
+.ui-sheet--right.v-navigation-drawer,
+.ui-sheet--left.v-navigation-drawer {
+  background: rgb(var(--v-theme-surface)) !important;
+}
+.ui-sheet--right .v-navigation-drawer__content,
+.ui-sheet--left .v-navigation-drawer__content {
+  background: rgb(var(--v-theme-surface)) !important;
+}
+/* Glass variant */
+.ui-sheet-glass.v-navigation-drawer {
+  background: rgb(var(--v-theme-surface)) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+.ui-sheet-glass .v-navigation-drawer__content {
+  background: transparent !important;
+}
+</style>

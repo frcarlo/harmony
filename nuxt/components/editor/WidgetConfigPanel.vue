@@ -556,6 +556,16 @@
             <!-- Timer -->
             <template v-if="widget.type === 'timer'">
               <p class="text-caption text-medium-emphasis">{{ t('widget.timer.description') }}</p>
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('timer.config.finish_title') }}</p>
+              <v-checkbox v-model="cfg.finish_blink" :label="t('timer.config.finish_blink')" hide-details density="compact" />
+              <v-checkbox v-model="cfg.finish_sound" :label="t('timer.config.finish_sound')" hide-details density="compact" />
+              <template v-if="cfg.finish_sound !== false">
+                <p class="text-caption text-medium-emphasis">{{ t('timer.config.finish_sound_volume') }}: {{ cfg.finish_sound_volume ?? 70 }}%</p>
+                <v-slider v-model="cfg.finish_sound_volume" :min="10" :max="100" :step="5"
+                  hide-details density="compact" thumb-size="14"
+                  :default-value="70" />
+              </template>
             </template>
 
             <!-- Status Bar -->
@@ -1209,9 +1219,16 @@ function removeSceneEntry(index: number) {
   min-height: 0;
 }
 
+.config-panel__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .config-panel__sections :deep(.v-expansion-panel) {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px !important;
 }
 
 .config-panel__sections :deep(.v-expansion-panel-title) {

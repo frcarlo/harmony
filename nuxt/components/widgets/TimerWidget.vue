@@ -1,5 +1,5 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-3 ga-2 timer-card" :class="`timer-card--${stateKey}`">
+  <div class="h-100 d-flex flex-column pa-3 ga-2 timer-card" :class="[`timer-card--${stateKey}`, { 'timer-card--finished': finished }]">
     <div class="timer-ambient" />
 
     <!-- Header -->
@@ -105,6 +105,68 @@ function formatSeconds(totalSeconds: number): string {
   return `${m}:${String(sec).padStart(2, '0')}`
 }
 
+// ── Audio ─────────────────────────────────────────────────────────────────
+let audioCtx: AudioContext | null = null
+
+function ensureAudioCtx() {
+  if (!import.meta.client) return null
+  try {
+    if (!audioCtx) audioCtx = new AudioContext()
+    if (audioCtx.state === 'suspended') void audioCtx.resume()
+    return audioCtx
+  } catch { return null }
+}
+
+async function playFinishSound() {
+  if (props.config.finish_sound === false) return
+  const ctx = ensureAudioCtx()
+  if (!ctx) return
+  if (ctx.state === 'suspended') {
+    try { await ctx.resume() } catch { return }
+  }
+  const vol = ((props.config.finish_sound_volume ?? 70) / 100) * 0.5
+  try {
+    const beep = (start: number, freq: number, dur: number, v = vol) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(v, start)
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur)
+      osc.start(start)
+      osc.stop(start + dur + 0.05)
+    }
+    const t = ctx.currentTime
+    beep(t,        660, 0.20)
+    beep(t + 0.25, 880, 0.20)
+    beep(t + 0.50, 660, 0.20)
+    beep(t + 0.75, 880, 0.20)
+    beep(t + 1.00, 1100, 0.80, vol * 1.1)
+  } catch { /* AudioContext not available */ }
+}
+
+// ── Finished state (blink) ────────────────────────────────────────────────
+const finished = ref(false)
+let finishedTimer: ReturnType<typeof setTimeout> | null = null
+
+function stopFinished() {
+  finished.value = false
+  if (finishedTimer) { clearTimeout(finishedTimer); finishedTimer = null }
+}
+
+function triggerFinished() {
+  if (finished.value) return
+  if (props.config.finish_blink !== false) {
+    finished.value = true
+    if (finishedTimer) clearTimeout(finishedTimer)
+    finishedTimer = setTimeout(stopFinished, 5000)
+  }
+  void playFinishSound()
+}
+
+// ── Countdown ─────────────────────────────────────────────────────────────
 const remainingSeconds = ref(0)
 let countdownInterval: ReturnType<typeof setInterval> | null = null
 
@@ -136,9 +198,25 @@ function syncFromEntity() {
 }
 
 watch(entity, () => syncFromEntity(), { immediate: true, deep: false })
-watch(stateKey, () => syncFromEntity())
+watch(stateKey, (newState, oldState) => {
+  syncFromEntity()
+  if (newState === 'active') {
+    stopFinished()
+  } else if (newState === 'idle' && oldState === 'active') {
+    triggerFinished()
+  }
+})
+watch(remainingSeconds, (newVal, oldVal) => {
+  if (newVal === 0 && oldVal > 0 && stateKey.value === 'active') {
+    triggerFinished()
+  }
+})
 
-onUnmounted(() => clearCountdown())
+onUnmounted(() => {
+  clearCountdown()
+  stopFinished()
+  audioCtx?.close()
+})
 
 const displayTime = computed(() => formatSeconds(remainingSeconds.value))
 
@@ -163,6 +241,7 @@ const busy = ref(false)
 async function callService(domain: string, service: string) {
   if (busy.value) return
   busy.value = true
+  ensureAudioCtx()
   try {
     await client.callService({ domain, service, target: { entity_id: props.config.entity_id } })
   } finally {
@@ -231,5 +310,14 @@ async function callService(domain: string, service: string) {
 .timer-display--paused {
   opacity: 0.55;
   color: rgb(var(--v-theme-warning));
+}
+
+.timer-card--finished .timer-ambient {
+  animation: timer-finish-pulse 0.55s ease-in-out 9;
+}
+
+@keyframes timer-finish-pulse {
+  0%, 100% { background: transparent; }
+  50%       { background: radial-gradient(ellipse 130% 130% at 50% 50%, rgba(var(--v-theme-primary), 0.45) 0%, transparent 65%); }
 }
 </style>

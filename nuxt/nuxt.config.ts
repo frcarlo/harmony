@@ -19,7 +19,9 @@ export default defineNuxtConfig({
   components: {
     dirs: [{ path: '~/components', pathPrefix: false }],
   },
-
+  experimental: {
+    viteEnvironmentApi: true
+  },
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',

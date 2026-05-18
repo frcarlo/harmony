@@ -813,7 +813,13 @@
       "resume": "Resume",
       "cancel": "Cancel"
     },
-    "finishes_at": "Ends at {time}"
+    "finishes_at": "Ends at {time}",
+    "config": {
+      "finish_title": "Notification on finish",
+      "finish_blink": "Blink card",
+      "finish_sound": "Play sound",
+      "finish_sound_volume": "Volume"
+    }
   },
   "notifications": {
     "title": "Notifications",

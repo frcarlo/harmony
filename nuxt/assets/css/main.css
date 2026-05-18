@@ -153,9 +153,9 @@ html {
 }
 
 .ui-sheet-glass.v-navigation-drawer {
-  backdrop-filter: blur(20px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-  background: rgb(var(--v-theme-surface) / 0.55) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  background: rgb(var(--v-theme-surface)) !important;
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.35), inset 1px 0 0 rgba(255, 255, 255, 0.06) !important;
 }
 .ui-sheet-glass .v-navigation-drawer__content {
