@@ -24,18 +24,19 @@
         </v-chip>
       </div>
       <div class="d-flex ga-1 flex-wrap timer-chips">
-        <v-chip
+        <v-btn
           v-for="(entry, idx) in timerList"
           :key="idx"
           size="small"
           :variant="chipVariant(idx)"
           :color="chipColor(idx)"
-          class="timer-chip"
+          rounded="pill"
+          class="timer-preset-btn text-none px-3"
           @click="selectedIndex = idx"
         >
           <span v-if="timerEntryState(entry) === 'active'" class="timer-chip__dot" />
           {{ timerEntryLabel(entry) }}
-        </v-chip>
+        </v-btn>
       </div>
     </template>
 
@@ -416,8 +417,10 @@ async function callService(domain: string, service: string) {
   gap: 4px;
 }
 
-.timer-chip {
-  cursor: pointer;
+.timer-preset-btn {
+  height: 28px !important;
+  min-width: 0 !important;
+  font-size: 12px !important;
 }
 
 .timer-chip__dot {
