@@ -1,7 +1,11 @@
 <template>
   <div
-    class="h-100 d-flex flex-column pa-3 ga-2 timer-card"
-    :class="[`timer-card--${stateKey}`, { 'timer-card--finished': finished }]"
+    class="h-100 d-flex flex-column timer-card"
+    :class="[
+      isSingle ? 'pa-3 ga-2' : 'pa-2 ga-1',
+      `timer-card--${stateKey}`,
+      { 'timer-card--finished': finished }
+    ]"
   >
     <div class="timer-ambient" />
 
