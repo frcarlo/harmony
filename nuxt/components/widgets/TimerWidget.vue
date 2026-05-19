@@ -27,7 +27,7 @@
           {{ stateLabel }}
         </v-chip>
       </div>
-      <div class="d-flex ga-1 flex-wrap timer-chips">
+      <div class="timer-chips">
         <v-btn
           v-for="(entry, idx) in timerList"
           :key="idx"
@@ -48,7 +48,10 @@
     <div class="d-flex flex-column align-center justify-center flex-grow-1 ga-1">
       <div
         class="timer-display"
-        :class="{ 'timer-display--active': stateKey === 'active', 'timer-display--paused': stateKey === 'paused' }"
+        :class="[
+          { 'timer-display--active': stateKey === 'active', 'timer-display--paused': stateKey === 'paused' },
+          isSingle ? '' : 'timer-display--compact',
+        ]"
       >
         {{ displayTime }}
       </div>
@@ -418,13 +421,29 @@ async function callService(domain: string, service: string) {
 }
 
 .timer-chips {
+  display: flex;
+  flex-wrap: nowrap;
   gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.timer-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .timer-preset-btn {
-  height: 28px !important;
+  height: 26px !important;
   min-width: 0 !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
+  flex-shrink: 0;
+}
+
+.timer-display--compact {
+  font-size: 2rem !important;
 }
 
 .timer-chip__dot {
