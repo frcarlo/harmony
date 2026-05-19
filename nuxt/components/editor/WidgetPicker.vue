@@ -143,7 +143,7 @@ Aktualisiert: **{{ now().strftime('%H:%M') }}**`,
   vacuum: { entity_id: '' },
   fan: { entity_id: '', show_speed: true },
   scene: { entries: [], columns: 2 },
-  timer: { entity_id: '' },
+  timer: { timers: [] },
 }
 
 const APPLIANCE_PRESETS = {

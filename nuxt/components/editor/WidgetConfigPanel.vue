@@ -555,7 +555,24 @@
 
             <!-- Timer -->
             <template v-if="widget.type === 'timer'">
-              <p class="text-caption text-medium-emphasis">{{ t('widget.timer.description') }}</p>
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('timer.config.timers') }}</p>
+              <div v-for="(entry, idx) in timerEntries" :key="idx" class="d-flex flex-column ga-2 pa-2 rounded-lg" style="background: rgba(255,255,255,0.04)">
+                <div class="d-flex align-center ga-1">
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ idx + 1 }}.</span>
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removeTimerEntry(idx)" />
+                </div>
+                <EntityPicker v-model="entry.entity_id" domain="timer" />
+                <v-text-field
+                  v-model="entry.name"
+                  :label="t('config.display_name')"
+                  :placeholder="t('timer.config.name_placeholder')"
+                  density="compact"
+                  hide-details="auto"
+                />
+              </div>
+              <v-btn prepend-icon="mdi-plus" variant="tonal" size="small" block @click="addTimerEntry">
+                {{ t('timer.config.add_timer') }}
+              </v-btn>
               <v-divider />
               <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('timer.config.finish_title') }}</p>
               <v-checkbox v-model="cfg.finish_blink" :label="t('timer.config.finish_blink')" hide-details density="compact" />
@@ -819,11 +836,17 @@ watch(widget, (w) => {
     config.show_repairs ??= true
     config.show_system ??= true
   }
+  if (w.type === 'timer') {
+    const config = w.config as Record<string, any>
+    if (!Array.isArray(config.timers)) {
+      config.timers = config.entity_id ? [{ entity_id: config.entity_id }] : []
+    }
+  }
 }, { immediate: true })
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
@@ -1184,6 +1207,22 @@ function removeSceneEntry(index: number) {
   const list = [...sceneEntries.value]
   list.splice(index, 1)
   cfg.value.entries = list
+}
+
+// ── Timer entries ──────────────────────────────────────────────────────────
+
+const timerEntries = computed(() => (cfg.value.timers as Array<{ entity_id: string; name?: string }>) ?? [])
+
+function addTimerEntry() {
+  const list = [...timerEntries.value]
+  list.push({ entity_id: '' })
+  cfg.value.timers = list
+}
+
+function removeTimerEntry(index: number) {
+  const list = [...timerEntries.value]
+  list.splice(index, 1)
+  cfg.value.timers = list
 }
 </script>
 

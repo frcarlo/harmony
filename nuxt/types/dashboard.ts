@@ -402,8 +402,14 @@ export interface SceneWidgetConfig {
   columns?: number
 }
 
-export interface TimerWidgetConfig {
+export interface TimerEntry {
   entity_id: string
+  name?: string
+}
+
+export interface TimerWidgetConfig {
+  entity_id?: string
+  timers?: TimerEntry[]
   name?: string
   finish_sound?: boolean
   finish_sound_volume?: number

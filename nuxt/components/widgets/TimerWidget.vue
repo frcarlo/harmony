@@ -1,21 +1,43 @@
 <template>
-  <div class="h-100 d-flex flex-column pa-3 ga-2 timer-card" :class="[`timer-card--${stateKey}`, { 'timer-card--finished': finished }]">
+  <div
+    class="h-100 d-flex flex-column pa-3 ga-2 timer-card"
+    :class="[`timer-card--${stateKey}`, { 'timer-card--finished': finished }]"
+  >
     <div class="timer-ambient" />
 
-    <!-- Header -->
-    <div class="d-flex align-center ga-2 timer-header">
+    <!-- Single-timer header -->
+    <div v-if="isSingle" class="d-flex align-center ga-2 timer-header">
       <v-icon icon="mdi-timer-outline" size="12" style="opacity:0.45; flex-shrink:0" />
-      <span class="timer-name">{{ name }}</span>
-      <v-chip
-        size="x-small"
-        rounded="pill"
-        variant="tonal"
-        :color="stateColor"
-        class="flex-shrink-0"
-      >
+      <span class="timer-name">{{ displayName }}</span>
+      <v-chip size="x-small" rounded="pill" variant="tonal" :color="stateColor" class="flex-shrink-0">
         {{ stateLabel }}
       </v-chip>
     </div>
+
+    <!-- Multi-timer: optional widget title + chip selector -->
+    <template v-else>
+      <div v-if="widgetTitle" class="d-flex align-center ga-2 timer-header">
+        <v-icon icon="mdi-timer-outline" size="12" style="opacity:0.45; flex-shrink:0" />
+        <span class="timer-name">{{ widgetTitle }}</span>
+        <v-chip size="x-small" rounded="pill" variant="tonal" :color="stateColor" class="flex-shrink-0">
+          {{ stateLabel }}
+        </v-chip>
+      </div>
+      <div class="d-flex ga-1 flex-wrap timer-chips">
+        <v-chip
+          v-for="(entry, idx) in timerList"
+          :key="idx"
+          size="small"
+          :variant="chipVariant(idx)"
+          :color="chipColor(idx)"
+          class="timer-chip"
+          @click="selectedIndex = idx"
+        >
+          <span v-if="timerEntryState(entry) === 'active'" class="timer-chip__dot" />
+          {{ timerEntryLabel(entry) }}
+        </v-chip>
+      </div>
+    </template>
 
     <!-- Center countdown -->
     <div class="d-flex flex-column align-center justify-center flex-grow-1 ga-1">
@@ -34,7 +56,7 @@
     </div>
 
     <!-- Action buttons -->
-    <div v-if="!isUnavailable" class="d-flex ga-2">
+    <div v-if="!isUnavailable && timerList.length > 0" class="d-flex ga-2">
       <template v-if="stateKey === 'idle'">
         <v-btn variant="tonal" size="small" rounded="lg" class="flex-grow-1 text-none" color="primary" :disabled="busy" @click="callService('timer', 'start')">
           {{ t('timer.action.start') }}
@@ -61,15 +83,34 @@
 </template>
 
 <script setup lang="ts">
-import type { TimerWidgetConfig } from '~/types/dashboard'
+import type { TimerWidgetConfig, TimerEntry } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
 const props = defineProps<{ config: TimerWidgetConfig }>()
 const entityStore = useEntityStore()
 const client = useHAClient()
 
-const entity = computed(() => entityStore.entities[props.config.entity_id])
-const name = computed(() => props.config.name ?? (entity.value?.attributes?.friendly_name as string | undefined) ?? props.config.entity_id)
+// ── Timer list (backward-compatible with old single entity_id config) ──────
+const timerList = computed<TimerEntry[]>(() => {
+  if (Array.isArray(props.config.timers) && props.config.timers.length > 0) {
+    return props.config.timers
+  }
+  const legacyId = props.config.entity_id
+  return legacyId ? [{ entity_id: legacyId }] : []
+})
+
+const isSingle = computed(() => timerList.value.length === 1)
+const selectedIndex = ref(0)
+const clampedIndex = computed(() => Math.min(selectedIndex.value, Math.max(0, timerList.value.length - 1)))
+const selectedEntry = computed(() => timerList.value[clampedIndex.value])
+
+// Clamp when list shrinks
+watch(timerList, (list) => {
+  if (selectedIndex.value >= list.length) selectedIndex.value = Math.max(0, list.length - 1)
+})
+
+// ── Entity state ──────────────────────────────────────────────────────────
+const entity = computed(() => entityStore.entities[selectedEntry.value?.entity_id ?? ''])
 const isUnavailable = computed(() => !entity.value || entity.value.state === 'unavailable')
 const stateKey = computed(() => isUnavailable.value ? 'idle' : (entity.value?.state ?? 'idle'))
 
@@ -88,6 +129,53 @@ const stateLabel = computed(() => {
   return tr === key ? stateKey.value : tr
 })
 
+// ── Chip helpers ──────────────────────────────────────────────────────────
+function timerEntryState(entry: TimerEntry): string {
+  return entityStore.entities[entry.entity_id]?.state ?? 'idle'
+}
+
+function timerEntryLabel(entry: TimerEntry): string {
+  if (entry.name) return entry.name
+  const e = entityStore.entities[entry.entity_id]
+  const duration = e?.attributes?.duration as string | undefined
+  if (duration) {
+    const secs = parseHMS(duration)
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    if (s === 0 && m > 0) return `${m} min`
+    return formatSeconds(secs)
+  }
+  return (e?.attributes?.friendly_name as string | undefined) ?? entry.entity_id.split('.').pop() ?? '?'
+}
+
+function chipVariant(idx: number): 'tonal' | 'text' {
+  if (idx === clampedIndex.value) return 'tonal'
+  const state = timerEntryState(timerList.value[idx])
+  return (state === 'active' || state === 'paused') ? 'tonal' : 'text'
+}
+
+function chipColor(idx: number): string | undefined {
+  const state = timerEntryState(timerList.value[idx])
+  if (state === 'active') return 'primary'
+  if (state === 'paused') return 'warning'
+  return undefined
+}
+
+// Auto-switch to a timer that just became active
+const allTimerStates = computed(() => timerList.value.map(e => timerEntryState(e)))
+watch(allTimerStates, (states, prev) => {
+  if (!prev || timerList.value.length <= 1) return
+  const currentState = states[clampedIndex.value]
+  if (currentState === 'active' || currentState === 'paused') return
+  for (let i = 0; i < states.length; i++) {
+    if (i !== clampedIndex.value && states[i] === 'active' && prev[i] !== 'active') {
+      selectedIndex.value = i
+      return
+    }
+  }
+})
+
+// ── Helpers ───────────────────────────────────────────────────────────────
 function parseHMS(raw: string | undefined): number {
   if (!raw) return 0
   const parts = raw.split(':').map(Number)
@@ -138,12 +226,12 @@ async function playFinishSound() {
       osc.start(start)
       osc.stop(start + dur + 0.05)
     }
-    const t = ctx.currentTime
-    beep(t,        660, 0.20)
-    beep(t + 0.25, 880, 0.20)
-    beep(t + 0.50, 660, 0.20)
-    beep(t + 0.75, 880, 0.20)
-    beep(t + 1.00, 1100, 0.80, vol * 1.1)
+    const now = ctx.currentTime
+    beep(now,        660,  0.20)
+    beep(now + 0.25, 880,  0.20)
+    beep(now + 0.50, 660,  0.20)
+    beep(now + 0.75, 880,  0.20)
+    beep(now + 1.00, 1100, 0.80, vol * 1.1)
   } catch { /* AudioContext not available */ }
 }
 
@@ -197,25 +285,58 @@ function syncFromEntity() {
   }
 }
 
-watch(entity, () => syncFromEntity(), { immediate: true, deep: false })
-watch(stateKey, (newState, oldState) => {
-  syncFromEntity()
-  if (newState === 'active') {
+// ── Watchers ──────────────────────────────────────────────────────────────
+// Track entity switches to avoid false finish triggers
+let switchingEntity = false
+
+watch(selectedEntry, (newEntry, oldEntry) => {
+  if (newEntry?.entity_id !== oldEntry?.entity_id) {
+    switchingEntity = true
     stopFinished()
-  } else if (newState === 'idle' && oldState === 'active') {
-    triggerFinished()
+    clearCountdown()
+    syncFromEntity()
+    void nextTick(() => { switchingEntity = false })
   }
+}, { immediate: true })
+
+// Sync on any HA attribute update (e.g. finishes_at changes)
+watch(entity, () => {
+  if (!switchingEntity) syncFromEntity()
+}, { deep: false })
+
+// Handle state transitions
+watch(stateKey, (newState, oldState) => {
+  if (switchingEntity) return
+  if (newState === 'active') stopFinished()
+  else if (newState === 'idle' && oldState === 'active') triggerFinished()
 })
+
+// Countdown hits zero while timer entity hasn't updated yet
 watch(remainingSeconds, (newVal, oldVal) => {
-  if (newVal === 0 && oldVal > 0 && stateKey.value === 'active') {
-    triggerFinished()
-  }
+  if (newVal === 0 && oldVal > 0 && stateKey.value === 'active') triggerFinished()
 })
 
 onUnmounted(() => {
   clearCountdown()
   stopFinished()
   audioCtx?.close()
+})
+
+// ── Display computeds ─────────────────────────────────────────────────────
+const widgetTitle = computed(() => props.config.name ?? null)
+
+const displayName = computed(() => {
+  if (isSingle.value) {
+    return props.config.name
+      ?? (entity.value?.attributes?.friendly_name as string | undefined)
+      ?? selectedEntry.value?.entity_id
+      ?? ''
+  }
+  const entry = selectedEntry.value
+  return entry?.name
+    ?? (entity.value?.attributes?.friendly_name as string | undefined)
+    ?? entry?.entity_id?.split('.').pop()
+    ?? ''
 })
 
 const displayTime = computed(() => formatSeconds(remainingSeconds.value))
@@ -239,11 +360,11 @@ const finishesAt = computed(() => {
 const busy = ref(false)
 
 async function callService(domain: string, service: string) {
-  if (busy.value) return
+  if (busy.value || !selectedEntry.value?.entity_id) return
   busy.value = true
   ensureAudioCtx()
   try {
-    await client.callService({ domain, service, target: { entity_id: props.config.entity_id } })
+    await client.callService({ domain, service, target: { entity_id: selectedEntry.value.entity_id } })
   } finally {
     window.setTimeout(() => { busy.value = false }, 500)
   }
@@ -275,6 +396,7 @@ async function callService(domain: string, service: string) {
 }
 
 .timer-header,
+.timer-chips,
 .timer-card > .d-flex {
   position: relative;
   z-index: 1;
@@ -288,6 +410,30 @@ async function callService(domain: string, service: string) {
   font-size: 11px;
   opacity: 0.6;
   letter-spacing: 0.025em;
+}
+
+.timer-chips {
+  gap: 4px;
+}
+
+.timer-chip {
+  cursor: pointer;
+}
+
+.timer-chip__dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 3px;
+  flex-shrink: 0;
+  animation: timer-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes timer-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .timer-display {

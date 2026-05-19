@@ -815,6 +815,9 @@
     },
     "finishes_at": "Ends at {time}",
     "config": {
+      "timers": "Timer presets",
+      "add_timer": "Add timer",
+      "name_placeholder": "e.g. 5 minutes",
       "finish_title": "Notification on finish",
       "finish_blink": "Blink card",
       "finish_sound": "Play sound",

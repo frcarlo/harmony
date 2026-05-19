@@ -815,6 +815,9 @@
     },
     "finishes_at": "Endet um {time}",
     "config": {
+      "timers": "Timer-Einträge",
+      "add_timer": "Timer hinzufügen",
+      "name_placeholder": "z. B. 5 Minuten",
       "finish_title": "Benachrichtigung bei Ablauf",
       "finish_blink": "Karte blinken lassen",
       "finish_sound": "Ton abspielen",
