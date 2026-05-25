@@ -30,16 +30,16 @@
     <!-- Camera dialog -->
     <v-dialog v-model="dialogOpen" max-width="860">
       <v-card class="dialog-glass">
-        <v-card-title class="d-flex align-center ga-2 pa-4 pb-2">
+        <v-card-title class="d-flex align-center ga-2 pa-3 pb-2">
           <v-icon icon="mdi-cctv" size="18" />
           <span class="text-h6 font-weight-medium">{{ displayName }}</span>
           <v-spacer />
-          <!-- Stream mode toggle -->
-          <v-btn-toggle v-model="streamMode" density="compact" rounded="lg" mandatory class="mr-2">
-            <v-btn value="snapshot" size="x-small" icon="mdi-image-outline" :title="t('camera_status.snapshot')" />
-            <v-btn value="mjpeg"    size="x-small" icon="mdi-play-circle-outline" :title="t('camera_status.live')" />
+          <!-- Stream mode toggle — larger touch targets -->
+          <v-btn-toggle v-model="streamMode" density="comfortable" rounded="lg" mandatory class="mr-1">
+            <v-btn value="snapshot" size="small" icon="mdi-image-outline" :title="t('camera_status.snapshot')" />
+            <v-btn value="mjpeg"    size="small" icon="mdi-play-circle-outline" :title="t('camera_status.live')" />
           </v-btn-toggle>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="dialogOpen = false" />
+          <v-btn icon="mdi-close" variant="text" size="large" @click="dialogOpen = false" />
         </v-card-title>
         <div class="px-4 pb-4 d-flex flex-column ga-3">
           <div class="cs-snapshot-wrap rounded-lg">
@@ -65,15 +65,17 @@
             >
               <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
             </div>
+            <!-- Live badge on image -->
+            <div v-if="streamMode === 'mjpeg'" class="cs-live-badge">
+              <v-icon icon="mdi-circle" size="8" color="error" class="mr-1" />
+              {{ t('camera_status.live') }}
+            </div>
           </div>
           <div class="d-flex align-center ga-2">
             <v-icon :icon="stateIcon" :color="stateColor" size="16" />
             <span class="text-body-2" :class="stateColor ? `text-${stateColor}` : ''">{{ stateLabel }}</span>
             <span v-if="stateUnit" class="text-caption text-medium-emphasis">{{ stateUnit }}</span>
             <v-spacer />
-            <v-chip v-if="streamMode === 'mjpeg'" size="x-small" color="error" variant="tonal" prepend-icon="mdi-circle" class="text-caption">
-              {{ t('camera_status.live') }}
-            </v-chip>
             <span v-if="lastChanged" class="text-caption text-medium-emphasis">{{ lastChanged }}</span>
           </div>
         </div>
@@ -245,10 +247,28 @@ onUnmounted(() => {
 }
 
 .cs-snapshot-wrap {
+  position: relative;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.4);
   aspect-ratio: 16 / 9;
   width: 100%;
+}
+
+.cs-live-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  padding: 3px 8px 3px 6px;
+  border-radius: 6px;
+  pointer-events: none;
 }
 
 .cs-snapshot {

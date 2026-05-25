@@ -169,15 +169,15 @@
   <!-- Camera dialog -->
   <v-dialog v-model="cameraDialogOpen" max-width="860">
     <v-card class="dialog-glass">
-      <v-card-title class="d-flex align-center ga-2 pa-4 pb-2">
+      <v-card-title class="d-flex align-center ga-2 pa-3 pb-2">
         <v-icon icon="mdi-cctv" size="18" />
         <span class="text-h6 font-weight-medium">{{ cameraDialogEntry?.label || (entityStore.entities[cameraDialogEntry?.camera_entity_id ?? '']?.attributes?.friendly_name as string) || cameraDialogEntry?.camera_entity_id?.split('.').pop() || 'Kamera' }}</span>
         <v-spacer />
-        <v-btn-toggle v-model="cameraStreamMode" density="compact" rounded="lg" mandatory class="mr-2">
-          <v-btn value="snapshot" size="x-small" icon="mdi-image-outline" title="Snapshot" />
-          <v-btn value="mjpeg"    size="x-small" icon="mdi-play-circle-outline" title="Live" />
+        <v-btn-toggle v-model="cameraStreamMode" density="comfortable" rounded="lg" mandatory class="mr-1">
+          <v-btn value="snapshot" size="small" icon="mdi-image-outline" title="Snapshot" />
+          <v-btn value="mjpeg"    size="small" icon="mdi-play-circle-outline" title="Live" />
         </v-btn-toggle>
-        <v-btn icon="mdi-close" variant="text" size="small" @click="cameraDialogOpen = false" />
+        <v-btn icon="mdi-close" variant="text" size="large" @click="cameraDialogOpen = false" />
       </v-card-title>
       <div class="px-4 pb-4 d-flex flex-column ga-3">
         <div class="statusbar-camera-wrap rounded-lg">
@@ -189,10 +189,10 @@
             class="statusbar-camera-img d-flex align-center justify-center">
             <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
           </div>
-        </div>
-        <div class="d-flex align-center ga-2">
-          <v-chip v-if="cameraStreamMode === 'mjpeg'" size="x-small" color="error" variant="tonal" prepend-icon="mdi-circle" class="text-caption">Live</v-chip>
-          <v-spacer />
+          <div v-if="cameraStreamMode === 'mjpeg'" class="statusbar-camera-live-badge">
+            <v-icon icon="mdi-circle" size="8" color="error" class="mr-1" />
+            Live
+          </div>
         </div>
       </div>
     </v-card>
@@ -884,6 +884,7 @@ function shortState(entityId: string) {
 }
 
 .statusbar-camera-wrap {
+  position: relative;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.4);
   aspect-ratio: 16 / 9;
@@ -895,5 +896,22 @@ function shortState(entityId: string) {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.statusbar-camera-live-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  padding: 3px 8px 3px 6px;
+  border-radius: 6px;
+  pointer-events: none;
 }
 </style>
