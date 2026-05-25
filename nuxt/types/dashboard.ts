@@ -30,6 +30,7 @@ export type WidgetType =
   | 'fan'
   | 'scene'
   | 'timer'
+  | 'camera_status'
 
 export interface WidgetLayout {
   x: number
@@ -402,6 +403,16 @@ export interface SceneWidgetConfig {
   columns?: number
 }
 
+export interface CameraStatusWidgetConfig {
+  camera_entity_id: string
+  sensor_entity_id: string
+  name?: string
+  active_state?: string
+  active_color?: string
+  inactive_color?: string
+  snapshot_refresh?: number
+}
+
 export interface TimerEntry {
   entity_id: string
   name?: string
@@ -461,6 +472,7 @@ export type WidgetConfig =
   | FanWidgetConfig
   | SceneWidgetConfig
   | TimerWidgetConfig
+  | CameraStatusWidgetConfig
 
 export interface WidgetAppearance {
   bg_color?: string        // Hintergrundfarbe der Karte

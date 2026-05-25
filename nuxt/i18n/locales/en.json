@@ -287,6 +287,10 @@
       "label": "Timer",
       "description": "Control a Home Assistant timer"
     },
+    "camera_status": {
+      "label": "Camera Status",
+      "description": "Sensor status with camera preview on demand"
+    },
     "removed": "Widget removed",
     "copy_to_dashboard": "Copy to dashboard",
     "copy_to_dashboard_hint": "Select a dashboard to copy this widget to.",
@@ -800,6 +804,20 @@
     "default_name": "Scenes",
     "scenes": "Scenes",
     "add_scene": "Add scene"
+  },
+  "camera_status": {
+    "open": "Open camera",
+    "active": "Detected",
+    "inactive": "Clear",
+    "config": {
+      "camera": "Camera",
+      "sensor": "Status sensor",
+      "active_state": "Active state",
+      "active_state_placeholder": "e.g. on",
+      "active_color": "Active color",
+      "inactive_color": "Inactive color",
+      "refresh": "Snapshot refresh interval"
+    }
   },
   "timer": {
     "state": {

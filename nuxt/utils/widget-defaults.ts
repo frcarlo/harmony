@@ -21,4 +21,5 @@ export const WIDGET_ENTITY_DOMAINS: Partial<Record<WidgetType, string | string[]
   vacuum: 'vacuum',
   fan: 'fan',
   timer: 'timer',
+  // camera_status has two entities (camera + sensor) — managed in content section
 }

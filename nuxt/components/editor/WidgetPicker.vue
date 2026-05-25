@@ -52,6 +52,7 @@ const widgetTypes = computed(() => ([
   { key: 'fan', type: 'fan' as WidgetType, label: t('widget.fan.label'), icon: 'mdi-fan', description: t('widget.fan.description'), defaultW: 4, defaultH: 4 },
   { key: 'scene', type: 'scene' as WidgetType, label: t('widget.scene.label'), icon: 'mdi-play-box-multiple-outline', description: t('widget.scene.description'), defaultW: 4, defaultH: 4 },
   { key: 'timer', type: 'timer' as WidgetType, label: t('widget.timer.label'), icon: 'mdi-timer-outline', description: t('widget.timer.description'), defaultW: 4, defaultH: 3 },
+  { key: 'camera_status', type: 'camera_status' as WidgetType, label: t('widget.camera_status.label'), icon: 'mdi-cctv', description: t('widget.camera_status.description'), defaultW: 4, defaultH: 3 },
 ]).sort((a, b) => a.key.localeCompare(b.key)))
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
@@ -144,6 +145,7 @@ Aktualisiert: **{{ now().strftime('%H:%M') }}**`,
   fan: { entity_id: '', show_speed: true },
   scene: { entries: [], columns: 2 },
   timer: { timers: [] },
+  camera_status: { camera_entity_id: '', sensor_entity_id: '' },
 }
 
 const APPLIANCE_PRESETS = {

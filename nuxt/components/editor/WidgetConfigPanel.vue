@@ -553,6 +553,37 @@
               </v-btn>
             </template>
 
+            <!-- Camera Status -->
+            <template v-if="widget.type === 'camera_status'">
+              <v-text-field v-model="cfg.name" :label="t('config.display_name')" density="compact" hide-details="auto" />
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('camera_status.config.camera') }}</p>
+              <EntityPicker v-model="cfg.camera_entity_id" domain="camera" />
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('camera_status.config.sensor') }}</p>
+              <EntityPicker v-model="cfg.sensor_entity_id" />
+              <v-text-field
+                v-model="cfg.active_state"
+                :label="t('camera_status.config.active_state')"
+                :placeholder="t('camera_status.config.active_state_placeholder')"
+                density="compact"
+                hide-details="auto"
+              />
+              <UiColorPicker v-model="cfg.active_color" :label="t('camera_status.config.active_color')" clearable />
+              <UiColorPicker v-model="cfg.inactive_color" :label="t('camera_status.config.inactive_color')" clearable />
+              <v-divider />
+              <v-text-field
+                v-model.number="cfg.snapshot_refresh"
+                :label="t('camera_status.config.refresh')"
+                :placeholder="'5'"
+                type="number"
+                min="1"
+                density="compact"
+                hide-details="auto"
+                suffix="s"
+              />
+            </template>
+
             <!-- Timer -->
             <template v-if="widget.type === 'timer'">
               <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('timer.config.timers') }}</p>
@@ -846,7 +877,7 @@ watch(widget, (w) => {
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer', 'camera_status']
 const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',

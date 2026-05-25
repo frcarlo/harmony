@@ -287,6 +287,10 @@
       "label": "Timer",
       "description": "Home Assistant Timer steuern"
     },
+    "camera_status": {
+      "label": "Kamera-Status",
+      "description": "Sensor-Status mit Kamera-Vorschau auf Knopfdruck"
+    },
     "removed": "Widget entfernt",
     "copy_to_dashboard": "In Dashboard kopieren",
     "copy_to_dashboard_hint": "Waehle ein Dashboard, in das dieses Widget kopiert werden soll.",
@@ -800,6 +804,20 @@
     "default_name": "Szenen",
     "scenes": "Szenen",
     "add_scene": "Szene hinzufügen"
+  },
+  "camera_status": {
+    "open": "Kamera öffnen",
+    "active": "Erkannt",
+    "inactive": "OK",
+    "config": {
+      "camera": "Kamera",
+      "sensor": "Status-Sensor",
+      "active_state": "Aktiv-Zustand",
+      "active_state_placeholder": "z. B. on",
+      "active_color": "Farbe aktiv",
+      "inactive_color": "Farbe inaktiv",
+      "refresh": "Aktualisierungsintervall"
+    }
   },
   "timer": {
     "state": {

@@ -87,6 +87,7 @@
         <LazyFanWidget v-else-if="widget.type === 'fan'" :config="widget.config as any" />
         <LazySceneWidget v-else-if="widget.type === 'scene'" :config="widget.config as any" />
         <LazyTimerWidget v-else-if="widget.type === 'timer'" :config="widget.config as any" />
+        <LazyCameraStatusWidget v-else-if="widget.type === 'camera_status'" :config="widget.config as any" />
         <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
       </template>
     </div>
@@ -227,7 +228,7 @@ onErrorCaptured((err) => {
 })
 
 const GENERIC_ACTION_EXCLUDED_TYPES = new Set(['light', 'room_card', 'status_bar'])
-const BATTERY_EXCLUDED_TYPES = new Set(['status_bar', 'problem_overview', 'label', 'clock', 'template', 'camera'])
+const BATTERY_EXCLUDED_TYPES = new Set(['status_bar', 'problem_overview', 'label', 'clock', 'template', 'camera', 'camera_status'])
 
 const batterySourceEntityId = computed(() =>
   BATTERY_EXCLUDED_TYPES.has(props.widget.type) ? null : entityId.value,
