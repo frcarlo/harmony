@@ -34,18 +34,35 @@
           <v-icon icon="mdi-cctv" size="18" />
           <span class="text-h6 font-weight-medium">{{ displayName }}</span>
           <v-spacer />
+          <!-- Stream mode toggle -->
+          <v-btn-toggle v-model="streamMode" density="compact" rounded="lg" mandatory class="mr-2">
+            <v-btn value="snapshot" size="x-small" icon="mdi-image-outline" :title="t('camera_status.snapshot')" />
+            <v-btn value="mjpeg"    size="x-small" icon="mdi-play-circle-outline" :title="t('camera_status.live')" />
+          </v-btn-toggle>
           <v-btn icon="mdi-close" variant="text" size="small" @click="dialogOpen = false" />
         </v-card-title>
         <div class="px-4 pb-4 d-flex flex-column ga-3">
           <div class="cs-snapshot-wrap rounded-lg">
+            <!-- MJPEG live stream -->
             <img
-              v-if="snapshotSrc"
+              v-if="streamMode === 'mjpeg' && dialogOpen && mjpegSrc"
+              :src="mjpegSrc"
+              class="cs-snapshot"
+              alt=""
+              @error="mjpegError = true"
+            />
+            <!-- Snapshot with auto-refresh -->
+            <img
+              v-else-if="streamMode === 'snapshot' && snapshotSrc"
               :src="snapshotSrc"
               class="cs-snapshot"
               alt=""
               @error="snapshotError = true"
             />
-            <div v-if="snapshotError || !snapshotSrc" class="cs-snapshot cs-snapshot--error d-flex align-center justify-center">
+            <div
+              v-if="(streamMode === 'snapshot' && (snapshotError || !snapshotSrc)) || (streamMode === 'mjpeg' && (mjpegError || !mjpegSrc))"
+              class="cs-snapshot cs-snapshot--error d-flex align-center justify-center"
+            >
               <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
             </div>
           </div>
@@ -54,6 +71,9 @@
             <span class="text-body-2" :class="stateColor ? `text-${stateColor}` : ''">{{ stateLabel }}</span>
             <span v-if="stateUnit" class="text-caption text-medium-emphasis">{{ stateUnit }}</span>
             <v-spacer />
+            <v-chip v-if="streamMode === 'mjpeg'" size="x-small" color="error" variant="tonal" prepend-icon="mdi-circle" class="text-caption">
+              {{ t('camera_status.live') }}
+            </v-chip>
             <span v-if="lastChanged" class="text-caption text-medium-emphasis">{{ lastChanged }}</span>
           </div>
         </div>
@@ -144,14 +164,22 @@ const lastChanged = computed(() => {
   } catch { return null }
 })
 
-// ── Dialog & snapshot ─────────────────────────────────────────────────────
+// ── Dialog & stream ───────────────────────────────────────────────────────
 const dialogOpen = ref(false)
+const streamMode = ref<'snapshot' | 'mjpeg'>(props.config.default_stream ?? 'snapshot')
 const snapshotTs = ref(0)
 const snapshotError = ref(false)
+const mjpegError = ref(false)
 
 const snapshotSrc = computed(() =>
   props.config.camera_entity_id && snapshotTs.value
     ? `/api/camera/${props.config.camera_entity_id}?t=${snapshotTs.value}`
+    : null
+)
+
+const mjpegSrc = computed(() =>
+  props.config.camera_entity_id
+    ? `/api/camera/stream/${props.config.camera_entity_id}`
     : null
 )
 
@@ -160,18 +188,37 @@ const refreshMs = computed(() => (props.config.snapshot_refresh ?? 5) * 1000)
 
 function openDialog() {
   snapshotError.value = false
+  mjpegError.value = false
   snapshotTs.value = Date.now()
+  streamMode.value = props.config.default_stream ?? 'snapshot'
   dialogOpen.value = true
 }
 
 watch(dialogOpen, (open) => {
   if (open) {
+    if (streamMode.value === 'snapshot') {
+      refreshTimer = setInterval(() => {
+        snapshotError.value = false
+        snapshotTs.value = Date.now()
+      }, refreshMs.value)
+    }
+  } else {
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
+  }
+})
+
+// Switch refresh timer when mode changes
+watch(streamMode, (mode) => {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
+  if (mode === 'snapshot' && dialogOpen.value) {
+    snapshotError.value = false
+    snapshotTs.value = Date.now()
     refreshTimer = setInterval(() => {
       snapshotError.value = false
       snapshotTs.value = Date.now()
     }, refreshMs.value)
   } else {
-    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
+    mjpegError.value = false
   }
 })
 

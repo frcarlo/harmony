@@ -572,6 +572,16 @@
               <UiColorPicker v-model="cfg.active_color" :label="t('camera_status.config.active_color')" clearable />
               <UiColorPicker v-model="cfg.inactive_color" :label="t('camera_status.config.inactive_color')" clearable />
               <v-divider />
+              <v-select
+                v-model="cfg.default_stream"
+                :label="t('camera_status.config.default_stream')"
+                :items="[
+                  { title: t('camera_status.snapshot'), value: 'snapshot' },
+                  { title: t('camera_status.live'), value: 'mjpeg' },
+                ]"
+                density="compact"
+                hide-details
+              />
               <v-text-field
                 v-model.number="cfg.snapshot_refresh"
                 :label="t('camera_status.config.refresh')"

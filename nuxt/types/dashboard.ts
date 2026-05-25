@@ -411,6 +411,7 @@ export interface CameraStatusWidgetConfig {
   active_color?: string
   inactive_color?: string
   snapshot_refresh?: number
+  default_stream?: 'snapshot' | 'mjpeg'
 }
 
 export interface TimerEntry {

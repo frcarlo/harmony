@@ -809,6 +809,8 @@
     "open": "Open camera",
     "active": "Detected",
     "inactive": "Clear",
+    "snapshot": "Snapshot",
+    "live": "Live",
     "config": {
       "camera": "Camera",
       "sensor": "Status sensor",
@@ -816,6 +818,7 @@
       "active_state_placeholder": "e.g. on",
       "active_color": "Active color",
       "inactive_color": "Inactive color",
+      "default_stream": "Default view",
       "refresh": "Snapshot refresh interval"
     }
   },

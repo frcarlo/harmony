@@ -809,6 +809,8 @@
     "open": "Kamera öffnen",
     "active": "Erkannt",
     "inactive": "OK",
+    "snapshot": "Snapshot",
+    "live": "Live",
     "config": {
       "camera": "Kamera",
       "sensor": "Status-Sensor",
@@ -816,7 +818,8 @@
       "active_state_placeholder": "z. B. on",
       "active_color": "Farbe aktiv",
       "inactive_color": "Farbe inaktiv",
-      "refresh": "Aktualisierungsintervall"
+      "default_stream": "Standard-Ansicht",
+      "refresh": "Snapshot-Aktualisierung"
     }
   },
   "timer": {
