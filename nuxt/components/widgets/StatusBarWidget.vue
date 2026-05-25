@@ -68,7 +68,7 @@
             >
               <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
                 <v-icon
-                  :icon="badge.type === 'single' ? resolveIcon(badge) : badge.type === 'problem' ? problemIcon(badge) : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
+                  :icon="badge.type === 'single' ? resolveIcon(badge) : badge.type === 'problem' ? problemIcon(badge) : badge.type === 'camera' ? (badge.entry.icon || 'mdi-cctv') : (badge.entry.icon || (badge.type === 'room' ? 'mdi-sofa-outline' : 'mdi-circle'))"
                   :color="badge.type === 'problem' ? problemColor(badge) : badge.type === 'single' ? singleColor(badge) : badge.active ? (badge.entry.active_color || 'primary') : (badge.entry.inactive_color || 'medium-emphasis')"
                   :size="iconSize(badge.entry)"
                 />
@@ -79,6 +79,7 @@
               <span v-if="showLabels" class="badge-label"
                 :style="{ color: badge.type === 'problem' ? (badge.active ? (badge.entry.active_color || undefined) : undefined) : badge.active ? (badge.entry.active_color || undefined) : undefined }">
                 {{ badge.type === 'problem' ? problemLabel(badge) : badge.type === 'single' ? singleLabel(badge) : badge.entry.label || '' }}
+
               </span>
             </div>
           </template>
@@ -164,11 +165,43 @@
       <LazyProblemOverviewWidget v-if="problemDialogConfig" :config="problemDialogConfig" class="statusbar-problem-overview" />
     </v-card>
   </v-dialog>
+
+  <!-- Camera dialog -->
+  <v-dialog v-model="cameraDialogOpen" max-width="860">
+    <v-card class="dialog-glass">
+      <v-card-title class="d-flex align-center ga-2 pa-4 pb-2">
+        <v-icon icon="mdi-cctv" size="18" />
+        <span class="text-h6 font-weight-medium">{{ cameraDialogEntry?.label || (entityStore.entities[cameraDialogEntry?.camera_entity_id ?? '']?.attributes?.friendly_name as string) || cameraDialogEntry?.camera_entity_id?.split('.').pop() || 'Kamera' }}</span>
+        <v-spacer />
+        <v-btn-toggle v-model="cameraStreamMode" density="compact" rounded="lg" mandatory class="mr-2">
+          <v-btn value="snapshot" size="x-small" icon="mdi-image-outline" title="Snapshot" />
+          <v-btn value="mjpeg"    size="x-small" icon="mdi-play-circle-outline" title="Live" />
+        </v-btn-toggle>
+        <v-btn icon="mdi-close" variant="text" size="small" @click="cameraDialogOpen = false" />
+      </v-card-title>
+      <div class="px-4 pb-4 d-flex flex-column ga-3">
+        <div class="statusbar-camera-wrap rounded-lg">
+          <img v-if="cameraStreamMode === 'mjpeg' && cameraDialogOpen && cameraMjpegSrc" :src="cameraMjpegSrc"
+            class="statusbar-camera-img" alt="" @error="cameraMjpegError = true" />
+          <img v-else-if="cameraStreamMode === 'snapshot' && cameraSnapshotSrc" :src="cameraSnapshotSrc"
+            class="statusbar-camera-img" alt="" @error="cameraSnapshotError = true" />
+          <div v-if="(cameraStreamMode === 'snapshot' && (cameraSnapshotError || !cameraSnapshotSrc)) || (cameraStreamMode === 'mjpeg' && (cameraMjpegError || !cameraMjpegSrc))"
+            class="statusbar-camera-img d-flex align-center justify-center">
+            <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
+          </div>
+        </div>
+        <div class="d-flex align-center ga-2">
+          <v-chip v-if="cameraStreamMode === 'mjpeg'" size="x-small" color="error" variant="tonal" prepend-icon="mdi-circle" class="text-caption">Live</v-chip>
+          <v-spacer />
+        </div>
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry, StatusBarEntryAction } from '~/types/dashboard'
+import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry, StatusBarCameraEntry, StatusBarEntryAction } from '~/types/dashboard'
 import type { HAState } from '~/types/ha'
 
 defineOptions({ inheritAttrs: false })
@@ -191,14 +224,15 @@ const shouldStackRows = computed(() => isNarrowMobile.value && containerHeight.v
 const isCompactMobile = computed(() => isNarrowMobile.value && !shouldStackRows.value)
 const showLabels = computed(() => props.config.show_labels && !isCompactMobile.value)
 
-type SingleBadge = { type: 'single'; entry: StatusBarEntry; active: boolean; state: string; tooltipText: string }
-type GroupBadge  = { type: 'group';  entry: StatusBarGroupEntry; active: boolean; activeCount: number; tooltipText: string }
+type SingleBadge  = { type: 'single'; entry: StatusBarEntry; active: boolean; state: string; tooltipText: string }
+type GroupBadge   = { type: 'group';  entry: StatusBarGroupEntry; active: boolean; activeCount: number; tooltipText: string }
+type CameraBadge  = { type: 'camera'; entry: StatusBarCameraEntry; active: boolean; tooltipText: string }
 type NavBadge    = { type: 'nav';    entry: StatusBarNavEntry; tooltipText: string }
 type RoomBadge   = { type: 'room';   entry: StatusBarRoomEntry; active: boolean; tooltipText: string }
 type ProblemBadge = { type: 'problem'; entry: StatusBarProblemEntry; active: boolean; problemCount: number; tooltipText: string }
 type DividerBadge = { type: 'divider'; entry: StatusBarDividerEntry; tooltipText: string }
 
-const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge)[] => {
+const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge | CameraBadge)[] => {
   return (props.config.entries ?? []).map((entry) => {
     if (entry.entry_type === 'divider') {
       return { type: 'divider' as const, entry, tooltipText: 'Divider' }
@@ -226,6 +260,14 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomB
         tooltipText: problemTooltip(problemEntry, problemCount),
       }
     }
+    if (entry.entry_type === 'camera') {
+      const camEntry = entry as StatusBarCameraEntry
+      const sensorEntity = camEntry.sensor_entity_id ? entityStore.entities[camEntry.sensor_entity_id] : null
+      const active = sensorEntity ? sensorEntity.state === (camEntry.active_state ?? 'on') : false
+      const cameraEntity = entityStore.entities[camEntry.camera_entity_id]
+      const tooltip = camEntry.label || (cameraEntity?.attributes?.friendly_name as string | undefined) || camEntry.camera_entity_id.split('.').pop() || 'Kamera'
+      return { type: 'camera' as const, entry: camEntry, active, tooltipText: tooltip }
+    }
     if (entry.entry_type === 'group') {
       const filtered = getFilteredEntities(entry.filter)
       const activeCount = filtered.filter(e => isEntityActive(e)).length
@@ -252,7 +294,7 @@ const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomB
   })
 })
 
-const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge | RoomBadge | ProblemBadge | DividerBadge)[])
+const statusBadges = computed(() => resolvedBadges.value.filter(b => b.type !== 'nav') as (SingleBadge | GroupBadge | RoomBadge | ProblemBadge | DividerBadge | CameraBadge)[])
 const navBadges = computed(() => resolvedBadges.value.filter(b => b.type === 'nav') as NavBadge[])
 
 const singleDialogOpen = ref(false)
@@ -266,6 +308,51 @@ const roomEntry = ref<StatusBarRoomEntry | null>(null)
 const problemDialogOpen = ref(false)
 const problemEntry = ref<StatusBarProblemEntry | null>(null)
 const problemDialogConfig = computed(() => problemEntry.value ? { ...problemEntry.value, max_items: 9999 } : null)
+
+// Camera dialog
+const cameraDialogOpen = ref(false)
+const cameraDialogEntry = ref<StatusBarCameraEntry | null>(null)
+const cameraStreamMode = ref<'snapshot' | 'mjpeg'>('snapshot')
+const cameraSnapshotTs = ref(0)
+const cameraSnapshotError = ref(false)
+const cameraMjpegError = ref(false)
+const cameraSnapshotSrc = computed(() =>
+  cameraDialogEntry.value?.camera_entity_id && cameraSnapshotTs.value
+    ? `/api/camera/${cameraDialogEntry.value.camera_entity_id}?t=${cameraSnapshotTs.value}`
+    : null
+)
+const cameraMjpegSrc = computed(() =>
+  cameraDialogEntry.value?.camera_entity_id
+    ? `/api/camera/stream/${cameraDialogEntry.value.camera_entity_id}`
+    : null
+)
+let cameraRefreshTimer: ReturnType<typeof setInterval> | null = null
+
+watch(cameraDialogOpen, (open) => {
+  if (open && cameraStreamMode.value === 'snapshot') {
+    cameraRefreshTimer = setInterval(() => {
+      cameraSnapshotError.value = false
+      cameraSnapshotTs.value = Date.now()
+    }, 5000)
+  } else {
+    if (cameraRefreshTimer) { clearInterval(cameraRefreshTimer); cameraRefreshTimer = null }
+  }
+})
+
+watch(cameraStreamMode, (mode) => {
+  if (cameraRefreshTimer) { clearInterval(cameraRefreshTimer); cameraRefreshTimer = null }
+  if (mode === 'snapshot' && cameraDialogOpen.value) {
+    cameraSnapshotError.value = false
+    cameraSnapshotTs.value = Date.now()
+    cameraRefreshTimer = setInterval(() => {
+      cameraSnapshotError.value = false
+      cameraSnapshotTs.value = Date.now()
+    }, 5000)
+  } else {
+    cameraMjpegError.value = false
+  }
+})
+
 let clickTimer: ReturnType<typeof setTimeout> | null = null
 let holdTimer: ReturnType<typeof setTimeout> | null = null
 let holdTriggered = false
@@ -288,7 +375,7 @@ onUnmounted(() => {
   if (holdTimer) clearTimeout(holdTimer)
 })
 
-type ActionBadge = SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge
+type ActionBadge = SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge | CameraBadge
 type StatusBarActionKind = 'click' | 'double_click' | 'hold'
 const DEFAULT_IGNORED_OFFLINE_PLATFORMS = ['music_assistant', 'device_pulse', 'better_thermostat', 'fritz_profiles']
 const DEFAULT_IGNORED_OFFLINE_DOMAINS = ['button']
@@ -307,6 +394,14 @@ function runDefaultAction(badge: ActionBadge) {
   } else if (badge.type === 'group') {
     groupEntry.value = badge.entry
     groupDetailOpen.value = true
+  } else if (badge.type === 'camera') {
+    cameraDialogEntry.value = badge.entry
+    cameraStreamMode.value = 'snapshot'
+    cameraSnapshotError.value = false
+    cameraMjpegError.value = false
+    cameraSnapshotTs.value = Date.now()
+    cameraDialogOpen.value = true
+    return
   } else {
     singleEntityId.value = badge.entry.entity_id
     singleDialogOpen.value = true
@@ -786,5 +881,19 @@ function shortState(entityId: string) {
 .statusbar-problem-overview {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.statusbar-camera-wrap {
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.statusbar-camera-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 </style>

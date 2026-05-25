@@ -592,6 +592,8 @@
     "nav_start": "Nav left",
     "nav_end": "Nav right",
     "entry_type_nav": "Navigation",
+    "entry_type_camera": "Camera",
+    "optional": "Optional",
     "target_dashboard": "Target dashboard",
     "icon_color": "Icon color",
     "inactive_icon": "Inactive icon",

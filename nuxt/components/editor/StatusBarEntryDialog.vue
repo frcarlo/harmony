@@ -2,12 +2,12 @@
   <v-dialog :model-value="modelValue" max-width="420" scrollable @update:model-value="v => emit('update:modelValue', v)">
     <v-card rounded="xl" :class="{ 'dialog-glass': glass }">
       <v-card-title class="d-flex align-center ga-2 pt-4 px-4">
-        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : draft.entry_type === 'room' ? 'mdi-sofa-outline' : draft.entry_type === 'problem' ? 'mdi-home-alert-outline' : 'mdi-eye-outline'" size="18" />
+        <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : draft.entry_type === 'room' ? 'mdi-sofa-outline' : draft.entry_type === 'problem' ? 'mdi-home-alert-outline' : draft.entry_type === 'camera' ? 'mdi-cctv' : 'mdi-eye-outline'" size="18" />
         <span class="text-body-1 font-weight-bold flex-grow-1">
-          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : draft.entry_type === 'room' ? t('config.entry_type_room') : draft.entry_type === 'problem' ? t('config.entry_type_problem') : t('config.entry_type_single') }}
+          {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : draft.entry_type === 'room' ? t('config.entry_type_room') : draft.entry_type === 'problem' ? t('config.entry_type_problem') : draft.entry_type === 'camera' ? t('config.entry_type_camera') : t('config.entry_type_single') }}
         </span>
         <v-btn-toggle
-          :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : draft.entry_type === 'room' ? 'room' : draft.entry_type === 'problem' ? 'problem' : 'single'"
+          :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : draft.entry_type === 'room' ? 'room' : draft.entry_type === 'problem' ? 'problem' : draft.entry_type === 'camera' ? 'camera' : 'single'"
           density="compact" rounded="lg" variant="outlined" mandatory
           @update:model-value="switchType"
         >
@@ -16,6 +16,7 @@
           <v-btn value="room" size="small" color="warning">{{ t('config.entry_type_room') }}</v-btn>
           <v-btn value="problem" size="small" color="error">{{ t('config.entry_type_problem') }}</v-btn>
           <v-btn value="nav" size="small" color="secondary">{{ t('config.entry_type_nav') }}</v-btn>
+          <v-btn value="camera" size="small" color="info">{{ t('config.entry_type_camera') }}</v-btn>
         </v-btn-toggle>
       </v-card-title>
 
@@ -132,6 +133,29 @@
           <v-checkbox v-model="draft.show_system" :label="t('config.problem_show_system')" hide-details density="compact" />
           <UiColorPicker v-model="draft.active_color" :label="t('config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('config.inactive_color')" clearable />
+        </template>
+
+        <!-- Camera entry -->
+        <template v-else-if="draft.entry_type === 'camera'">
+          <div>
+            <p class="text-caption text-medium-emphasis mb-1">{{ t('camera_status.config.camera') }}</p>
+            <EntityPicker v-model="draft.camera_entity_id" domain="camera" />
+          </div>
+          <div>
+            <p class="text-caption text-medium-emphasis mb-1">{{ t('camera_status.config.sensor') }}</p>
+            <EntityPicker v-model="draft.sensor_entity_id" :placeholder="t('config.optional')" />
+          </div>
+          <UiIconPicker v-model="draft.icon" :label="t('config.icon_field')" placeholder="mdi-cctv" clearable />
+          <v-btn-toggle v-model="draft.icon_size" density="compact" rounded="lg" variant="outlined">
+            <v-btn value="sm" size="small">S</v-btn>
+            <v-btn value="md" size="small">M</v-btn>
+            <v-btn value="lg" size="small">L</v-btn>
+          </v-btn-toggle>
+          <v-text-field v-model="draft.label" :label="t('config.display_name')" density="compact" hide-details clearable />
+          <v-text-field v-model="draft.active_state" :label="t('camera_status.config.active_state')"
+            :placeholder="t('camera_status.config.active_state_placeholder')" density="compact" hide-details="auto" />
+          <UiColorPicker v-model="draft.active_color" :label="t('camera_status.config.active_color')" clearable />
+          <UiColorPicker v-model="draft.inactive_color" :label="t('camera_status.config.inactive_color')" clearable />
         </template>
 
         <!-- Single entity -->
@@ -320,6 +344,15 @@ function switchType(type: string) {
       show_system: true,
       ignored_offline_platforms: [...DEFAULT_IGNORED_OFFLINE_PLATFORMS],
       ignored_offline_domains: [...DEFAULT_IGNORED_OFFLINE_DOMAINS],
+    }
+  } else if (type === 'camera') {
+    draft.value = {
+      entry_type: 'camera',
+      camera_entity_id: (draft.value as any).camera_entity_id ?? '',
+      sensor_entity_id: (draft.value as any).sensor_entity_id ?? '',
+      icon: draft.value.icon ?? 'mdi-cctv',
+      label: draft.value.label ?? '',
+      active_state: 'on',
     }
   } else {
     draft.value = { entity_id: '', label: draft.value.label }

@@ -337,8 +337,20 @@ export interface StatusBarDividerEntry {
   entry_type: 'divider'
 }
 
+export interface StatusBarCameraEntry {
+  entry_type: 'camera'
+  camera_entity_id: string
+  sensor_entity_id?: string
+  icon?: string
+  label?: string
+  active_state?: string
+  active_color?: string
+  inactive_color?: string
+  icon_size?: 'sm' | 'md' | 'lg'
+}
+
 export interface StatusBarWidgetConfig {
-  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarProblemEntry | StatusBarDividerEntry)[]
+  entries: (StatusBarEntry | StatusBarGroupEntry | StatusBarNavEntry | StatusBarRoomEntry | StatusBarProblemEntry | StatusBarDividerEntry | StatusBarCameraEntry)[]
   show_labels?: boolean
   orientation?: 'horizontal' | 'vertical'
   nav_position?: 'start' | 'end'

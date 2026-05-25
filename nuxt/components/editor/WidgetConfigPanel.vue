@@ -888,11 +888,11 @@ const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppe
 const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
 const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer', 'camera_status']
-const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene']
+const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene', 'camera_status']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
-  'room_card', 'status_bar', 'problem_overview', 'vacuum', 'fan', 'scene', 'timer',
+  'room_card', 'status_bar', 'problem_overview', 'vacuum', 'fan', 'scene', 'timer', 'camera_status',
 ])
 const GENERIC_ACTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
