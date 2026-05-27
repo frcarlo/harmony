@@ -168,32 +168,9 @@
 
   <!-- Camera dialog -->
   <v-dialog v-model="cameraDialogOpen" max-width="860">
-    <v-card class="dialog-glass">
-      <v-card-title class="d-flex align-center ga-2 pa-3 pb-2">
-        <v-icon icon="mdi-cctv" size="18" />
-        <span class="text-h6 font-weight-medium">{{ cameraDialogEntry?.label || (entityStore.entities[cameraDialogEntry?.camera_entity_id ?? '']?.attributes?.friendly_name as string) || cameraDialogEntry?.camera_entity_id?.split('.').pop() || 'Kamera' }}</span>
-        <v-spacer />
-        <v-btn-toggle v-model="cameraStreamMode" density="comfortable" rounded="lg" mandatory class="mr-1">
-          <v-btn value="snapshot" size="small" icon="mdi-image-outline" title="Snapshot" />
-          <v-btn value="mjpeg"    size="small" icon="mdi-play-circle-outline" title="Live" />
-        </v-btn-toggle>
-        <v-btn icon="mdi-close" variant="text" size="large" @click="cameraDialogOpen = false" />
-      </v-card-title>
-      <div class="px-4 pb-4 d-flex flex-column ga-3">
-        <div class="statusbar-camera-wrap rounded-lg">
-          <img v-if="cameraStreamMode === 'mjpeg' && cameraDialogOpen && cameraMjpegSrc" :src="cameraMjpegSrc"
-            class="statusbar-camera-img" alt="" @error="cameraMjpegError = true" />
-          <img v-else-if="cameraStreamMode === 'snapshot' && cameraSnapshotSrc" :src="cameraSnapshotSrc"
-            class="statusbar-camera-img" alt="" @error="cameraSnapshotError = true" />
-          <div v-if="(cameraStreamMode === 'snapshot' && (cameraSnapshotError || !cameraSnapshotSrc)) || (cameraStreamMode === 'mjpeg' && (cameraMjpegError || !cameraMjpegSrc))"
-            class="statusbar-camera-img d-flex align-center justify-center">
-            <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
-          </div>
-          <div v-if="cameraStreamMode === 'mjpeg'" class="statusbar-camera-live-badge">
-            <v-icon icon="mdi-circle" size="8" color="error" class="mr-1" />
-            Live
-          </div>
-        </div>
+    <v-card v-if="cameraWidgetConfig" class="dialog-glass" rounded="xl">
+      <div style="height: 520px; display: flex; flex-direction: column;">
+        <CameraWidget :config="cameraWidgetConfig" />
       </div>
     </v-card>
   </v-dialog>
@@ -201,7 +178,7 @@
 
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry, StatusBarCameraEntry, StatusBarEntryAction } from '~/types/dashboard'
+import type { StatusBarWidgetConfig, StatusBarEntry, StatusBarGroupEntry, StatusBarNavEntry, StatusBarRoomEntry, StatusBarProblemEntry, StatusBarDividerEntry, StatusBarCameraEntry, StatusBarEntryAction, CameraWidgetConfig } from '~/types/dashboard'
 import type { HAState } from '~/types/ha'
 
 defineOptions({ inheritAttrs: false })
@@ -232,8 +209,14 @@ type RoomBadge   = { type: 'room';   entry: StatusBarRoomEntry; active: boolean;
 type ProblemBadge = { type: 'problem'; entry: StatusBarProblemEntry; active: boolean; problemCount: number; tooltipText: string }
 type DividerBadge = { type: 'divider'; entry: StatusBarDividerEntry; tooltipText: string }
 
+const { user: currentUser } = useUserSession()
 const resolvedBadges = computed((): (SingleBadge | GroupBadge | NavBadge | RoomBadge | ProblemBadge | DividerBadge | CameraBadge)[] => {
-  return (props.config.entries ?? []).map((entry) => {
+  const userId = currentUser.value?.id
+  const entries = (props.config.entries ?? []).filter((entry) => {
+    const ex = (entry as any).excluded_user_ids as string[] | undefined
+    return !userId || !ex?.length || !ex.includes(userId)
+  })
+  return entries.map((entry) => {
     if (entry.entry_type === 'divider') {
       return { type: 'divider' as const, entry, tooltipText: 'Divider' }
     }
@@ -312,46 +295,19 @@ const problemDialogConfig = computed(() => problemEntry.value ? { ...problemEntr
 // Camera dialog
 const cameraDialogOpen = ref(false)
 const cameraDialogEntry = ref<StatusBarCameraEntry | null>(null)
-const cameraStreamMode = ref<'snapshot' | 'mjpeg'>('snapshot')
-const cameraSnapshotTs = ref(0)
-const cameraSnapshotError = ref(false)
-const cameraMjpegError = ref(false)
-const cameraSnapshotSrc = computed(() =>
-  cameraDialogEntry.value?.camera_entity_id && cameraSnapshotTs.value
-    ? `/api/camera/${cameraDialogEntry.value.camera_entity_id}?t=${cameraSnapshotTs.value}`
+
+const cameraWidgetConfig = computed<CameraWidgetConfig | null>(() =>
+  cameraDialogEntry.value
+    ? {
+        entity_id: cameraDialogEntry.value.camera_entity_id,
+        name: cameraDialogEntry.value.label
+          || (entityStore.entities[cameraDialogEntry.value.camera_entity_id]?.attributes?.friendly_name as string | undefined)
+          || cameraDialogEntry.value.camera_entity_id.split('.').pop()
+          || 'Kamera',
+        stream_type: cameraDialogEntry.value.default_stream ?? 'webrtc',
+      }
     : null
 )
-const cameraMjpegSrc = computed(() =>
-  cameraDialogEntry.value?.camera_entity_id
-    ? `/api/camera/stream/${cameraDialogEntry.value.camera_entity_id}`
-    : null
-)
-let cameraRefreshTimer: ReturnType<typeof setInterval> | null = null
-
-watch(cameraDialogOpen, (open) => {
-  if (open && cameraStreamMode.value === 'snapshot') {
-    cameraRefreshTimer = setInterval(() => {
-      cameraSnapshotError.value = false
-      cameraSnapshotTs.value = Date.now()
-    }, 5000)
-  } else {
-    if (cameraRefreshTimer) { clearInterval(cameraRefreshTimer); cameraRefreshTimer = null }
-  }
-})
-
-watch(cameraStreamMode, (mode) => {
-  if (cameraRefreshTimer) { clearInterval(cameraRefreshTimer); cameraRefreshTimer = null }
-  if (mode === 'snapshot' && cameraDialogOpen.value) {
-    cameraSnapshotError.value = false
-    cameraSnapshotTs.value = Date.now()
-    cameraRefreshTimer = setInterval(() => {
-      cameraSnapshotError.value = false
-      cameraSnapshotTs.value = Date.now()
-    }, 5000)
-  } else {
-    cameraMjpegError.value = false
-  }
-})
 
 let clickTimer: ReturnType<typeof setTimeout> | null = null
 let holdTimer: ReturnType<typeof setTimeout> | null = null
@@ -396,10 +352,6 @@ function runDefaultAction(badge: ActionBadge) {
     groupDetailOpen.value = true
   } else if (badge.type === 'camera') {
     cameraDialogEntry.value = badge.entry
-    cameraStreamMode.value = 'snapshot'
-    cameraSnapshotError.value = false
-    cameraMjpegError.value = false
-    cameraSnapshotTs.value = Date.now()
     cameraDialogOpen.value = true
     return
   } else {
@@ -835,8 +787,12 @@ function shortState(entityId: string) {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.badge:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .badge-label {
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.2;
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
@@ -851,7 +807,7 @@ function shortState(entityId: string) {
   right: -4px;
   background: rgb(var(--v-theme-primary));
   color: rgb(var(--v-theme-on-primary));
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   min-width: 14px;
@@ -883,35 +839,4 @@ function shortState(entityId: string) {
   min-height: 0;
 }
 
-.statusbar-camera-wrap {
-  position: relative;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  aspect-ratio: 16 / 9;
-  width: 100%;
-}
-
-.statusbar-camera-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.statusbar-camera-live-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
-  padding: 3px 8px 3px 6px;
-  border-radius: 6px;
-  pointer-events: none;
-}
 </style>

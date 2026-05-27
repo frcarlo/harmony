@@ -31,6 +31,7 @@ export type WidgetType =
   | 'scene'
   | 'timer'
   | 'camera_status'
+  | 'power_consumers'
 
 export interface WidgetLayout {
   x: number
@@ -273,6 +274,7 @@ export interface StatusBarActionFields {
 }
 
 export interface StatusBarEntry extends StatusBarActionFields {
+  excluded_user_ids?: string[]
   entry_type?: 'single'
   entity_id: string
   icon?: string
@@ -285,6 +287,7 @@ export interface StatusBarEntry extends StatusBarActionFields {
 }
 
 export interface StatusBarGroupEntry extends StatusBarActionFields {
+  excluded_user_ids?: string[]
   entry_type: 'group'
   icon: string
   label?: string
@@ -296,6 +299,7 @@ export interface StatusBarGroupEntry extends StatusBarActionFields {
 }
 
 export interface StatusBarNavEntry extends StatusBarActionFields {
+  excluded_user_ids?: string[]
   entry_type: 'nav'
   icon: string
   label?: string
@@ -305,6 +309,7 @@ export interface StatusBarNavEntry extends StatusBarActionFields {
 }
 
 export interface StatusBarRoomEntry extends StatusBarActionFields {
+  excluded_user_ids?: string[]
   entry_type: 'room'
   icon: string
   label?: string
@@ -323,6 +328,7 @@ export interface StatusBarRoomEntry extends StatusBarActionFields {
 }
 
 export interface StatusBarProblemEntry extends ProblemOverviewWidgetConfig, StatusBarActionFields {
+  excluded_user_ids?: string[]
   entry_type: 'problem'
   icon?: string
   inactive_icon?: string
@@ -338,6 +344,7 @@ export interface StatusBarDividerEntry {
 }
 
 export interface StatusBarCameraEntry {
+  excluded_user_ids?: string[]
   entry_type: 'camera'
   camera_entity_id: string
   sensor_entity_id?: string
@@ -347,6 +354,7 @@ export interface StatusBarCameraEntry {
   active_color?: string
   inactive_color?: string
   icon_size?: 'sm' | 'md' | 'lg'
+  default_stream?: 'webrtc' | 'mjpeg' | 'snapshot'
 }
 
 export interface StatusBarWidgetConfig {
@@ -455,6 +463,18 @@ export interface ProblemOverviewWidgetConfig {
   ignored_offline_domains?: string[]
 }
 
+export interface PowerConsumerEntry {
+  entity_id: string
+  name?: string
+}
+
+export interface PowerConsumersWidgetConfig {
+  consumers: PowerConsumerEntry[]
+  name?: string
+  price_per_kwh?: number
+  currency_symbol?: string
+}
+
 export type WidgetConfig =
   | SensorWidgetConfig
   | GaugeWidgetConfig
@@ -486,6 +506,7 @@ export type WidgetConfig =
   | SceneWidgetConfig
   | TimerWidgetConfig
   | CameraStatusWidgetConfig
+  | PowerConsumersWidgetConfig
 
 export interface WidgetAppearance {
   bg_color?: string        // Hintergrundfarbe der Karte
@@ -511,6 +532,7 @@ export interface Widget {
   config: WidgetConfig
   appearance?: WidgetAppearance
   visibility?: WidgetVisibility
+  excluded_user_ids?: string[]
 }
 
 export interface GridConfig {

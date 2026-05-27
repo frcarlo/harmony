@@ -135,6 +135,7 @@
     "reset_local_settings": "Reset local settings",
     "reset_local_settings_hint": "Only for this browser and this user",
     "local_settings_reset_done": "Local browser settings were reset",
+    "reset_local_settings_confirm": "Reset all browser settings for this account? Glass effect, borders, theme and device type will be restored to defaults.",
     "logout": "Sign out",
     "edit_mode_on": "Enable editing",
     "edit_mode_off": "Stop editing",
@@ -290,6 +291,10 @@
     "camera_status": {
       "label": "Camera Status",
       "description": "Sensor status with camera preview on demand"
+    },
+    "power_consumers": {
+      "label": "Power Consumers",
+      "description": "Energy consumption per device with cost overview"
     },
     "removed": "Widget removed",
     "copy_to_dashboard": "Copy to dashboard",
@@ -546,6 +551,8 @@
     "visibility_desktop": "Desktop",
     "visibility_tablet": "Tablet",
     "visibility_mobile": "Mobile",
+    "excluded_users": "Hidden for users",
+    "excluded_users_hint": "Widget is not shown to selected users.",
     "forecast_available_days": "Available forecast days: {n}",
     "period_1h": "1 hour",
     "period_6h": "6 hours",
@@ -616,7 +623,8 @@
     "resume": "Resume stream",
     "toggle_light": "Toggle light",
     "disconnected": "Connection lost",
-    "fullscreen": "Fullscreen"
+    "fullscreen": "Fullscreen",
+    "timeout": "Connection timed out"
   },
   "appliance": {
     "status": {
@@ -847,6 +855,29 @@
       "finish_sound_volume": "Volume"
     }
   },
+  "power_consumers": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_week": "Week",
+    "last_week": "Last Wk",
+    "this_month": "Month",
+    "last_month": "Last Mo",
+    "table": "Table",
+    "chart": "Chart",
+    "consumer": "Consumer",
+    "consumption": "Usage",
+    "cost": "Cost",
+    "total": "Total",
+    "no_consumers": "No consumers configured",
+    "config": {
+      "price": "Electricity price",
+      "price_per_kwh": "Price per kWh",
+      "currency": "Currency",
+      "consumers": "Consumers",
+      "consumer_name": "Display name",
+      "add_consumer": "Add consumer"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "empty": "No rules configured yet.",
@@ -946,6 +977,9 @@
     "allowed_areas_label": "Allowed areas",
     "allowed_areas_hint": "Editor can only pick entities from these areas. Leave empty for no restriction.",
     "allowed_areas_all": "No areas selected — no entity restriction active.",
+    "allowed_widget_types_label": "Allowed widget types",
+    "allowed_widget_types_hint": "User can only see widgets of these types. Leave empty for no restriction.",
+    "allowed_widget_types_all": "No types selected — all widget types visible.",
     "delete_title": "Delete user?",
     "delete_body": "\"{name}\" will be permanently deleted.",
     "create": "Create",

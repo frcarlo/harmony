@@ -109,6 +109,7 @@ export default defineEventHandler(async (event) => {
       force_performance_mode: dbUser.force_performance_mode,
       force_device_type: dbUser.force_device_type,
       allowed_areas: dbUser.allowed_areas ?? undefined,
+      allowed_widget_types: dbUser.allowed_widget_types ?? undefined,
     },
     keycloak_id_token: tokenRes.id_token,
   } as any)

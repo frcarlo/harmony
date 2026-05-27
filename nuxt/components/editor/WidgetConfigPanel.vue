@@ -626,6 +626,62 @@
               </template>
             </template>
 
+            <!-- Power Consumers -->
+            <template v-if="widget.type === 'power_consumers'">
+              <v-text-field v-model="cfg.name" :label="t('config.display_name')" density="compact" hide-details="auto" />
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('power_consumers.config.price') }}</p>
+              <div class="d-flex ga-2">
+                <v-text-field
+                  v-model.number="cfg.price_per_kwh"
+                  :label="t('power_consumers.config.price_per_kwh')"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  density="compact"
+                  hide-details="auto"
+                  class="flex-grow-1"
+                />
+                <v-text-field
+                  v-model="cfg.currency_symbol"
+                  :label="t('power_consumers.config.currency')"
+                  density="compact"
+                  hide-details
+                  style="max-width: 80px"
+                />
+              </div>
+              <v-divider />
+              <p class="text-caption text-medium-emphasis text-uppercase font-weight-medium">{{ t('power_consumers.config.consumers') }}</p>
+              <div
+                v-for="(consumer, idx) in (cfg.consumers ?? [])"
+                :key="idx"
+                class="d-flex flex-column ga-2 pa-2 rounded-lg"
+                style="background: rgba(255,255,255,0.04)"
+              >
+                <div class="d-flex align-center ga-1">
+                  <span class="text-caption text-medium-emphasis flex-grow-1">{{ idx + 1 }}.</span>
+                  <v-btn icon="mdi-delete" size="x-small" variant="text" color="error" @click="removePowerConsumer(idx)" />
+                </div>
+                <EntityPicker v-model="consumer.entity_id" :domain-filter="['sensor']" device-class="energy" />
+                <v-text-field
+                  v-model="consumer.name"
+                  :label="t('power_consumers.config.consumer_name')"
+                  :placeholder="consumer.entity_id"
+                  density="compact"
+                  hide-details="auto"
+                />
+              </div>
+              <v-btn
+                variant="tonal"
+                size="small"
+                prepend-icon="mdi-plus"
+                block
+                @click="addPowerConsumer"
+              >
+                {{ t('power_consumers.config.add_consumer') }}
+              </v-btn>
+            </template>
+
             <!-- Status Bar -->
             <template v-if="widget.type === 'status_bar'">
               <v-checkbox v-model="cfg.show_labels" :label="t('config.show_labels')" hide-details density="compact" />
@@ -797,6 +853,24 @@
                   density="compact" hide-details />
               </div>
             </div>
+
+            <!-- User exclusion (admin only) -->
+            <div v-if="currentUser?.role === 'admin'">
+              <p class="text-caption text-medium-emphasis mb-1">{{ t('config.excluded_users') }}</p>
+              <p class="text-caption text-disabled mb-2">{{ t('config.excluded_users_hint') }}</p>
+              <div class="d-flex flex-wrap ga-1">
+                <button
+                  v-for="u in allUsers"
+                  :key="u.id"
+                  class="user-excl-btn"
+                  :class="{ 'user-excl-btn--on': excludedUserIds.includes(u.id) }"
+                  @click="toggleExcludedUser(u.id)"
+                >
+                  <v-icon icon="mdi-account-outline" size="11" />
+                  {{ u.username }}
+                </button>
+              </div>
+            </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -816,6 +890,30 @@ defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
 
 const dashboardStore = useDashboardStore()
+const { user: currentUser } = useUserSession()
+
+interface UserSummary { id: string; username: string }
+const allUsers = ref<UserSummary[]>([])
+onMounted(async () => {
+  if (currentUser.value?.role === 'admin') {
+    const users = await $fetch<UserSummary[]>('/api/users')
+    allUsers.value = users.filter(u => u.id !== currentUser.value?.id)
+  }
+})
+
+const excludedUserIds = computed<string[]>({
+  get: () => widget.value?.excluded_user_ids ?? [],
+  set: (ids) => {
+    if (widget.value) widget.value.excluded_user_ids = ids.length > 0 ? ids : undefined
+  },
+})
+
+function toggleExcludedUser(userId: string) {
+  const current = excludedUserIds.value
+  const idx = current.indexOf(userId)
+  if (idx === -1) excludedUserIds.value = [...current, userId]
+  else excludedUserIds.value = current.filter(id => id !== userId)
+}
 const widget = computed(() => dashboardStore.dashboard?.widgets.find((w) => w.id === dashboardStore.selectedWidgetId))
 const openSections = ref(['general', 'content', 'appearance'])
 
@@ -887,12 +985,12 @@ watch(widget, (w) => {
 const appearance = computed(() => (widget.value?.appearance ?? {}) as WidgetAppearance)
 const visibility = computed(() => (widget.value?.visibility ?? {}) as WidgetVisibility)
 
-const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer', 'camera_status']
-const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene', 'camera_status']
+const ENTITY_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'label', 'room_card', 'calendar', 'calendar_v2', 'person', 'energy', 'status_bar', 'appliance', 'alarm', 'template', 'problem_overview', 'scene', 'timer', 'camera_status', 'power_consumers']
+const NAME_FIELD_EXCLUDED_TYPES: WidgetType[] = ['clock', 'room_card', 'status_bar', 'calendar_v2', 'scene', 'camera_status', 'power_consumers']
 const CONTENT_SECTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'template', 'switch', 'button', 'select', 'light', 'chart', 'appliance', 'cover', 'cover_dial', 'cover_dial2', 'camera', 'lock',
   'weather', 'clock', 'label', 'media_player', 'calendar', 'calendar_v2', 'person', 'energy', 'alarm',
-  'room_card', 'status_bar', 'problem_overview', 'vacuum', 'fan', 'scene', 'timer', 'camera_status',
+  'room_card', 'status_bar', 'problem_overview', 'vacuum', 'fan', 'scene', 'timer', 'camera_status', 'power_consumers',
 ])
 const GENERIC_ACTION_TYPES = new Set<WidgetType>([
   'sensor', 'gauge', 'switch', 'chart', 'camera', 'thermostat', 'media_player', 'cover', 'cover_dial', 'cover_dial2',
@@ -1265,6 +1363,20 @@ function removeTimerEntry(index: number) {
   list.splice(index, 1)
   cfg.value.timers = list
 }
+
+// ── Power Consumers entries ────────────────────────────────────────────────
+
+function addPowerConsumer() {
+  const list = [...((cfg.value.consumers as Array<{ entity_id: string; name?: string }>) ?? [])]
+  list.push({ entity_id: '', name: '' })
+  cfg.value.consumers = list
+}
+
+function removePowerConsumer(index: number) {
+  const list = [...((cfg.value.consumers as Array<{ entity_id: string; name?: string }>) ?? [])]
+  list.splice(index, 1)
+  cfg.value.consumers = list
+}
 </script>
 
 <style scoped>
@@ -1390,5 +1502,28 @@ function removeTimerEntry(index: number) {
   min-height: 40px;
   padding-top: 8px;
   padding-bottom: 8px;
+}
+
+.user-excl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(var(--v-border-color), 0.16);
+  background: none;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.user-excl-btn:hover { background: rgba(var(--v-theme-on-surface), 0.06); }
+
+.user-excl-btn--on {
+  background: rgba(var(--v-theme-error), 0.10);
+  border-color: rgba(var(--v-theme-error), 0.35);
+  color: rgb(var(--v-theme-error));
 }
 </style>

@@ -135,6 +135,7 @@
     "reset_local_settings": "Lokale Einstellungen zurücksetzen",
     "reset_local_settings_hint": "Nur für diesen Browser und diesen Benutzer",
     "local_settings_reset_done": "Lokale Browser-Einstellungen wurden zurückgesetzt",
+    "reset_local_settings_confirm": "Alle Browser-Einstellungen für dieses Konto zurücksetzen? Glaseffekt, Rahmen, Theme und Gerätetyp werden auf Standard zurückgesetzt.",
     "logout": "Abmelden",
     "edit_mode_on": "Bearbeiten aktivieren",
     "edit_mode_off": "Bearbeiten beenden",
@@ -290,6 +291,10 @@
     "camera_status": {
       "label": "Kamera-Status",
       "description": "Sensor-Status mit Kamera-Vorschau auf Knopfdruck"
+    },
+    "power_consumers": {
+      "label": "Stromverbraucher",
+      "description": "Energieverbrauch pro Gerät mit Kostenübersicht"
     },
     "removed": "Widget entfernt",
     "copy_to_dashboard": "In Dashboard kopieren",
@@ -546,6 +551,8 @@
     "visibility_desktop": "Desktop",
     "visibility_tablet": "Tablet",
     "visibility_mobile": "Mobile",
+    "excluded_users": "Versteckt für Benutzer",
+    "excluded_users_hint": "Widget wird diesen Benutzern nicht angezeigt.",
     "forecast_available_days": "Verfuegbare Forecast-Tage: {n}",
     "period_1h": "1 Stunde",
     "period_6h": "6 Stunden",
@@ -616,7 +623,8 @@
     "resume": "Stream fortsetzen",
     "toggle_light": "Licht umschalten",
     "disconnected": "Verbindung unterbrochen",
-    "fullscreen": "Vollbild"
+    "fullscreen": "Vollbild",
+    "timeout": "Verbindungs-Timeout"
   },
   "appliance": {
     "status": {
@@ -847,6 +855,29 @@
       "finish_sound_volume": "Lautstärke"
     }
   },
+  "power_consumers": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "this_week": "Woche",
+    "last_week": "Letzte Wo.",
+    "this_month": "Monat",
+    "last_month": "Letzter Mo.",
+    "table": "Tabelle",
+    "chart": "Diagramm",
+    "consumer": "Verbraucher",
+    "consumption": "Verbrauch",
+    "cost": "Kosten",
+    "total": "Gesamt",
+    "no_consumers": "Keine Verbraucher konfiguriert",
+    "config": {
+      "price": "Strompreis",
+      "price_per_kwh": "Preis pro kWh",
+      "currency": "Währung",
+      "consumers": "Verbraucher",
+      "consumer_name": "Anzeigename",
+      "add_consumer": "Verbraucher hinzufügen"
+    }
+  },
   "notifications": {
     "title": "Benachrichtigungen",
     "empty": "Noch keine Regeln konfiguriert.",
@@ -946,6 +977,9 @@
     "allowed_areas_label": "Erlaubte Bereiche",
     "allowed_areas_hint": "Editor kann nur Entities aus diesen Bereichen auswählen. Leer lassen = keine Einschränkung.",
     "allowed_areas_all": "Keine Bereiche gewählt — keine Entity-Einschränkung aktiv.",
+    "allowed_widget_types_label": "Erlaubte Widget-Typen",
+    "allowed_widget_types_hint": "Benutzer sieht nur Widgets dieser Typen. Leer lassen = keine Einschränkung.",
+    "allowed_widget_types_all": "Keine Typen gewählt — alle Widget-Typen sichtbar.",
     "delete_title": "Benutzer löschen?",
     "delete_body": "„{name}\" wird unwiderruflich gelöscht.",
     "create": "Anlegen",

@@ -7,6 +7,7 @@ declare module '#auth-utils' {
     force_performance_mode?: boolean | null
     force_device_type?: string | null
     allowed_areas?: string[]
+    allowed_widget_types?: string[]
   }
   interface UserSession {
     user: User

@@ -19,8 +19,11 @@ defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
 
 const dashboardStore = useDashboardStore()
+const { user } = useUserSession()
 
-const widgetTypes = computed(() => ([
+const widgetTypes = computed(() => {
+  const allowed = user.value?.allowed_widget_types
+  return ([
   { key: 'sensor', type: 'sensor' as WidgetType, label: t('widget.sensor.label'), icon: 'mdi-pulse', description: t('widget.sensor.description'), defaultW: 4, defaultH: 3 },
   { key: 'gauge', type: 'gauge' as WidgetType, label: t('widget.gauge.label'), icon: 'mdi-gauge', description: t('widget.gauge.description'), defaultW: 5, defaultH: 3 },
   { key: 'template', type: 'template' as WidgetType, label: t('widget.template.label'), icon: 'mdi-code-braces', description: t('widget.template.description'), defaultW: 6, defaultH: 4 },
@@ -53,7 +56,11 @@ const widgetTypes = computed(() => ([
   { key: 'scene', type: 'scene' as WidgetType, label: t('widget.scene.label'), icon: 'mdi-play-box-multiple-outline', description: t('widget.scene.description'), defaultW: 4, defaultH: 4 },
   { key: 'timer', type: 'timer' as WidgetType, label: t('widget.timer.label'), icon: 'mdi-timer-outline', description: t('widget.timer.description'), defaultW: 4, defaultH: 3 },
   { key: 'camera_status', type: 'camera_status' as WidgetType, label: t('widget.camera_status.label'), icon: 'mdi-cctv', description: t('widget.camera_status.description'), defaultW: 4, defaultH: 3 },
-]).sort((a, b) => a.key.localeCompare(b.key)))
+  { key: 'power_consumers', type: 'power_consumers' as WidgetType, label: t('widget.power_consumers.label'), icon: 'mdi-flash', description: t('widget.power_consumers.description'), defaultW: 6, defaultH: 5 },
+  ] as const)
+    .filter(wt => !allowed || allowed.length === 0 || allowed.includes(wt.type))
+    .sort((a, b) => a.key.localeCompare(b.key))
+})
 
 const DEFAULT_CONFIGS: Partial<Record<WidgetType, object>> = {
   sensor: { entity_id: '' }, switch: { entity_id: '', icon: '', sensor_entity_id: '', show_sensor_trend: false },
@@ -146,6 +153,7 @@ Aktualisiert: **{{ now().strftime('%H:%M') }}**`,
   scene: { entries: [], columns: 2 },
   timer: { timers: [] },
   camera_status: { camera_entity_id: '', sensor_entity_id: '' },
+  power_consumers: { consumers: [], price_per_kwh: 0.30, currency_symbol: '€' },
 }
 
 const APPLIANCE_PRESETS = {

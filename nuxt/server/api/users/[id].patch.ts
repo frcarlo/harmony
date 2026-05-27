@@ -1,4 +1,4 @@
-import { updateUserRole, updateUserAllowedAreas, updateUserForceKiosk, updateUserForcePerformanceMode, updateUserForceDeviceType, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
+import { updateUserRole, updateUserAllowedAreas, updateUserAllowedWidgetTypes, updateUserForceKiosk, updateUserForcePerformanceMode, updateUserForceDeviceType, getUserById, listUsers, updateUserDefaultDashboard, getDashboard } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     force_performance_mode?: boolean | null
     force_device_type?: string | null
     allowed_areas?: string[] | null
+    allowed_widget_types?: string[] | null
     default_dashboard_id?: string | null
   }>(event)
 
@@ -33,6 +34,10 @@ export default defineEventHandler(async (event) => {
 
   if ('allowed_areas' in body) {
     updateUserAllowedAreas(id, body.allowed_areas ?? null)
+  }
+
+  if ('allowed_widget_types' in body) {
+    updateUserAllowedWidgetTypes(id, body.allowed_widget_types ?? null)
   }
 
   if (body.force_kiosk !== undefined) {

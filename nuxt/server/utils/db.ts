@@ -13,6 +13,7 @@ export interface DbUser {
   force_performance_mode: boolean | null
   force_device_type: string | null
   allowed_areas: string[] | null
+  allowed_widget_types: string[] | null
   provider: string | null
   provider_id: string | null
   default_dashboard_id: string | null
@@ -129,6 +130,9 @@ function getDb(): DatabaseSync {
   if (!widgetCols.some((c) => c.name === 'visibility')) {
     _db.exec('ALTER TABLE widgets ADD COLUMN visibility TEXT')
   }
+  if (!widgetCols.some((c) => c.name === 'excluded_user_ids')) {
+    _db.exec('ALTER TABLE widgets ADD COLUMN excluded_user_ids TEXT')
+  }
   const dashCols = _db.prepare('PRAGMA table_info(dashboards)').all() as Array<{ name: string }>
   const userCols = _db.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>
   if (!userCols.some((c) => c.name === 'default_dashboard_id')) {
@@ -139,6 +143,9 @@ function getDb(): DatabaseSync {
   }
   if (!userCols.some((c) => c.name === 'allowed_areas')) {
     _db.exec('ALTER TABLE users ADD COLUMN allowed_areas TEXT')
+  }
+  if (!userCols.some((c) => c.name === 'allowed_widget_types')) {
+    _db.exec('ALTER TABLE users ADD COLUMN allowed_widget_types TEXT')
   }
   if (!userCols.some((c) => c.name === 'force_kiosk')) {
     _db.exec('ALTER TABLE users ADD COLUMN force_kiosk INTEGER NOT NULL DEFAULT 0')
@@ -241,7 +248,7 @@ export function getDashboard(id: string): Dashboard | null {
 
   const widgetRows = db
     .prepare('SELECT * FROM widgets WHERE dashboard_id = ? ORDER BY position')
-    .all(id) as Array<{ id: string; type: string; layout: string; config: string; appearance: string | null; visibility: string | null }>
+    .all(id) as Array<{ id: string; type: string; layout: string; config: string; appearance: string | null; visibility: string | null; excluded_user_ids: string | null }>
 
   const widgets: Widget[] = widgetRows.map((w) => ({
     id: w.id,
@@ -250,6 +257,7 @@ export function getDashboard(id: string): Dashboard | null {
     config: JSON.parse(w.config),
     ...(w.appearance ? { appearance: JSON.parse(w.appearance) } : {}),
     ...(w.visibility ? { visibility: JSON.parse(w.visibility) } : {}),
+    ...(w.excluded_user_ids ? { excluded_user_ids: JSON.parse(w.excluded_user_ids) } : {}),
   }))
 
   return {
@@ -314,7 +322,7 @@ export function saveDashboard(dashboard: Dashboard): void {
     db.prepare('DELETE FROM widgets WHERE dashboard_id = ?').run(dashboard.id)
 
     const insert = db.prepare(`
-      INSERT INTO widgets (id, dashboard_id, type, layout, config, appearance, visibility, position) VALUES (?,?,?,?,?,?,?,?)
+      INSERT INTO widgets (id, dashboard_id, type, layout, config, appearance, visibility, excluded_user_ids, position) VALUES (?,?,?,?,?,?,?,?,?)
     `)
 
     dashboard.widgets.forEach((w, i) => {
@@ -324,6 +332,7 @@ export function saveDashboard(dashboard: Dashboard): void {
         JSON.stringify(w.config),
         w.appearance && Object.keys(w.appearance).length > 0 ? JSON.stringify(w.appearance) : null,
         w.visibility && Object.keys(w.visibility).length > 0 ? JSON.stringify(w.visibility) : null,
+        w.excluded_user_ids && w.excluded_user_ids.length > 0 ? JSON.stringify(w.excluded_user_ids) : null,
         i,
       )
     })
@@ -461,6 +470,7 @@ function parseDbUser(row: Record<string, unknown>): DbUser {
     force_performance_mode: row.force_performance_mode == null ? null : (row.force_performance_mode === 1 || row.force_performance_mode === true),
     force_device_type: (row.force_device_type as string | null) ?? null,
     allowed_areas: row.allowed_areas ? JSON.parse(row.allowed_areas as string) : null,
+    allowed_widget_types: row.allowed_widget_types ? JSON.parse(row.allowed_widget_types as string) : null,
   }
 }
 
@@ -484,7 +494,7 @@ export function getUserById(id: string): DbUser | null {
 
 export function listUsers(): Omit<DbUser, 'password_hash'>[] {
   const db = getDb()
-  const rows = db.prepare('SELECT id, username, email, role, force_kiosk, force_performance_mode, force_device_type, allowed_areas, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
+  const rows = db.prepare('SELECT id, username, email, role, force_kiosk, force_performance_mode, force_device_type, allowed_areas, allowed_widget_types, provider, provider_id, default_dashboard_id, user_default_dashboard_id, created_at FROM users ORDER BY created_at ASC').all() as Record<string, unknown>[]
   return rows.map(r => parseDbUser(r) as Omit<DbUser, 'password_hash'>)
 }
 
@@ -504,6 +514,7 @@ export function createUser(data: { username: string; email?: string; passwordHas
     force_performance_mode: null,
     force_device_type: null,
     allowed_areas: null,
+    allowed_widget_types: null,
     provider: data.provider ?? null,
     provider_id: data.providerId ?? null,
     default_dashboard_id: null,
@@ -540,6 +551,11 @@ export function updateUserForceDeviceType(id: string, deviceType: string | null)
 export function updateUserAllowedAreas(id: string, areas: string[] | null): boolean {
   const db = getDb()
   return db.prepare('UPDATE users SET allowed_areas = ? WHERE id = ?').run(areas ? JSON.stringify(areas) : null, id).changes > 0
+}
+
+export function updateUserAllowedWidgetTypes(id: string, types: string[] | null): boolean {
+  const db = getDb()
+  return db.prepare('UPDATE users SET allowed_widget_types = ? WHERE id = ?').run(types ? JSON.stringify(types) : null, id).changes > 0
 }
 
 export function updateUserDefaultDashboard(id: string, defaultDashboardId: string | null): boolean {

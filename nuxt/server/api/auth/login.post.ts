@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
       force_performance_mode: user.force_performance_mode,
       force_device_type: user.force_device_type,
       allowed_areas: user.allowed_areas ?? undefined,
+      allowed_widget_types: user.allowed_widget_types ?? undefined,
     },
   })
   return { ok: true }

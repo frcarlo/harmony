@@ -1,11 +1,13 @@
 <template>
-  <v-dialog :model-value="modelValue" max-width="420" scrollable @update:model-value="v => emit('update:modelValue', v)">
+  <v-dialog :model-value="modelValue" max-width="480" scrollable @update:model-value="v => emit('update:modelValue', v)">
     <v-card rounded="xl" :class="{ 'dialog-glass': glass }">
-      <v-card-title class="d-flex align-center ga-2 pt-4 px-4">
+      <v-card-title class="d-flex align-center ga-2 pt-4 px-4 pb-0">
         <v-icon :icon="draft.entry_type === 'group' ? 'mdi-filter-outline' : draft.entry_type === 'nav' ? 'mdi-arrow-right-circle-outline' : draft.entry_type === 'room' ? 'mdi-sofa-outline' : draft.entry_type === 'problem' ? 'mdi-home-alert-outline' : draft.entry_type === 'camera' ? 'mdi-cctv' : 'mdi-eye-outline'" size="18" />
-        <span class="text-body-1 font-weight-bold flex-grow-1">
+        <span class="text-body-1 font-weight-bold">
           {{ draft.entry_type === 'group' ? t('config.entry_type_group') : draft.entry_type === 'nav' ? t('config.entry_type_nav') : draft.entry_type === 'room' ? t('config.entry_type_room') : draft.entry_type === 'problem' ? t('config.entry_type_problem') : draft.entry_type === 'camera' ? t('config.entry_type_camera') : t('config.entry_type_single') }}
         </span>
+      </v-card-title>
+      <div class="px-4 pb-3 pt-2">
         <v-btn-toggle
           :model-value="draft.entry_type === 'group' ? 'group' : draft.entry_type === 'nav' ? 'nav' : draft.entry_type === 'room' ? 'room' : draft.entry_type === 'problem' ? 'problem' : draft.entry_type === 'camera' ? 'camera' : 'single'"
           density="compact" rounded="lg" variant="outlined" mandatory
@@ -18,7 +20,7 @@
           <v-btn value="nav" size="small" color="secondary">{{ t('config.entry_type_nav') }}</v-btn>
           <v-btn value="camera" size="small" color="info">{{ t('config.entry_type_camera') }}</v-btn>
         </v-btn-toggle>
-      </v-card-title>
+      </div>
 
       <v-card-text class="d-flex flex-column ga-3 px-4 py-3">
         <!-- Nav entry -->
@@ -156,6 +158,14 @@
             :placeholder="t('camera_status.config.active_state_placeholder')" density="compact" hide-details="auto" />
           <UiColorPicker v-model="draft.active_color" :label="t('camera_status.config.active_color')" clearable />
           <UiColorPicker v-model="draft.inactive_color" :label="t('camera_status.config.inactive_color')" clearable />
+          <div>
+            <p class="text-caption text-medium-emphasis mb-1">{{ t('config.stream_type') }}</p>
+            <v-btn-toggle v-model="draft.default_stream" density="compact" rounded="lg" variant="outlined">
+              <v-btn value="webrtc" size="small">{{ t('config.stream_type_webrtc') }}</v-btn>
+              <v-btn value="mjpeg" size="small">{{ t('config.stream_type_mjpeg') }}</v-btn>
+              <v-btn value="snapshot" size="small">{{ t('config.stream_type_snapshot') }}</v-btn>
+            </v-btn-toggle>
+          </div>
         </template>
 
         <!-- Single entity -->
@@ -257,6 +267,27 @@
         </template>
       </v-card-text>
 
+      <!-- User exclusion (admin only, not for dividers) -->
+      <template v-if="currentUser?.role === 'admin' && draft.entry_type !== 'divider'">
+        <v-divider class="mx-4" />
+        <div class="px-4 py-3">
+          <p class="text-caption text-medium-emphasis mb-1">{{ t('config.excluded_users') }}</p>
+          <p class="text-caption text-disabled mb-2">{{ t('config.excluded_users_hint') }}</p>
+          <div class="d-flex flex-wrap ga-1">
+            <button
+              v-for="u in allUsers"
+              :key="u.id"
+              class="user-excl-btn"
+              :class="{ 'user-excl-btn--on': (draft.excluded_user_ids ?? []).includes(u.id) }"
+              @click="toggleExcludedUser(u.id)"
+            >
+              <v-icon icon="mdi-account-outline" size="11" />
+              {{ u.username }}
+            </button>
+          </div>
+        </div>
+      </template>
+
       <v-card-actions class="px-4 pb-4">
         <v-spacer />
         <v-btn variant="text" @click="emit('update:modelValue', false)">{{ t('common.cancel') }}</v-btn>
@@ -270,6 +301,23 @@
 const { t } = useI18n()
 const { glass } = useGlassEffect()
 const entityStore = useEntityStore()
+const { user: currentUser } = useUserSession()
+
+interface UserSummary { id: string; username: string }
+const allUsers = ref<UserSummary[]>([])
+onMounted(async () => {
+  if (currentUser.value?.role === 'admin') {
+    const users = await $fetch<UserSummary[]>('/api/users')
+    allUsers.value = users.filter(u => u.id !== currentUser.value?.id)
+  }
+})
+
+function toggleExcludedUser(userId: string) {
+  const current: string[] = draft.value.excluded_user_ids ?? []
+  const idx = current.indexOf(userId)
+  if (idx === -1) draft.value.excluded_user_ids = [...current, userId]
+  else draft.value.excluded_user_ids = current.filter(id => id !== userId)
+}
 
 const props = defineProps<{
   modelValue: boolean
@@ -463,3 +511,28 @@ watch(draft, (d) => {
   }
 }, { deep: true, immediate: true })
 </script>
+
+<style scoped>
+.user-excl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(var(--v-border-color), 0.16);
+  background: none;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.user-excl-btn:hover { background: rgba(var(--v-theme-on-surface), 0.06); }
+
+.user-excl-btn--on {
+  background: rgba(var(--v-theme-error), 0.10);
+  border-color: rgba(var(--v-theme-error), 0.35);
+  color: rgb(var(--v-theme-error));
+}
+</style>

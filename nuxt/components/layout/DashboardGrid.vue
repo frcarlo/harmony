@@ -44,10 +44,18 @@ const currentDevice = computed<'desktop' | 'tablet' | 'mobile'>(() => {
   if (md.value) return 'tablet'
   return 'desktop'
 })
+const { user } = useUserSession()
 const allWidgets = computed(() => dashboardStore.dashboard?.widgets ?? [])
 const widgets = computed(() => {
   if (props.editMode) return allWidgets.value
-  return allWidgets.value.filter((widget) => widget.visibility?.[currentDevice.value] !== false)
+  const allowedTypes = user.value?.allowed_widget_types
+  const userId = user.value?.id
+  return allWidgets.value.filter((widget) => {
+    if (widget.visibility?.[currentDevice.value] === false) return false
+    if (allowedTypes && allowedTypes.length > 0 && !allowedTypes.includes(widget.type)) return false
+    if (userId && widget.excluded_user_ids?.includes(userId)) return false
+    return true
+  })
 })
 const maxWidthStyle = computed(() => {
   const mw = dashboardStore.dashboard?.grid_config?.max_width
