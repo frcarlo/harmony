@@ -92,9 +92,9 @@ function setTheme(id: string | null) {
 }
 
 .theme-card-glass {
-  backdrop-filter: blur(20px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-  background: rgb(var(--v-theme-surface) / 0.4) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  background: rgb(var(--v-theme-surface) / 0.82) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(var(--v-border-color), 0.2) !important;
 }

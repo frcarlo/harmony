@@ -40,6 +40,10 @@ export function useMAClient() {
     return $fetch<MASearchResult>('/api/ma/search', { query: { q: query } })
   }
 
+  async function getLibraryItems(type = 'playlist', limit = 200): Promise<MAItem[]> {
+    return $fetch<MAItem[]>('/api/ma/library', { query: { type, limit } })
+  }
+
   async function getRecentlyPlayed(limit = 12): Promise<MAItem[]> {
     return $fetch<MAItem[]>('/api/ma/recent', { query: { limit } })
   }
@@ -53,7 +57,7 @@ export function useMAClient() {
 
   const isAvailable = computed(() => _available.value ?? false)
 
-  return { checkStatus, search, getRecentlyPlayed, getPlayers, playViaMA, maImageUrl, isAvailable }
+  return { checkStatus, search, getRecentlyPlayed, getLibraryItems, getPlayers, playViaMA, maImageUrl, isAvailable }
 }
 
 export type { MASearchResult, MAItem }

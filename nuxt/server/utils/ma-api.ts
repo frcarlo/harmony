@@ -101,3 +101,11 @@ export async function maRecentlyPlayed(limit = 12): Promise<MAItem[]> {
   const raw = await maCall('music/recently_played_items', { limit }, 20_000)
   return Array.isArray(raw) ? raw as MAItem[] : []
 }
+
+export async function maLibraryItems(mediaType: string, limit = 200): Promise<MAItem[]> {
+  const raw = await maCall('music/library_items', { media_type: mediaType, limit }, 20_000)
+  if (Array.isArray(raw)) return raw as MAItem[]
+  // MA may return { items: [...] }
+  const result = raw as Record<string, unknown>
+  return Array.isArray(result.items) ? result.items as MAItem[] : []
+}

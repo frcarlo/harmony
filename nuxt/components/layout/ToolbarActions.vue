@@ -2,9 +2,10 @@
   <ConnectionStatus class="mr-2" />
 
   <v-btn icon="mdi-bell-cog-outline" size="small" variant="text" @click="openDialog" />
+  <v-btn icon="mdi-music-note" size="small" variant="text" :title="t('toolbar.music')" to="/music" />
 
   <!-- User menu (always visible, contains mobile extras) -->
-  <v-menu>
+  <v-menu :close-on-content-click="false">
     <template #activator="{ props: mp }">
       <v-btn icon="mdi-account-circle-outline" size="small" variant="text" v-bind="mp" />
     </template>
@@ -72,6 +73,7 @@
         />
         <v-divider class="my-1" />
 
+        <v-list-item prepend-icon="mdi-music-note" :title="t('toolbar.music')" rounded="lg" to="/music" />
         <v-list-item v-if="user?.role === 'admin'" prepend-icon="mdi-account-cog-outline"
           :title="t('toolbar.user_mgmt')" rounded="lg" to="/admin/users" />
         <v-list-item
@@ -85,7 +87,7 @@
           :title="t('toolbar.reset_local_settings')"
           :subtitle="t('toolbar.reset_local_settings_hint')"
           rounded="lg"
-          @click="resetLocalSettings"
+          @click="resetConfirmOpen = true"
         />
         <v-list-item prepend-icon="mdi-logout" :title="t('toolbar.logout')" rounded="lg" @click="logout" />
         <v-divider class="my-1" />
@@ -94,6 +96,21 @@
       </v-list>
     </v-card>
   </v-menu>
+
+  <!-- Reset local settings confirmation -->
+  <v-dialog v-model="resetConfirmOpen" max-width="380">
+    <v-card rounded="xl" :class="{ 'theme-card-glass': glass }">
+      <v-card-text class="pa-6">
+        <div class="text-subtitle-1 font-weight-bold mb-2">{{ t('toolbar.reset_local_settings') }}</div>
+        <div class="text-body-2 text-medium-emphasis">{{ t('toolbar.reset_local_settings_confirm') }}</div>
+      </v-card-text>
+      <v-card-actions class="px-6 pb-5">
+        <v-spacer />
+        <v-btn variant="text" @click="resetConfirmOpen = false">{{ t('common.cancel') }}</v-btn>
+        <v-btn color="error" variant="flat" @click="confirmResetLocalSettings">{{ t('toolbar.reset_local_settings') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   <!-- Self-service password change dialog -->
   <v-dialog v-model="changePwDialog" max-width="380">
@@ -104,20 +121,24 @@
           <v-text-field
             v-model="changePwForm.current_password"
             :label="t('users.current_password')"
-            type="password"
+            :type="showCurrentPw ? 'text' : 'password'"
             density="compact"
             variant="outlined"
             hide-details
             autofocus
+            :append-inner-icon="showCurrentPw ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append-inner="showCurrentPw = !showCurrentPw"
           />
           <v-text-field
             v-model="changePwForm.new_password"
             :label="t('users.new_password')"
-            type="password"
+            :type="showNewPw ? 'text' : 'password'"
             density="compact"
             variant="outlined"
             hide-details="auto"
             :rules="[v => v.length >= 8 || t('login.error_min_length')]"
+            :append-inner-icon="showNewPw ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append-inner="showNewPw = !showNewPw"
           />
           <v-alert v-if="changePwError" type="error" density="compact" :text="changePwError" />
         </div>
@@ -203,15 +224,26 @@ async function logout() {
   }
 }
 
+const resetConfirmOpen = ref(false)
+
+function confirmResetLocalSettings() {
+  resetConfirmOpen.value = false
+  resetLocalSettings()
+}
+
 const changePwDialog = ref(false)
 const changePwForm = reactive({ current_password: '', new_password: '' })
 const changePwError = ref('')
 const changePwSaving = ref(false)
+const showCurrentPw = ref(false)
+const showNewPw = ref(false)
 
 function openChangePassword() {
   changePwForm.current_password = ''
   changePwForm.new_password = ''
   changePwError.value = ''
+  showCurrentPw.value = false
+  showNewPw.value = false
   changePwDialog.value = true
 }
 

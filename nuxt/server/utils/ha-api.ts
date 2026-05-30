@@ -44,6 +44,35 @@ export async function getHAStatistics(
   })).filter(e => e.state !== 'null' && e.state !== '0' || true)
 }
 
+export interface EnergyStatPoint {
+  start: string
+  sum: number
+}
+
+// Energy sensors (total_increasing) have cumulative state values — we fetch raw history
+// and treat each state reading as the meter total. Delta = consumption.
+export async function getHAEnergyStats(
+  entityId: string,
+  startTime: string,
+  endTime: string,
+): Promise<EnergyStatPoint[]> {
+  const params = new URLSearchParams({
+    filter_entity_id: entityId,
+    minimal_response: 'true',
+    no_attributes: 'true',
+    end_time: endTime,
+  })
+  const url = `${haUrl()}/api/history/period/${encodeURIComponent(startTime)}?${params}`
+  const res = await fetch(url, { headers: haHeaders(), cache: 'no-store', signal: AbortSignal.timeout(30_000) })
+  if (!res.ok) return []
+  const data = await res.json() as unknown
+  const raw = (Array.isArray(data) ? (data as unknown[]).flat() : []) as Array<{ last_changed: string; state: string }>
+  return raw
+    .filter(d => d.state !== 'unavailable' && d.state !== 'unknown')
+    .map(d => ({ start: d.last_changed, sum: parseFloat(d.state) }))
+    .filter(d => !isNaN(d.sum))
+}
+
 export function downsampleHistory(
   points: Array<{ last_changed: string; state: string }>,
   maxPoints: number,

@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 d-flex flex-column">
-    <div class="d-flex align-center ga-2 px-3 pt-3 pb-1">
+    <div v-if="!hideHeader" class="d-flex align-center ga-2 px-3 pt-3 pb-1">
       <v-icon icon="mdi-camera" size="14" color="medium-emphasis" />
       <span class="text-caption text-medium-emphasis text-truncate flex-grow-1">{{ name }}</span>
 
@@ -206,7 +206,7 @@
 import type { CameraWidgetConfig, CameraStatusEntry } from '~/types/dashboard'
 
 const { t } = useI18n()
-const props = defineProps<{ config: CameraWidgetConfig }>()
+const props = defineProps<{ config: CameraWidgetConfig; hideHeader?: boolean }>()
 const name = computed(() => props.config.name ?? props.config.entity_id)
 const streamMode = computed(() => props.config.stream_type ?? 'webrtc')
 const { performanceMode } = useDashboardDisplayMode()
@@ -382,7 +382,6 @@ async function startStream() {
     pc.createDataChannel('dataSendChannel')
 
     pc.ontrack = (event) => {
-      console.log('[Camera] track received:', event.track.kind, 'streams:', event.streams.length)
       const stream = event.streams[0] ?? new MediaStream([event.track])
       if (videoEl.value) {
         if (!videoEl.value.srcObject) {
@@ -403,7 +402,6 @@ async function startStream() {
     }
 
     pc.oniceconnectionstatechange = () => {
-      console.log('[Camera] ICE state:', pc?.iceConnectionState)
       if (pc?.iceConnectionState === 'failed' || pc?.iceConnectionState === 'closed') {
         errorMsg.value = t('camera.disconnected')
         streamState.value = 'error'
@@ -423,16 +421,14 @@ async function startStream() {
     })
 
     const sdpOffer = pc.localDescription!.sdp
-    console.log('[Camera] Sending WebRTC offer to', props.config.entity_id)
 
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Timeout: keine Antwort von HA')), 15000)
+      const timeout = setTimeout(() => reject(new Error(t('camera.timeout'))), 15000)
 
       unsubscribeWebRTC = client.subscribeWebRTC(
         props.config.entity_id,
         sdpOffer,
         async (msg) => {
-          console.log('[Camera] WebRTC message:', msg)
           if (msg.type === 'answer' && msg.answer) {
             clearTimeout(timeout)
             await pc!.setRemoteDescription({ type: 'answer', sdp: msg.answer })
@@ -473,7 +469,7 @@ function stopStream() {
   opacity: 0.7;
 }
 .cam-battery__pct {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
 }

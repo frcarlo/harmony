@@ -88,6 +88,7 @@
         <LazySceneWidget v-else-if="widget.type === 'scene'" :config="widget.config as any" />
         <LazyTimerWidget v-else-if="widget.type === 'timer'" :config="widget.config as any" />
         <LazyCameraStatusWidget v-else-if="widget.type === 'camera_status'" :config="widget.config as any" />
+        <LazyPowerConsumersWidget v-else-if="widget.type === 'power_consumers'" :config="widget.config as any" />
         <div v-else class="pa-4 text-medium-emphasis text-body-2">{{ t('widget.unknown_type') }}</div>
       </template>
     </div>
@@ -146,7 +147,7 @@ const { t } = useI18n()
 const props = defineProps<{ widget: Widget; editMode: boolean; quickEdit?: boolean }>()
 const emit = defineEmits<{ quickEdit: [widgetId: string] }>()
 
-const LAZY_RENDER_TYPES = new Set(['gauge', 'chart', 'camera', 'calendar', 'calendar_v2', 'energy'])
+const LAZY_RENDER_TYPES = new Set(['gauge', 'chart', 'camera', 'calendar', 'calendar_v2', 'energy', 'power_consumers'])
 const isHeavyWidget = LAZY_RENDER_TYPES.has(props.widget.type)
 const contentEl = useTemplateRef<HTMLElement>('contentEl')
 const isVisible = ref(!isHeavyWidget)
@@ -522,7 +523,7 @@ const cardStyle = computed(() => {
   background: rgba(var(--v-theme-error), 0.12);
   border: 1px solid rgba(var(--v-theme-error), 0.28);
   color: rgb(var(--v-theme-error));
-  font-size: 0.65rem;
+  font-size: 11px;
   font-weight: 600;
   pointer-events: none;
 }
@@ -543,7 +544,7 @@ const cardStyle = computed(() => {
 }
 
 .widget-battery-level {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
   opacity: 0.85;

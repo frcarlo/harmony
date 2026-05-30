@@ -46,6 +46,7 @@ const props = defineProps<{
   placeholder?: string
   platform?: string
   numericOnly?: boolean
+  deviceClass?: string | string[]
 }>()
 defineEmits<{ 'update:modelValue': [v: string | undefined] }>()
 
@@ -78,6 +79,10 @@ const options = computed(() => {
     : all
   if (props.platform) filtered = filtered.filter((e) => entityStore.entityPlatformMap[e.entity_id] === props.platform)
   if (props.numericOnly) filtered = filtered.filter((e) => isNumericEntity(e))
+  if (props.deviceClass) {
+    const classes = Array.isArray(props.deviceClass) ? props.deviceClass : [props.deviceClass]
+    filtered = filtered.filter((e) => classes.includes((e.attributes as any)?.device_class ?? ''))
+  }
 
   // Apply area filter: specific selected area, or full allowed-areas restriction
   const effectiveAreas = selectedArea.value ? [selectedArea.value] : allowedAreaIds.value

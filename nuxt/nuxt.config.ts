@@ -6,7 +6,12 @@ const appManifestPath = resolve(__dirname, '.nuxt/manifest/meta/dev.json')
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   ssr: false,
-  devtools: { enabled: true },
+  devtools: { enabled: false },
+
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
 
   alias: {
     '#app-manifest': appManifestPath,

@@ -12,6 +12,7 @@
       <div class="d-flex flex-column">
         <span class="cs-state-label" :class="stateColor ? `text-${stateColor}` : ''">{{ stateLabel }}</span>
         <span v-if="stateUnit" class="text-caption text-medium-emphasis">{{ stateUnit }}</span>
+        <span v-if="lastChanged" class="cs-time">{{ lastChanged }}</span>
       </div>
     </div>
 
@@ -22,62 +23,16 @@
       rounded="lg"
       class="text-none"
       prepend-icon="mdi-camera"
-      @click="openDialog"
+      @click="dialogOpen = true"
     >
       {{ t('camera_status.open') }}
     </v-btn>
 
     <!-- Camera dialog -->
     <v-dialog v-model="dialogOpen" max-width="860">
-      <v-card class="dialog-glass">
-        <v-card-title class="d-flex align-center ga-2 pa-3 pb-2">
-          <v-icon icon="mdi-cctv" size="18" />
-          <span class="text-h6 font-weight-medium">{{ displayName }}</span>
-          <v-spacer />
-          <!-- Stream mode toggle — larger touch targets -->
-          <v-btn-toggle v-model="streamMode" density="comfortable" rounded="lg" mandatory class="mr-1">
-            <v-btn value="snapshot" size="small" icon="mdi-image-outline" :title="t('camera_status.snapshot')" />
-            <v-btn value="mjpeg"    size="small" icon="mdi-play-circle-outline" :title="t('camera_status.live')" />
-          </v-btn-toggle>
-          <v-btn icon="mdi-close" variant="text" size="large" @click="dialogOpen = false" />
-        </v-card-title>
-        <div class="px-4 pb-4 d-flex flex-column ga-3">
-          <div class="cs-snapshot-wrap rounded-lg">
-            <!-- MJPEG live stream -->
-            <img
-              v-if="streamMode === 'mjpeg' && dialogOpen && mjpegSrc"
-              :src="mjpegSrc"
-              class="cs-snapshot"
-              alt=""
-              @error="mjpegError = true"
-            />
-            <!-- Snapshot with auto-refresh -->
-            <img
-              v-else-if="streamMode === 'snapshot' && snapshotSrc"
-              :src="snapshotSrc"
-              class="cs-snapshot"
-              alt=""
-              @error="snapshotError = true"
-            />
-            <div
-              v-if="(streamMode === 'snapshot' && (snapshotError || !snapshotSrc)) || (streamMode === 'mjpeg' && (mjpegError || !mjpegSrc))"
-              class="cs-snapshot cs-snapshot--error d-flex align-center justify-center"
-            >
-              <v-icon icon="mdi-camera-off" size="48" style="opacity:0.3" />
-            </div>
-            <!-- Live badge on image -->
-            <div v-if="streamMode === 'mjpeg'" class="cs-live-badge">
-              <v-icon icon="mdi-circle" size="8" color="error" class="mr-1" />
-              {{ t('camera_status.live') }}
-            </div>
-          </div>
-          <div class="d-flex align-center ga-2">
-            <v-icon :icon="stateIcon" :color="stateColor" size="16" />
-            <span class="text-body-2" :class="stateColor ? `text-${stateColor}` : ''">{{ stateLabel }}</span>
-            <span v-if="stateUnit" class="text-caption text-medium-emphasis">{{ stateUnit }}</span>
-            <v-spacer />
-            <span v-if="lastChanged" class="text-caption text-medium-emphasis">{{ lastChanged }}</span>
-          </div>
+      <v-card class="dialog-glass" rounded="xl">
+        <div style="height: 520px; display: flex; flex-direction: column;">
+          <CameraWidget :config="cameraWidgetConfig" />
         </div>
       </v-card>
     </v-dialog>
@@ -85,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CameraStatusWidgetConfig } from '~/types/dashboard'
+import type { CameraStatusWidgetConfig, CameraWidgetConfig } from '~/types/dashboard'
 
 const { t, locale } = useI18n()
 const props = defineProps<{ config: CameraStatusWidgetConfig }>()
@@ -100,7 +55,7 @@ const displayName = computed(() =>
   props.config.name
   ?? (cameraEntity.value?.attributes?.friendly_name as string | undefined)
   ?? props.config.camera_entity_id?.split('.').pop()
-  ?? 'Kamera'
+  ?? t('widget.camera.label')
 )
 
 // ── Sensor state ──────────────────────────────────────────────────────────
@@ -166,67 +121,15 @@ const lastChanged = computed(() => {
   } catch { return null }
 })
 
-// ── Dialog & stream ───────────────────────────────────────────────────────
+// ── Dialog & camera widget config ─────────────────────────────────────────
 const dialogOpen = ref(false)
-const streamMode = ref<'snapshot' | 'mjpeg'>(props.config.default_stream ?? 'snapshot')
-const snapshotTs = ref(0)
-const snapshotError = ref(false)
-const mjpegError = ref(false)
 
-const snapshotSrc = computed(() =>
-  props.config.camera_entity_id && snapshotTs.value
-    ? `/api/camera/${props.config.camera_entity_id}?t=${snapshotTs.value}`
-    : null
-)
-
-const mjpegSrc = computed(() =>
-  props.config.camera_entity_id
-    ? `/api/camera/stream/${props.config.camera_entity_id}`
-    : null
-)
-
-let refreshTimer: ReturnType<typeof setInterval> | null = null
-const refreshMs = computed(() => (props.config.snapshot_refresh ?? 5) * 1000)
-
-function openDialog() {
-  snapshotError.value = false
-  mjpegError.value = false
-  snapshotTs.value = Date.now()
-  streamMode.value = props.config.default_stream ?? 'snapshot'
-  dialogOpen.value = true
-}
-
-watch(dialogOpen, (open) => {
-  if (open) {
-    if (streamMode.value === 'snapshot') {
-      refreshTimer = setInterval(() => {
-        snapshotError.value = false
-        snapshotTs.value = Date.now()
-      }, refreshMs.value)
-    }
-  } else {
-    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
-  }
-})
-
-// Switch refresh timer when mode changes
-watch(streamMode, (mode) => {
-  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null }
-  if (mode === 'snapshot' && dialogOpen.value) {
-    snapshotError.value = false
-    snapshotTs.value = Date.now()
-    refreshTimer = setInterval(() => {
-      snapshotError.value = false
-      snapshotTs.value = Date.now()
-    }, refreshMs.value)
-  } else {
-    mjpegError.value = false
-  }
-})
-
-onUnmounted(() => {
-  if (refreshTimer) clearInterval(refreshTimer)
-})
+const cameraWidgetConfig = computed<CameraWidgetConfig>(() => ({
+  entity_id: props.config.camera_entity_id ?? '',
+  name: displayName.value,
+  stream_type: props.config.default_stream ?? 'snapshot',
+  refresh_interval: props.config.snapshot_refresh,
+}))
 </script>
 
 <style scoped>
@@ -235,50 +138,20 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0.6;
   letter-spacing: 0.025em;
+}
+
+.cs-time {
+  font-size: 11px;
+  opacity: 0.5;
+  line-height: 1.3;
 }
 
 .cs-state-label {
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
-}
-
-.cs-snapshot-wrap {
-  position: relative;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  aspect-ratio: 16 / 9;
-  width: 100%;
-}
-
-.cs-live-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
-  padding: 3px 8px 3px 6px;
-  border-radius: 6px;
-  pointer-events: none;
-}
-
-.cs-snapshot {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.cs-snapshot--error {
-  height: 100%;
 }
 </style>
