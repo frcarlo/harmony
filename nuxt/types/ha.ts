@@ -63,6 +63,9 @@ export interface BrowseMediaNode {
   can_expand: boolean
   thumbnail?: string | null
   children?: BrowseMediaNode[]
+  artist?: string
+  album?: string
+  normalizedId?: string
 }
 
 export interface HAArea {

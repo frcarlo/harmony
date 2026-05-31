@@ -405,6 +405,11 @@
                 </div>
                 <div class="mp-track__info">
                   <div class="mp-track__title" :class="{ 'text-primary': isCurrentBrowseTrack(track) }">{{ track.title }}</div>
+                  <div v-if="track.artist || track.album" class="mp-track__sub">
+                    <span v-if="track.artist">{{ track.artist }}</span>
+                    <span v-if="track.artist && track.album" class="mp-track__sub-sep">·</span>
+                    <span v-if="track.album">{{ track.album }}</span>
+                  </div>
                 </div>
                 <v-menu location="bottom end" :close-on-content-click="true">
                   <template #activator="{ props: mp }">
@@ -1261,7 +1266,35 @@ async function openPlaylist(item: LibraryItem) {
     if (item.source === 'spotify' && item.browseNode) {
       const sId = spotifyEntityId.value || activeEntityId.value
       const node = await browseSpotify(sId, item.browseNode.media_content_type, item.browseNode.media_content_id)
-      tracks.value = (node.children ?? []).filter(t => t.can_play)
+      // Try to extract artist/album from any extra fields HA Spotify may return
+      const playable = (node.children ?? []).filter(t => t.can_play)
+      tracks.value = playable
+      // Enrich tracks: search MA once per unique title, match by Spotify track ID
+      const normId = (id: string) => id.split(/[:/]/).filter(Boolean).pop() ?? id
+      ;(async () => {
+        const uniqueTitles = [...new Set(playable.slice(0, 40).map(t => t.title))]
+        for (const q of uniqueTitles) {
+          try {
+            const res = await $fetch<{ tracks: Array<{ name: string; artists?: Array<{ name: string }>; album?: { name: string }; uri?: string }> }>(
+              '/api/ma/search', { query: { q, limit: 10 } }
+            )
+            const byId = new Map(
+              (res.tracks ?? []).filter(r => r.uri).map(r => [normId(r.uri!), r])
+            )
+            for (const t of playable) {
+              if (t.title !== q) continue
+              const trackId = normId(t.media_content_id)
+              const match = byId.get(trackId) ?? res.tracks?.find(r => r.name.toLowerCase() === q.toLowerCase())
+              if (match) {
+                t.artist = match.artists?.[0]?.name
+                t.album = match.album?.name
+                if (match.uri) t.normalizedId = normId(match.uri)
+              }
+            }
+            tracks.value = [...tracks.value]
+          } catch { /* ignore */ }
+        }
+      })()
     } else if (item.source === 'music_assistant' && item.maItem) {
       // MA: play directly (no track-level browse in this flow)
       tracks.value = []
@@ -1271,7 +1304,44 @@ async function openPlaylist(item: LibraryItem) {
 }
 
 function isCurrentBrowseTrack(track: BrowseMediaNode): boolean {
-  return !!title.value && track.title.toLowerCase() === title.value.toLowerCase()
+  if (!title.value) return false
+  const norm = (id: string) => id.split(/[:/]/).filter(Boolean).pop() ?? id
+  const entityId = entity.value?.attributes?.media_content_id as string | undefined
+
+  if (entityId) {
+    const nc = norm(entityId)
+    // Use MA-enriched normalizedId when available (most reliable)
+    const trackNorm = track.normalizedId ?? norm(track.media_content_id)
+    if (trackNorm === nc) return true
+    // Another track matches by ID → this one can't be current
+    if (tracks.value.some(t => (t.normalizedId ?? norm(t.media_content_id)) === nc)) return false
+  }
+
+  // Title mismatch → definitely not current
+  if (track.title.toLowerCase() !== title.value.toLowerCase()) return false
+
+  // Multiple tracks share this title → try artist disambiguation
+  const sameTitleTracks = tracks.value.filter(t => t.title.toLowerCase() === title.value!.toLowerCase())
+  if (sameTitleTracks.length > 1) {
+    const entityArtist = (entity.value?.attributes?.media_artist as string | undefined)?.toLowerCase()
+    if (entityArtist && track.artist) {
+      // Check: is the track's primary artist the ONLY artist currently playing?
+      // e.g. entity="Coez" + track.artist="Coez" → match; entity="Juli, Coez" + track.artist="Coez" → ambiguous
+      const eArtists = entityArtist.split(/,\s*/).map(a => a.trim())
+      const tArtists = track.artist.toLowerCase().split(/,\s*/).map(a => a.trim())
+      // Only match if the entity artist list exactly equals the track artist list (order-insensitive)
+      const sameArtists = eArtists.length === tArtists.length && tArtists.every(a => eArtists.includes(a))
+      if (sameArtists) return true
+      // If another track has an exact artist match, this one is not current
+      if (sameTitleTracks.some(t => {
+        if (!t.artist) return false
+        const ta = t.artist.toLowerCase().split(/,\s*/).map(a => a.trim())
+        return ta.length === eArtists.length && ta.every(a => eArtists.includes(a))
+      })) return false
+    }
+    return false // can't disambiguate safely
+  }
+  return true
 }
 
 async function shufflePlay() {
@@ -1291,7 +1361,7 @@ const playingItemId = ref<string | null>(null)
 async function enqueueMAItem(item: MAItem, mode: 'replace' | 'next' | 'add') {
   if (mode === 'replace') { await playMAItem(item); return }
   if (!activeEntityId.value) return
-  if (mode === 'add' && queueItems.value.some(qi => qi.media_item?.uri === item.uri || qi.name === item.name)) return
+  if (mode === 'add' && item.uri && queueItems.value.some(qi => qi.media_item?.uri === item.uri)) return
   playingItemId.value = item.uri
   try {
     await client.callService({
@@ -1308,7 +1378,7 @@ async function enqueueMAItem(item: MAItem, mode: 'replace' | 'next' | 'add') {
 
 async function enqueueBrowseItem(item: BrowseMediaNode, mode: 'replace' | 'next' | 'add') {
   if (!activeEntityId.value) return
-  if (mode === 'add' && queueItems.value.some(qi => qi.name === item.title || qi.media_item?.name === item.title)) return
+  if (mode === 'add' && queueItems.value.some(qi => qi.media_item?.uri === item.media_content_id)) return
   playingItemId.value = item.media_content_id
   try {
     await client.callService({
@@ -2329,6 +2399,8 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
 .mp-track-list--compact .mp-track { min-height: 32px; padding: 3px 0; }
 .mp-track-list--compact .mp-track__art { display: none; }
 .mp-track-list--compact .mp-track__info { font-size: 12px; }
+.mp-track-list--compact .mp-track__sub { display: flex; gap: 4px; }
+.mp-track__sub-sep { color: var(--mp-muted); }
 
 /* ── Placeholder ────────────────────────────────────────────── */
 .mp-placeholder {
