@@ -3,70 +3,43 @@
     <!-- Top bar -->
     <div class="mp-topbar">
       <v-btn icon="mdi-chevron-left" size="small" variant="text" class="mp-back-btn" to="/dashboard" />
-      <v-menu v-if="allPlayers.length" :close-on-content-click="true" offset="8">
-        <template #activator="{ props: mp }">
-          <button class="mp-device-chip" v-bind="mp">
-            <v-icon icon="mdi-speaker" size="13" />
-            <span class="mp-device-chip__source">{{ currentSource ?? currentPlayerName }}</span>
-            <v-icon icon="mdi-chevron-down" size="14" style="opacity:0.5" />
-          </button>
-        </template>
-        <v-card min-width="280" rounded="lg" color="#1a1a28" border style="max-height:70vh;display:flex;flex-direction:column">
-          <!-- Spotify Connect output devices -->
-          <template v-if="sourceList.length">
-            <div class="px-3 pt-3 pb-1 text-caption" style="color:#64748b;font-weight:600;letter-spacing:.05em">
-              {{ t('music.play_on').toUpperCase() }}
-            </div>
-            <v-list density="compact" nav bg-color="transparent">
-              <v-list-item
-                v-for="src in sourceList" :key="src"
-                :title="src"
-                :active="currentSource === src"
-                :prepend-icon="deviceIcon(src)"
-                color="primary"
-                rounded="lg"
-                @click="selectSource(src)"
-              />
-            </v-list>
-            <v-divider class="my-1" />
-          </template>
-
-          <!-- HA Player section with filter -->
-          <div class="px-3 pt-2 pb-1 text-caption" style="color:#64748b;font-weight:600;letter-spacing:.05em">
-            {{ t('music.ha_players').toUpperCase() }}
-          </div>
-          <!-- Filter badges -->
-          <div class="mp-player-filters px-2 pb-2">
-            <button
-              v-for="f in playerFilterOptions"
-              :key="f.key"
-              class="mp-player-filter"
-              :class="{ active: playerFilter === f.key }"
-              @click.stop="playerFilter = f.key"
-            >
-              <v-icon :icon="f.icon" size="11" />
-              {{ f.label }}
+      <div class="mp-topbar-chips">
+        <!-- Spotify account chip -->
+        <v-menu v-if="spotifyPlayers.length" :close-on-content-click="true" offset="8">
+          <template #activator="{ props: sm }">
+            <button class="mp-device-chip mp-device-chip--spotify" v-bind="sm">
+              <v-icon icon="mdi-spotify" size="13" />
+              <span class="mp-device-chip__source">{{ spotifyAccountName }}</span>
+              <v-icon icon="mdi-chevron-down" size="13" style="opacity:0.5" />
             </button>
-          </div>
-
-          <div style="overflow-y:auto;flex:1">
-            <v-list density="compact" nav bg-color="transparent">
+          </template>
+          <v-card min-width="200" rounded="lg" color="#1a1a28" border>
+            <v-list density="compact" nav bg-color="transparent" class="py-1">
               <v-list-item
-                v-for="p in filteredPlayers" :key="p.entity_id"
+                v-for="p in spotifyPlayers" :key="p.entity_id"
                 :title="p.state.attributes?.friendly_name as string ?? p.entity_id"
-                :subtitle="playerIntegration(p.entity_id)"
-                :active="activeEntityId === p.entity_id"
-                :prepend-icon="playerIcon(p.entity_id)"
+                :active="spotifyEntityId === p.entity_id"
+                prepend-icon="mdi-spotify"
                 color="primary"
                 rounded="lg"
-                @click="activeEntityId = p.entity_id"
+                @click="selectSpotifyAccount(p.entity_id)"
               />
-              <v-list-item v-if="!filteredPlayers.length" title="No players" disabled />
             </v-list>
-          </div>
-        </v-card>
-      </v-menu>
+          </v-card>
+        </v-menu>
+
+        <!-- MA player chip → players page -->
+        <button v-if="maPlayers.length" class="mp-device-chip" @click="goPlayers">
+          <v-icon :icon="playerIcon(activeMAEntityId)" size="13" />
+          <span class="mp-device-chip__source">{{ activeMAPlayerName }}</span>
+          <v-icon icon="mdi-chevron-right" size="13" style="opacity:0.5" />
+        </button>
+      </div>
       <div class="mp-topbar-right">
+        <div class="mp-clock">
+          <span class="mp-clock__time">{{ clockTime }}</span>
+          <span class="mp-clock__date">{{ clockDate }}</span>
+        </div>
         <ConnectionStatus />
         <button v-if="smAndDown" class="mp-sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
           <v-icon icon="mdi-bookshelf" size="18" />
@@ -94,6 +67,14 @@
             <v-icon icon="mdi-magnify" size="17" />
             <span>{{ t('music.search_button') }}</span>
           </button>
+          <button class="mp-nav-btn" :class="{ active: view === 'radio' }" @click="goRadio">
+            <v-icon icon="mdi-radio" size="17" />
+            <span>{{ t('music.radio') }}</span>
+          </button>
+          <button class="mp-nav-btn" :class="{ active: view === 'players' }" @click="goPlayers">
+            <v-icon icon="mdi-speaker-multiple" size="17" />
+            <span>{{ t('music.players') }}</span>
+          </button>
         </nav>
 
         <div class="mp-library">
@@ -106,20 +87,6 @@
             </button>
           </div>
 
-          <!-- Filter badges -->
-          <div v-if="availableFilters.length > 1" class="mp-lib-filters">
-            <button
-              v-for="f in availableFilters"
-              :key="f.key"
-              class="mp-lib-filter"
-              :class="{ active: libraryFilter === f.key }"
-              @click="libraryFilter = f.key"
-            >
-              <v-icon v-if="f.key === 'spotify'" icon="mdi-spotify" size="12" />
-              <v-icon v-else-if="f.key === 'music_assistant'" icon="mdi-music-circle" size="12" />
-              {{ f.label }}
-            </button>
-          </div>
 
           <div v-if="libraryLoading" class="mp-center py-4">
             <v-progress-circular indeterminate size="18" color="primary" />
@@ -302,6 +269,9 @@
                           <v-list-item prepend-icon="mdi-play" :title="t('music.play')" @click="enqueueMAItem(item, 'replace')" />
                           <v-list-item prepend-icon="mdi-skip-next" :title="t('music.play_next')" @click="enqueueMAItem(item, 'next')" />
                           <v-list-item prepend-icon="mdi-playlist-plus" :title="t('music.add_to_queue')" @click="enqueueMAItem(item, 'add')" />
+                          <v-divider class="my-1" />
+                          <v-list-item prepend-icon="mdi-radio" :title="t('music.start_radio')" @click="startRadioFromMAItem(item)" />
+                          <v-list-item prepend-icon="mdi-playlist-edit" :title="t('music.add_to_playlist')" @click="openAddToPlaylist(item)" />
                         </v-list>
                       </v-menu>
                     </button>
@@ -421,10 +391,171 @@
                     <v-list-item prepend-icon="mdi-play" :title="t('music.play')" @click="enqueueBrowseItem(track, 'replace')" />
                     <v-list-item prepend-icon="mdi-skip-next" :title="t('music.play_next')" @click="enqueueBrowseItem(track, 'next')" />
                     <v-list-item prepend-icon="mdi-playlist-plus" :title="t('music.add_to_queue')" @click="enqueueBrowseItem(track, 'add')" />
+                    <v-divider class="my-1" />
+                    <v-list-item prepend-icon="mdi-radio" :title="t('music.start_radio')" @click="startRadioFromBrowseItem(track)" />
+                    <v-list-item prepend-icon="mdi-playlist-edit" :title="t('music.add_to_playlist')" @click="openAddToPlaylist(track)" />
+                    <v-list-item v-if="activePlaylistMaItem?.uri" prepend-icon="mdi-playlist-minus" :title="t('music.remove_from_playlist')" @click="removeFromCurrentPlaylist(track, idx)" />
                   </v-list>
                 </v-menu>
               </div>
             </div>
+          </template>
+
+          <!-- RADIO VIEW -->
+          <template v-else-if="view === 'radio'">
+            <div class="mp-radio-hdr">
+              <div class="mp-radio-hdr__left">
+                <div class="mp-radio-hdr__icon">
+                  <v-icon icon="mdi-radio" size="18" />
+                </div>
+                <h2 class="mp-radio-hdr__title">Radio</h2>
+                <span v-if="radioItems.length" class="mp-radio-hdr__count">{{ radioItems.length }}</span>
+              </div>
+              <svg class="mp-radio-wave" viewBox="0 0 160 20" fill="none" preserveAspectRatio="none">
+                <path d="M0 10 Q8 2 16 10 Q24 18 32 10 Q40 2 48 10 Q56 18 64 10 Q72 2 80 10 Q88 18 96 10 Q104 2 112 10 Q120 18 128 10 Q136 2 144 10 Q152 18 160 10" stroke="currentColor" stroke-width="1.5" fill="none" />
+              </svg>
+            </div>
+
+            <div v-if="radioLoading" class="mp-center py-8">
+              <v-progress-circular indeterminate size="32" color="primary" />
+            </div>
+            <div v-else-if="!radioItems.length" class="mp-placeholder">
+              <v-icon icon="mdi-radio-tower" size="56" style="opacity:0.25" />
+              <p>{{ t('music.no_radio') }}</p>
+            </div>
+            <div v-else class="mp-radio-grid">
+              <button
+                v-for="station in radioItems"
+                :key="station.uri"
+                class="mp-radio-card"
+                :class="{ 'mp-radio-card--on': isRadioPlaying(station) }"
+                @click="isRadioPlaying(station) ? command('media_pause') : playMAItem(station)"
+              >
+                <div class="mp-radio-card__art">
+                  <img v-if="maImageUrl(station)" :src="maImageUrl(station)" alt="" loading="lazy" />
+                  <v-icon v-else icon="mdi-radio" size="32" style="opacity:0.35" />
+                  <div class="mp-radio-card__overlay">
+                    <div class="mp-radio-card__play-btn">
+                      <v-progress-circular v-if="playingItemId === station.uri" indeterminate size="20" color="white" width="2" />
+                      <v-icon v-else-if="isRadioPlaying(station)" icon="mdi-stop" size="24" />
+                      <v-icon v-else icon="mdi-play" size="24" />
+                    </div>
+                  </div>
+                  <div v-if="isRadioPlaying(station)" class="mp-radio-on-badge">
+                    <span class="mp-radio-on-dot" />
+                    ON AIR
+                  </div>
+                </div>
+                <div class="mp-radio-card__body">
+                  <div class="mp-radio-card__name">{{ station.name }}</div>
+                  <div v-if="station.metadata?.description" class="mp-radio-card__sub">{{ station.metadata.description }}</div>
+                  <div v-if="isRadioPlaying(station)" class="mp-radio-eq">
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                  </div>
+                </div>
+              </button>
+            </div>
+          </template>
+
+          <!-- PLAYERS VIEW -->
+          <template v-else-if="view === 'players'">
+            <div class="mp-radio-hdr">
+              <div class="mp-radio-hdr__left">
+                <div class="mp-radio-hdr__icon">
+                  <v-icon icon="mdi-speaker-multiple" size="22" />
+                </div>
+                <h2 class="mp-radio-hdr__title">{{ t('music.players') }}</h2>
+                <span v-if="allPlayers.length" class="mp-radio-hdr__count">{{ allPlayers.length }}</span>
+              </div>
+            </div>
+
+            <!-- Spotify accounts -->
+            <template v-if="spotifyPlayers.length">
+              <div class="mp-players-section-hdr">
+                <v-icon icon="mdi-spotify" size="13" />
+                {{ t('music.spotify_accounts') }}
+              </div>
+              <div class="mp-players-grid">
+                <button
+                  v-for="p in spotifyPlayers"
+                  :key="p.entity_id"
+                  class="mp-player-card"
+                  :class="{
+                    'mp-player-card--active': spotifyEntityId === p.entity_id,
+                    'mp-player-card--playing': isPlayerPlaying(p.entity_id),
+                  }"
+                  @click="selectSpotifyAccount(p.entity_id)"
+                >
+                  <div
+                    v-if="playerArt(p.entity_id)"
+                    class="mp-player-card__art-bg"
+                    :style="{ backgroundImage: `url(${playerArt(p.entity_id)})` }"
+                  />
+                  <div class="mp-player-card__icon">
+                    <v-icon icon="mdi-spotify" size="26" />
+                  </div>
+                  <div class="mp-player-card__name">{{ playerFriendlyName(p.entity_id) }}</div>
+                  <div class="mp-player-card__sub">{{ playerNowPlaying(p.entity_id) }}</div>
+                  <div v-if="playerSource(p.entity_id)" class="mp-player-card__source">
+                    <v-icon icon="mdi-speaker" size="10" />
+                    {{ playerSource(p.entity_id) }}
+                  </div>
+                  <div v-if="isPlayerPlaying(p.entity_id)" class="mp-radio-eq mt-2">
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                  </div>
+                </button>
+              </div>
+            </template>
+
+            <!-- MA players -->
+            <template v-if="maPlayers.length">
+              <div class="mp-players-section-hdr">
+                <v-icon icon="mdi-music-circle" size="13" />
+                {{ t('music.ha_players') }}
+              </div>
+              <div class="mp-players-grid">
+                <button
+                  v-for="p in maPlayers"
+                  :key="p.entity_id"
+                  class="mp-player-card"
+                  :class="{
+                    'mp-player-card--active': activeMAEntityId === p.entity_id,
+                    'mp-player-card--playing': isPlayerPlaying(p.entity_id),
+                  }"
+                  @click="selectMAPlayer(p.entity_id)"
+                >
+                  <div
+                    v-if="playerArt(p.entity_id)"
+                    class="mp-player-card__art-bg"
+                    :style="{ backgroundImage: `url(${playerArt(p.entity_id)})` }"
+                  />
+                  <div class="mp-player-card__icon">
+                    <v-icon :icon="playerIcon(p.entity_id)" size="26" />
+                  </div>
+                  <div class="mp-player-card__name">{{ playerFriendlyName(p.entity_id) }}</div>
+                  <div class="mp-player-card__sub">{{ playerNowPlaying(p.entity_id) }}</div>
+                  <div v-if="playerSource(p.entity_id)" class="mp-player-card__source">
+                    <v-icon icon="mdi-speaker" size="10" />
+                    {{ playerSource(p.entity_id) }}
+                  </div>
+                  <div v-if="isPlayerPlaying(p.entity_id)" class="mp-radio-eq mt-2">
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                  </div>
+                </button>
+              </div>
+            </template>
           </template>
 
           <!-- SECTION LIST VIEW -->
@@ -463,6 +594,9 @@
                     <v-list-item prepend-icon="mdi-play" :title="t('music.play')" @click="enqueueMAItem(item, 'replace')" />
                     <v-list-item prepend-icon="mdi-skip-next" :title="t('music.play_next')" @click="enqueueMAItem(item, 'next')" />
                     <v-list-item prepend-icon="mdi-playlist-plus" :title="t('music.add_to_queue')" @click="enqueueMAItem(item, 'add')" />
+                    <v-divider class="my-1" />
+                    <v-list-item prepend-icon="mdi-radio" :title="t('music.start_radio')" @click="startRadioFromMAItem(item)" />
+                    <v-list-item prepend-icon="mdi-playlist-edit" :title="t('music.add_to_playlist')" @click="openAddToPlaylist(item)" />
                   </v-list>
                 </v-menu>
               </button>
@@ -493,6 +627,9 @@
                     <v-list-item prepend-icon="mdi-play" :title="t('music.play')" @click="enqueueBrowseItem(item, 'replace')" />
                     <v-list-item prepend-icon="mdi-skip-next" :title="t('music.play_next')" @click="enqueueBrowseItem(item, 'next')" />
                     <v-list-item prepend-icon="mdi-playlist-plus" :title="t('music.add_to_queue')" @click="enqueueBrowseItem(item, 'add')" />
+                    <v-divider class="my-1" />
+                    <v-list-item prepend-icon="mdi-radio" :title="t('music.start_radio')" @click="startRadioFromBrowseItem(item)" />
+                    <v-list-item prepend-icon="mdi-playlist-edit" :title="t('music.add_to_playlist')" @click="openAddToPlaylist(item)" />
                   </v-list>
                 </v-menu>
               </button>
@@ -628,6 +765,40 @@
       </transition>
     </div>
 
+    <!-- Add to playlist dialog -->
+    <v-dialog v-model="showAddToPlaylist" max-width="360" rounded="xl">
+      <v-card color="#131320" rounded="xl" border style="border-color:rgba(255,255,255,0.08)">
+        <div class="px-4 pt-4 pb-2" style="font-size:14px;font-weight:700;color:#e2e8f0">
+          {{ t('music.add_to_playlist_title') }}
+        </div>
+        <div style="max-height:320px;overflow-y:auto">
+          <v-list density="compact" nav bg-color="transparent">
+            <v-list-item
+              v-for="pl in maLibraryPlaylists"
+              :key="pl.id"
+              :title="pl.title"
+              rounded="lg"
+              @click="confirmAddToPlaylist(pl)"
+            >
+              <template #prepend>
+                <div class="mp-atp-art">
+                  <img v-if="pl.thumbnail" :src="pl.thumbnail" alt="" />
+                  <v-icon v-else icon="mdi-music-note" size="14" />
+                </div>
+              </template>
+              <template #append>
+                <v-icon v-if="addedToPlaylistId === pl.id" icon="mdi-check" size="16" color="primary" />
+              </template>
+            </v-list-item>
+            <v-list-item v-if="!maLibraryPlaylists.length" title="No MA playlists" disabled />
+          </v-list>
+        </div>
+        <div class="pa-2">
+          <v-btn block variant="text" size="small" @click="showAddToPlaylist = false">{{ t('common.close') }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+
     <!-- Bottom player bar -->
     <div class="mp-player" :class="{ 'mp-player--idle': !title }">
       <!-- Track info -->
@@ -709,62 +880,116 @@
         </button>
 
         <!-- Connect to device -->
-        <v-menu :close-on-content-click="true" location="top" offset="12">
-          <template #activator="{ props: cp }">
-            <button
-              class="mp-ctrl mp-ctrl--connect"
-              :class="{ 'mp-ctrl--on': currentSource }"
-              :title="t('music.connect_device')"
-              v-bind="cp"
-            >
-              <v-icon icon="mdi-cast-audio" size="18" />
-            </button>
-          </template>
-          <v-card min-width="260" rounded="lg" color="#1a1a28" border>
-            <div class="px-3 pt-3 pb-1 text-caption" style="color:#64748b;font-weight:600;letter-spacing:.05em">
-              {{ t('music.connect_device').toUpperCase() }}
-            </div>
-            <!-- Current device -->
-            <div v-if="currentSource" class="mp-connect-current px-3 py-2">
-              <v-icon :icon="deviceIcon(currentSource)" size="16" color="primary" />
-              <div>
-                <div class="mp-connect-current__name">{{ currentSource }}</div>
-                <div class="mp-connect-current__label">{{ t('music.connect_now_playing') }}</div>
+        <button
+          class="mp-ctrl mp-ctrl--connect"
+          :class="{ 'mp-ctrl--on': currentSource }"
+          :title="t('music.connect_device')"
+          @click="connectSheet = true"
+        >
+          <v-icon icon="mdi-cast-audio" size="18" />
+        </button>
+        <v-bottom-sheet v-model="connectSheet" :scrim="true" content-class="mp-connect-sheet-wrap">
+          <v-card class="mp-connect-sheet" flat>
+            <div class="mp-connect-sheet__glow" />
+            <div class="mp-connect-sheet__grip" />
+            <div class="mp-connect-sheet__inner">
+              <div class="mp-connect-sheet__head">
+                <span class="mp-connect-sheet__badge">
+                  <v-icon icon="mdi-cast-audio" size="18" />
+                </span>
+                <div class="mp-connect-sheet__titles">
+                  <h3 class="mp-connect-sheet__title">{{ t('music.connect_device') }}</h3>
+                  <span class="mp-connect-sheet__sub">{{ filteredSources.length + filteredMATargets.length }} {{ t('music.players') }}</span>
+                </div>
+                <v-spacer />
+                <button class="mp-connect-sheet__close" :aria-label="t('common.close')" @click="connectSheet = false">
+                  <v-icon icon="mdi-close" size="20" />
+                </button>
               </div>
-            </div>
-            <v-divider v-if="currentSource && sourceList.length > 1" class="my-1" />
-            <!-- Other devices -->
-            <v-list density="compact" nav bg-color="transparent">
-              <v-list-item
-                v-for="src in sourceList.filter(s => s !== currentSource)"
-                :key="src"
-                :title="src"
-                :prepend-icon="deviceIcon(src)"
+
+              <v-text-field
+                v-model="connectSearch"
+                :placeholder="t('music.search_devices')"
+                prepend-inner-icon="mdi-magnify"
+                variant="solo-filled"
+                density="comfortable"
+                hide-details
                 rounded="lg"
-                @click="selectSource(src)"
+                flat
+                class="mp-connect-sheet__search"
               />
-            </v-list>
-            <!-- MA players as transfer targets (deduplicated by name) -->
-            <template v-if="maTransferTargets.length">
-              <v-divider class="my-1" />
-              <div class="px-3 pb-1 text-caption" style="color:#64748b;font-weight:600;letter-spacing:.05em">
-                {{ t('music.ma_section').toUpperCase() }}
+
+              <div class="mp-connect-sheet__scroll">
+                <!-- Current device -->
+                <div v-if="currentSource" class="mp-connect-now">
+                  <span class="mp-connect-now__chip">
+                    <v-icon :icon="deviceIcon(currentSource)" size="20" />
+                  </span>
+                  <div class="mp-connect-now__txt">
+                    <div class="mp-connect-now__name">{{ currentSource }}</div>
+                    <div class="mp-connect-now__label">{{ t('music.connect_now_playing') }}</div>
+                  </div>
+                  <div class="mp-radio-eq mp-connect-now__eq">
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                    <span class="mp-radio-eq__bar" />
+                  </div>
+                </div>
+
+                <!-- Source devices -->
+                <div v-if="filteredSources.length" class="mp-connect-grid">
+                  <button
+                    v-for="(src, i) in filteredSources"
+                    :key="src"
+                    class="mp-connect-tile"
+                    :style="{ '--d': i }"
+                    @click="selectSource(src)"
+                  >
+                    <span class="mp-connect-tile__chip">
+                      <v-icon :icon="deviceIcon(src)" size="24" />
+                    </span>
+                    <span class="mp-connect-tile__name">{{ src }}</span>
+                  </button>
+                </div>
+
+                <!-- MA players as transfer targets -->
+                <template v-if="filteredMATargets.length">
+                  <div class="mp-connect-grouphdr">
+                    <span class="mp-connect-grouphdr__line" />
+                    {{ t('music.ma_section') }}
+                    <span class="mp-connect-grouphdr__line" />
+                  </div>
+                  <div class="mp-connect-grid">
+                    <button
+                      v-for="(p, i) in filteredMATargets"
+                      :key="p.entity_id"
+                      class="mp-connect-tile"
+                      :class="{ 'mp-connect-tile--active': activeEntityId === p.entity_id }"
+                      :style="{ '--d': i }"
+                      @click="transferToMAPlayer(p.entity_id)"
+                    >
+                      <span class="mp-connect-tile__chip">
+                        <v-icon :icon="playerIcon(p.entity_id)" size="24" />
+                      </span>
+                      <span class="mp-connect-tile__name">{{ p.state.attributes?.friendly_name ?? p.entity_id }}</span>
+                      <span v-if="activeEntityId === p.entity_id" class="mp-connect-tile__badge">
+                        <span class="mp-connect-tile__pulse" />
+                      </span>
+                    </button>
+                  </div>
+                </template>
+
+                <div v-if="!filteredSources.length && !filteredMATargets.length" class="mp-connect-empty">
+                  <v-icon icon="mdi-cast-off" size="34" />
+                  <span>{{ t('music.no_results') }}</span>
+                </div>
+                <div style="height: env(safe-area-inset-bottom);" />
               </div>
-              <v-list density="compact" nav bg-color="transparent">
-                <v-list-item
-                  v-for="p in maTransferTargets"
-                  :key="p.entity_id"
-                  :title="p.state.attributes?.friendly_name as string ?? p.entity_id"
-                  :active="activeEntityId === p.entity_id"
-                  :prepend-icon="playerIcon(p.entity_id)"
-                  color="primary"
-                  rounded="lg"
-                  @click="transferToMAPlayer(p.entity_id)"
-                />
-              </v-list>
-            </template>
+            </div>
           </v-card>
-        </v-menu>
+        </v-bottom-sheet>
 
         <!-- Volume: inline slider on desktop, popup on mobile -->
         <v-menu v-if="smAndDown" location="top" :close-on-content-click="false" offset="12">
@@ -800,7 +1025,13 @@
               size="16"
             />
           </button>
-          <div ref="volBarEl" class="mp-vol-track" style="touch-action:manipulation" @click="setVolFromClick">
+          <div
+            ref="volBarEl"
+            class="mp-vol-track"
+            :class="{ 'mp-vol-track--dragging': volDragging }"
+            style="touch-action:none"
+            @pointerdown="onVolPointerDown"
+          >
             <div class="mp-vol-fill" :style="{ width: Math.round((volume ?? 0) * 100) + '%' }" />
             <div class="mp-vol-thumb" :style="{ left: Math.round((volume ?? 0) * 100) + '%' }" />
           </div>
@@ -812,10 +1043,11 @@
 
 <script setup lang="ts">
 import { useDisplay } from 'vuetify'
+import { toast } from 'vue-sonner'
 import type { BrowseMediaNode, HAState } from '~/types/ha'
 import type { MAItem, MASearchResult } from '~/composables/useMAClient'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { smAndDown } = useDisplay()
 const client = useHAClient()
 const entityStore = useEntityStore()
@@ -852,27 +1084,8 @@ const allPlayers = computed(() => {
     })
 })
 
-type PlayerFilter = 'all' | 'spotify' | 'music_assistant'
-const playerFilter = ref<PlayerFilter>('all')
-
-const playerFilterOptions = computed(() => {
-  const platforms = new Set(allPlayers.value.map(p =>
-    p.entity_id.includes('spotify') ? 'spotify'
-      : entityStore.entityPlatformMap[p.entity_id] === 'music_assistant' ? 'music_assistant'
-        : 'other'
-  ))
-  return [
-    { key: 'all' as PlayerFilter, label: 'All', icon: 'mdi-speaker-multiple' },
-    ...(platforms.has('spotify') ? [{ key: 'spotify' as PlayerFilter, label: 'Spotify', icon: 'mdi-spotify' }] : []),
-    ...(platforms.has('music_assistant') ? [{ key: 'music_assistant' as PlayerFilter, label: 'MA', icon: 'mdi-music-circle' }] : []),
-  ]
-})
-
-const filteredPlayers = computed(() => {
-  if (playerFilter.value === 'all') return allPlayers.value
-  if (playerFilter.value === 'spotify') return allPlayers.value.filter(p => p.entity_id.includes('spotify'))
-  return allPlayers.value.filter(p => entityStore.entityPlatformMap[p.entity_id] === 'music_assistant')
-})
+const spotifyPlayers = computed(() => allPlayers.value.filter(p => p.entity_id.includes('spotify')))
+const maPlayers = computed(() => allPlayers.value.filter(p => entityStore.entityPlatformMap[p.entity_id] === 'music_assistant'))
 
 // Deduplicated MA players for the "Connect to a device" popup
 const maTransferTargets = computed(() => {
@@ -899,7 +1112,11 @@ watch(allPlayers, (players) => {
 
 // Remember the last explicitly chosen Spotify entity across player switches
 const lastSpotifyEntityId = useLocalStorage('ha-music-spotify-entity', '')
-watch(activeEntityId, (id) => { if (id.includes('spotify')) lastSpotifyEntityId.value = id })
+const lastMAEntityId = useLocalStorage('ha-music-ma-player-entity', '')
+watch(activeEntityId, (id) => {
+  if (id.includes('spotify')) lastSpotifyEntityId.value = id
+  else if (id) lastMAEntityId.value = id
+})
 
 // For library browsing: active Spotify > last used Spotify > first available Spotify
 const spotifyEntityId = computed(() => {
@@ -907,6 +1124,52 @@ const spotifyEntityId = computed(() => {
   if (lastSpotifyEntityId.value && allPlayers.value.some(p => p.entity_id === lastSpotifyEntityId.value)) return lastSpotifyEntityId.value
   return allPlayers.value.find(p => p.entity_id.includes('spotify'))?.entity_id ?? ''
 })
+
+// Active MA player: current if not Spotify, else last MA, else first MA
+const activeMAEntityId = computed(() => {
+  if (!activeEntityId.value.includes('spotify') && activeEntityId.value) return activeEntityId.value
+  if (lastMAEntityId.value && maPlayers.value.some(p => p.entity_id === lastMAEntityId.value)) return lastMAEntityId.value
+  return maPlayers.value[0]?.entity_id ?? ''
+})
+
+const spotifyAccountName = computed(() => {
+  const e = entityStore.entities[spotifyEntityId.value]
+  return (e?.attributes?.friendly_name as string | undefined) ?? 'Spotify'
+})
+const activeMAPlayerName = computed(() => {
+  const e = entityStore.entities[activeMAEntityId.value]
+  return (e?.attributes?.friendly_name as string | undefined) ?? activeMAEntityId.value
+})
+
+function selectSpotifyAccount(entityId: string) {
+  lastSpotifyEntityId.value = entityId
+  if (activeEntityId.value.includes('spotify')) activeEntityId.value = entityId
+}
+function selectMAPlayer(entityId: string) {
+  activeEntityId.value = entityId
+  view.value = 'home'
+}
+
+function playerFriendlyName(entityId: string): string {
+  return (entityStore.entities[entityId]?.attributes?.friendly_name as string | undefined) ?? entityId
+}
+function isPlayerPlaying(entityId: string): boolean {
+  return entityStore.entities[entityId]?.state === 'playing'
+}
+function playerNowPlaying(entityId: string): string {
+  const attrs = entityStore.entities[entityId]?.attributes
+  if (!attrs) return t('music.idle')
+  const title = attrs.media_title as string | undefined
+  const artist = attrs.media_artist as string | undefined
+  if (title && artist) return `${artist} – ${title}`
+  return title ?? t('music.idle')
+}
+function playerArt(entityId: string): string | undefined {
+  return entityStore.entities[entityId]?.attributes?.entity_picture as string | undefined
+}
+function playerSource(entityId: string): string | undefined {
+  return entityStore.entities[entityId]?.attributes?.source as string | undefined
+}
 
 const entity = computed(() => activeEntityId.value ? entityStore.entities[activeEntityId.value] : undefined)
 const currentPlayerName = computed(() => (entity.value?.attributes?.friendly_name as string | undefined) ?? activeEntityId.value)
@@ -927,13 +1190,31 @@ const duration = computed(() => (entity.value?.attributes?.media_duration as num
 const currentSource = computed(() => entity.value?.attributes?.source as string | undefined)
 const sourceList = computed(() => (entity.value?.attributes?.source_list as string[] | undefined) ?? [])
 
+// Connect-device bottom sheet
+const connectSheet = ref(false)
+const connectSearch = ref('')
+const filteredSources = computed(() => {
+  const q = connectSearch.value.trim().toLowerCase()
+  return sourceList.value.filter(s => s !== currentSource.value && (!q || s.toLowerCase().includes(q)))
+})
+const filteredMATargets = computed(() => {
+  const q = connectSearch.value.trim().toLowerCase()
+  return maTransferTargets.value.filter((p) => {
+    const name = (p.state.attributes?.friendly_name as string) ?? p.entity_id
+    return !q || name.toLowerCase().includes(q)
+  })
+})
+watch(connectSheet, (open) => { if (open) connectSearch.value = '' })
+
 async function selectSource(source: string) {
+  connectSheet.value = false
   await command('select_source', { source })
 }
 
 async function transferToMAPlayer(targetEntityId: string) {
   // Transfer current queue to a different MA player
   // First switch active entity, then resume play
+  connectSheet.value = false
   const wasPlaying = isPlaying.value
   activeEntityId.value = targetEntityId
   if (wasPlaying) {
@@ -1007,7 +1288,26 @@ watch(isPlaying, (playing) => {
   if (playing) posTimer = setInterval(() => tick.value++, 1000)
 }, { immediate: true })
 
-onUnmounted(() => { if (posTimer) clearInterval(posTimer) })
+// ── Status bar clock (no seconds) ──────────────────────────────
+const clockNow = ref(new Date())
+let clockTimer: ReturnType<typeof setInterval> | null = null
+
+const clockTime = computed(() =>
+  clockNow.value.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' }),
+)
+const clockDate = computed(() =>
+  clockNow.value.toLocaleDateString(locale.value, { weekday: 'short', day: '2-digit', month: '2-digit' }),
+)
+
+onMounted(() => {
+  clockNow.value = new Date()
+  clockTimer = setInterval(() => { clockNow.value = new Date() }, 10000)
+})
+
+onUnmounted(() => {
+  if (posTimer) clearInterval(posTimer)
+  if (clockTimer) clearInterval(clockTimer)
+})
 
 // ── Controls ───────────────────────────────────────────────────
 async function command(service: string, data?: Record<string, unknown>) {
@@ -1043,15 +1343,52 @@ function seekFromClick(e: MouseEvent) {
   command('media_seek', { seek_position: pct * duration.value })
 }
 
-function setVolFromClick(e: MouseEvent) {
-  if (!volBarEl.value) return
+// Volume drag (works with mouse + touch via pointer events)
+const volDragging = ref(false)
+let lastVolSent = 0
+let pendingVolPct: number | null = null
+let volTimer: ReturnType<typeof setTimeout> | null = null
+
+function volFromEvent(e: PointerEvent): number | null {
+  if (!volBarEl.value) return null
   const rect = volBarEl.value.getBoundingClientRect()
-  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+  return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+}
+
+function sendVol(pct: number, force = false) {
+  const now = Date.now()
+  if (!force && now - lastVolSent < 120) {
+    pendingVolPct = pct
+    if (!volTimer) volTimer = setTimeout(() => { volTimer = null; if (pendingVolPct != null) { const p = pendingVolPct; pendingVolPct = null; sendVol(p, true) } }, 120)
+    return
+  }
+  lastVolSent = now
+  pendingVolPct = null
   command('volume_set', { volume_level: pct })
 }
 
+function onVolPointerDown(e: PointerEvent) {
+  const pct = volFromEvent(e)
+  if (pct == null) return
+  volDragging.value = true
+  ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+  sendVol(pct, true)
+  const move = (ev: PointerEvent) => { const p = volFromEvent(ev); if (p != null) sendVol(p) }
+  const up = (ev: PointerEvent) => {
+    volDragging.value = false
+    const p = volFromEvent(ev)
+    if (p != null) sendVol(p, true)
+    window.removeEventListener('pointermove', move)
+    window.removeEventListener('pointerup', up)
+    window.removeEventListener('pointercancel', up)
+  }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', up)
+  window.addEventListener('pointercancel', up)
+}
+
 // ── Navigation ─────────────────────────────────────────────────
-type View = 'home' | 'playlist' | 'search' | 'section'
+type View = 'home' | 'playlist' | 'search' | 'section' | 'radio' | 'players'
 const view = ref<View>('home')
 const sidebarOpen = ref(false)
 const mainEl = ref<HTMLElement | null>(null)
@@ -1120,6 +1457,15 @@ function goSearch() {
   sidebarOpen.value = false
   nextTick(() => searchInputEl.value?.focus())
 }
+function goRadio() {
+  view.value = 'radio'
+  sidebarOpen.value = false
+  if (!radioItems.value.length && !radioLoading.value) loadRadio()
+}
+function goPlayers() {
+  view.value = 'players'
+  sidebarOpen.value = false
+}
 function openSectionView(data: SectionViewData) {
   activeSectionData.value = data
   view.value = 'section'
@@ -1137,25 +1483,9 @@ interface LibraryItem {
   maItem?: MAItem
 }
 
-type LibraryFilter = 'all' | 'spotify' | 'music_assistant'
-const libraryFilter = ref<LibraryFilter>('all')
 const libraryLoading = ref(false)
 const allLibraryItems = ref<LibraryItem[]>([])
-
-const availableFilters = computed(() => {
-  const sources = new Set(allLibraryItems.value.map(i => i.source))
-  return [
-    { key: 'all' as LibraryFilter, label: 'All' },
-    ...(sources.has('spotify') ? [{ key: 'spotify' as LibraryFilter, label: 'Spotify' }] : []),
-    ...(sources.has('music_assistant') ? [{ key: 'music_assistant' as LibraryFilter, label: 'MA' }] : []),
-  ]
-})
-
-const libraryItems = computed(() =>
-  libraryFilter.value === 'all'
-    ? allLibraryItems.value
-    : allLibraryItems.value.filter(i => i.source === libraryFilter.value)
-)
+const libraryItems = computed(() => allLibraryItems.value)
 
 const librarySections = ref<Array<{ key: string; label: string; items: BrowseMediaNode[] }>>([])
 
@@ -1198,6 +1528,7 @@ async function browseSpotify(entityId: string, contentType?: string, contentId?:
 async function loadLibrary() {
   libraryLoading.value = true
   const items: LibraryItem[] = []
+  let maPlaylists: MAItem[] = []
 
   await Promise.allSettled([
     // Spotify playlists — always browse via the Spotify entity, not the active playback entity
@@ -1224,27 +1555,56 @@ async function loadLibrary() {
       librarySections.value = sections.filter(s => s.items.length)
     })(),
 
-    // Music Assistant playlists
+    // Music Assistant playlists — collect separately, annotate after both complete
     (async () => {
       if (!isAvailable.value) return
-      const maPlaylists = await getLibraryItems('playlist')
-      for (const p of maPlaylists) {
-        if (!items.find(i => i.title === p.name)) {
-          items.push({ id: `ma:${p.item_id}`, title: p.name, thumbnail: maImageUrl(p), source: 'music_assistant', maItem: p })
-        }
-      }
+      maPlaylists = await getLibraryItems('playlist')
     })(),
   ])
 
+  // Annotate Spotify items with their MA equivalent (same title = synced playlist),
+  // or add MA-only playlists that Spotify doesn't have.
+  for (const p of maPlaylists) {
+    const existing = items.find(i => i.title === p.name)
+    if (existing) {
+      existing.maItem = p  // attach MA playlist so we can use its URI for track operations
+    } else {
+      items.push({ id: `ma:${p.item_id}`, title: p.name, thumbnail: maImageUrl(p), source: 'music_assistant', maItem: p })
+    }
+  }
+
   allLibraryItems.value = items
+
+  // If a playlist is currently open, refresh its reference so maItem annotation stays current
+  if (activePlaylist.value) {
+    const refreshed = items.find(i => i.id === activePlaylist.value?.id)
+    if (refreshed) activePlaylist.value = refreshed
+  }
+
   libraryLoading.value = false
 }
 
 const quickItems = computed(() => allLibraryItems.value.filter(i => i.source === 'spotify').slice(0, 6))
 
-// Reload library when Spotify player becomes available, not when playback entity changes
-watch(spotifyEntityId, (id) => { if (id) loadLibrary() }, { immediate: true })
-watch(isAvailable, (v) => { if (v) loadLibrary() })
+// Reactively resolve the MA playlist for the currently open playlist.
+// Checks direct maItem first, then falls back to title-matching in allLibraryItems.
+// This stays up-to-date when the library reloads after MA becomes available.
+const activePlaylistMaItem = computed<MAItem | null>(() => {
+  if (!activePlaylist.value) return null
+  if (activePlaylist.value.maItem) return activePlaylist.value.maItem
+  const title = activePlaylist.value.title
+  return allLibraryItems.value.find(i => i.maItem && i.title.trim().toLowerCase() === title.trim().toLowerCase())?.maItem ?? null
+})
+
+// Reload library when Spotify player becomes available, not when playback entity changes.
+// Debounce to avoid concurrent calls when both watchers fire at startup.
+let _libraryLoadTimer: ReturnType<typeof setTimeout> | null = null
+function scheduleLoadLibrary() {
+  if (_libraryLoadTimer) clearTimeout(_libraryLoadTimer)
+  _libraryLoadTimer = setTimeout(() => { _libraryLoadTimer = null; loadLibrary() }, 80)
+}
+watch(spotifyEntityId, (id) => { if (id) scheduleLoadLibrary() }, { immediate: true })
+watch(isAvailable, (v) => { if (v) scheduleLoadLibrary() })
 
 // ── Playlist view ──────────────────────────────────────────────
 const activePlaylist = ref<LibraryItem | null>(null)
@@ -1444,6 +1804,101 @@ async function playMAItem(item: MAItem) {
 
 // ── MA recently played ─────────────────────────────────────────
 const recentItems = ref<MAItem[]>([])
+
+// ── MA radio stations ──────────────────────────────────────────
+const radioItems = ref<MAItem[]>([])
+const radioLoading = ref(false)
+
+async function loadRadio() {
+  if (!isAvailable.value) return
+  radioLoading.value = true
+  try {
+    radioItems.value = await getLibraryItems('radio', 200)
+  } catch { /* ignore */ }
+  finally { radioLoading.value = false }
+}
+
+// ── Start Radio ────────────────────────────────────────────────
+async function startRadioFromMAItem(item: MAItem) {
+  if (!activeEntityId.value) return
+  playingItemId.value = item.uri
+  try {
+    await client.callService({
+      domain: 'music_assistant',
+      service: 'play_media',
+      target: { entity_id: activeEntityId.value },
+      service_data: { media_id: item.uri, media_type: item.media_type, radio_mode: true, enqueue: 'replace' },
+    })
+  } finally { playingItemId.value = null }
+}
+
+async function startRadioFromBrowseItem(item: BrowseMediaNode) {
+  if (!activeEntityId.value) return
+  playingItemId.value = item.media_content_id
+  try {
+    await client.callService({
+      domain: 'music_assistant',
+      service: 'play_media',
+      target: { entity_id: activeEntityId.value },
+      service_data: { media_id: item.media_content_id, media_type: item.media_content_type, radio_mode: true, enqueue: 'replace' },
+    })
+  } finally { playingItemId.value = null }
+}
+
+// ── Add to playlist ────────────────────────────────────────────
+const showAddToPlaylist = ref(false)
+const addToPlaylistTarget = ref<MAItem | BrowseMediaNode | null>(null)
+const addedToPlaylistId = ref<string | null>(null)
+
+const maLibraryPlaylists = computed(() =>
+  allLibraryItems.value.filter(i => i.source === 'music_assistant')
+)
+
+function openAddToPlaylist(item: MAItem | BrowseMediaNode) {
+  addToPlaylistTarget.value = item
+  addedToPlaylistId.value = null
+  showAddToPlaylist.value = true
+}
+
+async function confirmAddToPlaylist(playlist: LibraryItem) {
+  const target = addToPlaylistTarget.value
+  if (!target || !playlist.maItem?.uri) return
+  const trackUri = 'uri' in target ? target.uri : target.media_content_id
+  try {
+    await $fetch('/api/ma/playlist-track', {
+      method: 'POST',
+      body: { action: 'add', playlist_uri: playlist.maItem.uri, track_uri: trackUri },
+    })
+    addedToPlaylistId.value = playlist.id
+    setTimeout(() => { showAddToPlaylist.value = false }, 900)
+  } catch { /* ignore */ }
+}
+
+async function removeFromCurrentPlaylist(track: BrowseMediaNode, position: number) {
+  const maItem = activePlaylistMaItem.value
+  if (!maItem) return
+  tracks.value = tracks.value.filter(t => t.media_content_id !== track.media_content_id)
+  try {
+    await $fetch('/api/ma/playlist-track', {
+      method: 'POST',
+      body: { action: 'remove', playlist_uri: maItem.uri, position },
+    })
+  } catch {
+    toast.error(t('music.remove_from_playlist_error'))
+    tracks.value = [...tracks.value, track]
+  }
+}
+
+function isRadioPlaying(station: MAItem): boolean {
+  if (!isPlaying.value) return false
+  const contentId = entity.value?.attributes?.media_content_id as string | undefined
+  if (contentId) {
+    const norm = (s: string) => s.split(/[:/]/).filter(Boolean).pop() ?? s
+    if (norm(station.uri) === norm(contentId)) return true
+  }
+  if (title.value && station.name.toLowerCase() === title.value.toLowerCase()) return true
+  return false
+}
 
 // ── Search ─────────────────────────────────────────────────────
 const searchQuery = ref('')
@@ -1714,22 +2169,30 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   z-index: 10;
 }
 .mp-back-btn { color: var(--mp-muted) !important; }
+.mp-topbar-chips {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
 .mp-device-chip {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
   color: var(--mp-muted);
-  flex: 1;
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 20px;
   transition: background 0.12s, color 0.12s;
-  max-width: 240px;
+  max-width: 180px;
+  min-width: 0;
 }
 .mp-device-chip:hover { background: var(--mp-surface); color: var(--mp-text); }
+.mp-device-chip--spotify:hover { color: #1db954; }
 .mp-device-chip__source {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1741,6 +2204,25 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.mp-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+  padding-right: 4px;
+  user-select: none;
+}
+.mp-clock__time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mp-text);
+  font-variant-numeric: tabular-nums;
+}
+.mp-clock__date {
+  font-size: 10px;
+  color: var(--mp-muted);
+  text-transform: capitalize;
 }
 .mp-sidebar-toggle {
   background: none;
@@ -1794,7 +2276,6 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
 
 /* Covers-only sidebar mode */
 .mp-sidebar--covers .mp-nav { display: none; }
-.mp-sidebar--covers .mp-lib-filters { display: none; }
 .mp-sidebar--covers .mp-lib-item__text { display: none; }
 .mp-sidebar--covers .mp-lib-item { padding: 3px; justify-content: center; }
 .mp-sidebar--covers .mp-library { padding: 6px 4px; gap: 4px; }
@@ -1877,60 +2358,6 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
 }
 .mp-lib-empty { font-size: 12px; color: var(--mp-muted); padding: 12px; text-align: center; }
 
-/* Player filter badges (inside device menu) */
-.mp-player-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.mp-player-filter {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: none;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  transition: background 0.1s, color 0.1s, border-color 0.1s;
-}
-.mp-player-filter:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
-.mp-player-filter.active {
-  background: rgb(var(--v-theme-primary) / 0.15);
-  border-color: rgb(var(--v-theme-primary) / 0.45);
-  color: rgb(var(--v-theme-primary));
-}
-
-/* Library filter badges */
-.mp-lib-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 4px 8px 8px;
-}
-.mp-lib-filter {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--mp-border);
-  background: none;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--mp-muted);
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-.mp-lib-filter:hover { background: var(--mp-surface); color: var(--mp-text); }
-.mp-lib-filter.active {
-  background: rgb(var(--v-theme-primary) / 0.15);
-  border-color: rgb(var(--v-theme-primary) / 0.5);
-  color: rgb(var(--v-theme-primary));
-}
 
 /* Source dot on playlist art */
 .mp-lib-item__art--spotify { box-shadow: inset 0 0 0 2px rgba(30,215,96,0.3); }
@@ -2149,6 +2576,7 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   justify-content: center;
 }
 .mp-list-item__art--circle { border-radius: 50%; }
+.mp-list-item__art--radio { border-radius: 8px; }
 .mp-list-item__art img { width: 100%; height: 100%; object-fit: cover; }
 .mp-list-item__info { flex: 1; min-width: 0; }
 .mp-list-item__title { font-size: 14px; font-weight: 600; color: var(--mp-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2563,13 +2991,285 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   justify-content: flex-end;
 }
 .mp-ctrl--connect { margin-right: 4px; }
-.mp-connect-current {
+/* ── Connect-device bottom sheet ────────────────────────────── */
+.mp-connect-sheet-wrap {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+}
+.mp-connect-sheet {
+  position: relative;
+  background: linear-gradient(180deg, #16161f 0%, #0e0e15 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px 24px 0 0 !important;
+  padding: 0 0 10px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -10px 70px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 700px) {
+  .mp-connect-sheet {
+    border-radius: 24px !important;
+    margin-bottom: 16px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
+}
+/* Atmospheric accent glow bleeding from the top edge */
+.mp-connect-sheet__glow {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 620px;
+  height: 280px;
+  background: radial-gradient(ellipse at center, rgba(var(--v-theme-primary), 0.22), transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+.mp-connect-sheet__grip {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 11px auto 2px;
+  flex-shrink: 0;
+}
+.mp-connect-sheet__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.mp-connect-sheet__head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 13px;
+  padding: 14px 22px 16px;
+  flex-shrink: 0;
 }
-.mp-connect-current__name { font-size: 13px; font-weight: 600; color: #e2e8f0; }
-.mp-connect-current__label { font-size: 11px; color: rgb(var(--v-theme-primary)); }
+.mp-connect-sheet__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.14);
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.28);
+}
+.mp-connect-sheet__titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mp-connect-sheet__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mp-text);
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+}
+.mp-connect-sheet__sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mp-muted);
+  text-transform: lowercase;
+}
+.mp-connect-sheet__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--mp-muted);
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.mp-connect-sheet__close:hover { background: rgba(255, 255, 255, 0.12); color: var(--mp-text); transform: rotate(90deg); }
+.mp-connect-sheet__search {
+  margin: 0 22px 4px;
+  flex-shrink: 0;
+}
+.mp-connect-sheet__search :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.045) !important;
+  box-shadow: inset 0 0 0 1px var(--mp-border);
+  border-radius: 13px;
+}
+.mp-connect-sheet__search :deep(.v-field--focused) {
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.5);
+}
+.mp-connect-sheet__scroll {
+  overflow-y: auto;
+  padding: 12px 22px 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+.mp-connect-sheet__scroll::-webkit-scrollbar { width: 8px; }
+.mp-connect-sheet__scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
+
+/* Current device card */
+.mp-connect-now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  background:
+    linear-gradient(120deg, rgba(var(--v-theme-primary), 0.16), rgba(var(--v-theme-primary), 0.04));
+  border: 1px solid rgba(var(--v-theme-primary), 0.32);
+  box-shadow: 0 8px 28px rgba(var(--v-theme-primary), 0.1);
+}
+.mp-connect-now__chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  color: #fff;
+  background: rgb(var(--v-theme-primary));
+  box-shadow: 0 6px 18px rgba(var(--v-theme-primary), 0.45);
+}
+.mp-connect-now__txt { min-width: 0; flex: 1; }
+.mp-connect-now__name { font-size: 15px; font-weight: 700; color: var(--mp-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
+.mp-connect-now__label { font-size: 11.5px; font-weight: 600; color: rgb(var(--v-theme-primary)); text-transform: uppercase; letter-spacing: 0.05em; }
+.mp-connect-now__eq { height: 18px; flex-shrink: 0; width: 26px; margin: 0; }
+
+/* Group divider header */
+.mp-connect-grouphdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--mp-muted);
+  text-transform: uppercase;
+  margin: 6px 2px 14px;
+}
+.mp-connect-grouphdr__line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--mp-border), transparent); }
+
+/* Device grid + tiles */
+.mp-connect-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.mp-connect-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  text-align: center;
+  min-height: 116px;
+  padding: 18px 10px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--mp-border);
+  color: var(--mp-text);
+  overflow: hidden;
+  transition: background 0.18s, border-color 0.18s, transform 0.14s ease, box-shadow 0.18s;
+  animation: mp-tile-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--d, 0) * 22ms);
+}
+.mp-connect-tile:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+}
+.mp-connect-tile:active { transform: translateY(-1px) scale(0.97); }
+.mp-connect-tile__chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  flex-shrink: 0;
+  color: var(--mp-text);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.mp-connect-tile:hover .mp-connect-tile__chip {
+  background: rgba(var(--v-theme-primary), 0.16);
+  color: rgb(var(--v-theme-primary));
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.3);
+}
+.mp-connect-tile__name {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--mp-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Active (currently selected) tile */
+.mp-connect-tile--active {
+  border-color: rgba(var(--v-theme-primary), 0.55);
+  background: rgba(var(--v-theme-primary), 0.1);
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.35), 0 10px 28px rgba(var(--v-theme-primary), 0.18);
+}
+.mp-connect-tile--active .mp-connect-tile__chip {
+  background: rgb(var(--v-theme-primary));
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(var(--v-theme-primary), 0.45);
+}
+.mp-connect-tile--active .mp-connect-tile__name { color: rgb(var(--v-theme-primary)); }
+.mp-connect-tile__badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 9px;
+  height: 9px;
+}
+.mp-connect-tile__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgb(var(--v-theme-primary));
+  box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0.6);
+  animation: mp-connect-pulse 1.8s ease-out infinite;
+}
+@keyframes mp-connect-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0.55); }
+  70% { box-shadow: 0 0 0 7px rgba(var(--v-theme-primary), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0); }
+}
+@keyframes mp-tile-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.mp-connect-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--mp-muted);
+  font-size: 13.5px;
+  padding: 46px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-connect-tile { animation: none; }
+  .mp-connect-tile__pulse { animation: none; }
+}
 .mp-vol-icon {
   background: none;
   border: none;
@@ -2587,14 +3287,23 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   border-radius: 2px;
   position: relative;
   cursor: pointer;
+  touch-action: none;
 }
-.mp-vol-track:hover .mp-vol-thumb { opacity: 1; }
+/* Enlarged invisible hit area so the thin track is easy to grab (esp. touch) */
+.mp-vol-track::before {
+  content: '';
+  position: absolute;
+  inset: -12px 0;
+}
+.mp-vol-track:hover .mp-vol-thumb,
+.mp-vol-track--dragging .mp-vol-thumb { opacity: 1; }
 .mp-vol-fill {
   height: 100%;
   background: var(--mp-text);
   border-radius: 2px;
 }
-.mp-vol-track:hover .mp-vol-fill { background: rgb(var(--v-theme-primary)); }
+.mp-vol-track:hover .mp-vol-fill,
+.mp-vol-track--dragging .mp-vol-fill { background: rgb(var(--v-theme-primary)); }
 .mp-vol-thumb {
   position: absolute;
   top: 50%;
@@ -2605,6 +3314,13 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   background: var(--mp-text);
   opacity: 0;
   transition: opacity 0.15s;
+  pointer-events: none;
+}
+/* Touch devices: always show a larger thumb, no hover to rely on */
+@media (pointer: coarse) {
+  .mp-vol-track { height: 6px; }
+  .mp-vol-thumb { opacity: 1; width: 16px; height: 16px; }
+  .mp-vol-track::before { inset: -16px 0; }
 }
 
 /* ── Lyrics panel ───────────────────────────────────────────── */
@@ -2927,5 +3643,316 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   .mp-quick-item, .mp-card, .mp-ctrl, .mp-play-btn { transition: background 0.1s, color 0.1s; transform: none !important; }
   .mp-lyrics-slide-enter-active, .mp-lyrics-slide-leave-active { transition: opacity 0.15s; }
   .mp-progress__track { transition: none; }
+}
+
+/* ── Add to playlist dialog ─────────────────────────────────────── */
+.mp-atp-art {
+  width: 36px;
+  height: 36px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--mp-surface-hov);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.mp-atp-art img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Radio redesign ─────────────────────────────────────────────── */
+.mp-radio-hdr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 24px 12px;
+  flex-shrink: 0;
+}
+.mp-radio-hdr__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.mp-radio-hdr__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(var(--v-theme-primary), 0.14);
+  color: rgb(var(--v-theme-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-radio-hdr__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mp-text);
+  letter-spacing: -0.25px;
+}
+.mp-radio-hdr__count {
+  background: var(--mp-surface);
+  color: var(--mp-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--mp-border);
+}
+.mp-radio-wave {
+  flex: 1;
+  height: 20px;
+  color: rgba(var(--v-theme-primary), 0.2);
+  min-width: 0;
+}
+
+.mp-radio-grid {
+  padding: 12px 20px 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* Players view */
+.mp-players-section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 20px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mp-muted);
+  text-transform: uppercase;
+}
+.mp-players-grid {
+  padding: 0 20px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.mp-player-card {
+  position: relative;
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.16s ease-out, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.mp-player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-color: rgba(var(--v-theme-primary), 0.3);
+}
+.mp-player-card--active {
+  border-color: rgba(var(--v-theme-primary), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.35), 0 6px 24px rgba(var(--v-theme-primary), 0.15);
+}
+.mp-player-card--playing {
+  border-color: rgba(var(--v-theme-primary), 0.55);
+}
+.mp-player-card__art-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.12;
+  filter: blur(8px);
+  transform: scale(1.1);
+  pointer-events: none;
+}
+.mp-player-card__icon {
+  color: rgb(var(--v-theme-primary));
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+.mp-player-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mp-text);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mp-player-card--active .mp-player-card__name { color: rgb(var(--v-theme-primary)); }
+.mp-player-card__sub {
+  font-size: 10px;
+  color: var(--mp-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.mp-player-card__source {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: rgb(var(--v-theme-primary) / 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.mp-radio-card {
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  position: relative;
+  padding-top: 10px;
+}
+.mp-radio-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  border-color: rgba(var(--v-theme-primary), 0.35);
+}
+.mp-radio-card--on {
+  border-color: rgba(var(--v-theme-primary), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.35), 0 8px 28px rgba(var(--v-theme-primary), 0.18);
+}
+
+.mp-radio-card__art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--mp-surface-hov);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.mp-radio-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mp-radio-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+.mp-radio-card:hover .mp-radio-card__overlay { opacity: 1; }
+
+.mp-radio-card__play-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-primary), 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: transform 0.12s ease, background 0.12s;
+}
+.mp-radio-card:hover .mp-radio-card__play-btn { transform: scale(1.1); }
+
+.mp-radio-on-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(10, 10, 18, 0.82);
+  backdrop-filter: blur(6px);
+  padding: 3px 8px 3px 5px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.3);
+}
+.mp-radio-on-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4d4d;
+  flex-shrink: 0;
+  animation: mp-radio-blink 1.4s ease-in-out infinite;
+}
+@keyframes mp-radio-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.mp-radio-card__body {
+  padding: 10px 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.mp-radio-card__name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mp-text);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mp-radio-card--on .mp-radio-card__name { color: rgb(var(--v-theme-primary)); }
+.mp-radio-card__sub {
+  font-size: 10px;
+  color: var(--mp-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-radio-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  margin-top: 5px;
+}
+.mp-radio-eq__bar {
+  flex: 1;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 1px 1px 0 0;
+  transform-origin: bottom;
+  animation: mp-radio-eq 0.7s ease-in-out infinite alternate;
+}
+.mp-radio-eq__bar:nth-child(1) { animation-delay: 0s;    animation-duration: 0.65s; }
+.mp-radio-eq__bar:nth-child(2) { animation-delay: 0.18s; animation-duration: 0.80s; }
+.mp-radio-eq__bar:nth-child(3) { animation-delay: 0.05s; animation-duration: 0.55s; }
+.mp-radio-eq__bar:nth-child(4) { animation-delay: 0.28s; animation-duration: 0.72s; }
+.mp-radio-eq__bar:nth-child(5) { animation-delay: 0.12s; animation-duration: 0.62s; }
+@keyframes mp-radio-eq {
+  from { height: 2px; opacity: 0.5; }
+  to   { height: 13px; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-radio-card { transition: none; }
+  .mp-radio-on-dot { animation: none; }
+  .mp-radio-eq__bar { animation: none; height: 6px; }
 }
 </style>

@@ -24,7 +24,7 @@ export interface MAItem {
   media_type: string
   uri: string
   image?: { path: string; provider: string } | null
-  metadata?: { images?: MAItemImage[] } | null
+  metadata?: { images?: MAItemImage[]; description?: string } | null
   artists?: Array<{ name: string }>
   album?: { name: string }
   duration?: number
@@ -123,18 +123,28 @@ export async function maRecentlyPlayed(limit = 12): Promise<MAItem[]> {
   return Array.isArray(raw) ? raw as MAItem[] : []
 }
 
+const MA_TYPE_PLURAL: Record<string, string> = {
+  track: 'tracks', album: 'albums', artist: 'artists',
+  playlist: 'playlists', radio: 'radios',
+  audiobook: 'audiobooks', podcast: 'podcasts',
+}
+
 export async function maLibraryItems(mediaType: string, limit = 200): Promise<MAItem[]> {
-  // music/library_items is not supported in MA 2.8.x — use search with library_only instead
-  const raw = await maCall('music/search', {
-    search_query: '',
-    media_types: [mediaType],
-    limit,
-    library_only: true,
+  const plural = MA_TYPE_PLURAL[mediaType] ?? `${mediaType}s`
+  const raw = await maCall(`music/${plural}/library_items`, { limit }, 20_000)
+  return Array.isArray(raw) ? raw as MAItem[] : []
+}
+
+export async function maPlaylistTracks(db_id: string | number, page = 0): Promise<MAItem[]> {
+  const raw = await maCall('music/playlists/playlist_tracks', {
+    item_id: String(db_id),
+    provider_instance_id_or_domain: 'library',
+    page,
   }, 20_000)
-  const result = (raw && typeof raw === 'object' && !Array.isArray(raw))
-    ? raw as Record<string, MAItem[]>
-    : {}
-  // Result key is plural: playlist→playlists, track→tracks, etc.
-  const key = mediaType.endsWith('s') ? mediaType : `${mediaType}s`
-  return result[key] ?? []
+  return Array.isArray(raw) ? raw as MAItem[] : []
+}
+
+export async function maRecommendations(): Promise<MAItem[]> {
+  const raw = await maCall('music/recommendations', {}, 15_000)
+  return Array.isArray(raw) ? raw as MAItem[] : []
 }

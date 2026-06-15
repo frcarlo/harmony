@@ -419,6 +419,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
     defaults: {
       VCard: { rounded: 'lg' },
+      VDialog: { transition: 'dialog-bottom-transition' },
       VBtn: { rounded: 'md', style: 'text-transform: none; letter-spacing: normal;' },
       VTextField: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
       VSelect: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
