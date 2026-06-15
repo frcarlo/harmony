@@ -107,7 +107,7 @@ onMounted(() => {
   position: relative;
   justify-content: flex-start;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.16s ease-out;
 }
 .button-card__header {
   flex-shrink: 0;
@@ -122,12 +122,14 @@ onMounted(() => {
   letter-spacing: 0.025em;
 }
 
-.button-card:hover {
-  background: rgba(var(--v-theme-on-surface), 0.035);
+@media (hover: hover) and (pointer: fine) {
+  .button-card:hover {
+    background: rgba(var(--v-theme-on-surface), 0.035);
+  }
 }
 
 .button-card:active {
-  transform: scale(0.99);
+  transform: scale(0.97);
 }
 
 .button-card[aria-disabled="true"] {
@@ -146,7 +148,6 @@ onMounted(() => {
   background: rgba(var(--v-theme-primary), 0.14);
   border: 1px solid rgba(var(--v-theme-primary), 0.22);
   box-shadow: 0 8px 18px rgba(var(--v-theme-primary), 0.1);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .button-card__state-chip {

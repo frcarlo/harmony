@@ -148,7 +148,7 @@ watch(() => [props.config.sensor_entity_id, props.config.show_sensor_trend] as c
   background: radial-gradient(ellipse 80% 70% at 92% 12%, rgba(var(--v-theme-success), 0) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
-  transition: background 0.6s ease;
+  transition: background 0.4s ease;
 }
 .switch-card--on .switch-card__ambient {
   background: radial-gradient(ellipse 80% 70% at 92% 12%, rgba(var(--v-theme-success), 0.09) 0%, transparent 70%);
@@ -180,17 +180,19 @@ watch(() => [props.config.sensor_entity_id, props.config.show_sensor_trend] as c
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   background: rgba(var(--v-theme-on-surface), 0.055);
   cursor: pointer;
-  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease-out, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.switch-card__toggle:hover {
-  background: rgba(var(--v-theme-on-surface), 0.08);
-  border-color: rgba(var(--v-theme-primary), 0.18);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+@media (hover: hover) and (pointer: fine) {
+  .switch-card__toggle:hover {
+    background: rgba(var(--v-theme-on-surface), 0.08);
+    border-color: rgba(var(--v-theme-primary), 0.18);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  }
 }
 
 .switch-card__toggle:active {
-  transform: scale(0.99);
+  transform: scale(0.97);
 }
 
 .switch-card__toggle:disabled {

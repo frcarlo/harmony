@@ -502,7 +502,7 @@ const cardStyle = computed(() => {
 
 <style scoped>
 .widget-card {
-  transition: background 0.5s ease, background-color 0.5s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .ring-selected {
