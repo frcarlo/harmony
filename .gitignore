@@ -2,6 +2,8 @@
 .env
 nuxt/.env
 compose.yml
+.vscode/mcp.json
+*.bak-token
 
 # Nuxt build artifacts
 nuxt/node_modules/
