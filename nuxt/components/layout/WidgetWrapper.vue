@@ -5,8 +5,12 @@
     'widget-glass': glassEnabled && !appearance.bg_color && !hasActiveBackground,
     'widget-glass-blur': glassEnabled && !!appearance.bg_color && !hasActiveBackground,
   }"
+    :role="hasGenericActions && !editMode ? 'button' : undefined"
+    :tabindex="hasGenericActions && !editMode ? 0 : undefined"
+    :aria-label="hasGenericActions && !editMode ? genericActionLabel : undefined"
     @click.capture="handleGenericClick"
     @dblclick.capture="handleGenericDoubleClick"
+    @keydown="handleGenericKeydown"
     @mousedown.capture="startHold"
     @mouseup.capture="cancelHold"
     @mouseleave.capture="cancelHold"
@@ -308,7 +312,7 @@ function normalizeGenericAction(value: unknown): GenericWidgetAction {
 function shouldIgnoreGenericAction(event: Event) {
   const target = event.target
   if (!(target instanceof Element)) return false
-  return !!target.closest([
+  const match = target.closest([
     '[data-no-widget-action]',
     'button',
     'a',
@@ -323,6 +327,9 @@ function shouldIgnoreGenericAction(event: Event) {
     '.v-switch',
     '.v-selection-control',
   ].join(','))
+  // The wrapper card itself may now carry role="button" for keyboard access;
+  // matching only the card root must NOT count as an inner interactive element.
+  return !!match && match !== event.currentTarget
 }
 
 function genericActionConfig(kind: 'click' | 'double_click') {
@@ -404,6 +411,22 @@ function handleGenericDoubleClick(event: MouseEvent) {
   if (genericClickTimer) { clearTimeout(genericClickTimer); genericClickTimer = null }
   runGenericAction(genericDoubleClickAction.value, 'double_click')
 }
+
+function handleGenericKeydown(event: KeyboardEvent) {
+  if (props.editMode || !hasGenericActions.value) return
+  if (event.key !== 'Enter' && event.key !== ' ') return
+  // Let inner interactive elements (buttons, switches) handle their own keys
+  if (shouldIgnoreGenericAction(event)) return
+  event.preventDefault()
+  event.stopPropagation()
+  const usesClick = genericClickAction.value !== 'none'
+  runGenericAction(usesClick ? genericClickAction.value : genericDoubleClickAction.value, usesClick ? 'click' : 'double_click')
+}
+
+const genericActionLabel = computed(() => {
+  const fn = entityId.value ? (entityStore.entities[entityId.value]?.attributes?.friendly_name as string | undefined) : undefined
+  return fn ?? (widgetConfig.value.name as string | undefined) ?? props.widget.type
+})
 
 function startHold(event: MouseEvent | TouchEvent) {
   if (!props.quickEdit || props.editMode || shouldIgnoreGenericAction(event)) return
@@ -508,6 +531,11 @@ const cardStyle = computed(() => {
 .ring-selected {
   outline: 2px solid rgb(var(--v-theme-primary));
   outline-offset: 0;
+}
+
+.widget-card:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
 }
 
 .widget-entity-warning {

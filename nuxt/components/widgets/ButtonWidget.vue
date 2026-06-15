@@ -132,6 +132,12 @@ onMounted(() => {
   transform: scale(0.97);
 }
 
+.button-card:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
 .button-card[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.62;
@@ -173,5 +179,12 @@ onMounted(() => {
   50% {
     transform: scale(1.05);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-card { transition: none; }
+  .button-card:active { transform: none; }
+  .button-card__state-chip { transition: none; }
+  .button-card--pending .button-card__icon-wrap { animation: none; }
 }
 </style>

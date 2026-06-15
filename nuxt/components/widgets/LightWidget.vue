@@ -34,7 +34,7 @@
       class="light-controls"
       @click.stop @dblclick.stop @mousedown.stop @touchstart.passive.stop
     >
-      <UiSwitch :checked="isOn" :disabled="isUnavailable" @change="toggle" />
+      <UiSwitch :checked="isOn" :disabled="isUnavailable" :label="name" @change="toggle" />
       <v-slider
         v-if="showBrightness"
         :model-value="brightnessPercent"

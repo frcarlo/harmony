@@ -18,21 +18,35 @@
           rounded="pill"
           variant="tonal"
           class="switch-card__state-chip"
-          :color="isUnavailable ? undefined : (isOn ? 'success' : 'medium-emphasis')"
+          :color="isUnavailable ? undefined : (isOn ? 'success' : undefined)"
         >
           {{ isUnavailable ? 'N/A' : isOn ? t('common.on') : t('common.off') }}
         </v-chip>
       </div>
     </div>
 
-    <button class="switch-card__toggle" type="button" :disabled="isUnavailable" @click="toggle">
+    <button
+      class="switch-card__toggle"
+      type="button"
+      role="switch"
+      :aria-checked="isOn"
+      :aria-label="name"
+      :disabled="isUnavailable"
+      @click="toggle"
+    >
       <div class="switch-card__toggle-copy">
         <span class="text-body-2 font-weight-medium">{{ isOn ? t('switch.turn_off') : t('switch.turn_on') }}</span>
         <span class="text-caption text-medium-emphasis">
           {{ t('switch.tap_to_toggle') }}
         </span>
       </div>
-      <UiSwitch :checked="isOn" :disabled="isUnavailable" @change="toggle" />
+      <v-icon
+        class="switch-card__indicator"
+        aria-hidden="true"
+        :icon="isOn ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'"
+        :color="isOn ? 'primary' : undefined"
+        size="28"
+      />
     </button>
 
     <div v-if="showPowerTrend && trendPath" class="switch-card__trend-wrap">
@@ -236,7 +250,12 @@ watch(() => [props.config.sensor_entity_id, props.config.show_sensor_trend] as c
   fill: color-mix(in srgb, rgb(var(--v-theme-primary)) 14%, transparent);
 }
 
-.switch-card--pending .switch-card__icon-wrap {
+.switch-card__indicator {
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.switch-card--pending .switch-card__indicator {
   animation: switch-card-pulse 0.7s ease-in-out infinite;
 }
 
@@ -259,5 +278,14 @@ watch(() => [props.config.sensor_entity_id, props.config.show_sensor_trend] as c
   50% {
     transform: scale(1.05);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-card,
+  .switch-card__ambient,
+  .switch-card__toggle,
+  .switch-card__indicator { transition: none; }
+  .switch-card__toggle:active { transform: none; }
+  .switch-card--pending .switch-card__indicator { animation: none; }
 }
 </style>
