@@ -157,12 +157,14 @@
                   role="button"
                   tabindex="0"
                   @click="playMAItem(item)"
+                  @keydown.enter.prevent="playMAItem(item)"
+                  @keydown.space.prevent="playMAItem(item)"
                 >
                   <div class="mp-card__art" :class="{ 'mp-card__art--circle': item.media_type === 'artist' }">
                     <img v-if="maImageUrl(item)" :src="maImageUrl(item)" alt="" loading="lazy" />
                     <v-icon v-else icon="mdi-music" size="28" />
                     <div class="mp-card__overlay">
-                      <button class="mp-card__play-btn" @click.stop="playMAItem(item)">
+                      <button class="mp-card__play-btn" :aria-label="`${t('music.play')}: ${item.name}`" @click.stop="playMAItem(item)">
                         <v-progress-circular v-if="playingItemId === item.uri" indeterminate size="22" color="primary" />
                         <v-icon v-else icon="mdi-play" size="20" />
                       </button>
@@ -190,13 +192,15 @@
                   :class="{ 'mp-card--circle': section.key.includes('artist') }"
                   role="button"
                   tabindex="0"
-                  @click="item.media_class !== 'track' ? openPlaylist({ id: item.media_content_id, title: item.title, thumbnail: item.thumbnail ?? undefined, source: 'spotify', browseNode: item }) : playBrowseItem(item)"
+                  @click="onSpotifyCardActivate(item)"
+                  @keydown.enter.prevent="onSpotifyCardActivate(item)"
+                  @keydown.space.prevent="onSpotifyCardActivate(item)"
                 >
                   <div class="mp-card__art" :class="{ 'mp-card__art--circle': section.key.includes('artist') }">
                     <img v-if="item.thumbnail" :src="item.thumbnail" alt="" loading="lazy" />
                     <v-icon v-else icon="mdi-music" size="28" />
                     <div class="mp-card__overlay">
-                      <button class="mp-card__play-btn" @click.stop="playBrowseItem(item)">
+                      <button class="mp-card__play-btn" :aria-label="`${t('music.play')}: ${item.title}`" @click.stop="playBrowseItem(item)">
                         <v-progress-circular v-if="playingItemId === item.media_content_id" indeterminate size="22" color="primary" />
                         <v-icon v-else icon="mdi-play" size="20" />
                       </button>
@@ -817,31 +821,34 @@
       <div class="mp-player__center">
         <div class="mp-ctrl-row">
           <button
-            
             :class="{ 'mp-ctrl--on': shuffle }"
             :disabled="!hasPlayer"
             class="mp-ctrl mp-ctrl--shuffle"
-            title="Shuffle"
+            :title="t('music.shuffle')"
+            :aria-label="t('music.shuffle')"
+            :aria-pressed="!!shuffle"
             @click="toggleShuffle"
           >
             <v-icon icon="mdi-shuffle" size="16" />
           </button>
-          <button class="mp-ctrl" :disabled="!hasPlayer" @click="command('media_previous_track')">
+          <button class="mp-ctrl" :disabled="!hasPlayer" :title="t('music.previous_track')" :aria-label="t('music.previous_track')" @click="command('media_previous_track')">
             <v-icon icon="mdi-skip-previous" size="22" />
           </button>
           <button class="mp-ctrl mp-ctrl--play" :disabled="!hasPlayer"
-            :aria-label="isPlaying ? 'Pause' : 'Play'"
+            :aria-label="isPlaying ? t('music.pause') : t('music.play')"
             @click="command(isPlaying ? 'media_pause' : 'media_play')">
             <v-icon :icon="isPlaying ? 'mdi-pause' : 'mdi-play'" size="22" />
           </button>
-          <button class="mp-ctrl" :disabled="!hasPlayer" @click="command('media_next_track')">
+          <button class="mp-ctrl" :disabled="!hasPlayer" :title="t('music.next_track')" :aria-label="t('music.next_track')" @click="command('media_next_track')">
             <v-icon icon="mdi-skip-next" size="22" />
           </button>
           <button
             class="mp-ctrl mp-ctrl--repeat"
             :class="{ 'mp-ctrl--on': repeatMode !== 'off' }"
             :disabled="!hasPlayer"
-            title="Repeat"
+            :title="t('music.repeat')"
+            :aria-label="t('music.repeat')"
+            :aria-pressed="repeatMode !== 'off'"
             @click="cycleRepeat"
           >
             <v-icon :icon="repeatMode === 'one' ? 'mdi-repeat-once' : 'mdi-repeat'" size="16" />
@@ -864,6 +871,8 @@
           class="mp-ctrl"
           :class="{ 'mp-ctrl--on': showQueue }"
           :title="t('music.queue')"
+          :aria-label="t('music.queue')"
+          :aria-pressed="showQueue"
           @click="toggleQueue"
         >
           <v-icon icon="mdi-playlist-play" size="18" />
@@ -874,6 +883,8 @@
           class="mp-ctrl mp-ctrl--lyrics"
           :class="{ 'mp-ctrl--on': showLyrics }"
           :title="t('music.show_lyrics')"
+          :aria-label="t('music.show_lyrics')"
+          :aria-pressed="showLyrics"
           @click="showLyrics = !showLyrics; if (showLyrics) showQueue = false"
         >
           <v-icon icon="mdi-microphone-variant" size="16" />
@@ -884,6 +895,7 @@
           class="mp-ctrl mp-ctrl--connect"
           :class="{ 'mp-ctrl--on': currentSource }"
           :title="t('music.connect_device')"
+          :aria-label="t('music.connect_device')"
           @click="connectSheet = true"
         >
           <v-icon icon="mdi-cast-audio" size="18" />
@@ -994,7 +1006,7 @@
         <!-- Volume: inline slider on desktop, popup on mobile -->
         <v-menu v-if="smAndDown" location="top" :close-on-content-click="false" offset="12">
           <template #activator="{ props: vp }">
-            <button class="mp-vol-icon" v-bind="vp">
+            <button class="mp-vol-icon" :aria-label="t('music.volume')" v-bind="vp">
               <v-icon
                 :icon="(volume ?? 0) > 0.5 ? 'mdi-volume-high' : (volume ?? 0) > 0 ? 'mdi-volume-medium' : 'mdi-volume-off'"
                 size="18"
@@ -1019,7 +1031,7 @@
           </v-card>
         </v-menu>
         <template v-else>
-          <button class="mp-vol-icon" @click="toggleMute">
+          <button class="mp-vol-icon" :aria-label="t('music.mute')" @click="toggleMute">
             <v-icon
               :icon="(volume ?? 0) > 0.5 ? 'mdi-volume-high' : (volume ?? 0) > 0 ? 'mdi-volume-medium' : 'mdi-volume-off'"
               size="16"
@@ -1030,7 +1042,14 @@
             class="mp-vol-track"
             :class="{ 'mp-vol-track--dragging': volDragging }"
             style="touch-action:none"
+            role="slider"
+            tabindex="0"
+            :aria-label="t('music.volume')"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="Math.round((volume ?? 0) * 100)"
             @pointerdown="onVolPointerDown"
+            @keydown="onVolKeydown"
           >
             <div class="mp-vol-fill" :style="{ width: Math.round((volume ?? 0) * 100) + '%' }" />
             <div class="mp-vol-thumb" :style="{ left: Math.round((volume ?? 0) * 100) + '%' }" />
@@ -1385,6 +1404,18 @@ function onVolPointerDown(e: PointerEvent) {
   window.addEventListener('pointermove', move)
   window.addEventListener('pointerup', up)
   window.addEventListener('pointercancel', up)
+}
+
+function onVolKeydown(e: KeyboardEvent) {
+  const cur = volume.value ?? 0
+  let next: number | null = null
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = Math.min(1, cur + 0.05)
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = Math.max(0, cur - 0.05)
+  else if (e.key === 'Home') next = 0
+  else if (e.key === 'End') next = 1
+  if (next == null) return
+  e.preventDefault()
+  sendVol(Math.round(next * 100) / 100, true)
 }
 
 // ── Navigation ─────────────────────────────────────────────────
@@ -1754,6 +1785,14 @@ async function enqueueBrowseItem(item: BrowseMediaNode, mode: 'replace' | 'next'
     if (showQueue.value) setTimeout(fetchQueue, 800)
   } finally {
     playingItemId.value = null
+  }
+}
+
+function onSpotifyCardActivate(item: BrowseMediaNode) {
+  if (item.media_class !== 'track') {
+    openPlaylist({ id: item.media_content_id, title: item.title, thumbnail: item.thumbnail ?? undefined, source: 'spotify', browseNode: item })
+  } else {
+    playBrowseItem(item)
   }
 }
 
@@ -2631,10 +2670,67 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .mp-card:hover .mp-card__play-btn { transform: translateY(0); }
-.mp-card__play-btn:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.5); transform: scale(1.06) translateY(0); }
+.mp-card__play-btn:hover { box-shadow: 0 8px 22px rgba(var(--v-theme-primary), 0.55); transform: scale(1.06) translateY(0); }
 .mp-card__play-btn:active { transform: scale(0.94); }
 .mp-card__name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mp-card__sub { font-size: 11px; color: var(--mp-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Slow ken-burns zoom on cover art while hovering */
+.mp-card__art img { transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.mp-card:hover .mp-card__art img { transform: scale(1.07); }
+
+/* ── Artist (circular) cards — portrait as the hero ─────────── */
+.mp-card--circle,
+.mp-card--circle:hover { background: transparent; }
+.mp-card--circle .mp-card__art {
+  margin-bottom: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 0.32s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Accent ring + bloom (box-shadow isn't clipped by the circle's overflow) */
+.mp-card--circle:hover .mp-card__art {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 2px rgb(var(--v-theme-primary)),
+    0 0 0 7px rgba(var(--v-theme-primary), 0.16),
+    0 18px 40px rgba(var(--v-theme-primary), 0.3),
+    0 12px 30px rgba(0, 0, 0, 0.5);
+}
+/* Centered scrim + centered, scale-in play button */
+.mp-card--circle .mp-card__overlay {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.12) 72%);
+}
+.mp-card--circle .mp-card__play-btn {
+  width: 46px;
+  height: 46px;
+  transform: scale(0.5);
+  box-shadow: 0 6px 22px rgba(var(--v-theme-primary), 0.55);
+}
+.mp-card--circle:hover .mp-card__play-btn { transform: scale(1); }
+.mp-card--circle .mp-card__play-btn:hover { transform: scale(1.08); }
+.mp-card--circle .mp-card__play-btn:active { transform: scale(0.9); }
+/* Centered, refined labels */
+.mp-card--circle .mp-card__name {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.mp-card--circle .mp-card__sub {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mp-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-card__art img,
+  .mp-card:hover .mp-card__art img { transition: none; transform: none; }
+}
 
 /* ── Search ─────────────────────────────────────────────────── */
 .mp-search-bar {
@@ -2944,6 +3040,35 @@ watch(activeEntityId, () => { if (showQueue.value) fetchQueue() })
 }
 .mp-ctrl--play:hover:not(:disabled) { background: #2a2a42; }
 .mp-ctrl--play:active:not(:disabled) { transform: scale(0.92); }
+
+/* ── Accessibility: visible keyboard focus & touch targets ──── */
+.mp-card:focus-visible,
+.mp-ctrl:focus-visible,
+.mp-vol-icon:focus-visible,
+.mp-vol-track:focus-visible,
+.mp-connect-tile:focus-visible,
+.mp-connect-sheet__close:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
+.mp-card:focus-visible { border-radius: 10px; }
+.mp-card--circle:focus-visible { outline: none; }
+.mp-card--circle:focus-visible .mp-card__art {
+  box-shadow:
+    0 0 0 2px rgb(var(--v-theme-primary)),
+    0 0 0 6px rgba(var(--v-theme-primary), 0.25);
+}
+/* Comfortable 44px touch targets on coarse pointers (desktop stays compact) */
+@media (pointer: coarse) {
+  .mp-ctrl,
+  .mp-vol-icon { min-width: 44px; min-height: 44px; }
+  .mp-connect-sheet__close { width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-connect-sheet__close:hover { transform: none; }
+  .mp-ctrl:active:not(:disabled),
+  .mp-ctrl--play:active:not(:disabled) { transform: none; }
+}
 
 .mp-progress {
   width: 100%;
